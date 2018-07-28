@@ -432,16 +432,17 @@ register struct monst *mtmp;
             otmp = mksobj(LONG_SWORD, FALSE, FALSE);
 
             /* maybe make it special */
-            if (!rn2(20) || is_lord(ptr))
-                otmp = oname(otmp,
-                             artiname(rn2(2) ? ART_DEMONBANE : ART_SUNSWORD));
+            if (!rn2(20) || is_lord(ptr)) {
+                const int arti[3] = { ART_DEMONBANE, ART_SUNSWORD, ART_UNLIMITED_MOON };
+                otmp = oname(otmp, artiname(arti[rn2(3)]));
+            }
             bless(otmp);
             otmp->oerodeproof = TRUE;
             spe2 = rn2(4);
             otmp->spe = max(otmp->spe, spe2);
             (void) mpickobj(mtmp, otmp);
 
-            otmp = mksobj(!rn2(4) || is_lord(ptr) ? SHIELD_OF_REFLECTION
+            otmp = mksobj(!rn2(4) || is_lord(ptr) ? (rn2(2) ? SHIELD_OF_REFLECTION : SHIELD_OF_RESONANCE)
                                                   : LARGE_SHIELD,
                           FALSE, FALSE);
             otmp->cursed = FALSE;
