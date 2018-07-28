@@ -3,6 +3,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Edited on 4/23/18 by NullCGT */
+/* Edited on 7/28/18 by MS */
 
 #include "hack.h"
 
@@ -257,7 +258,7 @@ int expltype;
                         explmask[i][j] |= resists_acid(mtmp);
                         break;
                     case AD_LOUD:
-                        explmask[i][j] |= resists_acid(mtmp);
+                        explmask[i][j] |= resists_sonic(mtmp);
                         break;
                     case AD_PSYC:
                         explmask[i][j] |= resists_psychic(mtmp);
