@@ -70,6 +70,7 @@ Do not let your pet near a porcupine.
 Naming a spellbook of finger of death might let you summon a bonus boss.
 Cartomancers have a chance of reusing scrolls.
 Wands of wonder cannot grant wishes.
+Have a good JuneNethack! (Well, it'll be June eventually.)
 Dragonmasters cannot wear dragon scale mail.
 Dragonmasters can tame chromatic dragons.
 Amalgamations and bad clones are combinations of two monsters.
@@ -78,7 +79,7 @@ Looking up a monster or object will give you statistics about it.
 Floating eyes are a bit less common in the dungeon these days.
 Fire resistance only halves the damage from Mephisto's hellfire.
 Beware Buer! He has some of the highest damage output in the game.
-A tryst with Malcanthet ends poorly as often as not.
+Malcanthet isn't what she used to be.
 Wands of poison gas create poison gas when engraving.
 Meet a monster zapping a corrupted knife of poison gas? Please report this bug.
 SpliceHack supports curses! Try editing your config file.
