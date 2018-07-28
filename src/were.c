@@ -79,6 +79,7 @@ were_beastie(pm)
 int pm;
 {
     switch (pm) {
+    case PM_PACKRAT:
     case PM_WERERAT:
     case PM_SEWER_RAT:
     case PM_GIANT_RAT:
@@ -141,6 +142,7 @@ char *genbuf;
     int i, typ, pm = monsndx(ptr);
     struct monst *mtmp;
     int total = 0;
+    int cap;
 
     *visible = 0;
     if (Protection_from_shape_changers && !yours)
@@ -151,6 +153,9 @@ char *genbuf;
         case PM_HUMAN_WERERAT:
             typ = rn2(3) ? PM_SEWER_RAT
                          : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
+            if (cap = near_capacity())
+                if (rn2(5) < cap)
+                    typ = PM_PACKRAT;
             if (genbuf)
                 Strcpy(genbuf, "rat");
             break;
