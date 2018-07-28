@@ -320,11 +320,6 @@ boolean force;      /* Quietly force this animal */
     }
 
     /* Is this a valid monster? */
-    otmp = which_armor(mtmp, W_SADDLE);
-    if (!otmp) {
-        pline("%s is not saddled.", Monnam(mtmp));
-        return (FALSE);
-    }
     ptr = mtmp->data;
     if (touch_petrifies(ptr) && !Stone_resistance) {
         char kbuf[BUFSZ];
@@ -332,6 +327,11 @@ boolean force;      /* Quietly force this animal */
         You("touch %s.", mon_nam(mtmp));
         Sprintf(kbuf, "attempting to ride %s", an(mtmp->data->mname));
         instapetrify(kbuf);
+    }
+    otmp = which_armor(mtmp, W_SADDLE);
+    if (!otmp) {
+        pline("%s is not saddled.", Monnam(mtmp));
+        return (FALSE);
     }
     if (!mtmp->mtame || mtmp->isminion) {
         pline("I think %s would mind.", mon_nam(mtmp));
