@@ -1633,13 +1633,29 @@ int mmflags;
     }
     set_malign(mtmp); /* having finished peaceful changes */
     if (anymon) {
-        if ((ptr->geno & G_SGROUP) && rn2(2)) {
-            m_initsgrp(mtmp, mtmp->mx, mtmp->my);
-        } else if (ptr->geno & G_LGROUP) {
-            if (rn2(3))
-                m_initlgrp(mtmp, mtmp->mx, mtmp->my);
-            else
+        /* If loaded, packrats may generate in groups */
+        if (mndx == PM_PACKRAT) {
+            int cap;
+            if (cap = near_capacity()) {
+                if (rn2(7) < cap) {
+                    if (rn2(7) < cap) {
+                        m_initlgrp(mtmp, mtmp->mx, mtmp->my);
+                    } else {
+                        m_initsgrp(mtmp, mtmp->mx, mtmp->my);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ((ptr->geno & G_SGROUP) && rn2(2)) {
                 m_initsgrp(mtmp, mtmp->mx, mtmp->my);
+            } else if (ptr->geno & G_LGROUP) {
+                if (rn2(3))
+                    m_initlgrp(mtmp, mtmp->mx, mtmp->my);
+                else
+                    m_initsgrp(mtmp, mtmp->mx, mtmp->my);
+            }
         }
     }
 
@@ -1869,6 +1885,19 @@ rndmonst()
         impossible("rndmonst: bad `mndx' [#%d]", mndx);
         return (struct permonst *) 0;
     }
+
+    /* Add packrats if you are loaded - but only as a replacement for
+     * weaker monsters
+     **/
+    if (mons[mndx].mlevel <= mons[PM_PACKRAT].mlevel) {
+        int cap;
+        if ((cap = near_capacity()) > 0) {
+            if (rnd(100) <= (cap * 5)) {
+                mndx = PM_PACKRAT;
+            }
+        }
+    }
+
     return &mons[mndx];
 }
 
@@ -2013,6 +2042,11 @@ register struct permonst *ptr;
 
     if ((tmp = ptr->mlevel) > 49)
         return 50; /* "special" demons/devils */
+
+    /* Packrats are tougher if you are loaded */
+    if (ptr == &mons[PM_PACKRAT])
+        tmp += near_capacity();
+
     tmp2 = (level_difficulty() - tmp);
     if (tmp2 < 0)
         tmp--; /* if mlevel > u.uz decrement tmp */
