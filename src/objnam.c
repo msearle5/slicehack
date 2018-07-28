@@ -3393,6 +3393,9 @@ struct obj *no_wish;
      */
     if (!BSTRCMPI(bp, p - 10, "gold piece")
         || !BSTRCMPI(bp, p - 7, "zorkmid")
+        || !BSTRCMPI(bp, p - 8, "doubloon")
+        || !BSTRCMPI(bp, p - 15, "pieces of eight")
+        || !BSTRCMPI(bp, p - 14, "piece of eight")
         || !strcmpi(bp, "gold") || !strcmpi(bp, "money")
         || !strcmpi(bp, "coin") || *bp == GOLD_SYM) {
         typ = GOLD_PIECE;
@@ -3833,7 +3836,7 @@ typfnd:
             typ = SPE_BLANK_PAPER;
             break;
         case MAGIC_LAMP:
-            typ = OIL_LAMP;
+            typ = rnl(5) ? OIL_LAMP : MAGIC_LAMP;
             break;
         default:
             /* catch any other non-wishable objects (venom) */
