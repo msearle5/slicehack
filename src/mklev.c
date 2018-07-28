@@ -911,7 +911,7 @@ skip0:
             (void) mkgold(0L, somex(croom), somey(croom));
         if (Is_rogue_level(&u.uz))
             goto skip_nonrogue;
-        if (!rn2(10))
+        if (!rn2((Is_oracle_level(&u.uz)) ? 3 : 10))
             mkfount(0, croom);
         if (!rn2(60))
             mksink(croom);
@@ -919,7 +919,7 @@ skip0:
             mkaltar(croom);
         if (!rn2(60))
             mkfurnace(croom);
-        if (!rn2(30))
+        if (!rn2(10 + (depth(&u.uz) * 5)))
             mktree(croom);
         x = 80 - (depth(&u.uz) * 2);
         if (x < 2)
@@ -928,7 +928,7 @@ skip0:
             mkgrave(croom);
 
         /* put statues inside */
-        if (!rn2(20))
+        if ((!rn2(20)) || Is_oracle_level(&u.uz))
             (void) mkcorpstat(STATUE, (struct monst *) 0,
                               (struct permonst *) 0, somex(croom),
                               somey(croom), CORPSTAT_INIT);
