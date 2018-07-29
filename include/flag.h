@@ -39,6 +39,7 @@ struct flag {
     boolean ins_chkpt;       /* checkpoint as appropriate; INSURANCE */
     boolean intrinsicswap;   /* only allow a single resistance through food */
     boolean invlet_constant; /* let objects keep their inventory symbol */
+    boolean invweight;
     boolean legacy;          /* print game entry "story" */
     boolean lit_corridor;    /* show a dark corr as lit if it is in sight */
     boolean nap;             /* `timed_delay' option for display effects */
@@ -51,6 +52,7 @@ struct flag {
     boolean safe_dog;        /* give complete protection to the dog */
     boolean showexp;         /* show experience points */
     boolean showscore;       /* show score */
+    boolean showweight;
     boolean silent;          /* whether the bell rings or not */
     /* The story so far:
      * 'sortloot' originally took a True/False value but was changed

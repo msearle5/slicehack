@@ -3530,13 +3530,13 @@ static const char *encvals[3][6] = {
     { "", "Burden", "Stress", "Strain", "Overtax", "Overload" },
     { "", "Brd", "Strs", "Strn", "Ovtx", "Ovld" }
 };
-static enum statusfields fieldorder[2][15] = { /* 2: two status lines */
+static enum statusfields fieldorder[2][MAXBLSTATS] = { /* 2: two status lines */
     { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
       BL_SCORE, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH,
-      BL_FLUSH },
+      BL_WEIGHT, BL_WEIGHTMAX, BL_FLUSH },
     { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
       BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
-      BL_CAP, BL_CONDITION, BL_FLUSH }
+      BL_CAP, BL_CONDITION, BL_WEIGHT, BL_WEIGHTMAX, BL_FLUSH }
 };
 
 static boolean windowdata_init = FALSE;

@@ -286,13 +286,13 @@ draw_classic(border, colormasks)
 boolean border;
 unsigned long *colormasks;
 {
-    enum statusfields fieldorder[2][15] = {
+    enum statusfields fieldorder[2][MAXBLSTATS] = {
         { BL_TITLE, BL_STR, BL_DX, BL_CO, BL_IN, BL_WI, BL_CH, BL_ALIGN,
           BL_SCORE, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH, BL_FLUSH,
-          BL_FLUSH },
+          BL_WEIGHT, BL_WEIGHTMAX, BL_FLUSH },
         { BL_LEVELDESC, BL_GOLD, BL_HP, BL_HPMAX, BL_ENE, BL_ENEMAX,
           BL_AC, BL_XP, BL_EXP, BL_HD, BL_TIME, BL_HUNGER,
-          BL_CAP, BL_CONDITION, BL_FLUSH }
+          BL_CAP, BL_CONDITION, BL_WEIGHT, BL_WEIGHTMAX, BL_FLUSH }
     };
 #ifdef TEXTCOLOR
     int coloridx = NO_COLOR;

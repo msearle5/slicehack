@@ -577,6 +577,8 @@ typedef unsigned char uchar;
 # endif
 #endif
 
+#define SHOW_WEIGHT
+
 #include "global.h" /* Define everything else according to choices above */
 
 #endif /* CONFIG_H */

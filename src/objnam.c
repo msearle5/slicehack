@@ -951,6 +951,7 @@ struct obj *obj;
 
 #define DONAME_WITH_PRICE 1
 #define DONAME_VAGUE_QUAN 2
+#define DONAME_INVENTORY  4
 
 STATIC_OVL char *
 doname_base(obj, doname_flags)
@@ -1277,11 +1278,20 @@ unsigned doname_flags;
         Strcpy(prefix + 3, tmpbuf + 2);
     }
 
+#ifdef SHOW_WEIGHT
+       /* [max] weight inventory */
+     if ((obj->otyp != BOULDER) || !throws_rocks (youmonst.data))
+       if ((obj->otyp < LUCKSTONE) && (obj->otyp != CHEST) && (obj->otyp != LARGE_BOX) &&
+           (obj->otyp != ICE_BOX) && (!Hallucination && flags.invweight && (doname_flags & DONAME_INVENTORY)))
+                 Sprintf (eos(bp), " {%d}", obj->owt);
+#else
     /* show weight for items (debug tourist info)
      * aum is stolen from Crawl's "Arbitrary Unit of Measure" */
     if (wizard && iflags.wizweight) {
         Sprintf(eos(bp), " (%d aum)", obj->owt);
     }
+#endif
+
     bp = strprepend(bp, prefix);
     return bp;
 }
@@ -1299,6 +1309,22 @@ doname_with_price(obj)
 struct obj *obj;
 {
     return doname_base(obj, DONAME_WITH_PRICE);
+}
+
+/* Name of object in inventory. */
+char *
+doname_inv(obj)
+struct obj *obj;
+{
+    return doname_base(obj, DONAME_INVENTORY);
+}
+
+/* Name of object in inventory including price. */
+char *
+doname_inv_with_price(obj)
+struct obj *obj;
+{
+    return doname_base(obj, DONAME_INVENTORY | DONAME_WITH_PRICE);
 }
 
 /* "some" instead of precise quantity if obj->dknown not set */
@@ -1631,6 +1657,9 @@ register struct obj *otmp;
 char *FDECL((*func), (OBJ_P));
 {
     long savequan;
+#ifdef SHOW_WEIGHT
+    unsigned saveowt;
+#endif
     char *nam;
 
     /* using xname for corpses does not give the monster type */
@@ -1639,8 +1668,15 @@ char *FDECL((*func), (OBJ_P));
 
     savequan = otmp->quan;
     otmp->quan = 1L;
+#ifdef SHOW_WEIGHT
+    saveowt = otmp->owt;
+    otmp->owt = weight(otmp);
+#endif
     nam = (*func)(otmp);
     otmp->quan = savequan;
+#ifdef SHOW_WEIGHT
+    otmp->owt = saveowt;
+#endif
     return nam;
 }
 

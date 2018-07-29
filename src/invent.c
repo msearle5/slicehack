@@ -2169,7 +2169,7 @@ nextclass:
                 first = FALSE;
             }
             (void) safe_qbuf(qbuf, qpfx, "?", otmp,
-                             ininv ? safeq_xprname : doname,
+                             ininv ? safeq_xprname : doname_inv,
                              ininv ? safeq_shortxprname : ansimpleoname,
                              "item");
             sym = (takeoff || ident || otmp->quan < 2L) ? nyaq(qbuf)
@@ -2643,7 +2643,7 @@ nextclass:
             }
             any.a_char = ilet;
             add_menu(win, obj_to_glyph(otmp), &any, ilet, 0, ATR_NONE,
-                     doname(otmp), MENU_UNSELECTED);
+                     doname_inv(otmp), MENU_UNSELECTED);
         }
     }
     if (flags.sortpack) {
@@ -2740,7 +2740,7 @@ char avoidlet;
                     }
                     any.a_char = ilet;
                     add_menu(win, obj_to_glyph(otmp), &any, ilet, 0, ATR_NONE,
-                             doname(otmp), MENU_UNSELECTED);
+                             doname_inv(otmp), MENU_UNSELECTED);
                 }
             }
             if (flags.sortpack && *++invlet)
@@ -2899,7 +2899,7 @@ dounpaid()
         /* 1 item; use pline instead of popup menu */
         cost = unpaid_cost(otmp, FALSE);
         iflags.suppress_price++; /* suppress "(unpaid)" suffix */
-        pline1(xprname(otmp, distant_name(otmp, doname),
+        pline1(xprname(otmp, distant_name(otmp, doname_inv),
                        carried(otmp) ? otmp->invlet : CONTAINED_SYM,
                        TRUE, cost, 0L));
         iflags.suppress_price--;
@@ -2925,7 +2925,7 @@ dounpaid()
 
                     totcost += cost = unpaid_cost(otmp, FALSE);
                     iflags.suppress_price++; /* suppress "(unpaid)" suffix */
-                    putstr(win, 0, xprname(otmp, distant_name(otmp, doname),
+                    putstr(win, 0, xprname(otmp, distant_name(otmp, doname_inv),
                                            ilet, TRUE, cost, 0L));
                     iflags.suppress_price--;
                     num_so_far++;
@@ -2954,7 +2954,7 @@ dounpaid()
                     if (otmp->cknown) {
                         iflags.suppress_price++; /* suppress "(unpaid)" sfx */
                         putstr(win, 0,
-                               xprname(marker, distant_name(marker, doname),
+                               xprname(marker, distant_name(marker, doname_inv),
                                        CONTAINED_SYM, TRUE, cost, 0L));
                         iflags.suppress_price--;
                     }

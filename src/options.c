@@ -159,6 +159,11 @@ static struct Bool_Opt {
     { "ignintr", (boolean *) 0, FALSE, SET_IN_FILE },
 #endif
     { "implicit_uncursed", &iflags.implicit_uncursed, TRUE, SET_IN_GAME },
+#ifdef SHOW_WEIGHT
+	{"invweight", &flags.invweight, FALSE, SET_IN_GAME},
+#else
+	{"invweight", (boolean *)0, FALSE, SET_IN_FILE},
+#endif
     { "large_font", &iflags.obsolete, FALSE, SET_IN_FILE }, /* OBSOLETE */
     { "legacy", &flags.legacy, TRUE, DISP_IN_GAME },
     { "lit_corridor", &flags.lit_corridor, FALSE, SET_IN_GAME },
@@ -225,6 +230,11 @@ static struct Bool_Opt {
     { "showscore", &flags.showscore, FALSE, SET_IN_GAME },
 #else
     { "showscore", (boolean *) 0, FALSE, SET_IN_FILE },
+#endif
+#ifdef SHOW_WEIGHT
+	{"showweight", &flags.showweight, FALSE, SET_IN_GAME},
+#else
+	{"showweight", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
     { "silent", &flags.silent, TRUE, SET_IN_GAME },
     { "softkeyboard", &iflags.wc2_softkeyboard, FALSE, SET_IN_FILE },
@@ -3938,6 +3948,9 @@ boolean tinitial, tfrom_file;
             if (boolopt[i].addr == &flags.time
 #ifdef SCORE_ON_BOTL
                 || boolopt[i].addr == &flags.showscore
+#endif
+#ifdef SHOW_WEIGHT
+                || boolopt[i].addr == &flags.showweight
 #endif
                 || boolopt[i].addr == &flags.showexp) {
 #ifdef STATUS_HILITES

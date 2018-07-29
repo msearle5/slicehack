@@ -158,6 +158,7 @@ do_statusline2()
     /* status conditions; worst ones first */
     cond[0] = '\0'; /* once non-empty, cond will have a leading space */
     nb = cond;
+
     /*
      * Stoned, Slimed, Strangled, and both types of Sick are all fatal
      * unless remedied before timeout expires.  Should we order them by
@@ -198,6 +199,12 @@ do_statusline2()
     if (u.usteed)
         Strcpy(nb = eos(nb), " Ride");
     cln = strlen(cond);
+
+#ifdef SHOW_WEIGHT
+    if (flags.showweight)
+       Sprintf(nb = eos(nb), " Wt:%ld/%ld", (long)(inv_weight()+weight_cap()),
+                (long)weight_cap());
+#endif
 
     /*
      * Put the pieces together.  If they all fit, keep the traditional
@@ -501,7 +508,9 @@ STATIC_DCL struct istat_s initblstats[MAXBLSTATS] = {
     INIT_BLSTAT("hitpoints-max", "(%s)", ANY_INT, 10, BL_HPMAX),
     INIT_BLSTAT("dungeon-level", "%s", ANY_STR, 80, BL_LEVELDESC),
     INIT_BLSTAT("experience", "/%s", ANY_LONG, 20, BL_EXP),
-    INIT_BLSTAT("condition", "%s", ANY_MASK32, 0, BL_CONDITION)
+    INIT_BLSTAT("condition", "%s", ANY_MASK32, 0, BL_CONDITION),
+    INIT_BLSTATP("weight", " Wt:%s", ANY_INT, 10, BL_WEIGHTMAX, BL_WEIGHT),
+    INIT_BLSTAT("weight-max", "(%s)", ANY_INT, 10, BL_WEIGHTMAX),
 };
 
 #undef INIT_BLSTATP
@@ -586,6 +595,20 @@ bot_via_windowport()
         flags.showscore ? botl_score() :
 #endif
         0L;
+
+    /* Weight */
+#ifdef SHOW_WEIGHT
+    blstats[idx][BL_WEIGHT].a.a_int =
+       flags.showweight ? (inv_weight()+weight_cap()) :
+#endif
+        0;
+
+    /* Weight Max */
+#ifdef SHOW_WEIGHT
+    blstats[idx][BL_WEIGHTMAX].a.a_int =
+       flags.showweight ? weight_cap() :
+#endif
+        0;
 
     /*  Hit points  */
     i = Upolyd ? u.mh : u.uhp;
@@ -779,6 +802,8 @@ boolean *valsetlist;
     for (i = 0; i < MAXBLSTATS; i++) {
         if (((i == BL_SCORE) && !flags.showscore)
             || ((i == BL_EXP) && !flags.showexp)
+            || ((i == BL_WEIGHT) && !flags.showweight)
+            || ((i == BL_WEIGHTMAX) && !flags.showweight)
             || ((i == BL_TIME) && !flags.time)
             || ((i == BL_HD) && !Upolyd)
             || ((i == BL_XP || i == BL_EXP) && Upolyd))
@@ -1225,6 +1250,8 @@ static struct fieldid_t {
     { "xp",       BL_EXP },
     { "exp",      BL_EXP },
     { "flags",    BL_CONDITION },
+    { "weight",   BL_WEIGHT },
+    { "weight-max",BL_WEIGHTMAX },
     {0,           BL_FLUSH }
 };
 
