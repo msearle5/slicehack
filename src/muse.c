@@ -2193,6 +2193,13 @@ struct monst *mtmp;
     if (!rn2(40) && !nonliving(pm) && !is_vampshifter(mtmp))
         return AMULET_OF_LIFE_SAVING;
 
+    /* This is considerably rarer as it won't be destroyed, and also
+     * because Sokoban's prize should usually be something you need,
+     * and because potions of reflection are available.
+     **/
+    if (!rn2(300))
+        return AMULET_OF_REFLECTION;
+
     switch (rn2(4)) {
     case 0:
         if (mtmp->isgd)
