@@ -22,7 +22,7 @@ NHSROOT=.
 
 # make NetHack
 #PREFIX	 = /usr
-GAME     = splicehack
+GAME     = splathack
 # GAME     = splicehack.prg
 #GAMEUID  = games
 #GAMEGRP  = bin

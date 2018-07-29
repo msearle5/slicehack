@@ -457,7 +457,7 @@ struct obj *otmp UNUSED;
 {
     static char *junk[] = {
         NULL, /* placeholder for "Report bugs to <devteam@nethack.org>.", */
-        "Please disregard previous letter.", "Welcome to SpliceHack.",
+        "Please disregard previous letter.", "Welcome to SplatHack.",
 #ifdef AMIGA
         "Only Amiga makes it possible.", "CATS have all the answers.",
 #endif

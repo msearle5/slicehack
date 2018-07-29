@@ -332,7 +332,7 @@ WINBELIB = -lbe
 LIBS =
 
 # make NetHack
-GAME     = splicehack
+GAME     = splathack
 # GAME     = splicehack.prg
 
 # if you defined RANDOM in unixconf.h/tosconf.h since your system did not come

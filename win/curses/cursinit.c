@@ -1039,7 +1039,7 @@ curses_display_splash_window()
     if (strncmp("dNethack", COPYRIGHT_BANNER_A, 8) == 0) {
         which_variant = DNETHACK_CURSES;
     }
-    if (strncmp("SpliceHack", COPYRIGHT_BANNER_A, 9) == 0) {
+    if (strncmp("SplatHack", COPYRIGHT_BANNER_A, 9) == 0) {
         which_variant = SPLICEHACK_CURSES;
     }
 

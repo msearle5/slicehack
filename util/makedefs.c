@@ -1209,7 +1209,7 @@ const char *build_date;
     Strcpy(&subbuf[1], PORT_SUB_ID);
 #endif
 
-    Sprintf(outbuf, "%s SpliceHack%s Version %s - last %s %s.", PORT_ID,
+    Sprintf(outbuf, "%s SplatHack%s Version %s - last %s %s.", PORT_ID,
             subbuf, version_string(versbuf, "."),
             date_via_env ? "revision" : "build", build_date);
     return outbuf;
