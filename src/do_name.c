@@ -1298,15 +1298,17 @@ struct obj * wpn;
         "%s of Disaster", "%s of Torment", "%s of the Horde","%s of the Gods",
         "%s of the Peerless", "%s of the End", "%s of the Beginning",
         "%s of Protection",   "%s of the Infinite", "%s of Swift Defeat",
-        "%s of the Planes",
+        "%s of the Planes", "%s of Insanity",
         "Righteous %s",   "Mighty %s",     "Unstoppable %s", "Unlimited %s",
         "Lucky %s",       "Unlucky %s",    "Hungry %s",      "Desecrated %s",
         "Death %s",       "Dudley's %s",   "Gilgamesh's %s", "Punished %s",
-        "Chaos %s",       "Void %s",       "Hungry %s",
+        "Chaos %s",       "Void %s",       "Sick %s",        "Bloody %s",
+        "Shiny %s",       "Super %s",      "Awesome %s",
+        "Transfer of Ownership",
         "Due Process",   "Puddingbane",    "Vladsbane",
         "Newtsbane",      "Aggressive Negotiation",
-        "Orphan Maker",   "Monster Slayer"
-        "Astral Caller"
+        "Orphan Maker",   "Monster Slayer",
+        "Astral Caller",
     };
     const char* bane_wpn_names[] = {
         "%s slayer", "%s eater", "%s destroyer", "%sbane"
