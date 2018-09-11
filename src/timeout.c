@@ -2082,6 +2082,7 @@ struct obj *obj;
 {
     switch (obj->where) {
     case OBJ_INVENT:
+    case OBJ_MAGIC_CHEST:
     case OBJ_MIGRATING:
         return FALSE;
     case OBJ_FLOOR:

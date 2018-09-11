@@ -378,11 +378,16 @@ register struct obj *obj;
             obj->bknown = 1;
     }
     /* Also BCU one level deep inside containers */
-    if (Has_contents(obj)) {
+    
+    if ((Has_contents(obj)) || (cobj_is_magic_chest(obj))) {
         int bcucount = 0;
-        struct obj *otmp;
+        struct obj *otmp = obj->cobj;
 
-        for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
+		if (cobj_is_magic_chest(obj)) {
+			otmp = magic_chest_objs[((int)obj->ovar1)%10];
+		}
+
+        for (otmp; otmp; otmp = otmp->nobj) {
             if (otmp->blessed || otmp->cursed)
                 bcucount++;
             if (!Hallucination)

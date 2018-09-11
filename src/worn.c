@@ -723,6 +723,7 @@ clear_bypasses()
 {
     struct obj *otmp, *nobj;
     struct monst *mtmp;
+    int i;
 
     for (otmp = fobj; otmp; otmp = nobj) {
         nobj = otmp->nobj;
@@ -748,6 +749,9 @@ clear_bypasses()
     }
     for (otmp = invent; otmp; otmp = otmp->nobj)
         otmp->bypass = 0;
+	for(i=0;i<10;i++)
+		for (otmp = magic_chest_objs[i]; otmp; otmp = otmp->nobj)
+			otmp->bypass = 0;
     for (otmp = migrating_objs; otmp; otmp = otmp->nobj)
         otmp->bypass = 0;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {

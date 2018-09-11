@@ -139,6 +139,10 @@ NEARDATA struct sysflag sysflags = DUMMY;
 #endif
 NEARDATA struct instance_flags iflags = DUMMY;
 NEARDATA struct you u = DUMMY;
+
+/* objects that have been stored in a magic chest */
+NEARDATA struct obj *magic_chest_objs[10] = {0};
+
 NEARDATA time_t ubirthday = DUMMY;
 NEARDATA struct u_realtime urealtime = DUMMY;
 

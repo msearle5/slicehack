@@ -158,6 +158,7 @@ STATIC_DCL void FDECL(obj_chain, (winid, const char *, struct obj *,
                                   BOOLEAN_P, long *, long *));
 STATIC_DCL void FDECL(mon_invent_chain, (winid, const char *, struct monst *,
                                          long *, long *));
+STATIC_DCL void FDECL(magic_chest_obj_chain, (winid, const char *, long *, long *));
 STATIC_DCL void FDECL(mon_chain, (winid, const char *, struct monst *,
                                   BOOLEAN_P, long *, long *));
 STATIC_DCL void FDECL(contained_stats, (winid, const char *, long *, long *));
@@ -3437,6 +3438,25 @@ long *total_size;
 }
 
 STATIC_OVL void
+magic_chest_obj_chain(win, src, total_count, total_size)
+	winid win;
+	const char *src;
+	long *total_count;
+	long *total_size;
+{
+	char buf[BUFSZ];
+	long count = 0, size = 0;
+	int i;
+
+	for(i=0;i<10;i++)
+		count_obj(magic_chest_objs[i], &count, &size, TRUE, FALSE);
+	*total_count += count;
+	*total_size += size;
+	Sprintf(buf, template, src, count, size);
+	putstr(win, 0, buf);
+}
+
+STATIC_OVL void
 mon_invent_chain(win, src, chain, total_count, total_size)
 winid win;
 const char *src;
@@ -3680,6 +3700,8 @@ wiz_show_stats()
               &total_obj_count, &total_obj_size);
     obj_chain(win, "migrating obj", migrating_objs, FALSE,
               &total_obj_count, &total_obj_size);
+    magic_chest_obj_chain(win, "magic chest obj",
+              &total_obj_count,&total_obj_size);
     obj_chain(win, "billobjs", billobjs, FALSE,
               &total_obj_count, &total_obj_size);
     mon_invent_chain(win, "minvent", fmon, &total_obj_count, &total_obj_size);

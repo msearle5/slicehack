@@ -66,7 +66,8 @@ struct obj {
 #define OBJ_MIGRATING 5 /* object sent off to another level */
 #define OBJ_BURIED 6    /* object buried */
 #define OBJ_ONBILL 7    /* object on shk bill */
-#define NOBJ_STATES 8
+#define OBJ_MAGIC_CHEST 8 /* object in shared magic chest */
+#define NOBJ_STATES 9
     xchar timed; /* # of fuses (timers) attached to this obj */
 
     Bitfield(cursed, 1);
@@ -120,6 +121,10 @@ struct obj {
     unsigned oeaten;        /* nutrition left in food, if partly eaten */
     long age;               /* creation date */
     long owornmask;
+	long ovar1;				/* extra variable. Specifies:
+								something for magic chests :)
+								and whatever else can't be used simultaneously
+								*/
     struct oextra *oextra; /* pointer to oextra struct */
 };
 
@@ -254,6 +259,7 @@ struct obj {
 #define Is_pudding(o)                                                 \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)
+#define cobj_is_magic_chest(cobj) ((cobj)->otyp == MAGIC_CHEST)
 
 /* Containers */
 #define carried(o) ((o)->where == OBJ_INVENT)
@@ -262,7 +268,7 @@ struct obj {
     (/* (Is_container(o) || (o)->otyp == STATUE) && */ \
      (o)->cobj != (struct obj *) 0)
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
-#define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST)
+#define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST || otmp->otyp == MAGIC_CHEST)
 #define Is_mbag(otmp) \
     (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)

@@ -1354,6 +1354,8 @@ E void FDECL(discard_minvent, (struct monst *));
 E void FDECL(obj_extract_self, (struct obj *));
 E void FDECL(extract_nobj, (struct obj *, struct obj **));
 E void FDECL(extract_nexthere, (struct obj *, struct obj **));
+E void FDECL(extract_magic_chest_nobj, (struct obj *));
+E struct obj *FDECL(add_to_magic_chest, (struct obj *, int));
 E int FDECL(add_to_minv, (struct monst *, struct obj *));
 E struct obj *FDECL(add_to_container, (struct obj *, struct obj *));
 E void FDECL(add_to_migration, (struct obj *));

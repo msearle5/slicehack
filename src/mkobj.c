@@ -287,6 +287,9 @@ struct obj *box;
     case BAG_OF_HOLDING:
         n = 1;
         break;
+    case MAGIC_CHEST:
+		n = 5; // FIXME
+		break;
     default:
         n = 0;
         break;
@@ -891,10 +894,13 @@ boolean artif;
                 otmp->lamplit = 0;
                 blessorcurse(otmp, 2);
                 break;
+            case MAGIC_CHEST:
+                otmp->olocked = 1;
+                break;
             case CHEST:
             case LARGE_BOX:
-                otmp->olocked = !!(rn2(5));
                 otmp->otrapped = !(rn2(10));
+                otmp->olocked = !!(rn2(5));
                 /*FALLTHRU*/
             case ICE_BOX:
             case SACK:
@@ -1438,7 +1444,7 @@ register struct obj *obj;
         wt = obj->owt;
     if (SchroedingersBox(obj))
         wt += mons[PM_HOUSECAT].cwt;
-    if (Is_container(obj) || obj->otyp == STATUE) {
+    if ((Is_container(obj) && obj->otyp != MAGIC_CHEST) || obj->otyp == STATUE) {
         struct obj *contents;
         register int cwt = 0;
 
@@ -2000,6 +2006,7 @@ struct monst *mtmp;
  *      OBJ_MIGRATING   migrating chain
  *      OBJ_BURIED      level.buriedobjs chain
  *      OBJ_ONBILL      on billobjs chain
+ *      OBJ_MAGIC_CHEST magic chest chains
  */
 void
 obj_extract_self(obj)
@@ -2030,6 +2037,9 @@ struct obj *obj;
     case OBJ_ONBILL:
         extract_nobj(obj, &billobjs);
         break;
+	case OBJ_MAGIC_CHEST:
+	    extract_magic_chest_nobj(obj);
+	    break;
     default:
         panic("obj_extract_self");
         break;
@@ -2058,6 +2068,31 @@ struct obj *obj, **head_ptr;
     obj->where = OBJ_FREE;
     obj->nobj = NULL;
 }
+
+/* Extract the given object from the magic_chest. */
+void extract_magic_chest_nobj(struct obj *obj)
+{
+	int i;
+    struct obj *curr, *prev, **head_ptr;
+
+	for(i=0;i<10;i++){
+		curr = magic_chest_objs[i];
+		head_ptr = &(magic_chest_objs[i]);
+		for (prev = NULL; curr; prev = curr, curr = curr->nobj) {
+			if (curr == obj) {
+				if (prev)
+				prev->nobj = curr->nobj;
+				else
+				*head_ptr = curr->nobj;
+				i=11;//break outer loop too
+				break;
+			}
+		}
+	}
+    if (!curr) panic("extract_nobj: object lost");
+    obj->where = OBJ_FREE;
+}
+
 
 /*
  * Extract the given object from the chain, following nexthere chain.
@@ -2110,6 +2145,30 @@ struct obj *obj;
     obj->nobj = mon->minvent;
     mon->minvent = obj;
     return 0; /* obj on mon's inventory chain */
+}
+
+/*
+ * Place obj in a magic chest, make sure "obj" is free.
+ * Returns (merged) object.
+ * The input obj may be deleted in the process.
+ * Based on the implementation of add_to_container.
+ */
+struct obj *add_to_magic_chest(struct obj *obj,int key)
+{
+    struct obj *otmp;
+
+    if (obj->where != OBJ_FREE)
+		panic("add_to_magic_chest: obj not free (%d,%d,%d)", obj->where, obj->otyp, obj->invlet);
+
+    /* merge if possible */
+    for (otmp = magic_chest_objs[key]; otmp; otmp = otmp->nobj)
+		if (merged(&otmp, &obj))
+			return otmp;
+
+    obj->where = OBJ_MAGIC_CHEST;
+    obj->nobj = magic_chest_objs[key];
+    magic_chest_objs[key] = obj;
+    return obj;
 }
 
 /*

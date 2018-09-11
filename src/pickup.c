@@ -1216,7 +1216,7 @@ long count;
 boolean telekinesis;
 int *wt_before, *wt_after;
 {
-    boolean adjust_wt = container && carried(container),
+    boolean adjust_wt = container && carried(container) && !cobj_is_magic_chest(container),
             is_gold = obj->oclass == COIN_CLASS;
     int wt, iw, ow, oow;
     long qq, savequan, umoney;
@@ -2085,7 +2085,7 @@ STATIC_PTR int
 in_container(obj)
 register struct obj *obj;
 {
-    boolean floor_container = !carried(current_container);
+    boolean floor_container = !cobj_is_magic_chest(current_container) && !carried(current_container);
     boolean was_unpaid = FALSE;
     char buf[BUFSZ];
 
@@ -2203,16 +2203,20 @@ register struct obj *obj;
         current_container = 0; /* baggone = TRUE; */
     }
 
-    if (current_container) {
-        Strcpy(buf, the(xname(current_container)));
-        You("put %s into %s.", doname(obj), buf);
+	if (current_container) {
+	    Strcpy(buf, the(xname(current_container)));
+	    You("put %s into %s.", doname(obj), buf);
 
-        /* gold in container always needs to be added to credit */
-        if (floor_container && obj->oclass == COIN_CLASS)
-            sellobj(obj, current_container->ox, current_container->oy);
-        (void) add_to_container(current_container, obj);
-        current_container->owt = weight(current_container);
-    }
+	    /* gold in container always needs to be added to credit */
+	    if (floor_container && obj->oclass == COIN_CLASS && !cobj_is_magic_chest(current_container))
+			sellobj(obj, current_container->ox, current_container->oy);
+		if(cobj_is_magic_chest(current_container)){
+			add_to_magic_chest(obj,((int)(current_container->ovar1))%10);
+		} else {
+			(void) add_to_container(current_container, obj);
+			current_container->owt = weight(current_container);
+		}
+	}
     /* gold needs this, and freeinv() many lines above may cause
      * the encumbrance to disappear from the status, so just always
      * update status immediately.
@@ -2265,7 +2269,8 @@ register struct obj *obj;
 
     /* Remove the object from the list. */
     obj_extract_self(obj);
-    current_container->owt = weight(current_container);
+	if (!cobj_is_magic_chest(current_container))
+		current_container->owt = weight(current_container);
 
     if (Icebox)
         removed_from_icebox(obj);
@@ -2436,6 +2441,7 @@ struct obj **objp;
 int held;
 boolean more_containers; /* True iff #loot multiple and this isn't last one */
 {
+	struct obj magic_dummy; 
     struct obj *otmp, *obj = *objp;
     boolean quantum_cat, cursed_mbag, loot_out, loot_in, loot_in_first,
         stash_one, inokay, outokay, outmaybe;
@@ -2482,6 +2488,15 @@ boolean more_containers; /* True iff #loot multiple and this isn't last one */
         observe_quantum_cat(current_container);
         used = 1;
     }
+
+	/* Count the number of contained objects. Sometimes toss objects if */
+	/* a cursed magic bag.						    */
+
+	if (cobj_is_magic_chest(obj)) {
+		current_container = &magic_dummy;
+		memcpy(&magic_dummy, obj, sizeof(struct obj));
+		magic_dummy.cobj = magic_chest_objs[((int)obj->ovar1)%10]; /*guard against polymorph related whoopsies*/
+	}
 
     cursed_mbag = Is_mbag(current_container)
         && current_container->cursed
@@ -2623,14 +2638,17 @@ boolean more_containers; /* True iff #loot multiple and this isn't last one */
     } else if (stash_one) {
         /* put one item into container */
         if ((otmp = getobj(stashable, "stash")) != 0) {
-            if (in_container(otmp)) {
+			int in = in_container(otmp);
+			if (in) {
                 used = 1;
             } else {
                 /* couldn't put selected item into container for some
                    reason; might need to undo splitobj() */
                 (void) unsplitobj(otmp);
             }
-        }
+			if ((in > 0) && (cobj_is_magic_chest(current_container)))
+				pline("The lock labeled '%d' is open.", (int)current_container->ovar1);
+			}
     }
     /* putting something in might have triggered magic bag explosion */
     if (!current_container)
@@ -2669,6 +2687,7 @@ containerdone:
         current_container = 0; /* avoid hanging on to stale pointer */
     else
         abort_looting = TRUE;
+
     return used;
 }
 
@@ -2730,7 +2749,8 @@ boolean put_in;
         mflags = (ALL_TYPES | UNPAID_TYPES | BUCX_TYPES);
         if (put_in)
             mflags |= CHOOSE_ALL;
-        n = query_category(buf, put_in ? invent : current_container->cobj,
+        n = query_category(buf, put_in ? invent : ((cobj_is_magic_chest(current_container)) ?
+            (magic_chest_objs[((int)(current_container->ovar1))%10]): current_container->cobj),
                            mflags, &pick_list, PICK_ANY);
         if (!n)
             return 0;
@@ -2746,8 +2766,12 @@ boolean put_in;
     }
 
     if (loot_everything) {
+        if (cobj_is_magic_chest(current_container))
+            otmp = magic_chest_objs[((int)(current_container->ovar1))%10];
+        else
+            otmp = current_container->cobj;
         current_container->cknown = 1;
-        for (otmp = current_container->cobj; otmp; otmp = otmp2) {
+        for (; otmp; otmp = otmp2) {
             otmp2 = otmp->nobj;
             res = out_container(otmp);
             if (res < 0)
@@ -2773,6 +2797,9 @@ boolean put_in;
                     /* special split case also handled by askchain() */
                 }
                 res = put_in ? in_container(otmp) : out_container(otmp);
+                if ((i == 0) && (res > 0) && (put_in) && (cobj_is_magic_chest(current_container))) {
+					pline("The lock labeled '%d' is open.", (int)current_container->ovar1);
+				}
                 if (res < 0) {
                     if (!current_container) {
                         /* otmp caused current_container to explode;

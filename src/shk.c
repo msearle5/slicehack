@@ -2046,6 +2046,8 @@ unsigned id;
     /* first check various obj lists directly */
     if ((obj = o_on(id, invent)) != 0)
         return obj;
+    for(i=0;i<10;i++)
+        if ((obj = o_on(id, magic_chest_objs[i]))) return obj;
     if ((obj = o_on(id, fobj)) != 0)
         return obj;
     if ((obj = o_on(id, level.buriedobjlist)) != 0)

@@ -537,6 +537,7 @@ unsigned int *stuckid, *steedid;
     char timebuf[15];
     unsigned long uid;
     boolean defer_perm_invent;
+    int i;
 
     mread(fd, (genericptr_t) &uid, sizeof uid);
     if (SYSOPT_CHECK_SAVE_UID
@@ -625,6 +626,7 @@ unsigned int *stuckid, *steedid;
     restore_timers(fd, RANGE_GLOBAL, FALSE, 0L);
     restore_light_sources(fd);
     invent = restobjchn(fd, FALSE, FALSE);
+    for(i=0;i<10;i++) magic_chest_objs[i] = restobjchn(fd, FALSE, FALSE);
     /* tmp_bc only gets set here if the ball & chain were orphaned
        because you were swallowed; otherwise they will be on the floor
        or in your inventory */

@@ -285,6 +285,7 @@ savegamestate(fd, mode)
 register int fd, mode;
 {
     unsigned long uid;
+    int i;
 
 #ifdef MFLOPPY
     count_only = (mode & COUNT_SAVE);
@@ -312,6 +313,13 @@ register int fd, mode;
     save_light_sources(fd, mode, RANGE_GLOBAL);
 
     saveobjchn(fd, invent, mode);
+    for(i=0;i<10;i++) {
+        saveobjchn(fd, magic_chest_objs[i], mode);
+        if(release_data(mode)) { /*then saveobjchn freed all these objects*/
+            magic_chest_objs[i] = (struct obj *) 0;
+        }
+    }
+
     if (BALL_IN_MON) {
         /* prevent loss of ball & chain when swallowed */
         uball->nobj = uchain;
@@ -320,7 +328,7 @@ register int fd, mode;
     } else {
         saveobjchn(fd, (struct obj *) 0, mode);
     }
-
+    
     saveobjchn(fd, migrating_objs, mode);
     savemonchn(fd, migrating_mons, mode);
     if (release_data(mode)) {
@@ -1363,6 +1371,8 @@ free_dungeons()
 void
 freedynamicdata()
 {
+	int i;
+
 #if defined(UNIX) && defined(MAIL)
     free_maildata();
 #endif
@@ -1409,6 +1419,7 @@ freedynamicdata()
     free_timers(RANGE_GLOBAL);
     free_light_sources(RANGE_GLOBAL);
     freeobjchn(invent);
+    for(i=0;i<10;i++) freeobjchn(magic_chest_objs[i]);
     freeobjchn(migrating_objs);
     freemonchn(migrating_mons);
     freemonchn(mydogs); /* ascension or dungeon escape */
