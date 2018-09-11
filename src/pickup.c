@@ -2088,6 +2088,7 @@ register struct obj *obj;
     boolean floor_container = !cobj_is_magic_chest(current_container) && !carried(current_container);
     boolean was_unpaid = FALSE;
     char buf[BUFSZ];
+    static int lastlock = 0;
 
     if (!current_container) {
         impossible("<in> no current_container?");
@@ -2212,6 +2213,13 @@ register struct obj *obj;
 			sellobj(obj, current_container->ox, current_container->oy);
 		if(cobj_is_magic_chest(current_container)){
 			add_to_magic_chest(obj,((int)(current_container->ovar1))%10);
+			lastlock = ((int)(current_container->ovar1))%10;
+		} else if ((cobj_is_magic_bag(current_container)) && (!current_container->cursed)){
+			if (obj->dknown)
+				pline("%s %s vanished!", Doname2(obj), otense(obj, "have"));
+			else
+				You("%s %s disappear!", Blind ? "notice" : "see", doname(obj));
+			add_to_magic_chest(obj, lastlock);
 		} else {
 			(void) add_to_container(current_container, obj);
 			current_container->owt = weight(current_container);

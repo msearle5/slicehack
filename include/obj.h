@@ -259,7 +259,6 @@ struct obj {
 #define Is_pudding(o)                                                 \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)
-#define cobj_is_magic_chest(cobj) ((cobj)->otyp == MAGIC_CHEST)
 
 /* Containers */
 #define carried(o) ((o)->where == OBJ_INVENT)
@@ -270,8 +269,10 @@ struct obj {
 #define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
 #define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST || otmp->otyp == MAGIC_CHEST)
 #define Is_mbag(otmp) \
-    (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS)
+    (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS || otmp->otyp == MAGIC_BAG)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
+#define cobj_is_magic_chest(cobj) ((cobj)->otyp == MAGIC_CHEST)
+#define cobj_is_magic_bag(cobj) ((cobj)->otyp == MAGIC_BAG)
 
 /* dragon gear */
 #define Is_dragon_scales(obj) \

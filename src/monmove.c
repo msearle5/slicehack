@@ -1700,7 +1700,7 @@ struct monst *mtmp;
             && typ != LEMBAS_WAFER && typ != LUMP_OF_ROYAL_JELLY
             && obj->oclass != AMULET_CLASS && obj->oclass != RING_CLASS
             && obj->oclass != VENOM_CLASS && typ != SACK
-            && typ != BAG_OF_HOLDING && typ != BAG_OF_TRICKS
+            && typ != BAG_OF_HOLDING && typ != BAG_OF_TRICKS && typ != MAGIC_BAG
             && !Is_candle(obj) && typ != OILSKIN_SACK && typ != LEASH
             && typ != STETHOSCOPE && typ != BLINDFOLD && typ != TOWEL
             && typ != TIN_WHISTLE && typ != MAGIC_WHISTLE

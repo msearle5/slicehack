@@ -690,12 +690,15 @@ OBJECT(OBJ("Amulet of Yendor", /* note: description == name */
            BITS(kn, 0, 1, 0, mgc, 1, 0, 0, bi, 0, hitbon, sub, mat),    \
            0, TOOL_CLASS, prob, 0, wt, cost, sdam, ldam, hitbon, 0, wt, clr)
 /* containers */
-CONTAINER("large box",       None, 1, 0, 0, 40, 350,   8, WOOD, HI_WOOD),
-CONTAINER("chest",           None, 1, 0, 0, 35, 600,  16, WOOD, HI_WOOD),
+CONTAINER("large box",       None, 1, 0, 0, 38, 350,   8, WOOD, HI_WOOD),
+CONTAINER("chest",           None, 1, 0, 0, 33, 600,  16, WOOD, HI_WOOD),
+CONTAINER("magic chest", "big chest with 10 keyholes",
+                                    0, 1, 0, 5,1100,7000, METAL, CLR_BRIGHT_MAGENTA),
 CONTAINER("ice box",         None, 1, 0, 0,  5, 900,  42, PLASTIC, CLR_WHITE),
-CONTAINER("sack",           "bag", 0, 0, 0, 35,  15,   2, CLOTH, HI_CLOTH),
+CONTAINER("sack",           "bag", 0, 0, 0, 34,  15,   2, CLOTH, HI_CLOTH),
 CONTAINER("oilskin sack",   "bag", 0, 0, 0,  5,  15, 100, CLOTH, HI_CLOTH),
 CONTAINER("bag of holding", "bag", 0, 1, 0, 20,  15, 100, CLOTH, HI_CLOTH),
+CONTAINER("magic bag",  	"bag", 0, 1, 0,  5,  15, 100, CLOTH, HI_CLOTH),
 CONTAINER("bag of tricks",  "bag", 0, 1, 1, 20,  15, 100, CLOTH, HI_CLOTH),
 #undef CONTAINER
 

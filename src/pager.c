@@ -1042,6 +1042,7 @@ add_obj_info(winid datawin, short otyp)
         case SACK:
         case OILSKIN_SACK:
         case BAG_OF_HOLDING:
+        case MAGIC_BAG:
             subclass = "container";
             break;
         case SKELETON_KEY:
