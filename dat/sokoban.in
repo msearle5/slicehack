@@ -1,69 +1,267 @@
-# 1 "<stdin>"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 31 "<command-line>"
-# 1 "/usr/include/stdc-predef.h" 1 3 4
+//	SCCS Id: @(#)sokoban.des	3.4	1999/03/15
+//	$Id: sokoban.des,v 1.4 2003-05-13 18:26:18 j_ali Exp $
+//	Copyright (c) 1998-1999 by Kevin Hugo
+//	Copyright (c) 2002 by Pasi Kallinen
+//  Copyright (c) 2018 by Michael Searle
+//
+// NetHack may be freely redistributed.  See license for details.
+//
+// In case you haven't played the game Sokoban, you'll learn
+// quickly.  This branch isn't particularly difficult, just time
+// consuming.  Some players may wish to skip this branch.
+//
+// The following actions are currently permitted without penalty:
+//   Carrying or throwing a boulder already in inventory
+//     (player or nonplayer).
+//   Teleporting boulders.
+//   Digging in the floor.
+// The following actions are permitted, but with a luck penalty:
+//   Breaking boulders.
+//   Stone-to-fleshing boulders.
+//   Creating new boulders (e.g., with a scroll of earth).
+//   Jumping.
+//   Being pulled by a thrown iron ball.
+//   Hurtling through the air from Newton's 3rd law.
+//   Squeezing past boulders when naked or as a giant.
+// These actions are not permitted:
+//   Moving diagonally between two boulders and/or walls.
+//   Pushing a boulder diagonally.
+//   Picking up boulders (player or nonplayer).
+//   Digging or walking through walls.
+//   Teleporting within levels or between levels of this branch.
+//   Using cursed potions of gain level.
+//   Escaping a pit/hole (e.g., by flying, levitation, or
+//     passing a dexterity check).
+//   Bones files are not permitted.
+//
+// The following Sokoban levels heavily modified for NetHack by Pasi Kallinen:
+//   soko4-3, soko4-4, soko4-5
+//   soko3-3, soko3-4, soko3-5, soko3-6, soko3-7
+//   soko2-3, soko2-4, soko2-5, soko2-6, soko2-7
+//   soko1-3, soko1-4
+// The original authors are listed just before the maps.
+//
+// Ported from Slex to Splat by Michael Searle - with major changes, including
+// new zoo selection, new loot selection and deduplication (replacing multiple
+// copies of the same map with one copy using randomization)
 
-# 17 "/usr/include/stdc-predef.h" 3 4
+// Standard items, in most levels
+#define ITEMS OBJECT:'%',random \
+OBJECT:'%',random \
+OBJECT:'%',random \
+OBJECT:'%',random \
+OBJECT:'=',random \
+OBJECT:'/',random \
+
+// New zoo selection.
+// ~30% of the time you get a special room to fight through, otherwise it's the usual
+// zoo. The zoo includes a lot of gold on the floor - so stick some piles of gold in the corners
+// of the room for beehive etc. (Barracks/morgue might have something extra,
+// but then they are harder than the zoo. Throne rooms don't get any extra cash as the throne
+// is the reward. Leprehalls contain gold as well.) 
+#define ZOO(XA,YA,XB,YB) $i = 1d27 \
+	IF [$i == 1] { \
+		REGION:(XA,YA,XB,YB),lit,"beehive",filled \
+	} \
+	IF [$i == 2] { \
+		REGION:(XA,YA,XB,YB),lit,"anthole",filled \
+	} \
+	IF [$i == 3] { \
+		REGION:(XA,YA,XB,YB),lit,"cocknest",filled \
+	} \
+	IF [$i == 4] { \
+		REGION:(XA,YA,XB,YB),lit,"barracks",filled \
+	} \
+	IF [$i == 5] { \
+		REGION:(XA,YA,XB,YB),lit,"morgue",filled \
+	} \
+	IF [$i == 6] { \
+		REGION:(XA,YA,XB,YB),lit,"lab",filled \
+	} \
+	IF [$i == 7] { \
+		REGION:(XA,YA,XB,YB),lit,"den",filled \
+	} \
+	IF [$i == 8] { \
+		REGION:(XA,YA,XB,YB),lit,"throne",filled \
+	} \
+	IF [$i == 9] { \
+		REGION:(XA,YA,XB,YB),lit,"leprehall",filled \
+	} \
+	IF [$i > 9] { \
+		REGION:(XA,YA,XB,YB),lit,"zoo",filled \
+	} \
+	IF [$i < 8] { \
+		GOLD:10d100, (XA,YA) \
+		GOLD:10d100, (XA,YB) \
+		GOLD:10d100, (XB,YA) \
+		GOLD:10d100, (XB,YB) \
+	} \
+
+// New loot method.
+// 75% of the time you get a bag of holding or amulet of reflection, with equal probability.
+// The rest of the time you get a random "major item" of equivalent power e.g. gauntlets of power.
+// Either way, you also 50% of the time get a "minor item" e.g. can of grease. Most of these are useful
+// items, just less so than the major item. There are a few traps, though (especially amulets :).
+// 12.5% of the time you will also get a second minor item. Minor items are placed on a different square
+// (which doesn't have Elbereth).
+
+#define MINORLOOT $i = 1d27 \
+	IF [$i == 1] { \
+		OBJECT:('[',"cloak of flight"),$place[1] \
+	} \
+	IF [$i == 2] { \
+		OBJECT:('[',"cloak of invisibility"),$place[1] \
+	} \
+	IF [$i == 3] { \
+		OBJECT:('[',"cloak of protection"),$place[1] \
+	} \
+	IF [$i == 4] { \
+		OBJECT:('[',"Hawaiian shirt"),$place[1] \
+	} \
+	IF [$i == 5] { \
+		OBJECT:('[',"rogues gloves"),$place[1] \
+	} \
+	IF [$i == 6] { \
+		OBJECT:('[',"water walking boots"),$place[1] \
+	} \
+	IF [$i == 7] { \
+		OBJECT:('[',"jumping boots"),$place[1] \
+	} \
+	IF [$i == 8] { \
+		OBJECT:('[',"boxing gloves"),$place[1] \
+	} \
+	IF [$i == 9] { \
+		OBJECT:('(',"oilskin sack"),$place[1] \
+	} \
+	IF [$i == 10] { \
+		OBJECT:('(',"stethoscope"),$place[1] \
+	} \
+	IF [$i == 11] { \
+		OBJECT:('(',"lenses"),$place[1] \
+	} \
+	IF [$i == 12] { \
+		OBJECT:('(',"can of grease"),$place[1] \
+	} \
+	IF [$i == 13] { \
+		OBJECT:('(',"tinning kit"),$place[1] \
+	} \
+	IF [$i == 14] { \
+		OBJECT:('(',"magic whistle"),$place[1] \
+	} \
+	IF [$i == 15] { \
+		OBJECT:('(',"horn of plenty"),$place[1] \
+	} \
+	IF [$i == 16] { \
+		OBJECT:('(',"frost horn"),$place[1] \
+	} \
+	IF [$i == 17] { \
+		OBJECT:('(',"fire horn"),$place[1] \
+	} \
+	IF [$i == 18] { \
+		OBJECT:('(',"magic harp"),$place[1] \
+	} \
+	IF [$i == 19] { \
+		OBJECT:('(',"magic flute"),$place[1] \
+	} \
+	IF [$i == 20] { \
+		OBJECT:(')',"sacrificial knife"),$place[1] \
+	} \
+	IF [$i == 21] { \
+		OBJECT:('[',"helm of opaque thoughts"),$place[1] \
+	} \
+	IF [$i == 22] { \
+		OBJECT:('[',"helm of opposite alignment"),$place[1] \
+	} \
+	IF [$i == 23] { \
+		OBJECT:('[',"fumble boots"),$place[1] \
+	} \
+	IF [$i == 24] { \
+		OBJECT:('[',"gauntlets of fumbling"),$place[1] \
+	} \
+	IF [$i == 25] { \
+		OBJECT:('"',"amulet of strangulation"),$place[1] \
+	} \
+	IF [$i == 26] { \
+		OBJECT:('"',"amulet of nausea"),$place[1] \
+	} \
+	IF [$i == 27] { \
+		OBJECT:('"',"amulet of restful sleep"),$place[1] \
+	}
+
+#define LOOT \
+IF [50%] { \
+	MINORLOOT \
+	IF [25%] { \
+		MINORLOOT \
+	} \
+} \
+IF [25%] { \
+	$i = 1d14 \
+	IF [$i == 1] { \
+		OBJECT:('[',"cloak of reflection"),$place[0] \
+	} \
+	IF [$i == 2] { \
+		OBJECT:('[',"helm of brilliance"),$place[0] \
+	} \
+	IF [$i == 3] { \
+		OBJECT:('[',"helm of telepathy"),$place[0] \
+	} \
+	IF [$i == 4] { \
+		OBJECT:('[',"cloak of reflection"),$place[0] \
+	} \
+	IF [$i == 5] { \
+		OBJECT:('[',"shield of resonance"),$place[0] \
+	} \
+	IF [$i == 6] { \
+		OBJECT:('[',"shield of reflection"),$place[0] \
+	} \
+	IF [$i == 7] { \
+		OBJECT:('[',"gauntlets of power"),$place[0] \
+	} \
+	IF [$i == 8] { \
+		OBJECT:('[',"gauntlets of dexterity"),$place[0] \
+	} \
+	IF [$i == 9] { \
+		OBJECT:('[',"speed boots"),$place[0] \
+	} \
+	IF [$i == 10] { \
+		OBJECT:('"',"amulet of life saving"),$place[0] \
+	} \
+	IF [$i == 11] { \
+		OBJECT:('"',"amulet of ESP"),$place[0] \
+	} \
+	IF [$i == 12] { \
+		OBJECT:('"',"amulet of drain resistance"),$place[0] \
+	} \
+	IF [$i == 13] { \
+		OBJECT:('(',"magic lamp"),$place[0] \
+	} \
+	IF [$i == 14] { \
+		OBJECT:('(',"magic marker"),$place[0] \
+	} \
+} \
+ELSE { \
+	IF [50%] { \
+		OBJECT:('"',"amulet of reflection"),$place[0] \
+	} \
+	ELSE { \
+		OBJECT:('(',"bag of holding"),$place[0] \
+	} \
+} \
+ENGRAVING:$place[0],burn,"Elbereth" \
+IF [50%] { \
+ENGRAVING:$place[1],burn,"Ylbereth" \
+} \
+IF [25%] { \
+ENGRAVING:$place[2],burn,"Elberet|" \
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# 32 "<command-line>" 2
-# 1 "<stdin>"
-
-# 47 "<stdin>"
-
-# 130 "<stdin>"
-
-# 198 "<stdin>"
-
-
+//## Bottom (first) level of Sokoban ###
 MAZE:"soko4-1",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 ------  ----- 
 |....|  |...| 
@@ -85,17 +283,21 @@ REGION:(00,00,13,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,13,12)
 NON_PASSWALL:(00,00,13,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(02,02)
 OBJECT:('`',"boulder"),(02,03)
+//
 OBJECT:('`',"boulder"),(10,02)
 OBJECT:('`',"boulder"),(09,03)
 OBJECT:('`',"boulder"),(10,04)
+//
 OBJECT:('`',"boulder"),(08,07)
 OBJECT:('`',"boulder"),(09,08)
 OBJECT:('`',"boulder"),(09,09)
 OBJECT:('`',"boulder"),(08,10)
 OBJECT:('`',"boulder"),(10,10)
 
+// Traps
 TRAP:"pit",(03,06)
 TRAP:"pit",(04,06)
 TRAP:"pit",(05,06)
@@ -106,16 +308,19 @@ TRAP:"pit",(05,10)
 TRAP:"pit",(06,10)
 TRAP:"pit",(07,10)
 
+// A little help
 OBJECT:('?',"earth"),(02,11)
 OBJECT:('?',"earth"),(03,11)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random, m_object "boulder"
 
 MAZE:"soko4-2",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 -------- ------
 |.|....|-|....|
@@ -135,19 +340,23 @@ REGION:(00,00,14,10),lit,"ordinary"
 NON_DIGGABLE:(00,00,14,10)
 NON_PASSWALL:(00,00,14,10)
 
+// Boulders
 OBJECT:('`',"boulder"),(05,02)
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(06,03)
 OBJECT:('`',"boulder"),(07,03)
+//
 OBJECT:('`',"boulder"),(09,05)
 OBJECT:('`',"boulder"),(10,03)
 OBJECT:('`',"boulder"),(11,02)
 OBJECT:('`',"boulder"),(12,03)
+//
 OBJECT:('`',"boulder"),(07,08)
 OBJECT:('`',"boulder"),(08,08)
 OBJECT:('`',"boulder"),(09,08)
 OBJECT:('`',"boulder"),(10,08)
 
+// Traps
 TRAP:"pit",(01,02)
 TRAP:"pit",(01,03)
 TRAP:"pit",(01,04)
@@ -166,16 +375,19 @@ IF [20%] {
 TRAP:random,random
 }
 
+// A little help
 OBJECT:('?',"earth"),(01,09)
 OBJECT:('?',"earth"),(02,09)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"),(04,10),m_object "boulder"
 
 MAZE:"soko4-3",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+// "J Franklin Mentzer <wryter@aol.com>"
 MAP
      -------
      |..|..|     --------
@@ -217,7 +429,7 @@ TRAP:"pit",(20,6)
 TRAP:"pit",(21,6)
 TRAP:"pit",(22,6)
 TRAP:"pit",(23,6)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 IF [50%] {
 MONSTER:('m',"giant mimic"), random
 }
@@ -231,6 +443,7 @@ MONSTER:('m',"giant mimic"), random
 MAZE:"soko4-4",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
 -----------------
 |.......|...--..|
@@ -274,13 +487,14 @@ TRAP:"pit",(7,9)
 TRAP:"pit",(8,9)
 TRAP:"pit",(9,9)
 TRAP:"pit",(10,9)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko4-5",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
        -----------
        |.........|
@@ -317,7 +531,7 @@ TRAP:"pit",(5,9)
 TRAP:"pit",(6,9)
 TRAP:"pit",(7,9)
 TRAP:"pit",(8,9)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 IF [50%] {
 MONSTER:('m',"giant mimic"), random
@@ -335,6 +549,7 @@ TRAP:random, random
 MAZE:"soko4-6",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center, center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
         --- 
 ----   --.--
@@ -354,6 +569,7 @@ REGION:(00,00,11,10),lit,"ordinary"
 NON_DIGGABLE:(00,00,11,10)
 NON_PASSWALL:(00,00,11,10)
 
+// Boulders
 OBJECT:('`',"boulder"),(08,03)
 OBJECT:('`',"boulder"),(09,03)
 OBJECT:('`',"boulder"),(09,04)
@@ -365,6 +581,7 @@ OBJECT:('`',"boulder"),(09,07)
 OBJECT:('`',"boulder"),(05,08)
 OBJECT:('`',"boulder"),(08,08)
 
+// Traps
 TRAP:"pit",(05,03)
 TRAP:"pit",(04,03)
 TRAP:"pit",(03,03)
@@ -374,16 +591,18 @@ TRAP:"pit",(01,06)
 TRAP:"pit",(01,07)
 TRAP:"pit",(01,08)
 
+// A little help
 OBJECT:('?',"earth"),(01,02)
 OBJECT:('?',"earth"),(02,02)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko4-7",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center, center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
 ------------- 
 |.|.....|..-- 
@@ -405,6 +624,7 @@ REGION:(00,00,13,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,13,12)
 NON_PASSWALL:(00,00,13,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(04,02)
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(07,02)
@@ -418,6 +638,7 @@ OBJECT:('`',"boulder"),(11,09)
 OBJECT:('`',"boulder"),(11,10)
 OBJECT:('`',"boulder"),random
 
+// Traps
 TRAP:"pit",(05,09)
 TRAP:"pit",(04,09)
 TRAP:"pit",(03,09)
@@ -429,16 +650,18 @@ TRAP:"pit",(01,04)
 TRAP:"pit",(01,03)
 TRAP:"pit",(01,02)
 
+// A little help
 OBJECT:('?',"earth"),(01,10)
 OBJECT:('?',"earth"),(02,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko4-8",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center, center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
         --- 
 ----   --.--
@@ -458,7 +681,9 @@ REGION:(00,00,11,10),lit,"ordinary"
 NON_DIGGABLE:(00,00,11,10)
 NON_PASSWALL:(00,00,11,10)
 DOOR:locked,(11,06)
+//REGION:(12,04,16,08),lit
 
+// Boulders
 OBJECT:('`',"boulder"),(08,03)
 OBJECT:('`',"boulder"),(09,03)
 OBJECT:('`',"boulder"),(09,04)
@@ -470,6 +695,7 @@ OBJECT:('`',"boulder"),(09,07)
 OBJECT:('`',"boulder"),(05,08)
 OBJECT:('`',"boulder"),(08,08)
 
+// Traps
 TRAP:"pit",(05,03)
 TRAP:"pit",(04,03)
 TRAP:"pit",(03,03)
@@ -479,16 +705,18 @@ TRAP:"pit",(01,06)
 TRAP:"pit",(01,07)
 TRAP:"pit",(01,08)
 
+// A little help
 OBJECT:('?',"earth"),(01,02)
 OBJECT:('?',"earth"),(02,02)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko4-9",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+// "J Franklin Mentzer <wryter@aol.com>"
 MAP
      -------    ......................
  .   |..|..|    .--------            .
@@ -541,13 +769,14 @@ TRAP:random,(1,11)
 OBJECT:'[',(1,1)
 OBJECT:(')',"crysknife"),(1,11),cursed,-15
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko4-10",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center, center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
 -------------------| 
 |.|.....|..--......|
@@ -569,6 +798,7 @@ REGION:(00,00,13,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,13,12)
 NON_PASSWALL:(00,00,13,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(04,02)
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(07,02)
@@ -582,6 +812,7 @@ OBJECT:('`',"boulder"),(11,09)
 OBJECT:('`',"boulder"),(11,10)
 OBJECT:('`',"boulder"),random
 
+// Traps
 TRAP:"pit",(05,09)
 TRAP:"pit",(04,09)
 TRAP:"pit",(03,09)
@@ -593,16 +824,19 @@ TRAP:"pit",(01,04)
 TRAP:"pit",(01,03)
 TRAP:"pit",(01,02)
 
+// A little help
 OBJECT:('?',"earth"),(01,10)
 OBJECT:('?',"earth"),(02,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Boomerang Boulders"
 MAZE:"soko4-11",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
          ----    
  ---------..---  
@@ -622,19 +856,24 @@ REGION:(00,00,16,10),lit,"ordinary"
 NON_DIGGABLE:(00,00,16,10)
 NON_PASSWALL:(00,00,16,10)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,02)
 OBJECT:('`',"boulder"),(05,02)
+//
 OBJECT:('`',"boulder"),(10,02)
 OBJECT:('`',"boulder"),(10,03)
 OBJECT:('`',"boulder"),(13,03)
 OBJECT:('`',"boulder"),(14,04)
 OBJECT:('`',"boulder"),(13,05)
+//
 OBJECT:('`',"boulder"),(11,07)
 OBJECT:('`',"boulder"),(12,08)
 OBJECT:('`',"boulder"),(13,08)
+//
 OBJECT:('`',"boulder"),(06,07)
 OBJECT:('`',"boulder"),(05,08)
 
+// Traps
 TRAP:"pit",(07,05)
 TRAP:"pit",(06,05)
 TRAP:"pit",(05,05)
@@ -646,16 +885,20 @@ TRAP:"pit",(02,07)
 TRAP:"pit",(03,07)
 TRAP:"pit",(04,07)
 
+// A little help
 OBJECT:('?',"earth"),(02,08)
 OBJECT:('?',"earth"),(03,08)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Through the Cracks"
 MAZE:"soko4-12",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
  ----                 
  |..------------------
@@ -673,20 +916,25 @@ REGION:(00,00,21,08),lit,"ordinary"
 NON_DIGGABLE:(00,00,21,08)
 NON_PASSWALL:(00,00,21,08)
 
+// Boulders
 OBJECT:('`',"boulder"),(02,05)
 OBJECT:('`',"boulder"),(04,03)
 OBJECT:('`',"boulder"),(05,02)
+//
 OBJECT:('`',"boulder"),(09,02)
 OBJECT:('`',"boulder"),(08,03)
 OBJECT:('`',"boulder"),(06,05)
+//
 OBJECT:('`',"boulder"),(11,05)
 OBJECT:('`',"boulder"),(13,03)
 OBJECT:('`',"boulder"),(14,02)
+//
 OBJECT:('`',"boulder"),(14,05)
 OBJECT:('`',"boulder"),(15,04)
 OBJECT:('`',"boulder"),(16,03)
 OBJECT:('`',"boulder"),(17,02)
 
+// Traps
 TRAP:"pit",(14,06)
 TRAP:"pit",(15,06)
 TRAP:"pit",(16,06)
@@ -698,16 +946,20 @@ TRAP:"pit",(20,05)
 TRAP:"pit",(20,04)
 TRAP:"pit",(20,03)
 
+// A little help
 OBJECT:('?',"earth"),(19,07)
 OBJECT:('?',"earth"),(20,07)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Easy Peasey"
 MAZE:"soko4-13",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
   ------   ---- 
   |....-----..| 
@@ -729,18 +981,22 @@ REGION:(00,00,14,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,14,12)
 NON_PASSWALL:(00,00,14,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(05,10)
 OBJECT:('`',"boulder"),(10,10)
+//
 OBJECT:('`',"boulder"),(05,06)
 OBJECT:('`',"boulder"),(03,05)
 OBJECT:('`',"boulder"),(04,04)
 OBJECT:('`',"boulder"),(05,03)
 OBJECT:('`',"boulder"),(06,02)
+//
 OBJECT:('`',"boulder"),(07,04)
 OBJECT:('`',"boulder"),(08,05)
 OBJECT:('`',"boulder"),(10,04)
 OBJECT:('`',"boulder"),(10,06)
 
+// Traps
 TRAP:"pit",(07,02)
 TRAP:"pit",(08,02)
 TRAP:"pit",(09,02)
@@ -751,17 +1007,21 @@ TRAP:"pit",(13,03)
 TRAP:"pit",(13,04)
 TRAP:"pit",(13,05)
 
+// A little help
 OBJECT:('?',"earth"),(12,01)
 OBJECT:('?',"earth"),(13,01)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 
+// "First Things First"
 MAZE:"soko4-14",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 ---------------
 |.....|.....|.|
@@ -781,12 +1041,15 @@ REGION:(00,00,14,10),lit,"ordinary"
 NON_DIGGABLE:(00,00,14,10)
 NON_PASSWALL:(00,00,14,10)
 
+// Boulders
 OBJECT:('`',"boulder"),(02,08)
 OBJECT:('`',"boulder"),(04,08)
 OBJECT:('`',"boulder"),(04,06)
+//
 OBJECT:('`',"boulder"),(02,04)
 OBJECT:('`',"boulder"),(05,04)
 OBJECT:('`',"boulder"),(05,02)
+//
 OBJECT:('`',"boulder"),(07,03)
 OBJECT:('`',"boulder"),(08,02)
 OBJECT:('`',"boulder"),(09,03)
@@ -794,6 +1057,7 @@ OBJECT:('`',"boulder"),(10,02)
 OBJECT:('`',"boulder"),(07,05)
 OBJECT:('`',"boulder"),(10,05)
 
+// Traps
 TRAP:"pit",(09,08)
 TRAP:"pit",(10,08)
 TRAP:"pit",(11,08)
@@ -805,17 +1069,21 @@ TRAP:"pit",(13,04)
 TRAP:"pit",(13,03)
 TRAP:"pit",(13,02)
 
+// A little help
 OBJECT:('?',"earth"),(12,09)
 OBJECT:('?',"earth"),(13,09)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 
+// Open the Door
 MAZE: "soko4-15",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
        ----------- 
    -----.........| 
@@ -838,6 +1106,7 @@ REGION:(00,00,18,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,18,12)
 NON_PASSWALL:(00,00,18,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(12,02)
 OBJECT:('`',"boulder"),(14,02)
@@ -850,6 +1119,7 @@ OBJECT:('`',"boulder"),(10,09)
 OBJECT:('`',"boulder"),(11,09)
 OBJECT:('`',"boulder"),(14,09)
 
+// Traps
 TRAP:"pit",(02,06)
 TRAP:"pit",(02,07)
 TRAP:"pit",(04,09)
@@ -858,16 +1128,20 @@ TRAP:"pit",(06,09)
 TRAP:"pit",(07,09)
 TRAP:"pit",(08,09)
 
+// A little help
 OBJECT:('?',"earth"),(01,08)
 OBJECT:('?',"earth"),(01,09)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// Picking out the Seeds
 MAZE: "soko4-16",' '
 FLAGS:noteleport,premapped,solidify,hardfloor
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
    ---------   
  ---..|....--- 
@@ -888,6 +1162,7 @@ REGION:(00,00,14,11),lit,"ordinary"
 NON_DIGGABLE:(00,00,14,11)
 NON_PASSWALL:(00,00,14,11)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,02)
 OBJECT:('`',"boulder"),(09,02)
 OBJECT:('`',"boulder"),(11,02)
@@ -903,6 +1178,7 @@ OBJECT:('`',"boulder"),(06,07)
 OBJECT:('`',"boulder"),(03,09)
 OBJECT:('`',"boulder"),(07,09)
 
+// Traps
 TRAP:"pit",(13,05)
 TRAP:"pit",(07,06)
 TRAP:"pit",(12,06)
@@ -916,16 +1192,20 @@ TRAP:"pit",(10,08)
 TRAP:"pit",(11,08)
 TRAP:"pit",(12,08)
 
+// A little help
 OBJECT:('?',"earth"),(11,09)
 OBJECT:('?',"earth"),(12,09)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+//## Second level ###
 MAZE:"soko3-1",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 -----------       -----------
 |....|....|--     |.........|
@@ -947,11 +1227,14 @@ REGION:(00,00,28,11),lit,"ordinary"
 NON_DIGGABLE:(00,00,28,11)
 NON_PASSWALL:(00,00,28,11)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,02)
 OBJECT:('`',"boulder"),(04,02)
+//
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(06,03)
 OBJECT:('`',"boulder"),(07,02)
+//
 OBJECT:('`',"boulder"),(03,06)
 OBJECT:('`',"boulder"),(02,07)
 OBJECT:('`',"boulder"),(03,07)
@@ -959,6 +1242,7 @@ OBJECT:('`',"boulder"),(03,08)
 OBJECT:('`',"boulder"),(02,09)
 OBJECT:('`',"boulder"),(03,09)
 OBJECT:('`',"boulder"),(04,09)
+//
 OBJECT:('`',"boulder"),(06,07)
 OBJECT:('`',"boulder"),(06,09)
 OBJECT:('`',"boulder"),(08,07)
@@ -968,6 +1252,7 @@ OBJECT:('`',"boulder"),(09,09)
 OBJECT:('`',"boulder"),(10,07)
 OBJECT:('`',"boulder"),(10,10)
 
+// Traps
 TRAP:"hole",(12,10)
 TRAP:"hole",(13,10)
 TRAP:"hole",(14,10)
@@ -984,7 +1269,8 @@ TRAP:"hole",(24,10)
 TRAP:"hole",(25,10)
 TRAP:"hole",(26,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 IF [50%] {
 MONSTER:('m',"giant mimic"), random
@@ -1002,6 +1288,7 @@ TRAP:random,random
 MAZE:"soko3-2",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
  ----          -----------
 -|..|-------   |.........|
@@ -1025,6 +1312,7 @@ REGION:(00,00,25,13),lit,"ordinary"
 NON_DIGGABLE:(00,00,25,13)
 NON_PASSWALL:(00,00,25,13)
 
+// Boulders
 OBJECT:('`',"boulder"),(02,03)
 OBJECT:('`',"boulder"),(08,03)
 OBJECT:('`',"boulder"),(09,04)
@@ -1042,6 +1330,7 @@ OBJECT:('`',"boulder"),(07,10)
 OBJECT:('`',"boulder"),(10,10)
 OBJECT:('`',"boulder"),(03,11)
 
+// Traps
 TRAP:"hole",(12,10)
 TRAP:"hole",(13,10)
 TRAP:"hole",(14,10)
@@ -1055,13 +1344,15 @@ TRAP:"hole",(21,10)
 TRAP:"hole",(22,10)
 TRAP:"hole",(23,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko3-3",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Thinking Rabbit" 
 MAP
 -----------------
 |........F......|
@@ -1102,7 +1393,7 @@ TRAP:"hole",(6,5)
 TRAP:"hole",(7,5)
 TRAP:"hole",(8,5)
 TRAP:"hole",(9,5)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 IF [50%] {
 MONSTER:('m',"giant mimic"), random
@@ -1120,6 +1411,7 @@ MONSTER:('m',"giant mimic"), random
 MAZE:"soko3-4",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
 ----------------
 |...|..|.|.--..|
@@ -1177,13 +1469,14 @@ TRAP:"hole",(9,10)
 TRAP:"hole",(10,10)
 TRAP:"hole",(9,11)
 TRAP:"hole",(10,11)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko3-5",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub" 
 MAP
             ---------
 ------------|.....+.|
@@ -1229,13 +1522,14 @@ TRAP:"hole",(14,8)
 TRAP:"hole",(15,8)
 TRAP:"hole",(16,8)
 TRAP:"hole",(17,8)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko3-6",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
 -------       --------
 |.....|-------|......|
@@ -1281,13 +1575,14 @@ TRAP:"hole",(15,9)
 TRAP:"hole",(16,9)
 TRAP:"hole",(17,9)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko3-7",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Thinking Rabbit" 
 MAP
  --------
  |......|
@@ -1321,7 +1616,7 @@ TRAP:"hole",(5,9)
 TRAP:"hole",(6,9)
 TRAP:"hole",(7,9)
 TRAP:"hole",(8,9)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
@@ -1336,6 +1631,7 @@ TRAP:random,random
 MAZE:"soko3-8",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
 -----------------------------
 |...|..|.|.--....+..........|
@@ -1397,14 +1693,18 @@ TRAP:"hole",(9,10)
 TRAP:"hole",(10,10)
 TRAP:"hole",(9,11)
 TRAP:"hole",(10,11)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+//# Map created by karadoc
+//# Level description generated by Balder.exe
+//# There are 2 spare boulders on this level.
 MAZE:"soko3-9",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
 
+//12345678901234567890123456789012345678901234567890
 MAP
 -------   ----
 |.....|---|..|--------
@@ -1451,13 +1751,15 @@ TRAP:"hole",(09,08)
 TRAP:"hole",(10,08)
 TRAP:"hole",(11,08)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Fly on the Wall"
 MAZE:"soko3-10",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
                       ---- 
     -------------------..| 
@@ -1481,24 +1783,30 @@ REGION:(00,00,25,13),lit,"ordinary"
 NON_DIGGABLE:(00,00,26,13)
 NON_PASSWALL:(00,00,26,13)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,11)
 OBJECT:('`',"boulder"),(05,11)
 OBJECT:('`',"boulder"),(07,11)
+//
 OBJECT:('`',"boulder"),(03,08)
+//
 OBJECT:('`',"boulder"),(03,06)
 OBJECT:('`',"boulder"),(02,05)
 OBJECT:('`',"boulder"),(03,04)
 OBJECT:('`',"boulder"),(04,05)
 OBJECT:('`',"boulder"),(04,06)
+//
 OBJECT:('`',"boulder"),(08,07)
 OBJECT:('`',"boulder"),(07,06)
 OBJECT:('`',"boulder"),(07,05)
 OBJECT:('`',"boulder"),(08,05)
 OBJECT:('`',"boulder"),(09,04)
 OBJECT:('`',"boulder"),(10,05)
+//
 OBJECT:('`',"boulder"),(10,03)
 OBJECT:('`',"boulder"),(11,03)
 
+// Traps
 TRAP:"hole",(13,02)
 TRAP:"hole",(14,02)
 TRAP:"hole",(15,02)
@@ -1515,13 +1823,16 @@ TRAP:"hole",(24,03)
 TRAP:"hole",(25,04)
 TRAP:"hole",(25,05)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Boulder Halls of Zim"
 MAZE:"soko3-11",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
    ---------    -----------
   --.......|    |.........|
@@ -1545,12 +1856,15 @@ REGION:(00,00,26,13),lit,"ordinary"
 NON_DIGGABLE:(00,00,26,13)
 NON_PASSWALL:(00,00,26,13)
 
+// Boulders
 OBJECT:('`',"boulder"),(05,02)
 OBJECT:('`',"boulder"),(07,02)
 OBJECT:('`',"boulder"),(09,02)
+//
 OBJECT:('`',"boulder"),(03,06)
 OBJECT:('`',"boulder"),(05,06)
 OBJECT:('`',"boulder"),(07,06)
+//
 OBJECT:('`',"boulder"),(03,09)
 OBJECT:('`',"boulder"),(05,08)
 OBJECT:('`',"boulder"),(05,11)
@@ -1561,6 +1875,7 @@ OBJECT:('`',"boulder"),(10,08)
 OBJECT:('`',"boulder"),(11,08)
 OBJECT:('`',"boulder"),(11,06)
 
+// Traps
 TRAP:"hole",(12,10)
 TRAP:"hole",(13,10)
 TRAP:"hole",(14,10)
@@ -1575,13 +1890,16 @@ TRAP:"hole",(22,10)
 TRAP:"hole",(23,10)
 TRAP:"hole",(24,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Two-Phase"
 MAZE:"soko3-12",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
   ---------------------    
   |.............|.....-----
@@ -1603,26 +1921,33 @@ REGION:(00,00,26,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,26,12)
 NON_PASSWALL:(00,00,26,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(04,01)
+//
 OBJECT:('`',"boulder"),(06,06)
 OBJECT:('`',"boulder"),(07,07)
+//
 OBJECT:('`',"boulder"),(11,09)
 OBJECT:('`',"boulder"),(11,07)
 OBJECT:('`',"boulder"),(15,06)
+//
 OBJECT:('`',"boulder"),(10,02)
 OBJECT:('`',"boulder"),(11,03)
 OBJECT:('`',"boulder"),(12,02)
 OBJECT:('`',"boulder"),(13,03)
 OBJECT:('`',"boulder"),(14,02)
 OBJECT:('`',"boulder"),(15,03)
+//
 OBJECT:('`',"boulder"),(18,03)
 OBJECT:('`',"boulder"),(19,02)
 OBJECT:('`',"boulder"),(21,02)
 OBJECT:('`',"boulder"),(21,03)
 OBJECT:('`',"boulder"),(24,03)
+//
 OBJECT:('`',"boulder"),(22,05)
 OBJECT:('`',"boulder"),(24,07)
 
+// Traps
 TRAP:"hole",(09,10)
 TRAP:"hole",(08,10)
 TRAP:"hole",(07,10)
@@ -1641,13 +1966,16 @@ TRAP:"hole",(08,06)
 TRAP:"hole",(08,05)
 TRAP:"hole",(08,04)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+//## Third level ###
 MAZE:"soko2-1",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 --------------------
 |........|...|.....|
@@ -1675,20 +2003,26 @@ REGION:(00,00,19,11),lit,"ordinary"
 NON_DIGGABLE:(00,00,19,11)
 NON_PASSWALL:(00,00,19,11)
 
+// Boulders
 OBJECT:('`',"boulder"),(02,02)
 OBJECT:('`',"boulder"),(03,02)
+//
 OBJECT:('`',"boulder"),(05,03)
 OBJECT:('`',"boulder"),(07,03)
 OBJECT:('`',"boulder"),(07,02)
 OBJECT:('`',"boulder"),(08,02)
+//
 OBJECT:('`',"boulder"),(10,03)
 OBJECT:('`',"boulder"),(11,03)
+//
 OBJECT:('`',"boulder"),(02,07)
 OBJECT:('`',"boulder"),(02,08)
 OBJECT:('`',"boulder"),(03,09)
+//
 OBJECT:('`',"boulder"),(05,07)
 OBJECT:('`',"boulder"),(06,06)
 
+// Traps
 TRAP:"hole",(08,09)
 TRAP:"hole",(09,09)
 TRAP:"hole",(10,09)
@@ -1700,13 +2034,15 @@ TRAP:"hole",(15,09)
 TRAP:"hole",(16,09)
 TRAP:"hole",(17,09)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-2",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
   --------          
 --|.|....|          
@@ -1729,6 +2065,7 @@ REGION:(00,00,19,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,19,12)
 NON_PASSWALL:(00,00,19,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(04,02)
 OBJECT:('`',"boulder"),(04,03)
 OBJECT:('`',"boulder"),(05,03)
@@ -1746,6 +2083,7 @@ OBJECT:('`',"boulder"),(06,09)
 OBJECT:('`',"boulder"),(05,10)
 OBJECT:('`',"boulder"),(05,11)
 
+// Traps
 TRAP:"hole",(07,11)
 TRAP:"hole",(08,11)
 TRAP:"hole",(09,11)
@@ -1758,7 +2096,8 @@ TRAP:"hole",(15,11)
 TRAP:"hole",(16,11)
 TRAP:"hole",(17,11)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 IF [50%] {
 MONSTER:('m',"giant mimic"), random
@@ -1770,6 +2109,7 @@ TRAP:random,random
 MAZE:"soko2-3",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Thinking Rabbit"
 MAP
        ------------
 -------|..........|
@@ -1821,7 +2161,7 @@ TRAP:"hole",(16,7)
 TRAP:"hole",(16,8)
 TRAP:"hole",(16,9)
 TRAP:"hole",(16,10)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 IF [70%] {
 MONSTER:('m',"giant mimic"), random
@@ -1845,6 +2185,7 @@ TRAP:random,random
 MAZE:"soko2-4",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
          ----------
     -----|........|
@@ -1891,13 +2232,14 @@ TRAP:"hole",(16,6)
 TRAP:"hole",(16,7)
 TRAP:"hole",(16,8)
 TRAP:"hole",(16,9)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-5",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
     ------------------
  ----....|.........+.|
@@ -1947,13 +2289,15 @@ TRAP:"hole",(15,6)
 TRAP:"hole",(16,6)
 TRAP:"hole",(17,6)
 TRAP:"hole",(18,6)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// evil patch idea by jonadab: peaceful jellies
 MAZE:"soko2-6",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Thinking Rabbit"
 MAP
         ---------
         |...|...----
@@ -2006,7 +2350,7 @@ TRAP:"hole",(14,13)
 TRAP:"hole",(15,13)
 TRAP:"hole",(16,13)
 TRAP:"hole",(17,13)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
@@ -2023,6 +2367,7 @@ MONSTER:'j', random, peaceful
 MAZE:"soko2-7",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Thinking Rabbit"
 MAP
 ----
 |..|
@@ -2071,13 +2416,14 @@ TRAP:"hole",(11,3)
 TRAP:"hole",(12,3)
 TRAP:"hole",(13,3)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-8",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center, center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
  ----           
  |..|  ---------
@@ -2100,6 +2446,7 @@ NON_PASSWALL:(00,00,15,11)
 
 DOOR:locked,(13,09)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,03)
 OBJECT:('`',"boulder"),(06,03)
 OBJECT:('`',"boulder"),(02,04)
@@ -2112,6 +2459,7 @@ OBJECT:('`',"boulder"),(06,06)
 OBJECT:('`',"boulder"),(07,06)
 OBJECT:('`',"boulder"),(02,07)
 
+// Traps
 TRAP:"hole",(03,10)
 TRAP:"hole",(04,10)
 TRAP:"hole",(05,10)
@@ -2123,13 +2471,15 @@ TRAP:"hole",(10,10)
 TRAP:"hole",(11,10)
 TRAP:"hole",(12,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-9",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
 ---------                
 |.......|                
@@ -2156,6 +2506,7 @@ REGION:(00,00,24,15),lit,"ordinary"
 NON_DIGGABLE:(00,00,24,15)
 NON_PASSWALL:(00,00,24,15)
 
+// Boulders
 OBJECT:('`',"boulder"),(05,02)
 OBJECT:('`',"boulder"),(04,03)
 OBJECT:('`',"boulder"),(03,06)
@@ -2174,6 +2525,7 @@ OBJECT:('`',"boulder"),(10,11)
 OBJECT:('`',"boulder"),(04,12)
 OBJECT:('`',"boulder"),(08,12)
 
+// Traps
 TRAP:"hole",(09,04)
 TRAP:"hole",(10,04)
 TRAP:"hole",(11,04)
@@ -2189,13 +2541,14 @@ TRAP:"hole",(20,04)
 TRAP:"hole",(21,04)
 TRAP:"hole",(22,04)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-10",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Joseph L Traub"
 MAP
   -------------
 --|...........|
@@ -2249,13 +2602,14 @@ TRAP:"hole",(3,12)
 TRAP:"hole",(4,12)
 TRAP:"hole",(5,12)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-11",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "J Franklin Mentzer <wryter@aol.com>"
 MAP
 -----------------------------
 |.............|.............|
@@ -2346,13 +2700,14 @@ TRAP:"hole",(23,14)
 TRAP:"hole",(24,14)
 TRAP:"hole",(25,14)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-12",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
  ---------     
  |...|...|     
@@ -2382,6 +2737,7 @@ ALTAR:(13,05),align[0],shrine
 NON_DIGGABLE:(00,00,15,13)
 NON_PASSWALL:(00,00,15,13)
 
+// Boulders
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(07,02)
 OBJECT:('`',"boulder"),(02,03)
@@ -2393,6 +2749,7 @@ OBJECT:('`',"boulder"),(07,06)
 OBJECT:('`',"boulder"),(03,07)
 OBJECT:('`',"boulder"),(07,09)
 
+// Traps
 TRAP:"hole",(04,08)
 TRAP:"hole",(04,09)
 TRAP:"hole",(04,10)
@@ -2403,13 +2760,14 @@ TRAP:"hole",(08,12)
 TRAP:"hole",(09,12)
 TRAP:"hole",(10,12)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
 MAZE:"soko2-13",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
   --------------------
   |..................|
@@ -2440,6 +2798,7 @@ REGION:(16,08,20,14),lit,"anthole"
 NON_DIGGABLE:(00,00,21,15)
 NON_PASSWALL:(00,00,21,15)
 
+// Boulders
 OBJECT:('`',"boulder"),(08,04)
 OBJECT:('`',"boulder"),(11,05)
 OBJECT:('`',"boulder"),(12,05)
@@ -2455,6 +2814,7 @@ OBJECT:('`',"boulder"),(08,09)
 OBJECT:('`',"boulder"),(10,10)
 OBJECT:('`',"boulder"),(11,11)
 
+// Traps
 TRAP:"hole",(08,01)
 TRAP:"hole",(09,01)
 TRAP:"hole",(10,01)
@@ -2468,14 +2828,18 @@ TRAP:"hole",(17,01)
 TRAP:"hole",(18,01)
 TRAP:"hole",(19,01)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+//# Map created by karadoc
+//# Level description generated by Balder.exe
+//# There is 1 spare boulder on this level.
 MAZE:"soko2-14",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
 
+//12345678901234567890123456789012345678901234567890
 MAP
                   ------      
 ------------  -----....--     
@@ -2528,11 +2892,14 @@ IF [75%] {
 MONSTER:('m',"giant mimic"), random
 }
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// evil patch idea by Amy - peaceful watchmen that will just get in your way all the time
 MAZE:"soko2-15",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "Thinking Rabbit"
 MAP
            ----
   ---------|..|
@@ -2575,7 +2942,7 @@ TRAP:"hole",(18,11)
 TRAP:"hole",(16,12)
 TRAP:"hole",(13,13)
 TRAP:"hole",(15,14)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+ITEMS
 
 IF [80%] {
 MONSTER:('m',"giant mimic"), random
@@ -2623,9 +2990,11 @@ IF [50%] {
 	}
 }
 
+// "Bring 'em on Down"
 MAZE:"soko2-16",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
  ---------------   -----------
  |.............|   |.........|
@@ -2647,19 +3016,24 @@ REGION:(00,00,29,11),lit,"ordinary"
 NON_DIGGABLE:(00,00,29,11)
 NON_PASSWALL:(00,00,29,11)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,03)
 OBJECT:('`',"boulder"),(06,02)
+//
 OBJECT:('`',"boulder"),(10,02)
 OBJECT:('`',"boulder"),(11,03)
 OBJECT:('`',"boulder"),(13,02)
 OBJECT:('`',"boulder"),(13,03)
+//
 OBJECT:('`',"boulder"),(13,05)
 OBJECT:('`',"boulder"),(12,05)
 OBJECT:('`',"boulder"),(10,05)
+//
 OBJECT:('`',"boulder"),(07,05)
 OBJECT:('`',"boulder"),(03,06)
 OBJECT:('`',"boulder"),(04,05)
 OBJECT:('`',"boulder"),(05,07)
+//
 OBJECT:('`',"boulder"),(03,08)
 OBJECT:('`',"boulder"),(03,09)
 OBJECT:('`',"boulder"),(05,09)
@@ -2667,6 +3041,7 @@ OBJECT:('`',"boulder"),(06,08)
 OBJECT:('`',"boulder"),(07,09)
 OBJECT:('`',"boulder"),(08,08)
 
+// Traps
 TRAP:"hole",(10,10)
 TRAP:"hole",(11,10)
 TRAP:"hole",(12,10)
@@ -2686,13 +3061,16 @@ TRAP:"hole",(25,10)
 TRAP:"hole",(26,10)
 TRAP:"hole",(27,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Slot Machine"
 MAZE:"soko2-17",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
  --------------------
  |..|.....|.|.......| 
@@ -2715,21 +3093,26 @@ REGION:(00,00,20,12),lit,"ordinary"
 NON_DIGGABLE:(00,00,20,12)
 NON_PASSWALL:(00,00,20,12)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,02)
 OBJECT:('`',"boulder"),(03,05)
+//
 OBJECT:('`',"boulder"),(06,03)
 OBJECT:('`',"boulder"),(05,05)
 OBJECT:('`',"boulder"),(06,07)
 OBJECT:('`',"boulder"),(07,06)
+//
 OBJECT:('`',"boulder"),(09,02)
 OBJECT:('`',"boulder"),(08,04)
 OBJECT:('`',"boulder"),(09,06)
+//
 OBJECT:('`',"boulder"),(04,08)
 OBJECT:('`',"boulder"),(04,10)
 OBJECT:('`',"boulder"),(05,09)
 OBJECT:('`',"boulder"),(06,10)
 OBJECT:('`',"boulder"),(08,09)
 
+// Traps
 TRAP:"hole",(07,11)
 TRAP:"hole",(08,11)
 TRAP:"hole",(09,11)
@@ -2743,13 +3126,16 @@ TRAP:"hole",(16,11)
 TRAP:"hole",(17,11)
 TRAP:"hole",(18,11)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// "Through the Cracks"
 MAZE:"soko2-18",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
  ---------------------
 --....||...........+.|
@@ -2773,25 +3159,31 @@ REGION:(00,00,21,13),lit,"ordinary"
 NON_DIGGABLE:(00,00,21,13)
 NON_PASSWALL:(00,00,21,13)
 
+// Boulders
 OBJECT:('`',"boulder"),(14,10)
 OBJECT:('`',"boulder"),(15,09)
 OBJECT:('`',"boulder"),(16,08)
 OBJECT:('`',"boulder"),(17,07)
+//
 OBJECT:('`',"boulder"),(11,10)
 OBJECT:('`',"boulder"),(13,08)
 OBJECT:('`',"boulder"),(14,07)
+//
 OBJECT:('`',"boulder"),(06,10)
 OBJECT:('`',"boulder"),(08,08)
 OBJECT:('`',"boulder"),(09,07)
+//
 OBJECT:('`',"boulder"),(02,10)
 OBJECT:('`',"boulder"),(04,08)
 OBJECT:('`',"boulder"),(05,07)
+//
 OBJECT:('`',"boulder"),(03,05)
 OBJECT:('`',"boulder"),(02,04)
 OBJECT:('`',"boulder"),(02,03)
 OBJECT:('`',"boulder"),(03,02)
 OBJECT:('`',"boulder"),(04,02)
 
+// Traps
 TRAP:"hole",(14,11)
 TRAP:"hole",(15,11)
 TRAP:"hole",(16,11)
@@ -2808,13 +3200,16 @@ TRAP:"hole",(20,04)
 TRAP:"hole",(20,03)
 TRAP:"hole",(20,02)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+// Either Way It's All Good
 MAZE: "soko2-19",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
            ----           
     --------..--------    
@@ -2846,6 +3241,7 @@ REGION:(00,00,25,16),lit,"ordinary"
 NON_DIGGABLE:(00,00,25,16)
 NON_PASSWALL:(00,00,25,16)
 
+// Boulders
 OBJECT:('`',"boulder"),(10,02)
 OBJECT:('`',"boulder"),(04,03)
 OBJECT:('`',"boulder"),(12,03)
@@ -2881,6 +3277,7 @@ OBJECT:('`',"boulder"),(13,13)
 OBJECT:('`',"boulder"),(21,13)
 OBJECT:('`',"boulder"),(15,14)
 
+// Traps
 TRAP:"hole",(04,06)
 TRAP:"hole",(05,06)
 TRAP:"hole",(06,06)
@@ -2902,13 +3299,16 @@ TRAP:"hole",(19,10)
 TRAP:"hole",(20,10)
 TRAP:"hole",(21,10)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
 MONSTER:('m',"giant mimic"), random
 
+//## Top (last) level of Sokoban ###
 MAZE:"soko1-1",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 --------------------------
 |........................|
@@ -2936,16 +3336,19 @@ REGION:(00,00,25,17),lit,"ordinary"
 NON_DIGGABLE:(00,00,25,17)
 NON_PASSWALL:(00,00,25,17)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,05)
 OBJECT:('`',"boulder"),(05,05)
 OBJECT:('`',"boulder"),(07,05)
 OBJECT:('`',"boulder"),(09,05)
 OBJECT:('`',"boulder"),(11,05)
+//
 OBJECT:('`',"boulder"),(04,07)
 OBJECT:('`',"boulder"),(04,08)
 OBJECT:('`',"boulder"),(06,07)
 OBJECT:('`',"boulder"),(09,07)
 OBJECT:('`',"boulder"),(11,07)
+//
 OBJECT:('`',"boulder"),(03,12)
 OBJECT:('`',"boulder"),(04,10)
 OBJECT:('`',"boulder"),(05,12)
@@ -2953,8 +3356,10 @@ OBJECT:('`',"boulder"),(06,10)
 OBJECT:('`',"boulder"),(07,11)
 OBJECT:('`',"boulder"),(08,10)
 OBJECT:('`',"boulder"),(09,12)
+//
 OBJECT:('`',"boulder"),(03,14)
 
+// Traps
 TRAP:"hole",(08,01)
 TRAP:"hole",(09,01)
 TRAP:"hole",(10,01)
@@ -2975,18 +3380,21 @@ TRAP:"hole",(23,01)
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// Rewards
 DOOR:locked,(23,13)
 DOOR:closed,(17,11)
 DOOR:closed,(17,13)
 DOOR:closed,(17,15)
-$i = 1d27 	IF [$i == 1] { 		REGION:(18,10,22,16),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(18,10,22,16),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(18,10,22,16),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(18,10,22,16),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(18,10,22,16),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(18,10,22,16),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(18,10,22,16),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(18,10,22,16),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(18,10,22,16),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(18,10,22,16),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (18,10) 		GOLD:10d100, (18,16) 		GOLD:10d100, (22,10) 		GOLD:10d100, (22,16) 	}
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ZOO(18,10,22,16)
+LOOT
 
 MAZE:"soko1-2",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
   ------------------------
   |......................|
@@ -3013,6 +3421,7 @@ REGION:(00,00,25,16),lit,"ordinary"
 NON_DIGGABLE:(00,00,25,16)
 NON_PASSWALL:(00,00,25,16)
 
+// Boulders
 OBJECT:('`',"boulder"),(04,04)
 OBJECT:('`',"boulder"),(02,06)
 OBJECT:('`',"boulder"),(03,06)
@@ -3025,7 +3434,9 @@ OBJECT:('`',"boulder"),(04,09)
 OBJECT:('`',"boulder"),(03,10)
 OBJECT:('`',"boulder"),(05,10)
 OBJECT:('`',"boulder"),(06,12)
+//
 OBJECT:('`',"boulder"),(07,14)
+//
 OBJECT:('`',"boulder"),(11,05)
 OBJECT:('`',"boulder"),(12,06)
 OBJECT:('`',"boulder"),(10,07)
@@ -3034,6 +3445,7 @@ OBJECT:('`',"boulder"),(10,08)
 OBJECT:('`',"boulder"),(12,09)
 OBJECT:('`',"boulder"),(11,10)
 
+// Traps
 TRAP:"hole",(05,01)
 TRAP:"hole",(06,01)
 TRAP:"hole",(07,01)
@@ -3056,19 +3468,22 @@ TRAP:"hole",(22,01)
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// Rewards
 DOOR:locked,(23,12)
 DOOR:closed,(17,10)
 DOOR:closed,(17,12)
 DOOR:closed,(17,14)
-$i = 1d27 	IF [$i == 1] { 		REGION:(18,09,22,15),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(18,09,22,15),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(18,09,22,15),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(18,09,22,15),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(18,09,22,15),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(18,09,22,15),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(18,09,22,15),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(18,09,22,15),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(18,09,22,15),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(18,09,22,15),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (18,09) 		GOLD:10d100, (18,15) 		GOLD:10d100, (22,09) 		GOLD:10d100, (22,15) 	}
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ZOO(18,09,22,15)
+LOOT
 
 
 MAZE:"soko1-3",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "J Franklin Mentzer <wryter@aol.com>"
 MAP
             ---------
             |.......|
@@ -3093,7 +3508,7 @@ $place = {(20,9),(20,11),(20,13)}
 SHUFFLE: $place
 STAIR:(2,3), down
 REGION:(00,00,21,17),lit,"ordinary"
-$i = 1d27 	IF [$i == 1] { 		REGION:(16,03,19,07),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(16,03,19,07),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(16,03,19,07),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(16,03,19,07),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(16,03,19,07),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(16,03,19,07),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(16,03,19,07),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(16,03,19,07),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(16,03,19,07),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(16,03,19,07),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (16,03) 		GOLD:10d100, (16,07) 		GOLD:10d100, (19,03) 		GOLD:10d100, (19,07) 	}
+ZOO(16,03,19,07)
 NON_DIGGABLE:(00,00,21,17)
 NON_PASSWALL:(00,00,21,17)
 DOOR:locked,(19,2)
@@ -3131,8 +3546,8 @@ TRAP:"hole",(14,10)
 TRAP:"hole",(14,11)
 TRAP:"hole",(14,12)
 TRAP:"hole",(14,13)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ITEMS
+LOOT
 
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
@@ -3140,6 +3555,7 @@ MONSTER:('m',"giant mimic"), random
 MAZE:"soko1-4",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// "J Franklin Mentzer <wryter@aol.com>"
 MAP
 ------------
 |.+......+.|
@@ -3165,7 +3581,7 @@ $place = {(1,1),(10,1),(1,3),(1,5),(10,5)}
 SHUFFLE: $place
 STAIR:(6,10), down
 REGION:(00,00,17,18),lit,"ordinary"
-$i = 1d27 	IF [$i == 1] { 		REGION:(03,01,08,05),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(03,01,08,05),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(03,01,08,05),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(03,01,08,05),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(03,01,08,05),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(03,01,08,05),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(03,01,08,05),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(03,01,08,05),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(03,01,08,05),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(03,01,08,05),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (03,01) 		GOLD:10d100, (03,05) 		GOLD:10d100, (08,01) 		GOLD:10d100, (08,05) 	}
+ZOO(03,01,08,05)
 NON_DIGGABLE:(00,00,17,18)
 NON_PASSWALL:(00,00,17,18)
 DOOR:locked,(2,1)
@@ -3207,8 +3623,8 @@ TRAP:"hole",(15,12)
 TRAP:"hole",(15,13)
 TRAP:"hole",(15,14)
 TRAP:"hole",(15,15)
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ITEMS
+LOOT
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
@@ -3216,6 +3632,7 @@ MONSTER:('m',"giant mimic"), random
 MAZE:"soko1-5",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
     ----
     -..--                   
@@ -3243,6 +3660,7 @@ REGION:(00,00,28,16),lit,"ordinary"
 NON_DIGGABLE:(00,00,28,16)
 NON_PASSWALL:(00,00,28,16)
 
+// Boulders
 OBJECT:('`',"boulder"),(06,03)
 OBJECT:('`',"boulder"),(07,03)
 OBJECT:('`',"boulder"),(07,04)
@@ -3266,6 +3684,7 @@ OBJECT:('`',"boulder"),(11,13)
 OBJECT:('`',"boulder"),(14,13)
 OBJECT:('`',"boulder"),(11,14)
 
+// Traps
 TRAP:"hole",(08,03)
 TRAP:"hole",(09,03)
 TRAP:"hole",(10,03)
@@ -3285,20 +3704,22 @@ TRAP:"hole",(23,03)
 TRAP:"hole",(24,03)
 TRAP:"hole",(25,03)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ITEMS
+LOOT
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
+// Rewards
 DOOR:locked,(26,10)
 DOOR:closed,(20,08)
 DOOR:closed,(20,10)
 DOOR:closed,(20,12)
-$i = 1d27 	IF [$i == 1] { 		REGION:(21,07,25,13),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(21,07,25,13),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(21,07,25,13),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(21,07,25,13),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(21,07,25,13),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(21,07,25,13),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(21,07,25,13),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(21,07,25,13),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(21,07,25,13),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(21,07,25,13),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (21,07) 		GOLD:10d100, (21,13) 		GOLD:10d100, (25,07) 		GOLD:10d100, (25,13) 	}
+ZOO(21,07,25,13)
 
 MAZE:"soko1-6",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+// Steve Melenchuk <smelenchuk@gmail.com>
 MAP
   -----                        
   |...------  -----   -------  
@@ -3325,6 +3746,7 @@ REGION:(00,00,30,15),lit,"ordinary"
 NON_DIGGABLE:(00,00,30,15)
 NON_PASSWALL:(00,00,30,15)
 
+// Boulders
 OBJECT:('`',"boulder"),(04,02)
 OBJECT:('`',"boulder"),(06,02)
 OBJECT:('`',"boulder"),(08,02)
@@ -3347,6 +3769,7 @@ OBJECT:('`',"boulder"),(12,10)
 OBJECT:('`',"boulder"),(14,10)
 OBJECT:('`',"boulder"),(15,10)
 
+// Traps
 TRAP:"hole",(11,13)
 TRAP:"hole",(12,13)
 TRAP:"hole",(13,13)
@@ -3366,21 +3789,24 @@ TRAP:"hole",(26,13)
 TRAP:"hole",(27,13)
 TRAP:"hole",(28,13)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ITEMS
+LOOT
 
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
+// Rewards
 DOOR:locked,(28,05)
 DOOR:closed,(22,03)
 DOOR:closed,(22,05)
 DOOR:closed,(22,07)
-$i = 1d27 	IF [$i == 1] { 		REGION:(23,02,27,08),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(23,02,27,08),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(23,02,27,08),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(23,02,27,08),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(23,02,27,08),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(23,02,27,08),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(23,02,27,08),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(23,02,27,08),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(23,02,27,08),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(23,02,27,08),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (23,02) 		GOLD:10d100, (23,08) 		GOLD:10d100, (27,02) 		GOLD:10d100, (27,08) 	}
+ZOO(23,02,27,08)
 
+// "'Ring 'em Around"
 MAZE:"soko1-7",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 ----         -------------     
 |..|----------.....|.....------
@@ -3409,30 +3835,39 @@ REGION:(00,00,30,18),lit,"ordinary"
 NON_DIGGABLE:(00,00,30,18)
 NON_PASSWALL:(00,00,30,18)
 
+// Boulders
 OBJECT:('`',"boulder"),(08,11)
 OBJECT:('`',"boulder"),(09,16)
+//
 OBJECT:('`',"boulder"),(01,16)
 OBJECT:('`',"boulder"),(02,15)
 OBJECT:('`',"boulder"),(02,10)
+//
 OBJECT:('`',"boulder"),(02,08)
 OBJECT:('`',"boulder"),(02,05)
 OBJECT:('`',"boulder"),(02,02)
+//
 OBJECT:('`',"boulder"),(08,03)
 OBJECT:('`',"boulder"),(13,02)
+//
 OBJECT:('`',"boulder"),(15,04)
 OBJECT:('`',"boulder"),(18,02)
 OBJECT:('`',"boulder"),(19,04)
+//
 OBJECT:('`',"boulder"),(20,07)
 OBJECT:('`',"boulder"),(20,05)
 OBJECT:('`',"boulder"),(20,02)
+//
 OBJECT:('`',"boulder"),(22,02)
 OBJECT:('`',"boulder"),(25,02)
 OBJECT:('`',"boulder"),(28,02)
 OBJECT:('`',"boulder"),(26,04)
+//
 OBJECT:('`',"boulder"),(22,08)
 OBJECT:('`',"boulder"),(24,08)
 OBJECT:('`',"boulder"),(24,11)
 
+// Traps
 TRAP:"hole",(28,08)
 TRAP:"hole",(28,09)
 TRAP:"hole",(28,10)
@@ -3456,18 +3891,22 @@ TRAP:"hole",(17,16)
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// Rewards
 DOOR:locked,(16,15)
 DOOR:closed,(14,09)
 DOOR:closed,(16,09)
 DOOR:closed,(18,09)
-$i = 1d27 	IF [$i == 1] { 		REGION:(13,10,19,14),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(13,10,19,14),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(13,10,19,14),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(13,10,19,14),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(13,10,19,14),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(13,10,19,14),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(13,10,19,14),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(13,10,19,14),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(13,10,19,14),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(13,10,19,14),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (13,10) 		GOLD:10d100, (13,14) 		GOLD:10d100, (19,10) 		GOLD:10d100, (19,14) 	}
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ZOO(13,10,19,14)
+LOOT
 
+// "'Ring 'em Around"
 MAZE:"soko1-8",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
 ----         -------------     
 |..|----------.....|.....------
@@ -3496,30 +3935,39 @@ REGION:(00,00,30,18),lit,"ordinary"
 NON_DIGGABLE:(00,00,30,18)
 NON_PASSWALL:(00,00,30,18)
 
+// Boulders
 OBJECT:('`',"boulder"),(08,11)
 OBJECT:('`',"boulder"),(09,16)
+//
 OBJECT:('`',"boulder"),(01,16)
 OBJECT:('`',"boulder"),(02,15)
 OBJECT:('`',"boulder"),(02,10)
+//
 OBJECT:('`',"boulder"),(02,08)
 OBJECT:('`',"boulder"),(02,05)
 OBJECT:('`',"boulder"),(02,02)
+//
 OBJECT:('`',"boulder"),(08,03)
 OBJECT:('`',"boulder"),(13,02)
+//
 OBJECT:('`',"boulder"),(15,04)
 OBJECT:('`',"boulder"),(18,02)
 OBJECT:('`',"boulder"),(19,04)
+//
 OBJECT:('`',"boulder"),(20,07)
 OBJECT:('`',"boulder"),(20,05)
 OBJECT:('`',"boulder"),(20,02)
+//
 OBJECT:('`',"boulder"),(22,02)
 OBJECT:('`',"boulder"),(25,02)
 OBJECT:('`',"boulder"),(28,02)
 OBJECT:('`',"boulder"),(26,04)
+//
 OBJECT:('`',"boulder"),(22,08)
 OBJECT:('`',"boulder"),(24,08)
 OBJECT:('`',"boulder"),(24,11)
 
+// Traps
 TRAP:"hole",(28,08)
 TRAP:"hole",(28,09)
 TRAP:"hole",(28,10)
@@ -3558,19 +4006,23 @@ MONSTER:('m',"giant mimic"),(26,12)
 MONSTER:('m',"giant mimic"),(26,13)
 MONSTER:('m',"giant mimic"),(26,14)
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// Rewards
 DOOR:locked,(16,15)
 DOOR:closed,(14,09)
 DOOR:closed,(16,09)
 DOOR:closed,(18,09)
 DOOR:locked,(06,12)
-$i = 1d27 	IF [$i == 1] { 		REGION:(13,10,19,14),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(13,10,19,14),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(13,10,19,14),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(13,10,19,14),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(13,10,19,14),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(13,10,19,14),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(13,10,19,14),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(13,10,19,14),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(13,10,19,14),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(13,10,19,14),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (13,10) 		GOLD:10d100, (13,14) 		GOLD:10d100, (19,10) 		GOLD:10d100, (19,14) 	}
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ZOO(13,10,19,14)
+LOOT
 
+// "Open at the Top"
 MAZE:"soko1-9",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
  ------------------    ----
  |................------..|
@@ -3598,14 +4050,18 @@ REGION:(00,00,26,17),lit,"ordinary"
 NON_DIGGABLE:(00,00,26,17)
 NON_PASSWALL:(00,00,26,17)
 
+// Boulders
 OBJECT:('`',"boulder"),(05,13)
 OBJECT:('`',"boulder"),(08,14)
 OBJECT:('`',"boulder"),(09,13)
+//OBJECT:('`',"boulder"),(10,14)
+//
 OBJECT:('`',"boulder"),(04,11)
 OBJECT:('`',"boulder"),(05,11)
 OBJECT:('`',"boulder"),(07,10)
 OBJECT:('`',"boulder"),(08,11)
 OBJECT:('`',"boulder"),(10,11)
+//
 OBJECT:('`',"boulder"),(14,05)
 OBJECT:('`',"boulder"),(13,07)
 OBJECT:('`',"boulder"),(12,07)
@@ -3613,12 +4069,14 @@ OBJECT:('`',"boulder"),(11,05)
 OBJECT:('`',"boulder"),(10,07)
 OBJECT:('`',"boulder"),(09,07)
 OBJECT:('`',"boulder"),(08,05)
+//
 OBJECT:('`',"boulder"),(06,08)
 OBJECT:('`',"boulder"),(06,06)
 OBJECT:('`',"boulder"),(06,05)
 OBJECT:('`',"boulder"),(03,06)
 OBJECT:('`',"boulder"),(04,04)
 
+// Traps
 TRAP:"hole",(18,02)
 TRAP:"hole",(19,02)
 TRAP:"hole",(20,02)
@@ -3640,19 +4098,23 @@ TRAP:"hole",(25,12)
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// Rewards
 DOOR:locked,(24,13)
 DOOR:closed,(18,11)
 DOOR:closed,(18,13)
 DOOR:closed,(18,15)
-$i = 1d27 	IF [$i == 1] { 		REGION:(19,10,23,16),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(19,10,23,16),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(19,10,23,16),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(19,10,23,16),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(19,10,23,16),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(19,10,23,16),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(19,10,23,16),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(19,10,23,16),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(19,10,23,16),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(19,10,23,16),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (19,10) 		GOLD:10d100, (19,16) 		GOLD:10d100, (23,10) 		GOLD:10d100, (23,16) 	}
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ZOO(19,10,23,16)
+LOOT
 
 
+// "Collecting Marbles"
 MAZE:"soko1-10",' '
 FLAGS:noteleport,premapped,solidify
 GEOMETRY:center,center
+//12345678901234567890123456789012345678901234567890
 MAP
    ------------------------
    |......................|
@@ -3679,7 +4141,9 @@ REGION:(00,00,26,16),lit,"ordinary"
 NON_DIGGABLE:(00,00,26,16)
 NON_PASSWALL:(00,00,26,16)
 
+// Boulders
 OBJECT:('`',"boulder"),(03,14)
+//
 OBJECT:('`',"boulder"),(06,14)
 OBJECT:('`',"boulder"),(08,14)
 OBJECT:('`',"boulder"),(10,14)
@@ -3688,19 +4152,24 @@ OBJECT:('`',"boulder"),(12,13)
 OBJECT:('`',"boulder"),(09,13)
 OBJECT:('`',"boulder"),(08,12)
 OBJECT:('`',"boulder"),(11,12)
+//
 OBJECT:('`',"boulder"),(03,11)
 OBJECT:('`',"boulder"),(05,11)
 OBJECT:('`',"boulder"),(05,09)
 OBJECT:('`',"boulder"),(04,08)
+//
 OBJECT:('`',"boulder"),(11,09)
+//
 OBJECT:('`',"boulder"),(03,04)
 OBJECT:('`',"boulder"),(04,06)
 OBJECT:('`',"boulder"),(08,07)
 OBJECT:('`',"boulder"),(08,05)
+//
 OBJECT:('`',"boulder"),(11,05)
 OBJECT:('`',"boulder"),(12,05)
 OBJECT:('`',"boulder"),(12,06)
 
+// Traps
 TRAP:"hole",(06,01)
 TRAP:"hole",(07,01)
 TRAP:"hole",(08,01)
@@ -3723,12 +4192,14 @@ TRAP:"hole",(23,01)
 MONSTER:('m',"giant mimic"), random
 MONSTER:('m',"giant mimic"), random
 
-OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'%',random OBJECT:'=',random OBJECT:'/',random
+// Random objects
+ITEMS
 
+// Rewards
 DOOR:locked,(24,12)
 DOOR:closed,(18,10)
 DOOR:closed,(18,12)
 DOOR:closed,(18,14)
-$i = 1d27 	IF [$i == 1] { 		REGION:(19,09,23,15),lit,"beehive",filled 	} 	IF [$i == 2] { 		REGION:(19,09,23,15),lit,"anthole",filled 	} 	IF [$i == 3] { 		REGION:(19,09,23,15),lit,"cocknest",filled 	} 	IF [$i == 4] { 		REGION:(19,09,23,15),lit,"barracks",filled 	} 	IF [$i == 5] { 		REGION:(19,09,23,15),lit,"morgue",filled 	} 	IF [$i == 6] { 		REGION:(19,09,23,15),lit,"lab",filled 	} 	IF [$i == 7] { 		REGION:(19,09,23,15),lit,"den",filled 	} 	IF [$i == 8] { 		REGION:(19,09,23,15),lit,"throne",filled 	} 	IF [$i == 9] { 		REGION:(19,09,23,15),lit,"leprehall",filled 	} 	IF [$i > 9] { 		REGION:(19,09,23,15),lit,"zoo",filled 	} 	IF [$i < 8] { 		GOLD:10d100, (19,09) 		GOLD:10d100, (19,15) 		GOLD:10d100, (23,09) 		GOLD:10d100, (23,15) 	}
-IF [50%] { 	$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	IF [25%] { 		$i = 1d27 	IF [$i == 1] { 		OBJECT:('[',"cloak of flight"),$place[1] 	} 	IF [$i == 2] { 		OBJECT:('[',"cloak of invisibility"),$place[1] 	} 	IF [$i == 3] { 		OBJECT:('[',"cloak of protection"),$place[1] 	} 	IF [$i == 4] { 		OBJECT:('[',"Hawaiian shirt"),$place[1] 	} 	IF [$i == 5] { 		OBJECT:('[',"rogues gloves"),$place[1] 	} 	IF [$i == 6] { 		OBJECT:('[',"water walking boots"),$place[1] 	} 	IF [$i == 7] { 		OBJECT:('[',"jumping boots"),$place[1] 	} 	IF [$i == 8] { 		OBJECT:('[',"boxing gloves"),$place[1] 	} 	IF [$i == 9] { 		OBJECT:('(',"oilskin sack"),$place[1] 	} 	IF [$i == 10] { 		OBJECT:('(',"stethoscope"),$place[1] 	} 	IF [$i == 11] { 		OBJECT:('(',"lenses"),$place[1] 	} 	IF [$i == 12] { 		OBJECT:('(',"can of grease"),$place[1] 	} 	IF [$i == 13] { 		OBJECT:('(',"tinning kit"),$place[1] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic whistle"),$place[1] 	} 	IF [$i == 15] { 		OBJECT:('(',"horn of plenty"),$place[1] 	} 	IF [$i == 16] { 		OBJECT:('(',"frost horn"),$place[1] 	} 	IF [$i == 17] { 		OBJECT:('(',"fire horn"),$place[1] 	} 	IF [$i == 18] { 		OBJECT:('(',"magic harp"),$place[1] 	} 	IF [$i == 19] { 		OBJECT:('(',"magic flute"),$place[1] 	} 	IF [$i == 20] { 		OBJECT:(')',"sacrificial knife"),$place[1] 	} 	IF [$i == 21] { 		OBJECT:('[',"helm of opaque thoughts"),$place[1] 	} 	IF [$i == 22] { 		OBJECT:('[',"helm of opposite alignment"),$place[1] 	} 	IF [$i == 23] { 		OBJECT:('[',"fumble boots"),$place[1] 	} 	IF [$i == 24] { 		OBJECT:('[',"gauntlets of fumbling"),$place[1] 	} 	IF [$i == 25] { 		OBJECT:('"',"amulet of strangulation"),$place[1] 	} 	IF [$i == 26] { 		OBJECT:('"',"amulet of nausea"),$place[1] 	} 	IF [$i == 27] { 		OBJECT:('"',"amulet of restful sleep"),$place[1] 	} 	} } IF [25%] { 	$i = 1d14 	IF [$i == 1] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 2] { 		OBJECT:('[',"helm of brilliance"),$place[0] 	} 	IF [$i == 3] { 		OBJECT:('[',"helm of telepathy"),$place[0] 	} 	IF [$i == 4] { 		OBJECT:('[',"cloak of reflection"),$place[0] 	} 	IF [$i == 5] { 		OBJECT:('[',"shield of resonance"),$place[0] 	} 	IF [$i == 6] { 		OBJECT:('[',"shield of reflection"),$place[0] 	} 	IF [$i == 7] { 		OBJECT:('[',"gauntlets of power"),$place[0] 	} 	IF [$i == 8] { 		OBJECT:('[',"gauntlets of dexterity"),$place[0] 	} 	IF [$i == 9] { 		OBJECT:('[',"speed boots"),$place[0] 	} 	IF [$i == 10] { 		OBJECT:('"',"amulet of life saving"),$place[0] 	} 	IF [$i == 11] { 		OBJECT:('"',"amulet of ESP"),$place[0] 	} 	IF [$i == 12] { 		OBJECT:('"',"amulet of drain resistance"),$place[0] 	} 	IF [$i == 13] { 		OBJECT:('(',"magic lamp"),$place[0] 	} 	IF [$i == 14] { 		OBJECT:('(',"magic marker"),$place[0] 	} } ELSE { 	IF [50%] { 		OBJECT:('"',"amulet of reflection"),$place[0] 	} 	ELSE { 		OBJECT:('(',"bag of holding"),$place[0] 	} } ENGRAVING:$place[0],burn,"Elbereth" IF [50%] { ENGRAVING:$place[1],burn,"Ylbereth" } IF [25%] { ENGRAVING:$place[2],burn,"Elberet|" }
+ZOO(19,09,23,15)
+LOOT
 
