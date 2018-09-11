@@ -2731,13 +2731,7 @@ do_objs()
         if (!(objnam = tmpdup(OBJ_NAME(objects[i]))))
             continue;
 
-        /* make sure probabilities add up to 1000 */
         if (objects[i].oc_class != class) {
-            if (sum && sum != 1000) {
-                Fprintf(stderr, "prob error for class %d (%d%%)", class, sum);
-                (void) fflush(stderr);
-                sumerr = TRUE;
-            }
             class = objects[i].oc_class;
             sum = 0;
         }
@@ -2795,13 +2789,6 @@ do_objs()
         prefix = 0;
 
         sum += objects[i].oc_prob;
-    }
-
-    /* check last set of probabilities */
-    if (sum && sum != 1000) {
-        Fprintf(stderr, "prob error for class %d (%d%%)", class, sum);
-        (void) fflush(stderr);
-        sumerr = TRUE;
     }
 
     Fprintf(ofp, "#define\tLAST_GEM\t(JADE)\n");
