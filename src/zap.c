@@ -3087,7 +3087,10 @@ struct obj *obj;
 
     if (otyp == WAN_WONDER) {
         wondertemp = WAN_LIGHT + rn2(WAN_LIGHTNING - WAN_LIGHT);
-        if (wondertemp == WAN_WISHING)
+        /* You can't usually get a wish from a wand of wonder.
+         * However the wrest charge can - how likely this is depends on your luck, and BUC.
+         */
+        if ((wondertemp == WAN_WISHING) && ((obj->spe >= 0) || (rnd(20) > (Luck+(obj->blessed ? 5 : (obj->cursed ? -10 : 2))))))
             wondertemp = WAN_POISON_GAS;
         if (wondertemp == WAN_WONDER)
             wondertemp = WAN_POLYMORPH;
