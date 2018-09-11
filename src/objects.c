@@ -561,6 +561,11 @@ BOOTS("kicking boots", "buckled boots",
         /* CLR_BROWN for same reason as gauntlets of power */
 BOOTS("fumble boots", "riding boots",
       0, 1,   FUMBLING, 12, 2, 20, 30, 9, 0, LEATHER, HI_LEATHER),
+BOOTS("climbing boots", "shiny boots",
+      0, 1,   CLIMBING,	12,	2, 15, 50, 9, 0, LEATHER, HI_LEATHER),
+      /* If more boots with shuffled appearances are added, they
+       * must be inserted between speed and levitation.
+       **/
 BOOTS("levitation boots", "snow boots",
       0, 1, LEVITATION, 12, 2, 15, 30, 9, 0, LEATHER, HI_LEATHER),
 #undef HELM

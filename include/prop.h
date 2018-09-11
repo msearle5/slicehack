@@ -71,6 +71,7 @@ enum prop_types {
     FLYING,
     WWALKING,
     SWIMMING,
+    CLIMBING,
     MAGICAL_BREATHING,
     PASSES_WALLS,
     /* Physical attributes */

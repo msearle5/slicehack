@@ -64,6 +64,7 @@ const struct propname {
     { ANTIMAGIC, "magic resistance" },
     { HALLUC_RES, "hallucination resistance" },
     { FUMBLING, "fumbling" },
+    { CLIMBING, "climbing" },
     { HUNGER, "voracious hunger" },
     { TELEPAT, "telepathic" },
     { WARNING, "warning" },

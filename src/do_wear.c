@@ -163,6 +163,7 @@ Boots_on(VOID_ARGS)
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
+    case CLIMBING_BOOTS:
         break;
     case WATER_WALKING_BOOTS:
         if (u.uinwater)
@@ -253,6 +254,7 @@ Boots_off(VOID_ARGS)
     case HIGH_BOOTS:
     case JUMPING_BOOTS:
     case KICKING_BOOTS:
+    case CLIMBING_BOOTS:
         break;
     default:
         impossible(unknown_type, c_boots, otyp);

@@ -133,6 +133,10 @@
 #define EFumbling u.uprops[FUMBLING].extrinsic
 #define Fumbling (HFumbling || EFumbling || u.uroleplay.clumsy)
 
+#define HClimbing u.uprops[CLIMBING].intrinsic
+#define EClimbing u.uprops[CLIMBING].extrinsic
+#define Climbing (HClimbing || EClimbing)
+
 #define HWounded_legs u.uprops[WOUNDED_LEGS].intrinsic
 #define EWounded_legs u.uprops[WOUNDED_LEGS].extrinsic
 #define Wounded_legs (HWounded_legs || EWounded_legs)

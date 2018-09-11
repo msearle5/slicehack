@@ -447,6 +447,14 @@ int x, y, typ;
     return ttmp;
 }
 
+/* Return true if you have Climbing and no statuses that would make climbing impossible,
+ * or heavy encumbrance, or riding, or (if a non-null t is passed) the trap is unknown.
+ */
+boolean climbable_trap(struct trap *t)
+{
+	return ((!t || (t->tseen)) && (Climbing) && (!u.usteed) && (!Punished) && (!Glib) && (!Confusion) && (!Fumbling) && (!Hallucination) && (!Blind) && (near_capacity() < HVY_ENCUMBER));
+}
+
 void
 fall_through(td)
 boolean td; /* td == TRUE : trap door or hole */
@@ -455,6 +463,8 @@ boolean td; /* td == TRUE : trap door or hole */
     char msgbuf[BUFSZ];
     const char *dont_fall = 0;
     int newlevel, bottom;
+    boolean climbable = 0;
+    int dist;
 
     /* we'll fall even while levitating in Sokoban; otherwise, if we
        won't fall and won't be told that we aren't falling, give up now */
@@ -478,7 +488,7 @@ boolean td; /* td == TRUE : trap door or hole */
 
     if (td) {
         struct trap *t = t_at(u.ux, u.uy);
-
+		climbable = climbable_trap(t);
         feeltrap(t);
         if (!Sokoban) {
             if (t->ttyp == TRAPDOOR)
@@ -517,11 +527,12 @@ boolean td; /* td == TRUE : trap door or hole */
     if (Is_stronghold(&u.uz)) {
         find_hell(&dtmp);
     } else {
-        int dist = newlevel - dunlev(&u.uz);
+        dist = newlevel - dunlev(&u.uz);
         dtmp.dnum = u.uz.dnum;
         dtmp.dlevel = newlevel;
         if (dist > 1)
-            You("fall down a %s%sshaft!", dist > 3 ? "very " : "",
+            You("%s down a %s%sshaft!", climbable ? "climb" : "fall",
+				dist > 3 ? "very " : "",
                 dist > 2 ? "deep " : "");
     }
     if (!td)
@@ -530,6 +541,12 @@ boolean td; /* td == TRUE : trap door or hole */
 
     schedule_goto(&dtmp, FALSE, TRUE, 0, (char *) 0,
                   !td ? msgbuf : (char *) 0);
+
+	if (!climbable) {
+		losehp(Maybe_Half_Phys(rnd(6+dist)+dist),
+			td ? (t_at(u.ux, u.uy)->ttyp == TRAPDOOR ? "fell through a trap door" : "fell down a hole") : "fell through the floor",
+			NO_KILLER_PREFIX);
+	}
 }
 
 /*
@@ -1298,98 +1315,103 @@ unsigned trflags;
         if (!Sokoban && (Levitation || (Flying && !plunged)))
             break;
         feeltrap(trap);
-        if (!Sokoban && is_clinger(youmonst.data) && !plunged) {
-            if (trap->tseen) {
-                You_see("%s %spit below you.", a_your[trap->madeby_u],
-                        ttype == SPIKED_PIT ? "spiked " : "");
-            } else {
-                pline("%s pit %sopens up under you!", A_Your[trap->madeby_u],
-                      ttype == SPIKED_PIT ? "full of spikes " : "");
-                You("don't fall in!");
-            }
-            break;
-        }
-        if (!Sokoban) {
-            char verbbuf[BUFSZ];
+        if (climbable_trap(NULL) && (!conj_pit) && (plunged || already_seen)) {
+			You("%sclimb %s into the pit.", (Flying) ? "land and " : "", adj_pit ? "over" : "down");
+			exercise(A_DEX, TRUE);
+		} else {
+			if (!Sokoban && is_clinger(youmonst.data) && !plunged) {
+				if (trap->tseen) {
+					You_see("%s %spit below you.", a_your[trap->madeby_u],
+							ttype == SPIKED_PIT ? "spiked " : "");
+				} else {
+					pline("%s pit %sopens up under you!", A_Your[trap->madeby_u],
+						  ttype == SPIKED_PIT ? "full of spikes " : "");
+					You("don't fall in!");
+				}
+				break;
+			}
+			if (!Sokoban) {
+				char verbbuf[BUFSZ];
 
-            if (u.usteed) {
-                if ((trflags & RECURSIVETRAP) != 0)
-                    Sprintf(verbbuf, "and %s fall",
-                            x_monnam(u.usteed, steed_article, (char *) 0,
-                                     SUPPRESS_SADDLE, FALSE));
-                else
-                    Sprintf(verbbuf, "lead %s",
-                            x_monnam(u.usteed, steed_article, "poor",
-                                     SUPPRESS_SADDLE, FALSE));
-            } else if (conj_pit) {
-                You("move into an adjacent pit.");
-            } else if (adj_pit) {
-                You("stumble over debris%s.",
-                    !rn2(5) ? " between the pits" : "");
-            } else {
-                Strcpy(verbbuf,
-                       !plunged ? "fall" : (Flying ? "dive" : "plunge"));
-                You("%s into %s pit!", verbbuf, a_your[trap->madeby_u]);
-            }
-        }
-        /* wumpus reference */
-        if (Role_if(PM_RANGER) && !trap->madeby_u && !trap->once
-            && In_quest(&u.uz) && Is_qlocate(&u.uz)) {
-            pline("Fortunately it has a bottom after all...");
-            trap->once = 1;
-        } else if (u.umonnum == PM_PIT_VIPER || u.umonnum == PM_PIT_FIEND) {
-            pline("How pitiful.  Isn't that the pits?");
-        }
-        if (ttype == SPIKED_PIT) {
-            const char *predicament = "on a set of sharp iron spikes";
+				if (u.usteed) {
+					if ((trflags & RECURSIVETRAP) != 0)
+						Sprintf(verbbuf, "and %s fall",
+								x_monnam(u.usteed, steed_article, (char *) 0,
+										 SUPPRESS_SADDLE, FALSE));
+					else
+						Sprintf(verbbuf, "lead %s",
+								x_monnam(u.usteed, steed_article, "poor",
+										 SUPPRESS_SADDLE, FALSE));
+				} else if (conj_pit) {
+					You("move into an adjacent pit.");
+				} else if (adj_pit) {
+					You("stumble over debris%s.",
+						!rn2(5) ? " between the pits" : "");
+				} else {
+					Strcpy(verbbuf,
+						   !plunged ? "fall" : (Flying ? "dive" : "plunge"));
+					You("%s into %s pit!", verbbuf, a_your[trap->madeby_u]);
+				}
+			}
+			/* wumpus reference */
+			if (Role_if(PM_RANGER) && !trap->madeby_u && !trap->once
+				&& In_quest(&u.uz) && Is_qlocate(&u.uz)) {
+				pline("Fortunately it has a bottom after all...");
+				trap->once = 1;
+			} else if (u.umonnum == PM_PIT_VIPER || u.umonnum == PM_PIT_FIEND) {
+				pline("How pitiful.  Isn't that the pits?");
+			}
+			if (ttype == SPIKED_PIT) {
+				const char *predicament = "on a set of sharp iron spikes";
 
-            if (u.usteed) {
-                pline("%s %s %s!",
-                      upstart(x_monnam(u.usteed, steed_article, "poor",
-                                       SUPPRESS_SADDLE, FALSE)),
-                      conj_pit ? "steps" : "lands", predicament);
-            } else
-                You("%s %s!", conj_pit ? "step" : "land", predicament);
-        }
-        u.utrap = rn1(6, 2);
-        u.utraptype = TT_PIT;
-        if (!steedintrap(trap, (struct obj *) 0)) {
-            if (ttype == SPIKED_PIT) {
-                oldumort = u.umortality;
-                losehp(Maybe_Half_Phys(rnd(conj_pit ? 4 : adj_pit ? 6 : 10)),
-                       plunged
-                           ? "deliberately plunged into a pit of iron spikes"
-                           : conj_pit ? "stepped into a pit of iron spikes"
-                           : adj_pit ? "stumbled into a pit of iron spikes"
-                                     : "fell into a pit of iron spikes",
-                       NO_KILLER_PREFIX);
-                if (!rn2(6))
-                    poisoned("spikes", A_STR,
-                             (conj_pit || adj_pit) ? "stepping on poison spikes"
-                                     : "fall onto poison spikes",
-                             /* if damage triggered life-saving,
-                                poison is limited to attrib loss */
-                             (u.umortality > oldumort) ? 0 : 8, FALSE);
-            } else {
-                /* plunging flyers take spike damage but not pit damage */
-                if (!conj_pit
-                    && !(plunged && (Flying || is_clinger(youmonst.data))))
-                    losehp(Maybe_Half_Phys(rnd(adj_pit ? 3 : 6)),
-                           plunged ? "deliberately plunged into a pit"
-                                   : "fell into a pit",
-                           NO_KILLER_PREFIX);
-            }
-            if (Punished && !carried(uball)) {
-                unplacebc();
-                ballfall();
-                placebc();
-            }
-            if (!conj_pit)
-                selftouch("Falling, you");
-            vision_full_recalc = 1; /* vision limits change */
-            exercise(A_STR, FALSE);
-            exercise(A_DEX, FALSE);
-        }
+				if (u.usteed) {
+					pline("%s %s %s!",
+						  upstart(x_monnam(u.usteed, steed_article, "poor",
+										   SUPPRESS_SADDLE, FALSE)),
+						  conj_pit ? "steps" : "lands", predicament);
+				} else
+					You("%s %s!", conj_pit ? "step" : "land", predicament);
+			}
+			u.utrap = rn1(6, 2);
+			u.utraptype = TT_PIT;
+			if (!steedintrap(trap, (struct obj *) 0)) {
+				if (ttype == SPIKED_PIT) {
+					oldumort = u.umortality;
+					losehp(Maybe_Half_Phys(rnd(conj_pit ? 4 : adj_pit ? 6 : 10)),
+						   plunged
+							   ? "deliberately plunged into a pit of iron spikes"
+							   : conj_pit ? "stepped into a pit of iron spikes"
+							   : adj_pit ? "stumbled into a pit of iron spikes"
+										 : "fell into a pit of iron spikes",
+						   NO_KILLER_PREFIX);
+					if (!rn2(6))
+						poisoned("spikes", A_STR,
+								 (conj_pit || adj_pit) ? "stepping on poison spikes"
+										 : "fall onto poison spikes",
+								 /* if damage triggered life-saving,
+									poison is limited to attrib loss */
+								 (u.umortality > oldumort) ? 0 : 8, FALSE);
+				} else {
+					/* plunging flyers take spike damage but not pit damage */
+					if (!conj_pit
+						&& !(plunged && (Flying || is_clinger(youmonst.data))))
+						losehp(Maybe_Half_Phys(rnd(adj_pit ? 3 : 6)),
+							   plunged ? "deliberately plunged into a pit"
+									   : "fell into a pit",
+							   NO_KILLER_PREFIX);
+				}
+				if (Punished && !carried(uball)) {
+					unplacebc();
+					ballfall();
+					placebc();
+				}
+				if (!conj_pit)
+					selftouch("Falling, you");
+				vision_full_recalc = 1; /* vision limits change */
+				exercise(A_STR, FALSE);
+				exercise(A_DEX, FALSE);
+			}
+		}
         break;
 
     case HOLE:
@@ -3171,7 +3193,7 @@ climb_pit()
         u.utrap = 0;
         fill_pit(u.ux, u.uy);
         vision_full_recalc = 1; /* vision limits change */
-    } else if (!rn2(2) && sobj_at(BOULDER, u.ux, u.uy)) {
+    } else if (!rn2(2) && !(climbable_trap(NULL)) && sobj_at(BOULDER, u.ux, u.uy)) {
         Your("%s gets stuck in a crevice.", body_part(LEG));
         display_nhwindow(WIN_MESSAGE, FALSE);
         clear_nhwindow(WIN_MESSAGE);
@@ -3183,11 +3205,12 @@ climb_pit()
         u.utrap = 0;
         fill_pit(u.ux, u.uy);
         vision_full_recalc = 1; /* vision limits change */
-    } else if (!(--u.utrap)) {
+    } else if (!(--u.utrap) || climbable_trap(NULL)) {
+		u.utrap = 0;
         You("%s to the edge of the pit.",
             (Sokoban && Levitation)
                 ? "struggle against the air currents and float"
-                : u.usteed ? "ride" : "crawl");
+                : u.usteed ? "ride" : (climbable_trap(NULL) ? "climb" : "crawl"));
         fill_pit(u.ux, u.uy);
         vision_full_recalc = 1; /* vision limits change */
     } else if (u.dz || flags.verbose) {

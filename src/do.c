@@ -1200,9 +1200,15 @@ dodown()
         return 0;
     }
 
-    if (trap)
-        You("%s %s.", Flying ? "fly" : locomotion(youmonst.data, "jump"),
+    if (trap) {
+        You("%s %s.", Flying ? "fly" : (climbable_trap(trap) ? "climb" : locomotion(youmonst.data, "jump")),
             trap->ttyp == HOLE ? "down the hole" : "through the trap door");
+        if (!Flying && !climbable_trap(trap)) {
+			losehp(Maybe_Half_Phys(rnd(4)+1),
+			trap->ttyp == TRAPDOOR ? "jumped through a trap door" : "jumped down a hole",
+			NO_KILLER_PREFIX);
+		}
+	}
 
     if (trap && Is_stronghold(&u.uz)) {
         goto_hell(FALSE, TRUE);
@@ -1245,10 +1251,16 @@ doup()
         return 1;
     }
     if (near_capacity() > SLT_ENCUMBER) {
-        /* No levitation check; inv_weight() already allows for it */
-        Your("load is too heavy to climb the %s.",
-             levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
-        return 1;
+		if ((climbable_trap(NULL)) && (near_capacity() <= HVY_ENCUMBER)) {
+			You("slowly clamber up the %s.",
+				levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
+		}
+		else {
+			/* No levitation check; inv_weight() already allows for it */
+			Your("load is too heavy to climb the %s.",
+				 levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
+			return 1;
+		}
     }
     if (ledger_no(&u.uz) == 1) {
         if (yn("Beware, there will be no return! Still climb?") != 'y')
@@ -1535,20 +1547,24 @@ boolean at_stairs, falling, portal;
                         at_ladder ? "along the ladder" : "the stairs");
             } else if (near_capacity() > UNENCUMBERED
                        || Punished || Fumbling) {
-                You("fall down the %s.", at_ladder ? "ladder" : "stairs");
-                if (Punished) {
-                    drag_down();
-                    ballrelease(FALSE);
-                }
-                /* falling off steed has its own losehp() call */
-                if (u.usteed)
-                    dismount_steed(DISMOUNT_FELL);
-                else
-                    losehp(Maybe_Half_Phys(rnd(3)),
-                           at_ladder ? "falling off a ladder"
-                                     : "tumbling down a flight of stairs",
-                           KILLED_BY);
-                selftouch("Falling, you");
+				if (climbable_trap(NULL)) {
+					You("clamber down the %s.", at_ladder ? "ladder" : "stairs");
+				} else {
+					You("fall down the %s.", at_ladder ? "ladder" : "stairs");
+					if (Punished) {
+						drag_down();
+						ballrelease(FALSE);
+					}
+					/* falling off steed has its own losehp() call */
+					if (u.usteed)
+						dismount_steed(DISMOUNT_FELL);
+					else
+						losehp(Maybe_Half_Phys(rnd(3)),
+							   at_ladder ? "falling off a ladder"
+										 : "tumbling down a flight of stairs",
+							   KILLED_BY);
+					selftouch("Falling, you");
+				}
             } else { /* ordinary descent */
                 if (flags.verbose)
                     You("%s.", at_ladder ? "climb down the ladder"
