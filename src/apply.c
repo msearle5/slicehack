@@ -452,7 +452,7 @@ struct obj *obj;
                     levl[u.ux][u.uy].typ = ALTAR;
                 break;
             case 17:
-                pline("You draw the Emperess! Your throne arrives.");
+                pline("You draw the Empress! Your throne arrives.");
                 if (levl[u.ux][u.uy].typ != STAIRS &&
                       levl[u.ux][u.uy].typ != LADDER)
                     levl[u.ux][u.uy].typ = THRONE;
