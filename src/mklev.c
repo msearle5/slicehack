@@ -1059,7 +1059,7 @@ boolean skip_lvl_checks;
                 if (rn2(1000) < gemprob) {
                     for (cnt = rnd(2 + dunlev(&u.uz) / 3); cnt > 0; cnt--)
                         if ((otmp = mkobj(GEM_CLASS, FALSE)) != 0) {
-                            if (otmp->otyp == ROCK) {
+                            if ((otmp->otyp == ROCK) || (otmp->material == GLASS)) {
                                 dealloc_obj(otmp); /* discard it */
                             } else {
                                 otmp->ox = x, otmp->oy = y;
