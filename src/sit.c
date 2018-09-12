@@ -78,9 +78,28 @@ dosit()
                 (obj->quan + money_cnt(invent) < u.ulevel * 1000) ? "meager "
                                                                   : "");
         } else {
-            You("sit on %s.", the(xname(obj)));
-            if (!(Is_box(obj) || obj->material == CLOTH))
-                pline("It's not very comfortable...");
+            if (obj->otyp == EGG) {
+                if (lays_eggs(youmonst.data)) {
+                    You("carefully sit on %s.", the(xname(obj)));
+                } else {
+                    You("sit on %s... Splat!", the(xname(obj)));
+                    
+                    if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance && !(poly_when_stoned(youmonst.data)
+                     && polymon(PM_STONE_GOLEM))) {
+                        killer.format = KILLED_BY;
+                        Strcpy(killer.name, "sitting on an egg");
+                        You("turn to stone.");
+                        done(STONING);
+                    }
+                    costly_alteration(obj, COST_SPLAT);
+                    obj_extract_self(obj);
+                    delobj(obj);
+                }
+            } else {
+                You("sit on %s.", the(xname(obj)));
+                if (!(Is_box(obj) || obj->material == CLOTH))
+                    pline("It's not very comfortable...");
+            }
         }
     } else if (trap != 0 || (u.utrap && (u.utraptype >= TT_LAVA))) {
         if (u.utrap) {
