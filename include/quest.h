@@ -43,6 +43,8 @@ struct q_score {              /* Quest "scorecard" */
 #define MIN_QUEST_ALIGN 20 /* at least this align.record to start */
 /* note: align 20 matches "pious" as reported by enlightenment (cmd.c) */
 #define MIN_QUEST_LEVEL 10 /* at least this u.ulevel to start */
-/* note: exp.lev. 14 is threshold level for 5th rank (class title, role.c) */
+/* note: exp.lev. 10 is threshold level for 4th rank (class title, role.c -
+ * calculated by xlev_to_rank in botl.c)
+ **/
 
 #endif /* QUEST_H */

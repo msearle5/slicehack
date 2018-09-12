@@ -390,31 +390,10 @@ register struct permonst *ptr;
             type = i;
         }
     }
-    /* this section of code is just a modified version of givit() */
-    switch (type) {
-    case POISON_RES:
-        if ((ptr == &mons[PM_KILLER_BEE] || ptr == &mons[PM_SCORPION])
-            && !rn2(4))
-            chance = 1;
-        else
-            chance = 15;
-        break;
-    case TELEPORT:
-        chance = 10;
-        break;
-    case TELEPORT_CONTROL:
-        chance = 12;
-        break;
-    case TELEPAT:
-        chance = 1;
-        break;
-    default:
-        chance = 15;
-        break;
-    }
 
-    if (ptr->mlevel <= rn2(chance))
+    if (!cangivit(type, ptr))
         return; /* failed die roll */
+
     switch (type) {
     case FIRE_RES:
         if (canseemon(mtmp))

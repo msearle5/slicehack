@@ -867,17 +867,12 @@ remresists()
     }
 }
 
-/* givit() tries to give you an intrinsic based on the monster's level
- * and what type of intrinsic it is trying to give you.
- */
-STATIC_OVL void
-givit(type, ptr)
+boolean
+cangivit(type, ptr)
 int type;
 register struct permonst *ptr;
 {
     register int chance;
-
-    debugpline1("Attempting to give intrinsic %d", type);
     /* some intrinsics are easier to get than others */
     switch (type) {
     case POISON_RES:
@@ -901,7 +896,22 @@ register struct permonst *ptr;
         break;
     }
 
-    if (ptr->mlevel <= rn2(chance))
+    return (ptr->mlevel > rn2(chance));
+}
+
+/* givit() tries to give you an intrinsic based on the monster's level
+ * and what type of intrinsic it is trying to give you.
+ */
+STATIC_OVL void
+givit(type, ptr)
+int type;
+register struct permonst *ptr;
+{
+    register int chance;
+
+    debugpline1("Attempting to give intrinsic %d", type);
+
+    if (!cangivit(type, ptr))
         return; /* failed die roll */
 
     switch (type) {
