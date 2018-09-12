@@ -531,6 +531,62 @@ dodrink()
             djinni_from_bottle(otmp);
             useup(otmp);
             return 1;
+        } else {
+            /* It's possible for the potion to slip out of your hands.
+             * In this case it will hit the floor and possibly smash - dependent on Luck.
+             * The potion has a chance of slipping in any of the following situations:
+             *
+             * It is cursed (for the same reason that throwing a cursed knife might slip)
+             * It is greased (for completeness - there's no good reason why you would...)
+             * You have slippery fingers
+             * You are Fumbling or impaired
+             * You have very low Dexterity
+             *
+             * The chances combine if more than one applies.
+             * Blessing a potion helps protect it from slipping, though.
+             * So does DEX > 8.
+             *
+             * The numbers are intended to make DEX of 18 reduce the chance of failure due
+             * to a curse or single impairment by several times (to 1%) but not to help much
+             * against multiple impairments or glib/fumbling/greased.
+             */
+             int chance = 0;
+             if (otmp->cursed) chance += 60;
+             if (otmp->blessed) chance -= 25;
+             if (otmp->greased) chance += 250; /* muppet */
+             if (Glib) chance += 250;
+             if (Fumbling) chance += 250;
+             if (Blind) chance += 85;
+             if (Confusion) chance += 85;
+             if (Stunned) chance += 85;
+             if (Hallucination) chance += 85;
+             switch(ACURR(A_DEX)) {
+                case 3:
+                    chance += 100;
+                    break;
+                case 4:
+                    chance += 50;
+                    break;
+                case 5:
+                    chance += 20;
+                    break;
+                default:
+                    chance += (5 * (ACURR(A_DEX) - 8));
+            }
+            if (chance > 950) chance = 950;
+            if (rn2(1000) < chance) {
+                /* Butter fingers */
+                pline("The %s%s slips from your %s%s!",
+                    (otmp->greased) ? "greased " : "",
+                    bottlename(),
+                    (Glib) ? "slippery " : (Fumbling ? "fumbling " : ""),
+                    makeplural(body_part(FINGER)));
+                otmp->in_use = FALSE;
+
+                extract_nobj(otmp, &invent);
+                mayhitfloor(otmp, (rn2(50) > Luck+20), u.ux, u.uy);
+                return 1;
+            }
         }
     }
     return dopotion(otmp);
@@ -1204,8 +1260,8 @@ const char *txt;
 const char *bottlenames[] = { "bottle", "phial", "flagon", "carafe",
                               "flask",  "jar",   "vial" };
 
-const char *hbottlenames[] = { "barrel", "tin", "bag", "box", "glass",
-								"thingy", "mug", "teacup", "teapot", "keg", "parcel" };
+const char *hbottlenames[] = { "barrel", "tin", "bag", "box", "glass", "beaker", "tumbler", "vase", "flowerpot", "pan",
+								"thingy", "mug", "teacup", "teapot", "keg", "bucket", "parcel", "bowl" };
 
 const char *
 bottlename()
