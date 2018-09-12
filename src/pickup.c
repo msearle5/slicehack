@@ -2192,7 +2192,16 @@ register struct obj *obj;
         if (was_unpaid)
             addtobill(obj, FALSE, FALSE, TRUE);
         obfree(obj, (struct obj *) 0);
-        delete_contents(current_container);
+
+        /* The item that triggered the explosion and the bag itself are always
+         * destroyed. Other items aren't necessarily. Go through all top-level
+         * items, and vanish it if it fails a check based on Luck and the item's
+         * buc. Artifacts get much better chances. Items that don't vanish are
+         * dropped (sometimes as if from levitation (i.e. there is a change that
+         * they will break, if fragile) at a square near and within sight of the
+         * player. This is not necessarily safe (it may be water or lava).
+         */
+        distribute_contents(current_container);
         if (!floor_container)
             useup(current_container);
         else if (obj_here(current_container, u.ux, u.uy))

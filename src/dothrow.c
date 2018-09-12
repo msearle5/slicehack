@@ -418,27 +418,41 @@ boolean verbose;
 }
 
 /*
+ * Object hits floor at a given position - with optional impact (breaking fragile items).
+ * Called from hitfloor() and distribute_objects().
+ */
+void
+mayhitfloor(obj, impact, x, y)
+register struct obj *obj;
+boolean impact;
+int x;
+int y;
+{
+    if (IS_SOFT(levl[x][y].typ) || u.uinwater || impact) {
+        dropy(obj);
+        return;
+    }
+    if (IS_ALTAR(levl[x][y].typ))
+        doaltarobj(obj);
+    else
+        pline("%s hit%s the %s.", Doname2(obj), (obj->quan == 1L) ? "s" : "",
+              surface(x, y));
+
+    if (hero_breaks(obj, x, y, TRUE))
+        return;
+    if (ship_object(obj, x, y, FALSE))
+        return;
+    dropz(obj, TRUE);
+}
+
+/*
  * Object hits floor at hero's feet.  Called from drop() and throwit().
  */
 void
 hitfloor(obj)
 register struct obj *obj;
 {
-    if (IS_SOFT(levl[u.ux][u.uy].typ) || u.uinwater) {
-        dropy(obj);
-        return;
-    }
-    if (IS_ALTAR(levl[u.ux][u.uy].typ))
-        doaltarobj(obj);
-    else
-        pline("%s hit%s the %s.", Doname2(obj), (obj->quan == 1L) ? "s" : "",
-              surface(u.ux, u.uy));
-
-    if (hero_breaks(obj, u.ux, u.uy, TRUE))
-        return;
-    if (ship_object(obj, u.ux, u.uy, FALSE))
-        return;
-    dropz(obj, TRUE);
+	mayhitfloor(obj, u.ux, u.uy, TRUE);
 }
 
 /*

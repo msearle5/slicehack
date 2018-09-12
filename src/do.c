@@ -858,6 +858,17 @@ dropz(obj, with_impact)
 struct obj *obj;
 boolean with_impact;
 {
+	dropzat(obj, with_impact, u.ux, u.uy);
+}
+
+/* dropzat - as dropz, but at an arbitrary destination. */
+void
+dropzat(obj, with_impact, x, y)
+struct obj *obj;
+boolean with_impact;
+int x;
+int y;
+{
     if (obj == uwep)
         setuwep((struct obj *) 0);
     if (obj == uquiver)
@@ -865,7 +876,7 @@ boolean with_impact;
     if (obj == uswapwep)
         setuswapwep((struct obj *) 0);
 
-    if (!u.uswallow && flooreffects(obj, u.ux, u.uy, "drop"))
+    if (!u.uswallow && flooreffects(obj, x, y, "drop"))
         return;
     /* uswallow check done by GAN 01/29/87 */
     if (u.uswallow) {
@@ -906,17 +917,17 @@ boolean with_impact;
             }
         }
     } else {
-        place_object(obj, u.ux, u.uy);
+        place_object(obj, x, y);
         if (with_impact)
-            container_impact_dmg(obj, u.ux, u.uy);
+            container_impact_dmg(obj, x, y);
         if (obj == uball)
-            drop_ball(u.ux, u.uy);
+            drop_ball(x, y);
         else if (level.flags.has_shop)
-            sellobj(obj, u.ux, u.uy);
+            sellobj(obj, x, y);
         stackobj(obj);
         if (Blind && Levitation)
             map_object(obj, 0);
-        newsym(u.ux, u.uy); /* remap location under self */
+        newsym(x, y); /* remap location under self */
     }
 }
 

@@ -1003,6 +1003,52 @@ register struct obj *obj;
     }
 }
 
+/* Scatter the contents of the given object, as from an exploding bag. */
+void
+distribute_contents(obj)
+register struct obj *obj;
+{
+    register struct obj *curr;
+    int chance;
+
+    while ((curr = obj->cobj) != 0) {
+        obj_extract_self(curr);
+
+        /* Does it vanish? */
+        chance = Luck+17;
+        if (curr->blessed) chance *= 2;
+        if (curr->cursed) chance /= 2;
+        if (curr->oartifact) chance *= 10;
+        if (chance < 4) chance = 4;
+
+        if (rnd(chance) <= 2) {
+			pline("%s!", Tobjnam(curr, "vanish"));
+			obfree(curr, (struct obj *) 0);
+		} else {
+			int x, y, nx, ny, best, i;
+
+			/* If not, drop it - how hard depends on how far away it is, and
+			 * on the same chance as vanishing
+			 **/
+			x = u.ux;
+			y = u.uy;
+
+			/* Random walk over grids within LOS of the player */
+			for(i=0;i<24;i++) {
+				nx = x + rnd(3)-2;
+				ny = y + rnd(3)-2;
+				if (isok(nx, ny) && (!(IS_ROCK(levl[nx][ny].typ))) && couldsee(nx, ny)) {
+					x = nx;
+					y = ny;
+				}
+			}
+
+			best = 2 + abs(x - u.ux) + abs(y - u.uy);
+			dropzat(curr, (rnd(chance) <= best), x, y);
+		}
+    }
+}
+
 /* called with two args on merge */
 void
 obfree(obj, merge)
