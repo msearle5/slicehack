@@ -659,6 +659,7 @@ struct obj *obj;
 int thrown; /* HMON_xxx (0 => hand-to-hand, other => ranged) */
 int dieroll;
 {
+	static int fingerless = 0;
     int tmp;
     struct permonst *mdat = mon->data;
     int barehand_silver_rings = 0;
@@ -688,6 +689,10 @@ int dieroll;
     unconventional[0] = '\0';
     saved_oname[0] = '\0';
 
+	if (!fingerless) {
+		fingerless = find_fingerless();
+	}
+
     wakeup(mon, TRUE);
     if (!obj) { /* attack with bare hands */
         if (mdat == &mons[PM_SHADE])
@@ -702,7 +707,7 @@ int dieroll;
             && (is_undead(mdat) || is_demon(mdat) || is_vampshifter(mon)))
             tmp += rnd(4);
         /* So do silver rings.  Note: rings are worn under gloves, so you
-         * don't get both bonuses.
+         * don't get both bonuses - unless the gloves are fingerless.
          */
         if (uarmg) {
             if (uarmg->material == SILVER && mon_hates_silver(mon)) {
@@ -712,7 +717,7 @@ int dieroll;
                 silverobj = TRUE;
             }
         }
-        else {
+        if ((!uarmg) || (uarmg->otyp == fingerless)) {
             if (uleft && uleft->material == SILVER)
                 barehand_silver_rings++;
             if (uright && uright->material == SILVER)

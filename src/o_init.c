@@ -283,6 +283,21 @@ find_skates()
     return -1; /* not 0, or caller would try again each move */
 }
 
+/* find the object index for fingerless gloves; used [once] by unarmed melee code */
+int
+find_fingerless()
+{
+    register int i;
+    register const char *s;
+
+    for (i = GLOVES; i <= GAUNTLETS_OF_DEXTERITY; i++)
+        if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "fingerless gloves"))
+            return i;
+
+    impossible("fingerless gloves not found?");
+    return -1; /* not 0, or caller would try again each move */
+}
+
 /* level dependent initialization */
 void
 oinit()

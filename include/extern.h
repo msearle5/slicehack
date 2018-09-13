@@ -1674,6 +1674,7 @@ E void NDECL(nethack_enter_nttty);
 E void NDECL(init_objects);
 E void FDECL(obj_shuffle_range, (int, int *, int *));
 E int NDECL(find_skates);
+E int NDECL(find_fingerless);
 E void NDECL(oinit);
 E void FDECL(savenames, (int, int));
 E void FDECL(restnames, (int));
