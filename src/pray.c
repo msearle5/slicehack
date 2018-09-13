@@ -71,13 +71,14 @@ static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
  * order to have the values be meaningful.
  */
 
-#define TROUBLE_STONED 14
-#define TROUBLE_SLIMED 13
-#define TROUBLE_STRANGLED 12
-#define TROUBLE_LAVA 11
-#define TROUBLE_SICK 10
-#define TROUBLE_STARVING 9
-#define TROUBLE_REGION 8 /* stinking cloud */
+#define TROUBLE_STONED 15
+#define TROUBLE_SLIMED 14
+#define TROUBLE_STRANGLED 13
+#define TROUBLE_LAVA 12
+#define TROUBLE_SICK 11
+#define TROUBLE_STARVING 10
+#define TROUBLE_REGION 9 /* stinking cloud */
+#define TROUBLE_SURROUNDED 8
 #define TROUBLE_HIT 7
 #define TROUBLE_LYCANTHROPE 6
 #define TROUBLE_COLLAPSING 5
@@ -171,6 +172,48 @@ stuck_in_wall()
     return (count == 8) ? TRUE : FALSE;
 }
 
+/* Return true if surrounded by monsters (or wall). 
+ * Checks up to 4 grids away, but grids further away are worth less.
+ * Intended to catch both being trapped in a tight space by 1 or 2 monsters,
+ * and being mobbed by lots of monsters in an open space.
+ * Pets don't count as monsters, but they do count as an obstruction.
+ **/
+boolean
+surrounded()
+{
+    int monsters = 0;
+    int freespace = 0;
+    int i, j, x, y;
+
+    /* Count monsters and blocked grids */
+    for(i = -4; i <= 4; i++) {
+        x = u.ux + i;
+        for(j = -4; j <= 4; j++) {
+            if ((i != 0) || (j != 0)) {
+                boolean ok = FALSE;
+                boolean mon = FALSE;
+                int dist;
+                y = u.uy + j;
+                if (isok(x, y)) {
+                    ok = TRUE;
+                    if (IS_ROCK(levl[x][y].typ)) ok = FALSE;
+                    if (m_at(x, y) != 0) {
+                        ok = FALSE;
+                        if (!(m_at(x, y)->mtame)) {
+                            mon = TRUE;
+                        }
+                    }
+                }
+                dist = isqrt((i*i)+(j*j));
+                if (mon) monsters += (1000 / dist);
+                if (ok) freespace += (1000 / (dist*dist));
+            }
+        }
+    }
+    if (freespace == 0) return TRUE;
+    return (monsters >= freespace);
+}
+
 /*
  * Return 0 if nothing particular seems wrong, positive numbers for
  * serious trouble, and negative numbers for comparative annoyances.
@@ -208,6 +251,8 @@ in_trouble()
         return TROUBLE_STARVING;
     if (region_danger())
         return TROUBLE_REGION;
+    if (surrounded())
+		return TROUBLE_SURROUNDED;
     if (critically_low_hp(FALSE))
         return TROUBLE_HIT;
     if (u.ulycn >= LOW_PM)
@@ -379,6 +424,10 @@ int trouble;
         /* stinking cloud, with hero vulnerable to HP loss */
         region_safety();
         break;
+    case TROUBLE_SURROUNDED:
+		safe_teleds(FALSE);
+		if (!critically_low_hp(FALSE)) break;
+		/*FALLTHRU*/
     case TROUBLE_HIT:
         /* "fix all troubles" will keep trying if hero has
            5 or less hit points, so make sure they're always
