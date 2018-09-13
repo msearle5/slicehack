@@ -1305,7 +1305,7 @@ register struct monst *mtmp;
                 pline("The sacrifice of %s is consumed in a burst of flame!",
                       mon_nam(mtmp));
                 m_useup(mtmp, otmp);
-                /* monsters get experiments from sacrificing instead of luck */
+                /* monsters get experience from sacrificing instead of luck */
                 if (!grow_up(mtmp, (struct monst *) 0)) {
                     /* grew up into genocided monster */
                     return 2;

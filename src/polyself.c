@@ -1187,7 +1187,7 @@ dospinweb()
                     Strcpy(sweep, "freezes, shatters and ");
                     break;
                 default:
-                    Strcpy(sweep, "virbrates and ");
+                    Strcpy(sweep, "vibrates and ");
                 }
                 pline_The("web %sis swept away!", sweep);
             }
