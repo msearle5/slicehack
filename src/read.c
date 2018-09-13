@@ -1029,6 +1029,19 @@ boolean showmsg;
     return TRUE;
 }
 
+const char *
+scrollname(void)
+{
+    static const char *hscrollnames[] = {
+        "postcard", "letter", "envelope", "booklet", "flyer", "ticket",
+        "poster", "newspaper"
+    };
+
+    if (Hallucination)
+        return hscrollnames[rn2(SIZE(hscrollnames))];
+    return (Role_if(PM_CARTOMANCER)) ? "card" : "scroll";
+}
+
 STATIC_PTR void
 display_stinking_cloud_positions(state)
 int state;
@@ -1647,10 +1660,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         else if (!already_known || !invent) {
             /* force feedback now if invent became
                empty after using up this scroll */
-            if (Role_if(PM_CARTOMANCER))
-                pline("This is an identify card.");
-            else
-                pline("This is an identify scroll.");
+            pline("This is an identify %s.", scrollname());
         } if (!already_known)
             (void) learnscrolltyp(SCR_IDENTIFY);
         /*FALLTHRU*/
@@ -1716,10 +1726,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         }
         /* known = TRUE; -- handled inline here */
         if (!already_known) {
-            if (Role_if(PM_CARTOMANCER))
-                pline("This is a charging card.");
-            else
-                pline("This is a charging scroll.");
+            pline("This is a charging %s.", scrollname());
             learnscroll(sobj);
         }
         /* use it up now to prevent it from showing in the
@@ -1809,7 +1816,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (confused) {
             if (Underwater) {
                 pline_The("A little %s around the %s vaporizes.", hliquid("water"),
-                    (Role_if(PM_CARTOMANCER)) ? "card" : "scroll");
+                    scrollname());
             } else {
                 if (Fire_resistance) {
                     shieldeff(u.ux, u.uy);
@@ -1820,11 +1827,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                         You_feel("a pleasant warmth in your %s.",
                                  makeplural(body_part(HAND)));
                 } else {
-                    if (Role_if(PM_CARTOMANCER))
-                        pline_The("card catches fire and you burn your %s.",
-                                  makeplural(body_part(HAND)));
-                    else
-                        pline_The("scroll catches fire and you burn your %s.",
+                    pline_The("%s catches fire and you burn your %s.", scrollname(),
                                   makeplural(body_part(HAND)));
                     losehp(1, "scroll of fire", KILLED_BY_AN);
                 }

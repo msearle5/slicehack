@@ -2058,6 +2058,7 @@ E long NDECL(random);
 E void FDECL(learnscroll, (struct obj *));
 E char *FDECL(tshirt_text, (struct obj *, char *));
 E int NDECL(doread);
+E const char *FDECL(scrollname, (void));
 E boolean FDECL(is_chargeable, (struct obj *));
 E void FDECL(recharge, (struct obj *, int));
 E void FDECL(forget_objects, (int));
