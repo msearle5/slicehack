@@ -19,6 +19,7 @@
 #define GRUNTHACK_CURSES    5
 #define DNETHACK_CURSES     6
 #define SPLICEHACK_CURSES   7
+#define SLICEHACK_CURSES    8
 
 static void set_window_position(int *, int *, int *, int *, int,
                                 int *, int *, int *, int *, int,
@@ -158,6 +159,20 @@ nhrgb orig_hiwhite;
 "     | |"
 #define SPLICEHACK_SPLASH_H \
 "     |_|"
+
+#define SLICEHACK_SPLASH_A \
+  "_____ _ _          _    _            _"
+#define SLICEHACK_SPLASH_B \
+  "/ ____| (_)        | |  | |          | |"
+#define SLICEHACK_SPLASH_C \
+ "| (___ | |_  ___ ___| |__| | __ _  ___| | __"
+#define SLICEHACK_SPLASH_D \
+"\\___ \\| | |/ __/ _ \\  __  |/ _` |/ __| |/ /"
+#define SLICEHACK_SPLASH_E \
+  "____) | | | (_|  __/ |  | | (_| | (__|   <"
+#define SLICEHACK_SPLASH_F \
+ "|_____/|_|_|\\___\\___|_|  |_|\\__,_|\\___|_|\\_\\"
+
 
 /* win* is size and placement of window to change, x/y/w/h is baseline which can
    decrease depending on alignment of win* in orientation.
@@ -1039,10 +1054,14 @@ curses_display_splash_window()
     if (strncmp("dNethack", COPYRIGHT_BANNER_A, 8) == 0) {
         which_variant = DNETHACK_CURSES;
     }
-    if (strncmp("SplatHack", COPYRIGHT_BANNER_A, 9) == 0) {
+
+    if (strncmp("SpliceHack", COPYRIGHT_BANNER_A, 9) == 0) {
         which_variant = SPLICEHACK_CURSES;
     }
 
+    if (strncmp("SliceHack", COPYRIGHT_BANNER_A, 9) == 0) {
+        which_variant = SLICEHACK_CURSES;
+    }
 
     curses_toggle_color_attr(stdscr, CLR_WHITE, A_NORMAL, ON);
     if (iflags.wc_splash_screen) {
@@ -1113,6 +1132,15 @@ curses_display_splash_window()
             mvaddstr(y_start + 6, x_start, SPLICEHACK_SPLASH_G);
             mvaddstr(y_start + 7, x_start, SPLICEHACK_SPLASH_H);
             y_start += 9;
+            break;
+        case SLICEHACK_CURSES:
+            mvaddstr(y_start, x_start, SLICEHACK_SPLASH_A);
+            mvaddstr(y_start + 1, x_start, SLICEHACK_SPLASH_B);
+            mvaddstr(y_start + 2, x_start, SLICEHACK_SPLASH_C);
+            mvaddstr(y_start + 3, x_start, SLICEHACK_SPLASH_D);
+            mvaddstr(y_start + 4, x_start, SLICEHACK_SPLASH_E);
+            mvaddstr(y_start + 5, x_start, SLICEHACK_SPLASH_F);
+            y_start += 7;
             break;
         default:
             impossible("which_variant number %d out of range", which_variant);

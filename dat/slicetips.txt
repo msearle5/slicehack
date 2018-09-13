@@ -29,7 +29,7 @@ Using farlook on a monster will tell you what they are wielding.
 Deadly poison isn't deadly anymore, but is still very dangerous.
 Venom appearances are randomized, and can be used to help you identify unfamiliar monsters.
 Bad clones get many more attacks per round than amalgamations.
-Looking for more hints about SpliceHack? Talk to the Oracle!
+Looking for more hints about SliceHack? Talk to the Oracle!
 Monsters can wake each other up by roaring.
 Guards don't like lycanthropes.
 If you see a banshee, plug your ears!
@@ -82,7 +82,7 @@ Beware Buer! He has some of the highest damage output in the game.
 Malcanthet isn't what she used to be.
 Wands of poison gas create poison gas when engraving.
 Meet a monster zapping a corrupted knife of poison gas? Please report this bug.
-SpliceHack supports curses! Try editing your config file.
+SliceHack supports curses! Try editing your config file.
 The Master of Cats must be killed nine times before truly dying.
 Extra wishes? Try wishing for Vladsbane.
 Extra wishes and itching for YASD? Try wishing for the King in Yellow.
@@ -107,11 +107,11 @@ Use magic to destroy death.
 Monsters are capable of riding other monsters.
 Death rides a pale horse.
 Headless horsemen are known to ride nightmares.
-Did you know? Noty was the first known player to ascend SpliceHack.
+Did you know? You could be the first known player to ascend SliceHack!
 Reading a scroll of cloning while polymorphed can be a frightful combination.
 Cheshire cats are difficult to pinpoint.
 Not sure what a monster does? Use ":" while hovering over them to look up all of their stats.
 Leprechauns love all types of gold, not just gold pieces.
-SpliceHack inherits many monsters from SLASH'EM.
+SliceHack inherits many monsters from SLASH'EM.
 A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
-Zouthern monsters are slightly less tough in SpliceHack than in other variants.
+Zouthern monsters are slightly less tough in SliceHack than in other variants.

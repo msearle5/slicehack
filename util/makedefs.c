@@ -358,7 +358,7 @@ char *options;
             do_rnd_access_file(EPITAPHFILE);
             do_rnd_access_file(ENGRAVEFILE);
             do_rnd_access_file(BOGUSMONFILE);
-            do_rnd_access_file(SPLICETIPSFILE);
+            do_rnd_access_file(SLICETIPSFILE);
             break;
         case 'h':
         case 'H':
@@ -1209,7 +1209,7 @@ const char *build_date;
     Strcpy(&subbuf[1], PORT_SUB_ID);
 #endif
 
-    Sprintf(outbuf, "%s SplatHack%s Version %s - last %s %s.", PORT_ID,
+    Sprintf(outbuf, "%s SliceHack%s Version %s - last %s %s.", PORT_ID,
             subbuf, version_string(versbuf, "."),
             date_via_env ? "revision" : "build", build_date);
     return outbuf;

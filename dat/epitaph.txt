@@ -396,7 +396,7 @@ Yes Dear, just a few more minutes...
 You said it wasn't poisonous!
 You set my heart aflame.  You gave me heartburn.
 #######
-# Splice epitaphs (mostly puns, rhymes, and references).
+# Slice epitaphs (mostly puns, rhymes, and references).
 #######
 DYWYPI?
 That is not dead which may eternal lie.
@@ -449,7 +449,7 @@ Sarah the valkyrie, thought she'd sit on a throne to feel less dreary.
 They told me that what is dead may never die, but I feel pretty dead!
 In this grave sits Astolfo the knight, his fault was he never ran from a fight.
 ######
-# The following are up there for most obscure references in Splice.
+# The following are up there for most obscure references in Slice.
 ######
 # This one will probably become a scroll in some form later.
 IOWA WE CASK NIACIN WE IX APOGEE IOWA

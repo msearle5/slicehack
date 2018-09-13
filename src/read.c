@@ -159,9 +159,9 @@ char *buf;
            from book series _A_Song_of_Ice_and_Fire_ by George R.R. Martin,
            TV show "Game of Thrones" (probably an actual T-shirt too...) */
         "/Valar morghulis/ -- /Valar dohaeris/",
-        /* Splice Shirts */
+        /* Slice Shirts */
         "SAVE THE ZRUTYS",
-        "SpliceHack Beta Tester",
+        "SliceHack Beta Tester",
         "#NerfTheLoTF",
         "Got ASCII?",
         "Don't @ me!",

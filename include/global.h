@@ -33,7 +33,7 @@
 #define OPTIONS_USED "options"  /* compile-time options, for #version */
 #define SYMBOLS "symbols"       /* replacement symbol sets */
 #define EPITAPHFILE "epitaph"   /* random epitaphs on graves */
-#define SPLICETIPSFILE "splicetips" /* tips for playing splicehack */
+#define SLICETIPSFILE "slicetips" /* tips for playing slicehack */
 #define ENGRAVEFILE "engrave"   /* random engravings on the floor */
 #define BOGUSMONFILE "bogusmon" /* hallucinatory monsters */
 #define TRIBUTEFILE "tribute"   /* 3.6 tribute to Terry Pratchett */

@@ -230,7 +230,7 @@ WINQT4OBJ = qt4bind.o qt4click.o qt4clust.o qt4delay.o qt4glyph.o qt4icon.o \
 	qt4win.o qt4xcmd.o qt4yndlg.o tile.o
 #
 # Files for a Gnome port
-#
+#ice
 WINGNOMESRC = ../win/gnome/gnaskstr.c ../win/gnome/gnbind.c \
 	../win/gnome/gnglyph.c ../win/gnome/gnmain.c ../win/gnome/gnmap.c \
 	../win/gnome/gnmenu.c ../win/gnome/gnmesg.c ../win/gnome/gnopts.c \
@@ -260,7 +260,7 @@ WINBEOBJ =
 
 # on some systems the termcap library is in -ltermcap or -lcurses
 # on 386 Xenix, the -ltermlib tputs() seems not to work; use -lcurses instead
-# Sysatt uses shared library in lieu of this option
+# Sysatt uses shared library in lieu of this optionice
 # Systos needs -lcurses16 if you use -mshort
 # AIX 3.1 on RS/6000 likes -lcurses if TERMINFO defined in unixconf.h
 # and -ltermcap otherwise
@@ -332,8 +332,8 @@ WINBELIB = -lbe
 LIBS =
 
 # make NetHack
-GAME     = splathack
-# GAME     = splicehack.prg
+GAME     = slicehack
+# GAME     = slicehack.prg
 
 # if you defined RANDOM in unixconf.h/tosconf.h since your system did not come
 # with a reasonable random number generator

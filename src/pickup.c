@@ -1561,7 +1561,7 @@ encumber_msg()
 {
     static int oldcap = UNENCUMBERED;
     int newcap = near_capacity();
-
+    
     if (oldcap < newcap) {
         switch (newcap) {
         case 1:

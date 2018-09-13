@@ -731,13 +731,13 @@ boolean new_game; /* false => restoring an old game */
                 : currentgend != flags.initgend))
         Sprintf(eos(buf), " %s", genders[currentgend].adj);
 
-    pline(new_game ? "%s %s, welcome to SplatHack!  You are a%s %s %s."
-                   : "%s %s, the%s %s %s, welcome back to SplatHack!",
+    pline(new_game ? "%s %s, welcome to SliceHack!  You are a%s %s %s."
+                   : "%s %s, the%s %s %s, welcome back to SliceHack!",
           Hello((struct monst *) 0), plname, buf, urace.adj,
           (currentgend && urole.name.f) ? urole.name.f : urole.name.m);
     if (flags.tips) {
-        get_rnd_text(SPLICETIPSFILE, tipbuf);
-        pline("Splicehack Tip of the Day: %s", tipbuf);
+        get_rnd_text(SLICETIPSFILE, tipbuf);
+        pline("Slicehack Tip of the Day: %s", tipbuf);
     }
 }
 

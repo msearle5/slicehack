@@ -41,7 +41,7 @@
 //   soko1-3, soko1-4
 // The original authors are listed just before the maps.
 //
-// Ported from Slex to Splat by Michael Searle - with major changes, including
+// Ported from Slex to Slice by Michael Searle - with major changes, including
 // new zoo selection, new loot selection and deduplication (replacing multiple
 // copies of the same map with one copy using randomization)
 

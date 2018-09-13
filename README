@@ -1,4 +1,6 @@
-                   SpliceHack -- General information
+                   SliceHack -- General information
+
+SliceHack is an in-progress fork of SpliceHack.
 
 SpliceHack is an in-progress fork of NetHack 3.6.x, made with the goal of adding
 additional monsters, items, special levels, and game features without changing
@@ -14,9 +16,9 @@ be found on the github page and there are encyclopedia entries for some new
 additions, but as of this moment neither is complete.
 
 Installation is the same as installation for vanilla 3.6.x. Please note that
-SpliceHack currently compiles to its own binary and uses splicehackdir instead
+SliceHack currently compiles to its own binary and uses splicehackdir instead
 of nethackdir on unix, but is untested on windows, and still compiles as nethack
-there. SpliceHack can be played online at https://www.hardfought.org.
+there.
 
 SpliceHack follows the conditions put forth in the license provided by the
 NetHack Dev Team (see dat/license). If you are aware of any licensing or

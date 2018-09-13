@@ -201,7 +201,7 @@ makedog()
         if (Role_if(PM_RANGER))
             petname = "Sirius"; /* Orion's dog */
         if (Role_if(PM_CARTOMANCER))
-            petname = "Joey"; /* Obscure SpliceHack reference (tm) */
+            petname = "Joey"; /* Obscure SliceHack reference (tm) */
     } else if (!*petname && pettype == PM_LITTLE_BIRD) {
         if (Role_if(PM_RANGER))
             petname = "Quothe";

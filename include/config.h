@@ -358,7 +358,7 @@
  * otherwise it will be the current directory.
  */
 #ifndef HACKDIR
-#define HACKDIR "/usr/games/lib/splicehackdir"
+#define HACKDIR "/usr/games/lib/slicehackdir"
 #endif
 
 /*
@@ -551,7 +551,7 @@ typedef unsigned char uchar;
 #endif
 
 #ifndef DUMPLOG_FILE
-#define DUMPLOG_FILE        "/tmp/splicehack.%n.%d.log"
+#define DUMPLOG_FILE        "/tmp/slicehack.%n.%d.log"
 /* DUMPLOG_FILE allows following placeholders:
    %% literal '%'
    %v version (eg. "3.6.2-0")

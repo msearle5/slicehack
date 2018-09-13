@@ -1218,7 +1218,7 @@ NEARDATA struct permonst mons[] = {
     	SIZ(100, 40, MS_GROWL, MZ_SMALL), 0, 0,
     	M1_ANIMAL | M1_NOHANDS | M1_HERBIVORE,
     	M2_DOMESTIC, 0, CLR_BROWN),
-    /* nerfed damage output to compensate for Splice's lower power level */
+    /* nerfed damage output to compensate for Slice's lower power level */
     MON("Tasmanian devil", S_ZOUTHERN, LVL(9, 12, 8, 0, 0),
       (G_NOHELL | G_GENO | 1),
     	A(ATTK(AT_CLAW, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 2, 4),

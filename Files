@@ -3,6 +3,7 @@ in their standard manner on a UNIX system.  It indicates which files are
 necessary for which versions, so that you can tell which files may be deleted
 from or not transferred to your system if you wish.
 Edited 5/9/18 by NullCGT
+Edited 13/9/18 by MikeS
 
 
 .:
@@ -20,8 +21,8 @@ history         keyhelp         knox.des        license         medusa.des
 mines.des       opthelp         oracle.des      oracles.txt     quest.txt
 rumors.fal      rumors.tru      sokoban.des     symbols         tower.des
 tribute         wizhelp         yendor.des      Cartomancer.des void.des
-statuary.des	Drag.des        splicetips.txt  blkmar.des	icewaste.des
-laboratory.des
+statuary.des	Drag.des        slicetips.txt   blkmar.des	icewaste.des
+laboratory.des  sokoban.in
 
 doc:
 (files for all versions)
