@@ -3,7 +3,45 @@
 This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
-
+*	Renamed as SliceHack.
+*	Misc bug/typo/clean-up fixes, including removing Lord of the Foocubi
+	references (the former Malcanthet)
+*	Do silver damage fighting unarmed with fingerless gloves.
+*	Misc YAFMs and silly names (hallucinating, mostly).
+*	Fumbling potions - you try to drink with greasy fingers and whoops,
+	you dropped it.
+*	Sitting on an egg. Egg-layers are safe, other heroes splat it - yes,
+	this is YA way to be killed by a cockatrice.
+*	Exploding your bag of holding is no longer time to #quit. You'll lose
+	a few items though, and the others will be thrown around the room.
+	Fragile items may break, and anything could end up in a pool or lava.
+*	Climbing boots. Allows you to climb stairs (or descend safely) when
+	Strained, safely climb into a known pit/trapdoor/hole, get out of a
+	pit in one turn, and squeeze past a boulder with more inventory.
+*	Mined gems will not be glass.
+*	You can get a wish from a wand of wonder - if it's the wrest charge.
+	As well as the 1/30 chance of picking wishing there is a Luck check.
+*	Magic chests - ported from dNethack - a container with shared
+    contents - items put into a magic chest can be retrieved from any
+    other magic chest. It can be moved, but it's very heavy. The contents
+    don't add anything to the weight, though.
+*	Magic bags - this light item allows items to be put into the magic
+	chest, but not retrieved.
+*	Removed the requirement that total object probability must be 1000
+*	There are now 57 varieties of Sokoban. They came from Slex with major
+	changes - the overall power/deadliness level has been much reduced
+	from Slex, but it should still be more of a challenge than before.
+*	From Fourk: Altars show the BUC status of the contents of a container
+	without having to remove it.
+*	Monsters (very) occasionally have an AoR
+*	Added showweight / invweight options, like SlashEM - your current and
+	maximum encumbrance on the status bar, and the weight shown with all
+	inventory items.
+*	Can wish for a magic lamp - maybe - it's Luck based - or doubloons.
+*	Angels may carry Unlimited Moon, or a shield of resonance.
+*	Allow a (fatal) attempt to ride an unsaddled cockatrice.
+*	More packrats appear if you are heavily loaded.
+*	More trees early, less late. Statues and fountains on Oracle level.
 
 
                         SpliceHack -- Changelog
