@@ -3353,12 +3353,15 @@ domagictrap()
                         ? "oddly "
                         : "");
             else
-                You("suddenly yearn for %s.",
-                    Hallucination
-                        ? "Cleveland"
-                        : (In_quest(&u.uz) || at_dgn_entrance("The Quest"))
-                              ? "your nearby homeland"
-                              : "your distant homeland");
+                if (Hallucination && Role_if(PM_VALKYRIE))
+                    You("pine for the fjords.");
+                else
+                    You("suddenly yearn for %s.",
+                        Hallucination
+                            ? "Cleveland"
+                            : (In_quest(&u.uz) || at_dgn_entrance("The Quest"))
+                                  ? "your nearby homeland"
+                                  : "your distant homeland");
             break;
         case 16:
             Your("pack shakes violently!");
