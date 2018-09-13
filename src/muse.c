@@ -2842,7 +2842,7 @@ struct monst *mon;
             wearable = TRUE;
             break;
         case 4:
-            if (mon->mreflect == 1 || monsndx(mon->data) == PM_SILVER_DRAGON) {
+            if (!(mon->mreflect == 1 || monsndx(mon->data) == PM_SILVER_DRAGON)) {
                 if (humanoid(mon->data))
                     otmp = mksobj(SILVER_DRAGON_SCALE_MAIL, FALSE, FALSE);
                 else
