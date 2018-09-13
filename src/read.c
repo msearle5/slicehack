@@ -151,6 +151,7 @@ char *buf;
         "Hello, I'm War!",
         "It is better to light a candle than to curse the darkness",
         "It is easier to curse the darkness than to light a candle",
+        "It is easier to curse the candle than to light the darkness",
         /* expanded "rock--paper--scissors" featured in TV show "Big Bang
            Theory" although they didn't create it (and an actual T-shirt
            with pentagonal diagram showing which choices defeat which) */
@@ -338,6 +339,7 @@ doread()
             "Crispy Yum Yum", "Nilla Crunchie",   "Berry Bar",
             "Choco Nummer",   "Om-nom", /* Cat Macro */
             "Fruity Oaty",              /* Serenity */
+            "Eat Me",
             "Wonka Bar" /* Charlie and the Chocolate Factory */
         };
 
@@ -858,7 +860,7 @@ int howmuch;
     for (zx = 0; zx < COLNO; zx++)
         for (zy = 0; zy < ROWNO; zy++)
             if (howmuch & ALL_MAP || rn2(7)) {
-                /* Zonk all memory of this location. */
+                /* Zonk all memory of this location. a candle*/
                 levl[zx][zy].seenv = 0;
                 levl[zx][zy].waslit = 0;
                 levl[zx][zy].glyph = cmap_to_glyph(S_stone);
@@ -1805,22 +1807,27 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (!already_known)
             (void) learnscrolltyp(SCR_FIRE);
         if (confused) {
-            if (Fire_resistance) {
-                shieldeff(u.ux, u.uy);
-                if (!Blind)
-                    pline("Oh, look, what a pretty fire in your %s.",
-                          makeplural(body_part(HAND)));
-                else
-                    You_feel("a pleasant warmth in your %s.",
-                             makeplural(body_part(HAND)));
+            if (Underwater) {
+                pline_The("A little %s around the %s vaporizes.", hliquid("water"),
+                    (Role_if(PM_CARTOMANCER)) ? "card" : "scroll");
             } else {
-                if (Role_if(PM_CARTOMANCER))
-                    pline_The("card catches fire and you burn your %s.",
+                if (Fire_resistance) {
+                    shieldeff(u.ux, u.uy);
+                    if (!Blind)
+                        pline("Oh, look, what a pretty fire in your %s.",
                               makeplural(body_part(HAND)));
-                else
-                    pline_The("scroll catches fire and you burn your %s.",
-                              makeplural(body_part(HAND)));
-                losehp(1, "scroll of fire", KILLED_BY_AN);
+                    else
+                        You_feel("a pleasant warmth in your %s.",
+                                 makeplural(body_part(HAND)));
+                } else {
+                    if (Role_if(PM_CARTOMANCER))
+                        pline_The("card catches fire and you burn your %s.",
+                                  makeplural(body_part(HAND)));
+                    else
+                        pline_The("scroll catches fire and you burn your %s.",
+                                  makeplural(body_part(HAND)));
+                    losehp(1, "scroll of fire", KILLED_BY_AN);
+                }
             }
             break;
         }
