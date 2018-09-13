@@ -4,10 +4,11 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Edited on 5/3/18 by NullCGT */
+/* Edited on 13/9/18 by MikeS */
 
-/* NetHack 0.5.1 */
+/* SliceHack 0.0.1 */
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 5
+#define VERSION_MINOR 0
 /*
  * PATCHLEVEL is updated for each release.
  */
@@ -16,7 +17,7 @@
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
  */
-#define EDITLEVEL 7
+#define EDITLEVEL 0
 
 #define COPYRIGHT_BANNER_A "SliceHack, Copyright 1985-2018"
 #define COPYRIGHT_BANNER_B \
@@ -33,7 +34,7 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x00050107L
+#define VERSION_COMPATIBILITY 0x00000100L
 
 /****************************************************************************/
 /* Version 3.6.x */
