@@ -49,6 +49,11 @@ static const char *godvoices[] = {
     "booms out", "thunders", "rings out", "booms",
 };
 
+static const char *hgodvoices[] = {
+    "ka-BOOMs out", "belches", "ring-a-lings out", "squeaks",
+    "squeals", "screeches", "drones", "buzzes", "pipes"
+};
+
 /* values calculated when prayer starts, and used when completed */
 static aligntyp p_aligntyp;
 static int p_trouble;
@@ -1361,7 +1366,7 @@ const char *words;
         words = "";
 
     pline_The("voice of %s %s: %s%s%s", align_gname(g_align),
-              godvoices[rn2(SIZE(godvoices))], quot, words, quot);
+              (Hallucination) ? hgodvoices[rn2(SIZE(hgodvoices))] : godvoices[rn2(SIZE(godvoices))], quot, words, quot);
 }
 
 STATIC_OVL void
