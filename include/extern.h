@@ -789,6 +789,7 @@ E int NDECL(restore_saved_game);
 E void FDECL(nh_compress, (const char *));
 E void FDECL(nh_uncompress, (const char *));
 E boolean FDECL(lock_file, (const char *, int, int));
+E boolean FDECL(do_lock_file, (const char *, int, int, boolean));
 E void FDECL(unlock_file, (const char *));
 #ifdef USER_SOUNDS
 E boolean FDECL(can_read_file, (const char *));

@@ -1783,6 +1783,17 @@ const char *filename;
 int whichprefix;
 int retryct;
 {
+    return do_lock_file(filename, whichprefix, retryct, FALSE);
+}
+
+/* lock a file */
+boolean
+do_lock_file(filename, whichprefix, retryct, silent)
+const char *filename;
+int whichprefix;
+int retryct;
+boolean silent;
+{
 #if defined(PRAGMA_UNUSED) && !(defined(UNIX) || defined(VMS)) \
     && !(defined(AMIGA) || defined(WIN32) || defined(MSDOS))
 #pragma unused(retryct)
@@ -1808,8 +1819,10 @@ int retryct;
 #ifdef USE_FCNTL
     lockfd = open(filename, O_RDWR);
     if (lockfd == -1) {
-        HUP raw_printf("Cannot open file %s. Is NetHack installed correctly?",
-                       filename);
+        if (!silent) {
+            HUP raw_printf("Cannot open file %s. Is NetHack installed correctly?",
+                            filename);
+        }
         nesting--;
         return FALSE;
     }
@@ -4327,7 +4340,7 @@ const char *buffer;
 
     if(!(ll_type & sysopt.livelog)) return;
     if((ll_type == LL_CONDUCT) && (moves < sysopt.ll_conduct_turns)) return;
-    if(lock_file(LIVELOGFILE, SCOREPREFIX, 10)) {
+    if(do_lock_file(LIVELOGFILE, SCOREPREFIX, 10, TRUE)) {
         if(!(livelogfile = fopen_datafile(LIVELOGFILE, "a", SCOREPREFIX))) {
             pline("Cannot open live log file!");
         } else {
