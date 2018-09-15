@@ -2138,6 +2138,10 @@ E int FDECL(d, (int, int));
 E int FDECL(rne, (int));
 E int FDECL(rnz, (int));
 
+/* ### rndint.c ### */
+E unsigned long NDECL(get_rng);
+E void FDECL(seed_rng, (unsigned long));
+
 /* ### role.c ### */
 
 E boolean FDECL(validrole, (int));

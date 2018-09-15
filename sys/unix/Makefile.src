@@ -417,7 +417,7 @@ HACKCSRC = allmain.c alloc.c apply.c artifact.c attrib.c ball.c bones.c \
 	   mplayer.c mthrowu.c muse.c music.c o_init.c objects.c objnam.c \
 	   options.c pager.c pickup.c pline.c polyself.c potion.c pray.c \
 	   priest.c quest.c questpgr.c read.c rect.c region.c restore.c \
-	   rip.c rnd.c role.c rumors.c save.c shk.c shknam.c sit.c sounds.c \
+	   rip.c rnd.c rndint.c role.c rumors.c save.c shk.c shknam.c sit.c sounds.c \
 	   sp_lev.c spell.c steal.c steed.c sys.c teleport.c timeout.c \
 	   topten.c track.c trap.c u_init.c \
 	   uhitm.c vault.c version.c vision.c weapon.c were.c wield.c \
@@ -483,7 +483,7 @@ HOBJ = $(FIRSTOBJ) allmain.o alloc.o apply.o artifact.o attrib.o ball.o \
 	mkmaze.o mkobj.o mkroom.o mon.o mondata.o monmove.o monstr.o \
 	mplayer.o mthrowu.o muse.o music.o o_init.o objnam.o options.o \
 	pager.o pickup.o pline.o polyself.o potion.o pray.o priest.o \
-	quest.o questpgr.o read.o rect.o region.o restore.o rip.o rnd.o \
+	quest.o questpgr.o read.o rect.o region.o restore.o rip.o rnd.o rndint.o \
 	role.o rumors.o save.o shk.o shknam.o sit.o sounds.o sp_lev.o spell.o \
 	sys.o \
 	steal.o steed.o teleport.o timeout.o topten.o track.o trap.o u_init.o \

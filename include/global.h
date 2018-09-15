@@ -299,6 +299,12 @@ struct savefile_info {
 #define SFI1_ZEROCOMP (1L << 2)
 #endif
 
+#ifdef INTERNAL_RNG
+#undef Rand
+#define Rand() get_rng()
+#endif
+
+
 /*
  * Configurable internal parameters.
  *

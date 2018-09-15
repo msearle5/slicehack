@@ -8,7 +8,7 @@
 /*=
     Assorted 'small' utility routines.  They're virtually independent of
     NetHack, except that rounddiv may call panic().  setrandom calls one
-    of srandom(), srand48(), or srand() depending upon configuration.
+    of seed_rng(), srandom(), srand48(), or srand() depending upon configuration.
 
       return type     routine name    argument type(s)
         boolean         digit           (char)
@@ -866,6 +866,9 @@ setrandom()
     }
 #endif
 
+#ifdef INTERNAL_RNG
+	seed_rng(seed);
+#else
     /* the types are different enough here that sweeping the different
      * routine names into one via #defines is even more confusing
      */
@@ -883,6 +886,7 @@ setrandom()
     srand48((long) seed);
 #else       /* poor quality system routine */
     srand((int) seed);
+#endif
 #endif
 #endif
 #endif

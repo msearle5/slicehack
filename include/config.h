@@ -514,6 +514,8 @@ typedef unsigned char uchar;
 
 #define STATUS_HILITES         /* support hilites of status fields */
 
+#define INTERNAL_RNG			/* Replace all calls to random number generation */
+
 /* #define WINCHAIN */              /* stacked window systems */
 
 /* #define DEBUG_MIGRATING_MONS */  /* add a wizard-mode command to help debug
