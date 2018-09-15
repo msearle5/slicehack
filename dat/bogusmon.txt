@@ -150,6 +150,8 @@ scintillating serpent
 devourer
 mad cow
 ascii art
+exploding kitten
+crunchy frog
 
 # Quendor (Zork, &c.)
 grue
@@ -471,6 +473,7 @@ ceiling cat
 basement cat
 monorail cat
 knife cat
+long cat
 bode
 
 # the internet has good dogs
