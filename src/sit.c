@@ -95,6 +95,14 @@ dosit()
                     obj_extract_self(obj);
                     delobj(obj);
                 }
+            } else if (obj->otyp == CORPSE) {
+                if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance && !(poly_when_stoned(youmonst.data)
+                     && polymon(PM_STONE_GOLEM))) {
+                    killer.format = KILLED_BY;
+                    Strcpy(killer.name, "sitting on a cockatrice corpse");
+                    You("turn to stone.");
+                    done(STONING);
+                }
             } else {
                 You("sit on %s.", the(xname(obj)));
                 if (!(Is_box(obj) || obj->material == CLOTH))
