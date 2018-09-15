@@ -757,7 +757,7 @@ initoptions_init()
     iflags.msg_is_alert = FALSE;
 
     /* hero's role, race, &c haven't been chosen yet */
-    flags.initrole = flags.initrace = flags.initgend = flags.initalign
+    flags.initsubrole = flags.initrole = flags.initrace = flags.initgend = flags.initalign
         = ROLE_NONE;
 
     /* Set the default monster and object class symbols. */
@@ -2095,6 +2095,20 @@ boolean tinitial, tfrom_file;
         || match_optname(opts, (fullname = "character"), 4, TRUE)) {
         if (parse_role_opts(negated, fullname, opts, &op)) {
             if ((flags.initrole = str2role(op)) == ROLE_NONE) {
+                config_error_add("Unknown %s '%s'", fullname, op);
+                return FALSE;
+            } else /* Backwards compatibility */
+                nmcpy(pl_character, op, PL_NSIZ);
+        } else
+            return FALSE;
+        return retval;
+    }
+
+    /* subrole:string */
+    fullname = "subrole";
+    if (match_optname(opts, fullname, 4, TRUE)) {
+        if (parse_role_opts(negated, fullname, opts, &op)) {
+            if ((flags.initsubrole = str2subrole(op)) == ROLE_NONE) {
                 config_error_add("Unknown %s '%s'", fullname, op);
                 return FALSE;
             } else /* Backwards compatibility */

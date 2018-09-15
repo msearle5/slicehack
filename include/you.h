@@ -105,7 +105,7 @@ struct u_roleplay {
     boolean blind;  /* permanently blind */
     boolean hallu;  /* permanently hallucinating */
     boolean deaf;   /* permanently deaf */
-    boolean clumsy; /* permanetnly fumbling */
+    boolean clumsy; /* permanently fumbling */
     boolean nudist; /* has not worn any armor, ever */
     boolean illfated; /* massively increased dungeon danger */
     boolean marathon;  /* cannot heal, fixed high max hp */
@@ -228,6 +228,34 @@ struct Race {
     /* quest text (dat/quest.txt) */
     /* dictionary entries (dat/data.bas) */
 };
+
+/*** Structure containing subrole information ***/
+struct Subrole {
+	struct RoleName name;
+	const char *role;
+	char id;		/* SR_* */
+	unsigned short flags;
+	struct Role r;
+};
+
+extern const struct Subrole subroles[]; /* Table of available races */
+extern struct Subrole usubrole;
+#define Subrole_if(X) (usubrole.id == (X))
+#define Subrole_switch (usubrole.id)
+
+/* IDs of all subroles */
+#define SR_NONE     0
+#define SR_EXAMPLE  1
+
+/* Flags describing how it affects the base role */
+#define SR_QUEST	0x00000001
+#define SR_ATTRIB	0x00000002
+#define SR_ALLOW	0x00000004
+#define SR_SPELL	0x00000008
+#define SR_NAME		0x00000010
+#define SR_RANK		0x00000020
+#define SR_GODS		0x00000040
+#define SR_PET		0x00000080
 
 extern const struct Race races[]; /* Table of available races */
 extern struct Race urace;

@@ -538,7 +538,7 @@ curses_choose_character()
     menu_item *selected = 0;
 #endif
 
-    prompt = build_plselection_prompt(pbuf, QBUFSZ, flags.initrole,
+    prompt = build_plselection_prompt(pbuf, QBUFSZ, flags.initsubrole, flags.initrole,
                                       flags.initrace, flags.initgend,
                                       flags.initalign);
 
@@ -584,7 +584,7 @@ curses_choose_character()
     rigid_role_checks();
 
     if (!flags.randomall &&
-        (flags.initrole == ROLE_NONE || flags.initrace == ROLE_NONE ||
+        (flags.initsubrole == ROLE_NONE || flags.initrole == ROLE_NONE || flags.initrace == ROLE_NONE ||
          flags.initgend == ROLE_NONE || flags.initalign == ROLE_NONE)) {
         pick4u = tolower(curses_character_input_dialog(prompt, choice, 'y'));
     } else {
@@ -668,7 +668,7 @@ curses_choose_character()
         pickmap = (int *) alloc(sizeof (int) * (n + 1));
         for (;;) {
             for (n = 0, i = 0; roles[i].name.m; i++) {
-                if (ok_role(i, flags.initrace, flags.initgend, flags.initalign)) {
+                if (ok_role(flags.initsubrole, i, flags.initrace, flags.initgend, flags.initalign)) {
                     if (flags.initgend >= 0 && flags.female && roles[i].name.f)
                         choices[n] = roles[i].name.f;
                     else
@@ -708,7 +708,7 @@ curses_choose_character()
         sel = flags.initrole;
 
     if (sel == ROLE_RANDOM) {   /* Random role */
-        sel = pick_role(flags.initrace, flags.initgend,
+        sel = pick_role(flags.initsubrole, flags.initrace, flags.initgend,
                         flags.initalign, PICK_RANDOM);
         if (sel < 0)
             sel = randrole();
@@ -716,25 +716,82 @@ curses_choose_character()
 
     flags.initrole = sel;
 
+    /* Select a subrole, if needed */
+    if (!flags.randomall && flags.initsubrole < 0 && (has_subroles(flags.initrole, flags.initrace, flags.initgend, flags.initalign))) {
+        /* select a subrole */
+        for (n = 0; subroles[n].name.m; n++)
+            continue;
+        choices = (const char **) alloc(sizeof (char *) * (n + 1));
+        pickmap = (int *) alloc(sizeof (int) * (n + 1));
+        for (;;) {
+            for (n = 0, i = 0; subroles[i].name.m; i++) {
+                if (ok_subrole(i, flags.initrole, flags.initrace, flags.initgend, flags.initalign)) {
+                    if (flags.initgend >= 0 && flags.female && subroles[i].name.f)
+                        choices[n] = subroles[i].name.f;
+                    else
+                        choices[n] = subroles[i].name.m;
+                    pickmap[n++] = i;
+                }
+            }
+            if (n > 0)
+                break;
+            else if (flags.initalign >= 0)
+                flags.initalign = -1;   /* reset */
+            else if (flags.initgend >= 0)
+                flags.initgend = -1;
+            else if (flags.initrace >= 0)
+                flags.initrace = -1;
+            else
+                panic("no available role+SUBROLE+race+gender+alignment combinations");
+        }
+        choices[n] = (const char *) 0;
+        if (n > 1)
+            sel =
+                curses_character_dialog(choices,
+                                        "Choose one of the following subroles:");
+        else
+            sel = 0;
+        if (sel >= 0)
+            sel = pickmap[sel];
+        else if (sel == ROLE_NONE) {    /* Quit */
+            clearlocks();
+            curses_bail(0);
+        }
+        free(choices);
+        free(pickmap);
+    } else if (flags.initsubrole < 0)
+        sel = ROLE_RANDOM;
+    else
+        sel = flags.initsubrole;
+
+    if (sel == ROLE_RANDOM) {   /* Random subrole */
+        sel = pick_subrole(flags.initrole, flags.initrace, flags.initgend,
+                        flags.initalign, PICK_RANDOM);
+        if (sel < 0)
+            sel = randsubrole();
+    }
+
+    flags.initsubrole = sel;
+
     /* Select a race, if necessary */
     /* force compatibility with role, try for compatibility with
      * pre-selected gender/alignment */
-    if (flags.initrace < 0 || !validrace(flags.initrole, flags.initrace)) {
+    if (flags.initrace < 0 || !validrace(flags.initsubrole, flags.initrole, flags.initrace)) {
         if (flags.initrace == ROLE_RANDOM || flags.randomall) {
-            flags.initrace = pick_race(flags.initrole, flags.initgend,
+            flags.initrace = pick_race(flags.initsubrole, flags.initrole, flags.initgend,
                                        flags.initalign, PICK_RANDOM);
             if (flags.initrace < 0)
-                flags.initrace = randrace(flags.initrole);
+                flags.initrace = randrace(flags.initsubrole, flags.initrole);
         } else {
             /* Count the number of valid races */
             n = 0;              /* number valid */
             for (i = 0; races[i].noun; i++) {
-                if (ok_race(flags.initrole, i, flags.initgend, flags.initalign))
+                if (ok_race(flags.initsubrole, flags.initrole, i, flags.initgend, flags.initalign))
                     n++;
             }
             if (n == 0) {
                 for (i = 0; races[i].noun; i++) {
-                    if (validrace(flags.initrole, i))
+                    if (validrace(flags.initsubrole, flags.initrole, i))
                         n++;
                 }
             }
@@ -742,7 +799,7 @@ curses_choose_character()
             choices = (const char **) alloc(sizeof (char *) * (n + 1));
             pickmap = (int *) alloc(sizeof (int) * (n + 1));
             for (n = 0, i = 0; races[i].noun; i++) {
-                if (ok_race(flags.initrole, i, flags.initgend, flags.initalign)) {
+                if (ok_race(flags.initsubrole, flags.initrole, i, flags.initgend, flags.initalign)) {
                     choices[n] = races[i].noun;
                     pickmap[n++] = i;
                 }
@@ -766,10 +823,10 @@ curses_choose_character()
             free(pickmap);
         }
         if (flags.initrace == ROLE_RANDOM) {    /* Random role */
-            sel = pick_race(flags.initrole, flags.initgend,
+            sel = pick_race(flags.initsubrole, flags.initrole, flags.initgend,
                             flags.initalign, PICK_RANDOM);
             if (sel < 0)
-                sel = randrace(flags.initrole);
+                sel = randrace(flags.initsubrole, flags.initrole);
             flags.initrace = sel;
         }
     }
@@ -778,22 +835,22 @@ curses_choose_character()
     /* force compatibility with role/race, try for compatibility with
      * pre-selected alignment */
     if (flags.initgend < 0 ||
-        !validgend(flags.initrole, flags.initrace, flags.initgend)) {
+        !validgend(flags.initsubrole, flags.initrole, flags.initrace, flags.initgend)) {
         if (flags.initgend == ROLE_RANDOM || flags.randomall) {
-            flags.initgend = pick_gend(flags.initrole, flags.initrace,
+            flags.initgend = pick_gend(flags.initsubrole, flags.initrole, flags.initrace,
                                        flags.initalign, PICK_RANDOM);
             if (flags.initgend < 0)
-                flags.initgend = randgend(flags.initrole, flags.initrace);
+                flags.initgend = randgend(flags.initsubrole, flags.initrole, flags.initrace);
         } else {
             /* Count the number of valid genders */
             n = 0;              /* number valid */
             for (i = 0; i < ROLE_GENDERS; i++) {
-                if (ok_gend(flags.initrole, flags.initrace, i, flags.initalign))
+                if (ok_gend(flags.initsubrole, flags.initrole, flags.initrace, i, flags.initalign))
                     n++;
             }
             if (n == 0) {
                 for (i = 0; i < ROLE_GENDERS; i++) {
-                    if (validgend(flags.initrole, flags.initrace, i))
+                    if (validgend(flags.initsubrole, flags.initrole, flags.initrace, i))
                         n++;
                 }
             }
@@ -801,7 +858,7 @@ curses_choose_character()
             choices = (const char **) alloc(sizeof (char *) * (n + 1));
             pickmap = (int *) alloc(sizeof (int) * (n + 1));
             for (n = 0, i = 0; i < ROLE_GENDERS; i++) {
-                if (ok_gend(flags.initrole, flags.initrace, i, flags.initalign)) {
+                if (ok_gend(flags.initsubrole, flags.initrole, flags.initrace, i, flags.initalign)) {
                     choices[n] = genders[i].adj;
                     pickmap[n++] = i;
                 }
@@ -825,10 +882,10 @@ curses_choose_character()
             free(pickmap);
         }
         if (flags.initgend == ROLE_RANDOM) {    /* Random gender */
-            sel = pick_gend(flags.initrole, flags.initrace,
+            sel = pick_gend(flags.initsubrole, flags.initrole, flags.initrace,
                             flags.initalign, PICK_RANDOM);
             if (sel < 0)
-                sel = randgend(flags.initrole, flags.initrace);
+                sel = randgend(flags.initsubrole, flags.initrole, flags.initrace);
             flags.initgend = sel;
         }
     }
@@ -836,29 +893,29 @@ curses_choose_character()
     /* Select an alignment, if necessary */
     /* force compatibility with role/race/gender */
     if (flags.initalign < 0 ||
-        !validalign(flags.initrole, flags.initrace, flags.initalign)) {
+        !validalign(flags.initsubrole, flags.initrole, flags.initrace, flags.initalign)) {
         if (flags.initalign == ROLE_RANDOM || flags.randomall) {
-            flags.initalign = pick_align(flags.initrole, flags.initrace,
+            flags.initalign = pick_align(flags.initsubrole, flags.initrole, flags.initrace,
                                          flags.initgend, PICK_RANDOM);
             if (flags.initalign < 0)
-                flags.initalign = randalign(flags.initrole, flags.initrace);
+                flags.initalign = randalign(flags.initsubrole, flags.initrole, flags.initrace);
         } else {
             /* Count the number of valid alignments */
             n = 0;              /* number valid */
             for (i = 0; i < ROLE_ALIGNS; i++) {
-                if (ok_align(flags.initrole, flags.initrace, flags.initgend, i))
+                if (ok_align(flags.initsubrole, flags.initrole, flags.initrace, flags.initgend, i))
                     n++;
             }
             if (n == 0) {
                 for (i = 0; i < ROLE_ALIGNS; i++)
-                    if (validalign(flags.initrole, flags.initrace, i))
+                    if (validalign(flags.initsubrole, flags.initrole, flags.initrace, i))
                         n++;
             }
 
             choices = (const char **) alloc(sizeof (char *) * (n + 1));
             pickmap = (int *) alloc(sizeof (int) * (n + 1));
             for (n = 0, i = 0; i < ROLE_ALIGNS; i++) {
-                if (ok_align(flags.initrole, flags.initrace, flags.initgend, i)) {
+                if (ok_align(flags.initsubrole, flags.initrole, flags.initrace, flags.initgend, i)) {
                     choices[n] = aligns[i].adj;
                     pickmap[n++] = i;
                 }
@@ -882,10 +939,10 @@ curses_choose_character()
             free(pickmap);
         }
         if (flags.initalign == ROLE_RANDOM) {
-            sel = pick_align(flags.initrole, flags.initrace,
+            sel = pick_align(flags.initsubrole, flags.initrole, flags.initrace,
                              flags.initgend, PICK_RANDOM);
             if (sel < 0)
-                sel = randalign(flags.initrole, flags.initrace);
+                sel = randalign(flags.initsubrole, flags.initrole, flags.initrace);
             flags.initalign = sel;
         }
     }

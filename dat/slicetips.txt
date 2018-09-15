@@ -115,3 +115,4 @@ Leprechauns love all types of gold, not just gold pieces.
 SliceHack inherits many monsters from SLASH'EM.
 A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
 Zouthern monsters are slightly less tough in SliceHack than in other variants.
+Your choice of sub-role? Mine's a BLT!

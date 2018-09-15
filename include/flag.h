@@ -157,6 +157,7 @@ struct flag {
      * is initialized or restored (specifically, after role_init()
      * is called).
      */
+    int initsubrole;  /* starting subrole      (index into subroles[])   */
     int initrole;  /* starting role      (index into roles[])   */
     int initrace;  /* starting race      (index into races[])   */
     int initgend;  /* starting gender    (index into genders[]) */

@@ -259,12 +259,13 @@ struct wc_Opt {
 };
 
 /* role selection by player_selection(); this ought to be in the core... */
-#define RS_NAME    0
-#define RS_ROLE    1
-#define RS_RACE    2
-#define RS_GENDER  3
-#define RS_ALGNMNT 4
-#define RS_filter  5
+#define RS_NAME    	0
+#define RS_ROLE    	1
+#define RS_SUBROLE	2
+#define RS_RACE		3
+#define RS_GENDER	4
+#define RS_ALGNMNT	5
+#define RS_filter	6
 #define RS_menu_arg(x) (ROLE_RANDOM - ((x) + 1)) /* 0..5 -> -3..-8 */
 
 /* Choose_windows() may be called multiple times; these constants tell the

@@ -2501,6 +2501,9 @@ char *origbuf;
                || match_varname(buf, "CHARACTER", 4)) {
         if ((len = str2role(bufp)) >= 0)
             flags.initrole = len;
+    } else if (match_varname(buf, "SUBROLE", 4)) {
+        if ((len = str2subrole(bufp)) >= 0)
+            flags.initsubrole = len;
     } else if (match_varname(buf, "DOGNAME", 3)) {
         (void) strncpy(dogname, bufp, PL_PSIZ - 1);
     } else if (match_varname(buf, "CATNAME", 3)) {
