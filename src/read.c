@@ -457,8 +457,15 @@ doread()
                 docall(scroll);
         }
         scroll->in_use = FALSE;
-        if (scroll->otyp != SCR_BLANK_PAPER  && !scroll->oartifact)
-            useup(scroll);
+        if (scroll->otyp != SCR_BLANK_PAPER  && !scroll->oartifact) {
+            /* Cartomancers occasionally keep cards they play. */
+            if (Role_if(PM_CARTOMANCER) && !rn2(10)) {
+                pline("But wait, the card didn't vanish after all!");
+                You("actually shuffled the card back into your deck!");
+            } else {
+                useup(scroll);
+            }
+        }
     }
     return 1;
 }
