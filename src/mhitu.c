@@ -2285,48 +2285,65 @@ boolean ufound;
     else {
         int tmp = d((int) mattk->damn, (int) mattk->damd);
         boolean not_affected = defends((int) mattk->adtyp, uwep);
+        int expl = EXPL_MAGICAL;
+        int type = -10;
 
         hitmsg(mtmp, mattk);
 
         switch (mattk->adtyp) {
         case AD_COLD:
+            expl = EXPL_FROSTY;
+            type = -2;
             physical_damage = FALSE;
             not_affected |= Cold_resistance;
             goto common;
         case AD_FIRE:
+            expl = EXPL_FIERY;
+            type = -1;
             physical_damage = FALSE;
             not_affected |= Fire_resistance;
             goto common;
         case AD_LOUD:
+            expl = EXPL_MAGICAL;
+            type = -8;
             physical_damage = FALSE;
             not_affected = Deaf;
             goto common;
         case AD_PSYC:
+            expl = EXPL_MAGICAL;
+            type = -9;
             physical_damage = FALSE;
             not_affected |= Psychic_resistance;
             goto common;
         case AD_ELEC:
+            expl = EXPL_FROSTY;
+            type = -5;
             physical_damage = FALSE;
             not_affected |= Shock_resistance;
+            goto common;
         case AD_ACID:
+            expl = EXPL_WET;
+            type = -7;
             physical_damage = FALSE;
             not_affected |= Acid_resistance;
         common:
-
             if (!not_affected) {
                 if (ACURR(A_DEX) > rnd(20)) {
                     You("duck some of the blast.");
                     tmp = (tmp + 1) / 2;
                 } else {
                     if (flags.verbose)
-                        You("get blasted!");
+                    You("get blasted!");
                 }
-                if (mattk->adtyp == AD_FIRE)
-                    burn_away_slime();
-                if (physical_damage)
-                    tmp = Maybe_Half_Phys(tmp);
-                mdamageu(mtmp, tmp);
             }
+            kill_agr = FALSE;
+            mondead(mtmp);
+            Sprintf(killer.name, "%s's explosion", mtmp->data->mname);
+            killer.format = KILLED_BY_AN;
+            explode(mtmp->mx, mtmp->my, type, tmp, MON_EXPLODE, expl);
+            killer.name[0] = '\0';
+            killer.format = 0;
+
             break;
 
         case AD_BLND:

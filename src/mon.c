@@ -2267,7 +2267,7 @@ boolean was_swallowed; /* digestion */
                 obj = mksobj_at(EGG, mon->mx, mon->my, TRUE, FALSE);
                 obj->corpsenm = PM_PHOENIX;
             } else {
-                explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_NOXIOUS);
+                explode(mon->mx, mon->my, 6, tmp, MON_EXPLODE, EXPL_NOXIOUS);
             }
             killer.name[0] = '\0';
             killer.format = 0;

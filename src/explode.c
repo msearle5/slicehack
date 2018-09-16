@@ -124,51 +124,52 @@ int expltype;
                     && (strstri(str, "'s explosion")
                         || strstri(str, "s' explosion")));
         adtyp = AD_PHYS;
-    } else
-        switch (abs(type) % 10) {
-        case 0:
-            str = "magical blast";
-            adtyp = AD_MAGM;
-            break;
-        case 1:
-            str = (olet == BURNING_OIL) ? "burning oil"
-                     : (olet == SCROLL_CLASS) ? "tower of flame" : "fireball";
-            /* fire damage, not physical damage */
-            adtyp = AD_FIRE;
-            break;
-        case 2:
-            str = "ball of cold";
-            adtyp = AD_COLD;
-            break;
-        case 4:
-            str = (olet == WAND_CLASS) ? "death field"
-                                       : "disintegration field";
-            adtyp = AD_DISN;
-            break;
-        case 5:
-            str = "ball of lightning";
-            adtyp = AD_ELEC;
-            break;
-        case 6:
-            str = "poison gas cloud";
-            adtyp = AD_DRST;
-            break;
-        case 7:
-            str = "splash of acid";
-            adtyp = AD_ACID;
-            break;
-        case 8:
-            str = "sonicboom";
-            adtyp = AD_LOUD;
-            break;
-        case 9:
-            str = "psionic explosion";
-            adtyp = AD_PSYC;
-            break;
-        default:
-            impossible("explosion base type %d?", type);
-            return;
-        }
+    }
+
+    switch (abs(type) % 10) {
+    case 0:
+        str = "magical blast";
+        adtyp = AD_MAGM;
+        break;
+    case 1:
+        str = (olet == BURNING_OIL) ? "burning oil"
+                 : (olet == SCROLL_CLASS) ? "tower of flame" : "fireball";
+        /* fire damage, not physical damage */
+        adtyp = AD_FIRE;
+        break;
+    case 2:
+        str = "ball of cold";
+        adtyp = AD_COLD;
+        break;
+    case 4:
+        str = (olet == WAND_CLASS) ? "death field"
+                                   : "disintegration field";
+        adtyp = AD_DISN;
+        break;
+    case 5:
+        str = "ball of lightning";
+        adtyp = AD_ELEC;
+        break;
+    case 6:
+        str = "poison gas cloud";
+        adtyp = AD_DRST;
+        break;
+    case 7:
+        str = "splash of acid";
+        adtyp = AD_ACID;
+        break;
+    case 8:
+        str = "sonicboom";
+        adtyp = AD_LOUD;
+        break;
+    case 9:
+        str = "psionic explosion";
+        adtyp = AD_PSYC;
+        break;
+    default:
+        impossible("explosion base type %d?", type);
+        return;
+    }
 
     any_shield = visible = FALSE;
     for (i = 0; i < 3; i++)
