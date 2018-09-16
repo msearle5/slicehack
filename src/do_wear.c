@@ -739,6 +739,19 @@ Amulet_on()
     case AMULET_OF_DRAIN_RESISTANCE:
     case AMULET_OF_DANGER:
         break;
+    case AMULET_VERSUS_STONE:
+        amulet_vs_golem();
+        if ((Stoned) && (!uamul->cursed)) {
+            if (uamul->blessed) {
+                pline("The amulet glows amber as you wear it...");
+                uamul->blessed = FALSE;
+            } else {
+                pline("The amulet glows black as you wear it...");
+                uamul->cursed = TRUE;
+            }
+            make_stoned(0L, "You feel more limber.", 0, (char *) 0);
+        }
+        break;
     case AMULET_OF_UNCHANGING:
         if (Slimed)
             make_slimed(0L, (char *) 0);

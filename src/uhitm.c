@@ -845,6 +845,13 @@ int dieroll;
                     tmp += phase_of_the_moon();
                 }
 
+                if (uamul && (uamul->otyp == AMULET_VERSUS_STONE) &&
+                    (mdat == &mons[PM_STONE_GOLEM]) && (!uamul->cursed)) {
+                    makeknown(AMULET_VERSUS_STONE);
+                    pline("Your amulet glows as you strike the golem!");
+                    tmp *= (uamul->blessed ? 4 : 2);
+                }
+
                 if (obj->material == SILVER
                     && mon_hates_silver(mon)) {
                     silvermsg = TRUE;

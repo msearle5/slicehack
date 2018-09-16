@@ -303,6 +303,8 @@ dig(VOID_ARGS)
         10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
     if (Race_if(PM_DWARF))
         context.digging.effort *= 2;
+    if (uamul && (uamul->otyp == AMULET_VERSUS_STONE) && (!uamul->cursed))
+        context.digging.effort *= (uamul->blessed) ? 3 : 2;
     if (context.digging.down) {
         struct trap *ttmp = t_at(dpx, dpy);
 

@@ -74,7 +74,11 @@ const char *name; /* if null, then format `*objp' */
             You("are almost hit by %s.", onm);
         return 0;
     } else {
-        if (obj->oartifact == ART_GAE_BULG) {
+        if ((obj->oclass == GEM_CLASS) && uamul && (uamul->otyp == AMULET_VERSUS_STONE)
+            && ((uamul->blessed) || (!uamul->cursed && rn2(3)))) {
+            pline("Your amulet flashes, and the stone is deflected!");
+            makeknown(AMULET_VERSUS_STONE);
+        } else if (obj->oartifact == ART_GAE_BULG) {
             You("are impaled by Gae Bulg!");
         } else if (Blind || !flags.verbose)
             You("are hit%s", exclam(dam));

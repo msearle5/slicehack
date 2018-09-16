@@ -841,6 +841,7 @@ int mntmp;
         You("orient yourself on the web.");
         u.utrap = 0;
     }
+    amulet_vs_golem();
     check_strangling(TRUE); /* maybe start strangling */
 
     context.botl = 1;
@@ -855,6 +856,18 @@ int mntmp;
     if (!uarmg)
         selftouch(no_longer_petrify_resistant);
     return 1;
+}
+
+void
+amulet_vs_golem()
+{
+    if ((youmonst.data == &mons[PM_STONE_GOLEM]) && uamul && (uamul->otyp == AMULET_VERSUS_STONE)) {
+        makeknown(AMULET_VERSUS_STONE);
+        pline("Your amulet screams horribly and grabs your stony neck!");
+        uamul->cursed = TRUE;
+        uamul->blessed = FALSE;
+        uamul->otyp = AMULET_OF_STRANGULATION;
+    }
 }
 
 STATIC_OVL void

@@ -1921,6 +1921,7 @@ E void VDECL(impossible, (const char *, ...)) PRINTF_F(1, 2);
 E void NDECL(set_uasmon);
 E void NDECL(float_vs_flight);
 E void NDECL(change_sex);
+E void NDECL(amulet_vs_golem);
 E void FDECL(polyself, (int));
 E int FDECL(polymon, (int));
 E void NDECL(rehumanize);
