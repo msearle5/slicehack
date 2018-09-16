@@ -13,11 +13,17 @@ STATIC_OVL long
 newuexp(lev)
 int lev;
 {
-    if (lev < 10)
-        return (10L * (1L << lev));
-    if (lev < 20)
-        return 0.75 * (10000L * (1L << (lev - 10)));
-    return (10000000L * ((long) (lev - 19)));
+    static const int max[MAXULEV] = {
+        20,		40,		80,		160,	320,
+        640,    1250,   2500,   5000,   8000,
+        12500,  20000,  30000,  45000,  60000,
+        80000,  100000, 125000, 150000, 180000,
+        220000, 275000, 350000, 425000, 500000,
+        600000, 720000, 850000, 1000000, 100000000
+    };
+    if (lev < 1) lev = 1;
+    if (lev >= MAXULEV-1) lev = MAXULEV-1; 
+    return max[lev-1];
 }
 
 STATIC_OVL int
