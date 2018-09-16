@@ -1260,7 +1260,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     }
     if (attacks(AD_ACID, otmp)) {
         if (realizes_damage)
-            pline_The("sizzling sword %s %s%c",
+            pline_The("sizzling %s %s %s%c",
+                      (Hallucination ? "sausage" : "sword"),
                       !spec_dbon_applies ? "hits" : "melts", hittee,
                       !spec_dbon_applies ? '.' : '!');
         return realizes_damage;
