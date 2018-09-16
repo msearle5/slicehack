@@ -477,6 +477,18 @@ nh_timeout()
                     make_vomiting(0L, TRUE);
                 } break;
             case SICK:
+                /* Food poisoning is occasionally recoverable from.
+                 * Illness never is.
+                 */
+                if ((u.usick_type & SICK_NONVOMITABLE) == 0) {
+                    if (rn2(100) < Luck + ACURR(A_CON)) {
+                        You("have recovered from your illness.");
+                        make_sick(0L, (char *) 0, FALSE, SICK_ALL);
+                        exercise(A_CON, FALSE);
+                        adjattrib(A_CON, -1, 1);
+                        break;
+                    }
+                }
                 You("die from your illness.");
                 if (kptr && kptr->name[0]) {
                     killer.format = kptr->format;
