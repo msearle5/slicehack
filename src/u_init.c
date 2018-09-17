@@ -1125,6 +1125,33 @@ int otyp;
     return TRUE;
 }
 
+/* substitute race-specific items; this used to be in
+   the 'if (otyp != UNDEF_TYP) { }' block below, but then
+   substitutions didn't occur for randomly generated items
+   (particularly food) which have racial substitutes - while
+   putting it in the later position only produced partially
+   substituted items such as iron elven arrows.
+   */
+STATIC_OVL void
+race_trans(obj, trop)
+struct obj *obj;
+register struct trobj *trop;
+{
+    int otyp, i;
+    if (urace.malenum != PM_HUMAN) {
+        for (i = 0; inv_subs[i].race_pm != NON_PM; ++i)
+            if (inv_subs[i].race_pm == urace.malenum
+                && otyp == inv_subs[i].item_otyp) {
+                debugpline3("race_trans: substituting %s for %s%s",
+                            OBJ_NAME(objects[inv_subs[i].subs_otyp]),
+                            (trop->trotyp == UNDEF_TYP) ? "random " : "",
+                            OBJ_NAME(objects[otyp]));
+                otyp = obj->otyp = inv_subs[i].subs_otyp;
+                break;
+            }
+    }
+}
+
 STATIC_OVL void
 ini_inv(trop)
 register struct trobj *trop;
@@ -1136,6 +1163,8 @@ register struct trobj *trop;
         otyp = (int) trop->trotyp;
         if (otyp != UNDEF_TYP) {
             obj = mksobj(otyp, TRUE, FALSE);
+            race_trans(obj, trop);
+
             /* Don't allow materials to be start scummed for */
             obj->material = objects[obj->otyp].oc_material;
             /* Don't allow weapons to roll high enchantment and get an oname
@@ -1143,6 +1172,7 @@ register struct trobj *trop;
             if (Hate_silver && obj->material == SILVER)
                 obj->material = IRON;
             free_oname(obj);
+
         } else { /* UNDEF_TYP */
             static NEARDATA short nocreate = STRANGE_OBJECT;
             static NEARDATA short nocreate2 = STRANGE_OBJECT;
@@ -1218,22 +1248,7 @@ register struct trobj *trop;
                 nocreate4 = otyp;
         }
 
-        if (urace.malenum != PM_HUMAN) {
-            /* substitute race-specific items; this used to be in
-               the 'if (otyp != UNDEF_TYP) { }' block above, but then
-               substitutions didn't occur for randomly generated items
-               (particularly food) which have racial substitutes */
-            for (i = 0; inv_subs[i].race_pm != NON_PM; ++i)
-                if (inv_subs[i].race_pm == urace.malenum
-                    && otyp == inv_subs[i].item_otyp) {
-                    debugpline3("ini_inv: substituting %s for %s%s",
-                                OBJ_NAME(objects[inv_subs[i].subs_otyp]),
-                                (trop->trotyp == UNDEF_TYP) ? "random " : "",
-                                OBJ_NAME(objects[otyp]));
-                    otyp = obj->otyp = inv_subs[i].subs_otyp;
-                    break;
-                }
-        }
+        race_trans(obj,trop);
 
         /* nudist gets no armor */
         if (u.uroleplay.nudist && obj->oclass == ARMOR_CLASS) {
