@@ -1321,6 +1321,8 @@ STATIC_VAR const struct paranoia_opts {
       "y to walk into a water or lava space when moving with 'm'" },
     { PARANOID_TRAP, "trap", 1, "move-trap", 1,
       "yes vs y to move onto a trap" },
+    { PARANOID_THROW, "throw", 1, NULL, 0,
+      "y to throw an arrow when you have a bow as swap weapon" },
     /* for config file parsing; interactive menu skips these */
     { 0, "none", 4, 0, 0, 0 }, /* require full word match */
     { ~0, "all", 3, 0, 0, 0 }, /* ditto */

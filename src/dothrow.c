@@ -204,6 +204,16 @@ int shotlimit;
     }
 
     m_shot.s = ammo_and_launcher(obj, uwep) ? TRUE : FALSE;
+
+    /* if you are throwing arrows despite having a bow in your swap slot,
+     * this is probably a mistake - so ask.
+     */
+    if ((!m_shot.s) && (uswapwep && ammo_and_launcher(obj, uswapwep))) {
+        if (!paranoid_query(ParanoidThrow, "Really throw it?")) {
+            return 0;
+        }
+    }
+
     /* give a message if shooting more than one, or if player
        attempted to specify a count */
     if (multishot > 1 || shotlimit > 0) {
