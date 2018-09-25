@@ -1567,7 +1567,7 @@ NEARDATA struct permonst mons[] = {
         0, CLR_GREEN),
     /* If you see an elder dragon, run. These monsters were added to increase
        challenge in the late game, and all of them are extremely nasty. */
-    /* Ooze dragons are a good reason to have acid reistance. Probably the
+    /* Ooze dragons are a good reason to have acid resistance. Probably the
        least dangerous of the elder dragons. */
     MON("ooze dragon", S_DRAGON, LVL(25, 9, -10, 20, -7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ACID, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -3726,7 +3726,7 @@ struct permonst _mons2[] = {
         M2_NOPOLY | M2_HUMAN | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, HI_LORD),
-    MON("Drakemother", S_DRAGON, LVL(25, 18, -1, 20, -4), (G_GENO | 1),
+    MON("Drakemother", S_DRAGON, LVL(25, 18, -1, 20, -4), (G_NOGEN | G_UNIQ | 1),
         A(ATTK(AT_BREA, AD_FIRE, 6, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
           NO_ATTK),
