@@ -907,8 +907,6 @@ givit(type, ptr)
 int type;
 register struct permonst *ptr;
 {
-    register int chance;
-
     debugpline1("Attempting to give intrinsic %d", type);
 
     if (!cangivit(type, ptr))
@@ -2159,6 +2157,7 @@ struct obj *otmp;
         }
         case AMULET_OF_NAUSEA: {
             make_vomiting((long) rn1(15, 10), FALSE);
+            break;
         }
         case AMULET_OF_DANGER: {
             You("feel more dangerous!");
