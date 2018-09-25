@@ -152,6 +152,7 @@ mad cow
 ascii art
 exploding kitten
 crunchy frog
+pinch of catsbane
 
 # Quendor (Zork, &c.)
 grue
