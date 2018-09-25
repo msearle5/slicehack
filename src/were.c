@@ -36,8 +36,12 @@ register struct monst *mon;
                     howler = (char *) 0;
                     break;
                 }
-                if (howler)
-                    You_hear("a %s howling at the moon.", howler);
+                if (howler) {
+                    if (Hallucination)
+                        You_hear("the moon howling like a %s", howler);
+                    else
+                        You_hear("a %s howling at the moon.", howler);
+                }
             }
         }
     } else if (!rn2(30) || Protection_from_shape_changers) {
