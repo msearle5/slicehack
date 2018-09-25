@@ -322,11 +322,14 @@ const struct shclass shtypes[] = {
       WEAPON_CLASS,
       2,
       D_SHOP,
-      { { 30, -BOW },
-        { 25, -ARROW },
-        { 20, -ELVEN_BOW },
+      { { 25, -BOW },
+        { 20, -ARROW },
+        { 15, -ELVEN_BOW },
         { 20, -ELVEN_ARROW },
-        { 5, WEAPON_CLASS } },
+        { 8, -CROSSBOW },
+        { 4, -YA },
+        { 4, -CROSSBOW_BOLT },
+        { 4, WEAPON_CLASS } },
       shkweapons },
     { "junk shop",
       RANDOM_CLASS,
@@ -345,8 +348,9 @@ const struct shclass shtypes[] = {
       D_SHOP,
       { { 70, VEGETARIAN_CLASS },
         { 20, -POT_FRUIT_JUICE },
-        { 4, -POT_HEALING },
-        { 3, -POT_FULL_HEALING },
+        { 3, -POT_HEALING },
+        { 2, -POT_EXTRA_HEALING },
+        { 2, -POT_FULL_HEALING },
         { 2, -SCR_FOOD_DETECTION },
         { 1, -LUMP_OF_ROYAL_JELLY } },
       shkhealthfoods },
@@ -359,11 +363,12 @@ const struct shclass shtypes[] = {
       0,
       D_SHOP,
       { { 30, -WAX_CANDLE },
-        { 48, -TALLOW_CANDLE },
+        { 45, -TALLOW_CANDLE },
         { 5, -BRASS_LANTERN },
         { 9, -OIL_LAMP },
         { 3, -MAGIC_LAMP },
-        { 5, -POT_OIL } },
+        { 5, -POT_OIL },
+        { 3, -SCR_CHARGING } },
       shklight },
     {"black market",
       RANDOM_CLASS,
@@ -908,10 +913,10 @@ register int sh;
                 typ = rn2(next-first) + first;
 
                 /* forbidden objects  */
-            	  if (typ==AMULET_OF_YENDOR || typ==CANDELABRUM_OF_INVOCATION ||
-            	      typ==BELL_OF_OPENING  || typ==SPE_BOOK_OF_THE_DEAD ||
-            	      objects[typ].oc_nowish || typ==0)
-            	    continue;
+                if (typ==AMULET_OF_YENDOR || typ==CANDELABRUM_OF_INVOCATION ||
+                    typ==BELL_OF_OPENING  || typ==SPE_BOOK_OF_THE_DEAD ||
+                    objects[typ].oc_nowish || typ==0)
+                        continue;
 
   	            otmp = mkobj_at(RANDOM_CLASS,sx,sy,TRUE);
                 /* generate multiple copies with decreasing probabilities */
