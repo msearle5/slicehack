@@ -2794,8 +2794,6 @@ int final;
 
     if (u.uroleplay.clumsy)
         you_have_been("forever fumbling");
-    if (u.uroleplay.clumsy)
-        you_have_been("fighting your fate");
     if (u.uroleplay.blind)
         you_have_been("blind from birth");
     if (u.uroleplay.nudist)
