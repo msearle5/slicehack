@@ -3149,10 +3149,10 @@ boolean incr;
             if (Hallucination)
                 pline((!incr) ? "You still have the munchies."
               : "The munchies are interfering with your motor capabilities.");
-            else if (incr && (Role_if(PM_WIZARD) || Race_if(PM_ELF)
+            else if (incr && (Subrole_if(PM_WIZARD) || Race_if(PM_ELF)
                               || Role_if(PM_VALKYRIE)))
                 pline("%s needs food, badly!",
-                      (Role_if(PM_WIZARD) || Role_if(PM_VALKYRIE))
+                      (Subrole_if(PM_WIZARD) || Role_if(PM_VALKYRIE))
                           ? urole.name.m
                           : "Elf");
             else

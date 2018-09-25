@@ -128,7 +128,7 @@ int expltype;
 
     switch (abs(type) % 10) {
     case 0:
-        str = "magical blast";
+        str = (olet == POTION_CLASS) ? "alchemical blast" : "magical blast";
         adtyp = AD_MAGM;
         break;
     case 1:
@@ -332,6 +332,9 @@ int expltype;
         if (!Deaf && olet != SCROLL_CLASS)
             You_hear("a blast.");
     }
+    
+    if ((olet == POTION_CLASS) || (olet == MON_EXPLODE))
+        exploding_wand_typ = 10;
 
     if (dam)
         for (i = 0; i < 3; i++)

@@ -10,6 +10,7 @@
 
 #include "attrib.h"
 #include "monst.h"
+#include "onames.h"
 #ifndef PROP_H
 #include "prop.h" /* (needed here for util/makedefs.c) */
 #endif
@@ -233,6 +234,7 @@ struct Race {
 struct Subrole {
 	struct RoleName name;
 	const char *role;
+	const char *info;
 	char id;		/* SR_* */
 	unsigned short flags;
 	struct Role r;
@@ -244,8 +246,9 @@ extern struct Subrole usubrole;
 #define Subrole_switch (usubrole.id)
 
 /* IDs of all subroles */
-#define SR_NONE     0
-#define SR_EXAMPLE  1
+#define SR_NONE         0
+#define SR_WIZARD       1
+#define SR_ALCHEMIST    2
 
 /* Flags describing how it affects the base role */
 #define SR_QUEST	0x00000001
@@ -301,6 +304,14 @@ enum utraptypes {
     TT_LAVA,
     TT_INFLOOR,
     TT_BURIEDBALL
+};
+
+/* Alchemy recipe */
+struct recipe {
+    long base;              /* All ingredients except the final one */
+    unsigned short last;    /* The final ingredient */
+    unsigned short difficulty;       /* Difficulty to make. Compared against skill. 0 difficulty
+                                means that it is impossible to produce. */
 };
 
 /*** Information about the player ***/
@@ -431,6 +442,7 @@ struct you {
     int skills_advanced;     /* # of advances made so far */
     xchar skill_record[P_SKILL_LIMIT]; /* skill advancements */
     struct skills weapon_skills[P_NUM_SKILLS];
+    struct recipe alchemy[POT_WATER - POT_GAIN_ABILITY];   /* alchemy recipes */
     boolean twoweap;         /* KMH -- Using two-weapon combat */
 
 }; /* end of `struct you' */

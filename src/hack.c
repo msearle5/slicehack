@@ -2944,11 +2944,11 @@ maybe_wail()
         return;
 
     wailmsg = moves;
-    if (Role_if(PM_WIZARD) || Race_if(PM_ELF) || Role_if(PM_VALKYRIE)) {
+    if (Subrole_if(PM_WIZARD) || Race_if(PM_ELF) || Role_if(PM_VALKYRIE)) {
         const char *who;
         int i, powercnt;
 
-        who = (Role_if(PM_WIZARD) || Role_if(PM_VALKYRIE)) ? urole.name.m
+        who = (Subrole_if(PM_WIZARD) || Role_if(PM_VALKYRIE)) ? urole.name.m
                                                            : "Elf";
         if (u.uhp == 1) {
             pline("%s is about to die.", who);

@@ -6,6 +6,7 @@
 /* Edited on 5/11/18 by NullCGT */
 
 #include "hack.h"
+#include <assert.h>
 
 boolean notonhead = FALSE;
 
@@ -1381,6 +1382,20 @@ int how;
                         || (rnl(10) < 4 && obj->blessed) || !rn2(3)))))
             hit_saddle = TRUE;
         distance = distu(tx, ty);
+
+        if ((obj->otyp == POT_ACID) && (obj->ovar1)) {
+            if (!cansee(tx, ty)) {
+                pline("BOOM!");
+            } else {
+                pline_The("%s hits %s and explodes!", botlnam, mon_nam(mon));
+            }
+            killer.format = KILLED_BY_AN;
+            strcpy(killer.name, "alchemic blast");
+            explode(tx, ty, 10, d(obj->quan, 9)+3, /* not physical damage */
+                   POTION_CLASS, EXPL_MAGICAL);
+            return;
+        }
+
         if (!cansee(tx, ty)) {
             pline("Crash!");
         } else {
@@ -1920,6 +1935,796 @@ register struct obj *o1, *o2;
     return STRANGE_OBJECT;
 }
 
+/* Determine the chance (parts in 1000) that recipe-alchemy will fail (BOOM).
+ * It is based most strongly on the difficulty of the recipe and your skill.
+ * Luck, intelligence and experience also play a part, though.
+ */
+int alchemy_failrate(int otyp)
+{
+    static const int divi[] = { 1, 3, 10, 40, 160, 800, 4000 };
+    struct recipe *r = u.alchemy + (otyp - POT_GAIN_ABILITY);
+    int difficulty = r->difficulty; // %
+    int min = u.ulevel+(2*ACURR(A_INT))+(3*Luck);
+    
+    /* If it's 0 then this is not alchemizable. */
+    if (difficulty == 0) return 1000;
+
+    /* Determine the minimum failure rate from int, luck, XL */
+    min += 20;
+    if (min <= 4) min = 4;
+    min = 350000 / min; // 87.5% minimum fail worst case. Typ (xl10,int16,luck0) 5.64% 2.89% best.
+
+    /* Determine the skill-vs-difficulty based failure rate */
+    difficulty *= 10000;
+    difficulty /= divi[P_SKILL(P_ALCHEMY)]; // per 1e6
+    
+    /* Use whichever is worse */
+    if (difficulty < min) difficulty = min;
+    
+    /* Convert back, bound, return. */
+    difficulty /= 1000;
+    if (difficulty > 1000) difficulty = 1000;
+    return difficulty;
+}
+
+/* Does something */
+const char *alchemy_vague_news(int failrate)
+{
+    if (failrate < 50)      return "Very Easy";
+    if (failrate < 80)      return "Easy";
+    if (failrate < 125)     return "Fairly Easy";
+    if (failrate < 200)     return "Tricky";
+    if (failrate < 350)     return "Fairly Difficult";
+    if (failrate < 550)     return "Difficult";
+    if (failrate < 750)     return "Very Difficult";
+    if (failrate < 950)     return "Extremely Hard";
+    if (failrate < 1000)    return "Almost Impossible";
+    return "Impossible";
+};
+    
+extern const int monstr[];
+
+/* Convert an object into an alchemy ID and return the total number of monsters and IDs.
+ * This will return ALC_UNKNOWN (1) if it's not a valid alchemy ingredient.
+ */
+int
+do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boolean ret_mtyp, int ret_id)
+{
+    boolean ok;
+    int valid;
+    int oclass, otyp, baseid;
+    int mtyp;
+    int id = ALC_UNKNOWN;
+    *monc = ALC_UNKNOWN;
+    *total = ALC_UNKNOWN;
+    
+    /* Search for monsters matching the tin or corpse's monster ID */
+    for(mtyp = 0; mons[mtyp].mname[0]; mtyp++) {
+        int f = corpse_frequency(mtyp);
+        if (mons[mtyp].geno & (G_UNIQ|G_HELL|G_NOGEN|G_NOCORPSE)) continue;
+        if ((mons[mtyp].geno & G_FREQ) == 0) continue;
+        if (mons[mtyp].mflags2 & (M2_PEACEFUL|M2_HUMAN|M2_WERE|M2_UNDEAD|M2_NOPOLY|M2_ELF|M2_DWARF|M2_ORC|M2_MERC|M2_LORD|M2_PRINCE|M2_MINION|M2_DOMESTIC)) continue;
+        
+        /* Never drops a corpse - don't use this ID */
+        if (f <= 0) continue;
+
+        id++;
+        (*monc)++; (*total)++;
+        
+        /* The value of a monster corpse is based on its difficulty from monstr[],
+         * filled by mstrength(). However this is intended to be "difficulty of
+         * obtaining a corpse", so there are some changes - creation in groups
+         * makes it easier. Size, etc is handled by corpse_frequency, but being
+         * heavy (and so hard to dip, possibly requiring a tinning kit) makes it
+         * difficult. Generation frequency also makes a difference.
+         **/
+        if (value) {
+            int v = monstr[mtyp];
+            int f = corpse_frequency(mtyp);
+            int w = mons[mtyp].cwt;
+            int spill;
+
+            v -= (!!(mons[mtyp].geno & G_SGROUP)) << 1;
+            v -= (!!(mons[mtyp].geno & G_LGROUP)) << 2;
+            
+            /* Heavy corpse so more difficult */
+            v += min(w, 3000) / 500;
+            
+            if (v < 1) v = 1;
+            
+            /* This is 1..4 and includes a +1 for G_FREQ == 1.
+             * Multiply by a arbitrary scaling factor to keep everything in 0..255. */
+            v *= f * 6;
+
+            /* This is 1..7. 1 = very rare, 7 = very common, and is linear.
+             * It doesn't take account of special generation, though...
+             **/
+            v /= (mons[mtyp].geno & G_FREQ);
+            
+            /* Bound, with soft clipping above 224 */
+            if (v < 1) v = 1;
+            spill = 0;
+            while (v > 224) {
+                v -= (v >> 5)+1;
+                spill++;
+            }
+            v = 224+spill;
+            if (v > 255) v = 255;
+            value[id] = v;
+        }
+        
+        if (obj) {
+            if ((((obj->otyp == TIN) && (obj->spe <= 0)) || (obj->otyp == CORPSE)) && (obj->corpsenm == mtyp))
+                return id;
+        } else {
+            if ((ret_mtyp) && (ret_id == id))
+                return mtyp;
+        }
+//        fprintf(stderr,"name %s, mtyp %d, id %d\n", mons[mtyp].mname, mtyp, id); 
+    }
+    
+    /* Otherwise check for a matching object type */
+    for(otyp = 0; otyp < NUM_OBJECTS; otyp++) {
+        ok = FALSE;
+        valid = -1;
+        oclass = objects[otyp].oc_class;
+        
+        if (!(OBJ_NAME(objects[otyp]))) continue;
+    
+        switch(oclass) {
+            case ARMOR_CLASS:
+            /* Dragon scales are valid. So is mail (which is equivalent) */
+            if ((objects[otyp].oc_material == DRAGON_HIDE) && (otyp != VOID_DRAGON_SCALES) && (otyp != VOID_DRAGON_SCALE_MAIL)) {
+                if (otyp == GRAY_DRAGON_SCALE_MAIL) baseid = id + 1;
+                if (otyp < GRAY_DRAGON_SCALES)
+                    ok = TRUE;
+                else {
+                    valid = (otyp - GRAY_DRAGON_SCALES) + baseid;
+                    if (otyp == YELLOW_DRAGON_SCALES) valid--;
+                }
+            }
+            break;
+            
+            case POTION_CLASS:
+            /* Most potions are valid */
+            if ((otyp != POT_ACID) && (otyp != POT_WATER)) ok = TRUE;
+            break;
+            
+            case TOOL_CLASS:
+            /* Some tools are valid. Some form equivalence groups */
+            if ((otyp == UNICORN_HORN) || (otyp == CAN_OF_GREASE) || (otyp == TALLOW_CANDLE) || (otyp == WAX_CANDLE))
+                ok = TRUE;
+            if (otyp == TOOLED_HORN) {
+                baseid = id + 1;
+                ok = TRUE;
+            }
+            if ((otyp == HORN_OF_PLENTY) || (otyp == FROST_HORN) || (otyp == FIRE_HORN))
+                valid = baseid;
+            break;
+            
+            case FOOD_CLASS:
+            /* Some foodstuffs are valid. This includes some corpses - defer to a later pass? */
+            if ((otyp == GLOB_OF_GRAY_OOZE) || (otyp == GLOB_OF_BROWN_PUDDING) || (otyp == GLOB_OF_GREEN_SLIME) || (otyp == GLOB_OF_BLACK_PUDDING)) ok = TRUE;
+            if ((otyp == KELP_FROND) || (otyp == EUCALYPTUS_LEAF) || (otyp == PINCH_OF_CATNIP) || (otyp == SPRIG_OF_WOLFSBANE) || (otyp == CLOVE_OF_GARLIC) || (otyp == LUMP_OF_ROYAL_JELLY)) ok = TRUE;
+            
+            /* Tins are acceptable as a corpse alternative. Tins of spinach are this separate ID. */
+            if (otyp == TIN) {
+                ok = TRUE;
+                if (obj) {
+                    if ((obj->otyp == TIN) && (obj->spe > 0))
+                        return ++id;
+                } else {
+                    if ((!ret_mtyp) && (ret_id == id)) return otyp;
+                }
+            }
+            break;
+            
+            case WAND_CLASS:
+            /* Most wands are valid, unless useless or too powerful
+             * ...should spent wands still be usable?
+             **/
+            if ((otyp != WAN_WISHING) && (otyp != WAN_NOTHING)) ok = TRUE;
+            break;
+            
+            case GEM_CLASS:
+            /* Valuable gems are valid */
+            if (objects[otyp].oc_material == GEMSTONE) ok = TRUE;
+            break;
+            
+            case ROCK_CLASS:
+            /* Flint, luck, touch are valid */
+            if ((otyp == FLINT) || (otyp == LUCKSTONE) || (otyp == TOUCHSTONE)) ok = TRUE;
+            break;
+        }
+        if (ok) {
+            id++;
+            (*total)++;
+            if (obj) {
+                if (obj->otyp == otyp) return id;
+            } else {
+                if ((!ret_mtyp) && (ret_id == id)) return otyp;
+            }
+        }
+
+        if (valid >= 0) {
+            if (obj) {
+                if (obj->otyp == otyp) return valid;
+            } else {
+                if ((!ret_mtyp) && (ret_id == id)) return otyp;
+            }
+        }
+
+        if (value && (ok || (valid >= 0)))
+        {
+            if (valid < 0) valid = id;
+            int v = 1;
+            switch(oclass) {
+                /* Dragons always drop a corpse, but don't always drop scales.
+                 * Part of the reason for the high value of a dragon corpse is the
+                 * weight, but even so this should have a higher value than a dragon corpse.
+                 * Especially as it is such a useful item.
+                 * Corpses are 156 for most, 210 for razor, 222 for filth/hex/ooze.
+                 * Use "valid" to avoid needing to check both scales and mail
+                 */
+                case ARMOR_CLASS:
+                    switch(otyp) {
+                        case FILTH_DRAGON_SCALE_MAIL:
+                        case OOZE_DRAGON_SCALE_MAIL:
+                        case HEX_DRAGON_SCALE_MAIL:
+                            v = 250;
+                            break;
+                        case RAZOR_DRAGON_SCALE_MAIL:
+                            v = 240;
+                            break;
+                        case GRAY_DRAGON_SCALE_MAIL:
+                        case SILVER_DRAGON_SCALE_MAIL:
+                            v = 230;
+                            break;
+                        case SHIMMERING_DRAGON_SCALE_MAIL:
+                        case BLACK_DRAGON_SCALE_MAIL:
+                        case PURPLE_DRAGON_SCALE_MAIL:
+                            v = 220;
+                            break;
+                        default:
+                            v = 210;
+                    }
+                    break;
+                
+                /* Potions vary from very high value (gain ability) to near worthless.
+                 * In particular the requirement for a high-value potion can make a
+                 * recipe useless, especially when compared to conventional alchemy...
+                 * However this is not just a copy of the "difficulty to make", as it
+                 * offers something to do with otherwise useless or situational potions.
+                 * So only potions that nobody wants to give up score highly.
+                 */
+                case POTION_CLASS:
+                    switch(otyp) {
+                        case POT_GAIN_ABILITY:
+                            v = 180;
+                            break;
+                        case POT_GAIN_LEVEL:
+                        case POT_REFLECTION:
+                            v = 170;
+                            break;
+                        case POT_FULL_HEALING:
+                        case POT_GAIN_ENERGY:
+                            v = 160;
+                            break;
+                        case POT_POLYMORPH:
+                        case POT_SPEED:
+                        case POT_EXTRA_HEALING:
+                            v = 80;
+                            break;
+                        case POT_PARALYSIS:
+                        case POT_OIL:
+                        case POT_ENLIGHTENMENT:
+                        case POT_HEALING:
+                            v = 40;
+                            break;
+                        case POT_LEVITATION:
+                        case POT_INVISIBILITY:
+                        case POT_MONSTER_DETECTION:
+                        case POT_RESTORE_ABILITY:
+                        case POT_SICKNESS:
+                            v = 20;
+                            break;
+                        case POT_SEE_INVISIBLE:
+                        case POT_CONFUSION:
+                        case POT_BLINDNESS:
+                        case POT_SLEEPING:
+                        case POT_HALLUCINATION:
+                        case POT_OBJECT_DETECTION:
+                            v = 10;
+                            break;
+                        case POT_BOOZE:
+                        case POT_FRUIT_JUICE:
+                            v = 5;
+                            break;
+                    }
+                    break;
+
+                /* Tools vary in value.
+                 * Unicorn horn - you need one but commonly have a few more. But not more than that.
+                 * Other horns - can be polymorphed for, but are not that common otherwise.
+                 * Grease - you probably don't have a spare. There's no source like unihorns, and they have limited uses. 
+                 * Candles - you may have a lot more than the 7 you need.
+                 */
+                case TOOL_CLASS:
+                    switch(otyp) {
+                        case CAN_OF_GREASE:
+                            v = 100;
+                            break;
+                        case UNICORN_HORN:
+                            v = 50;
+                            break;
+                        case TOOLED_HORN:
+                        case FIRE_HORN:
+                        case FROST_HORN:
+                        case HORN_OF_PLENTY:
+                            v = 30;
+                            break;
+                        case WAX_CANDLE:
+                            v = 15;
+                            break;
+                        case TALLOW_CANDLE:
+                            v = 5;
+                            break;
+                    }
+                    break;
+                
+                /* Food - other than meat.
+                 * Globs are based on the difficulty and rarity of the monster.
+                 * Other items from item rarity (taking into account special generation).
+                 **/
+                case FOOD_CLASS:
+                    switch(otyp) {
+                        case GLOB_OF_GRAY_OOZE:
+                            v = 15;
+                            break;
+                        case GLOB_OF_BROWN_PUDDING:
+                            v = 25;
+                            break;
+                        case GLOB_OF_BLACK_PUDDING:
+                            v = 70;
+                            break;
+                        case GLOB_OF_GREEN_SLIME:   /* only generated in hell, or specially (nasties) */
+                            v = 200;
+                            break;
+                        case EUCALYPTUS_LEAF:       /* mostly from trees */
+                        case CLOVE_OF_GARLIC:
+                            v = 12;
+                            break;
+                        case KELP_FROND:            /* only from special generation */
+                            v = 150;
+                            break;
+                        case PINCH_OF_CATNIP:
+                            v = 33;
+                            break;
+                        case SPRIG_OF_WOLFSBANE:
+                            v = 25;
+                            break;
+                        case LUMP_OF_ROYAL_JELLY:   /* only from special generation */
+                            v = 80;
+                            break;
+                        case TIN:                   /* of spinach */
+                            v = 60;
+                            break;
+                    }
+                    break;
+                
+                /* Wands' rarity is a better model of usefulness to you than their cash value */
+                case WAND_CLASS:
+                    v = 1250 / objects[otyp].oc_prob;
+                    break;
+                
+                /* Stones' rarity can't also be used as it is reset by setgemprobs per level.
+                 * Cash value is a reasonable alternative.
+                 **/
+                case GEM_CLASS:
+                    v = objects[otyp].oc_cost / 20;
+                    break;
+                    
+                case ROCK_CLASS:
+                    if (otyp == FLINT)
+                        v = 4;
+                    else
+                        v = 30;  
+                    break;
+            }
+            assert(v != 1);
+            value[id] = v;
+        }
+    }
+    return obj ? ALC_UNKNOWN : -1;
+}
+
+/* Convert an alchemy ID into an mtyp.
+ * This will return -1 if it's not an mtyp known to alchemy.
+ */
+int
+alchemy_mtyp(int id)
+{
+    int monc, total;
+    return do_alchemy_id(NULL, &monc, &total, NULL, TRUE, id);
+}
+
+/* Convert an alchemy ID into an otyp.
+ * This will return -1 if it's not an otyp known to alchemy.
+ */
+int
+alchemy_otyp(int id)
+{
+    int monc, total;
+    return do_alchemy_id(NULL, &monc, &total, NULL, FALSE, id);
+}
+
+/* Convert an object into an alchemy ID.
+ * This will return ALC_UNKNOWN (1) if it's not a valid alchemy ingredient.
+ */
+int
+alchemy_id(struct obj * obj)
+{
+    int monc, total;
+    return do_alchemy_id(obj, &monc, &total, NULL, FALSE, 0);
+}
+
+/* Convert an otyp into an alchemy ID.
+ * This will return ALC_UNKNOWN (1) if it's not a valid alchemy ingredient.
+ */
+int
+alchemy_otyp_id(int otyp)
+{
+    struct obj o;
+    o.oclass = objects[otyp].oc_class;
+    o.otyp = otyp;
+    int monc, total;
+    return do_alchemy_id(&o, &monc, &total, NULL, FALSE, 0);
+}
+
+/* Obtain counts of monsters and total IDs.
+ */
+void
+alchemy_max_id(int *monc, int *total)
+{
+    struct obj o;
+    
+    // Dummy object
+    o.oclass = ROCK_CLASS;
+    o.otyp = ROCK;
+    do_alchemy_id(&o, monc, total, NULL, FALSE, 0);
+}
+
+/* Return an array in allocated memory of rarity values per ID */
+unsigned char *
+alchemy_rarities(void)
+{
+    struct obj o;
+    int monc, total;
+    unsigned char *value;
+    
+    // Dummy object
+    o.oclass = ROCK_CLASS;
+    o.otyp = ROCK;
+    
+    // Get the number of items 
+    do_alchemy_id(&o, &monc, &total, NULL, FALSE, 0);
+    value = malloc(total);
+
+    // Now fill in the table
+    do_alchemy_id(&o, &monc, &total, value, FALSE, 0);
+    
+    return value;
+}
+
+static int alchemy_compar(const void *v1, const void *v2)
+{
+    const unsigned short *s1 = v1;
+    const unsigned short *s2 = v2;
+    int i1 = *s1;
+    int i2 = *s2;
+    return (i1 - i2);
+}
+
+/* Reverse alchemy_pack. Returns the number of IDs, which are returned
+ * in *out. This always fills in all 4 possible IDs, even when returning
+ * a shorter array - the remaining IDs are zero filled (ALC_NONE).
+ * Also optionally returns the number of monsters.
+ **/
+int alchemy_unpack(out, in, monsters)
+unsigned short *out;
+long in;
+int *monsters;
+{
+    static int nmons;
+    static int nobjs = -1;
+    unsigned long packed = (unsigned long)in;
+    int i;
+
+    /* Determine maxima */
+    if (nobjs < 0) {
+        alchemy_max_id(&nmons, &nobjs);
+        nobjs -= nmons;
+    }
+
+    /* Unpack the 4 fields */
+    out[0] = packed % nmons;
+    packed /= nmons;
+    out[1] = packed % nmons;
+    packed /= nmons;
+    out[2] = packed % nobjs;
+    packed /= nobjs;
+    out[3] = packed % nobjs;
+    packed /= nobjs;
+    
+    /* Packed now contains the number of monsters, so adjust IDs */
+    for(i=0;i<4;i++) {
+        if (out[i] == 0) break;
+        if (i >= (int)packed) out[i] += nmons;
+    }
+
+    assert(i);
+    if (monsters) *monsters = (int)packed;
+    return i;
+}
+
+/* Faff about with arithmetic coding to fit all IDs needed for a recipe
+ * into a long... which must be unique, so they are also sorted.
+ * Of these 0, 1 or 2 may be monsters and the number of monsters is also
+ * part of the encoding.
+ * 
+ * Spaces beyond the number of IDs contain zero (ALC_NONE) which can be used
+ * as a sentinel to determine the number of IDs
+ **/
+long
+alchemy_pack(cid, ids)
+const unsigned short *cid;
+int ids;
+{
+    unsigned short id[4];
+    int monsters = 0;
+    int i;
+    static int nmons;
+    static int nobjs = -1;
+    unsigned long packed = 0;
+    assert(ids <= 4);
+    assert(ids > 0);
+    
+    /* Determine maxima */
+    if (nobjs < 0) {
+        alchemy_max_id(&nmons, &nobjs);
+        nobjs -= nmons;
+        
+        /* Ensure that object and monster lists haven't grown too big,
+         * by comparing with 2^32 / 3
+         */
+        assert(nobjs*nobjs*nmons*nmons < 1431655765);
+    }
+    
+    /* Copy in and sort into ascending order, i.e. monsters first */
+    memcpy(id, cid, sizeof(*id)*ids);
+    qsort(id, ids, sizeof(id[0]), alchemy_compar);
+    
+    /* Determine the number of monsters, and get all IDs into range */
+    for(i=0;i<ids;i++) {
+        assert(id[i]);
+        if (id[i] < nmons)
+            monsters++;
+        else
+            id[i] -= nmons;
+    }
+    assert(monsters <= 2);
+    
+    /* Pack */
+    packed = id[0];
+    if (ids > 1)
+        packed += (id[1] * nmons);
+    if (ids > 2)
+        packed += (id[2] * nmons * nmons);
+    if (ids > 3)
+        packed += (id[3] * nmons * nmons * nobjs);
+    packed += (monsters * nmons * nmons * nobjs * nobjs);
+    assert(packed != 364046400);
+    
+    return (long)packed;
+}
+
+/*
+ * Start an explode timeout on the given object. There had better not
+ * be an explode timer already running on the object.
+ *
+ * age = # of turns until explosion
+ *
+ * This is a "silent" routine - it should not print anything out.
+ */
+void
+begin_explode(obj, already_lit)
+struct obj *obj;
+boolean already_lit;
+{
+    long turns = 0;
+
+    if (obj->age == 0)
+        return;
+
+    turns = obj->age;
+
+    if (start_timer(1, TIMER_OBJECT, EXPLODE_OBJECT, obj_to_any(obj))) {
+      //  obj->age -= turns;
+        if (carried(obj) && !already_lit)
+            update_inventory();
+    }
+}
+
+/*
+ * Stop an explode timeout on the given object if timer attached.
+ */
+void
+end_explode(obj, timer_attached)
+struct obj *obj;
+boolean timer_attached;
+{
+    if (!timer_attached) {
+        if (obj->where == OBJ_INVENT)
+            update_inventory();
+    } else if (!stop_timer(EXPLODE_OBJECT, obj_to_any(obj)))
+        impossible("end_explode: obj %s not timed!", xname(obj));
+}
+
+/*
+ * Cleanup a burning object if timer stopped.
+ */
+static void
+cleanup_explode(arg, expire_time)
+anything *arg;
+long expire_time;
+{
+    struct obj *obj = arg->a_obj;
+
+    /* restore unused time */
+    obj->age += expire_time - monstermoves;
+
+    if (obj->where == OBJ_INVENT)
+        update_inventory();
+}
+
+/*
+ * Called when a potion (fuming acid) explodes.
+ */
+void
+explode_potion(arg, timeout)
+anything *arg;
+long timeout;
+{
+    struct obj *obj = arg->a_obj;
+    boolean canseeit, many, need_newsym, need_invupdate;
+    xchar x, y;
+    char whose[BUFSZ];
+    char line[BUFSZ];
+    const char *name;
+
+    many = obj->quan > 1L;
+
+    /* timeout while away */
+    if (timeout != monstermoves) {
+        long how_long = monstermoves - timeout;
+
+        if (how_long >= obj->age) {
+            obj->age = 0;
+            end_explode(obj, FALSE);
+            obj_extract_self(obj);
+            obfree(obj, (struct obj *) 0);
+            obj = (struct obj *) 0;
+        } else {
+            obj->age -= how_long;
+            begin_explode(obj, TRUE);
+        }
+        return;
+    }
+    
+    name = (obj->where == OBJ_FLOOR) ? doname(obj) : cxname(obj);
+
+    /* only interested in INVENT, FLOOR, and MINVENT */
+    if (get_obj_location(obj, &x, &y, 0)) {
+        canseeit = !Blind && cansee(x, y);
+        /* set `whose[]' to be "Your " or "Fred's " or "The goblin's " */
+        (void) Shk_Your(whose, obj);
+    } else {
+        canseeit = FALSE;
+    }
+    need_newsym = need_invupdate = FALSE;
+
+    if ((int)obj->age == 1) {
+        obj->age = 0;
+        if (canseeit || obj->where == OBJ_INVENT) {
+            switch (obj->where) {
+            case OBJ_INVENT:
+                need_invupdate = TRUE;
+                /*FALLTHRU*/
+            case OBJ_MINVENT:
+                pline("%s%s explode%s!", whose, name, many ? "" : "s");
+                need_newsym = TRUE;
+                break;
+            case OBJ_FLOOR:
+                You_see("%s explode!", name);
+                need_newsym = TRUE;
+                break;
+            default:
+                You_see("%s explode!", name);
+                need_newsym = TRUE;
+                break;
+            }
+        }
+        end_explode(obj, FALSE);
+{
+              int ouch = d(obj->quan, 9);
+        /* it would be better to use up the whole stack in advance
+               of the message, but we can't because we need to keep it
+               around for potionbreathe() [and we can't set obj->in_use
+               to 'amt' because that's not implemented] */
+            obj->in_use = 1;
+            wake_nearto(x, y, (BOLT_LIM + 1) * (BOLT_LIM + 1));
+            
+            if ((u.ux == x) && (u.uy == y)) {
+                if (!breathless(youmonst.data) || haseyes(youmonst.data))
+                    potionbreathe(obj);
+                exercise(A_STR, FALSE);
+                exercise(A_WIS, FALSE);
+            }
+
+            killer.format = KILLED_BY_AN;
+            strcpy(killer.name, "alchemic blast");
+            explode(x, y, 10, ouch, /* not physical damage */
+                   POTION_CLASS, EXPL_MAGICAL);
+     
+            if (obj->where == OBJ_INVENT)
+                useupall(obj);
+            else {
+                obj_extract_self(obj);
+                obfree(obj, (struct obj *) 0);
+                obj = (struct obj *) 0;
+            }
+            
+}
+    } else {
+        obj->age--;
+        /* Give them a warning... */
+        if (canseeit) {
+            static const char *smokes[] = {
+                "glow%s", "smoke%s", "boil%s", "froth%s", "bubble%s"
+            };
+            static const char *hsmokes[] = {
+                "sweat%s", "light%s a cigarette", "get%s angry", "turn%s into beer", "blow%s bubbles"
+            };
+            int r = rn2(obj->age + 50);
+            const char *smoke = NULL;
+
+            if (r < (int)(sizeof(smokes)/sizeof(smokes[0])))
+                smoke = (Hallucination ? hsmokes : smokes)[r];
+
+            if (smoke) {
+                switch (obj->where) {
+                    case OBJ_INVENT:
+                    case OBJ_MINVENT:
+                        sprintf(line, "%s%s %s!", whose, name, smoke);
+                        pline(line, many ? "" : "s");
+                        break;
+                    case OBJ_FLOOR:
+                        sprintf(line, "You see a %s %s!", name, smoke);
+                        pline(line, "");
+                        break;
+                }
+            }
+        }
+    }
+    
+    if (obj && obj->age)
+        begin_explode(obj, TRUE);
+    if (need_newsym)
+        newsym(x, y);
+    if (need_invupdate)
+        update_inventory();
+}
+
 /* #dip command */
 int
 dodip()
@@ -2035,9 +2840,11 @@ dodip()
              */
             if (!obj) {
                 makeknown(POT_POLYMORPH);
+                use_skill(P_ALCHEMY, 1);
                 return 1;
             } else if (obj->otyp != save_otyp) {
                 makeknown(POT_POLYMORPH);
+                use_skill(P_ALCHEMY, 1);
                 useup(potion);
                 prinv((char *) 0, obj, 0L);
                 return 1;
@@ -2048,6 +2855,150 @@ dodip()
         }
         potion->in_use = FALSE; /* didn't go poof */
         return 1;
+    } else if ((potion->otyp == POT_ACID) && Subrole_if(SR_ALCHEMIST)) {
+        unsigned short id = alchemy_id(obj);
+        boolean kaboom = FALSE;
+
+        if (id > 1) {
+            /* Chance of explosion per ingredient added.
+             * Larger stacks of acid are more likely to fail.
+             * If either the ingredient or the acid is cursed, also.
+             * If you are impaired you are also likely to fail here.
+             * (Conventional alchemy doesn't have such a check. But
+             *  then, it doesn't require the Alchemist's special
+             * skill...)
+             **/
+            int chance = obj->quan + 13 + u.ulevel + Luck;
+            if (obj->cursed) chance = (chance / 2) + 1;
+            if (obj->blessed) chance += 3;
+            if (potion->cursed) chance = (chance / 2) + 1;
+            if (potion->blessed) chance += 3;
+            if (Blind) {
+                chance = 1;
+                pline("You are unable to see what you are doing, and so...");
+            } else if (Hallucination) {
+                chance = 1;
+                pline("Being so trippy, you screw up and...");
+            } else if (Confusion) {
+                chance = 1;
+                pline("Being so confused, you do something very wrong and...");
+            } else if (Glib || Fumbling) {
+                chance = 1;
+                pline("The bottle slips from your %s fingers and falls...", (Glib ? "greasy" : "clumsy"));
+            }
+            if (rn2(chance) < obj->quan + 1)
+                kaboom = TRUE;
+            else {
+                unsigned short ids[4] = { 0 };
+                int monsters, i;
+                int nids = 0;
+                
+                if (potion->ovar1)
+                    nids = alchemy_unpack(ids, potion->ovar1, &monsters);
+
+                /* Are there already 4 ingredients, or 2 monsters, in here? */
+                if ((nids >= 4) || (monsters >= 2))
+                    kaboom = TRUE;
+                else {
+                    int failrate = 0;
+                    int success = -1;
+                    /* Add the ingredient */
+                    ids[nids] = id;
+                    nids++;
+                    potion->ovar1 = alchemy_pack(ids, nids);
+                    
+                    /* Does this produce anything? */
+                    for(i = 0; i < (int)(sizeof(u.alchemy) / sizeof(u.alchemy[0])); i++) {
+                        if (potion->ovar1 == u.alchemy[i].base) {
+                            /* It's matched the recipe. But do you succeed in producing the
+                             * potion?
+                             */
+                            failrate = alchemy_failrate(i + POT_GAIN_ABILITY);
+                            if (rn2(1000) < failrate)
+                                kaboom = TRUE;
+                            else
+                                success = i;
+                        }
+                    }
+                    
+                    if (success >= 0) {
+                        /* Success! */
+                        potion->ovar1 = 0;
+                        potion->otyp = success + POT_GAIN_ABILITY;
+                        pline_The("mixture looks %s.", hcolor(OBJ_DESCR(objects[potion->otyp])));
+                        useup(obj);
+
+                        /* Train the skill more for difficult recipes */
+                        use_skill(P_ALCHEMY, 1+(failrate / 20));
+                        return 1;
+                    } else if (!kaboom) {
+                        /* Didn't match, but didn't explode either */
+                        pline_The("mixture bubbles, then settles.");
+                        use_skill(P_ALCHEMY, 1);
+                        useup(obj);
+                        /* If this is the first ingredient, start an explode timer.
+                         * It's based on Luck and BUC of the acid.
+                         *
+                         * Minimum time in turns. It's not safe to have horrible luck or
+                         * for it to be cursed. The last turn is turn 1, so effectively
+                         * you get one less than this.
+                         * 
+                         *              -13     0       13
+                         * Blessed      2+d4    19+d15  27+d21
+                         * Uncursed     2+d3    15+d12  24+d16
+                         * Cursed       1+d2    2+d3    3+d4
+                         * 
+                         */
+                        if (nids == 1) {
+                            int min, range;
+                            min = Luck + 16;
+                            if (min > 16)
+                                min -= (Luck / 2);
+                            if (potion->cursed)
+                                min = (min / 9)+2;
+                            if (potion->blessed)
+                                min += (min / 4);
+                            range = min;
+                            if (range > 8)
+                                range -= (range - 8) / 2;
+                            if (potion->blessed)
+                                range++;
+                            potion->age = rn2(range) + min;
+                            begin_explode(potion, FALSE);
+                        }
+                        return 1;
+                    }
+                }
+            }
+        } else {
+            /* If it's not an ingredient, blow it up */
+            kaboom = TRUE;
+        } 
+        if (kaboom) {
+            int ouch = d(potion->quan, 9);
+        /* it would be better to use up the whole stack in advance
+               of the message, but we can't because we need to keep it
+               around for potionbreathe() [and we can't set obj->in_use
+               to 'amt' because that's not implemented] */
+            obj->in_use = 1;
+            pline("BOOM!  It explodes!");
+
+            /* Well, now you know what *not* to do :) */
+            use_skill(P_ALCHEMY, 1);
+            wake_nearto(u.ux, u.uy, (BOLT_LIM + 1) * (BOLT_LIM + 1));
+            exercise(A_STR, FALSE);
+            if ((obj->cursed) || (potion->cursed))
+				exercise(A_WIS, FALSE);
+            if (!breathless(youmonst.data) || haseyes(youmonst.data))
+                potionbreathe(obj);
+            useup(obj);
+            useupall(potion);
+            killer.format = KILLED_BY_AN;
+            strcpy(killer.name, "alchemic blast");
+            explode(u.ux, u.uy, 10, ouch, /* not physical damage */
+                   POTION_CLASS, EXPL_MAGICAL);
+            return 1;
+        }
     } else if (obj->oclass == POTION_CLASS && obj->otyp != potion->otyp) {
         int amt = (int) obj->quan;
         boolean magic;
@@ -2078,6 +3029,7 @@ dodip()
         /* Mixing potions is dangerous...
            KMH, balance patch -- acid is particularly unstable */
         if (obj->cursed || obj->otyp == POT_ACID || !rn2(10)) {
+            int skill;
             /* it would be better to use up the whole stack in advance
                of the message, but we can't because we need to keep it
                around for potionbreathe() [and we can't set obj->in_use
@@ -2086,8 +3038,32 @@ dodip()
             pline("BOOM!  They explode!");
             wake_nearto(u.ux, u.uy, (BOLT_LIM + 1) * (BOLT_LIM + 1));
             exercise(A_STR, FALSE);
+            if (obj->cursed || obj->otyp == POT_ACID)
+				exercise(A_WIS, FALSE);
             if (!breathless(youmonst.data) || haseyes(youmonst.data))
                 potionbreathe(obj);
+
+            /* Gain alchemy skill if the result is useful, especially if
+             * the recipe isn't guaranteed to succeed.
+             */
+            switch(mixture) {
+                case POT_GAIN_LEVEL:
+                    skill = 3;
+                    break;
+                case POT_GAIN_ABILITY:
+                case POT_FULL_HEALING:
+                case POT_ENLIGHTENMENT:
+                    skill = 2;
+                    break;
+                case POT_EXTRA_HEALING:
+                case POT_SEE_INVISIBLE:
+                    skill = 1;
+                    break;
+                default:
+                    skill = 0;
+            }
+            if (skill) use_skill(P_ALCHEMY, skill);
+
             useupall(obj);
             useup(potion);
             losehp(amt + rnd(9), /* not physical damage */
@@ -2150,6 +3126,11 @@ dodip()
     if (potion->otyp == POT_ACID && obj->otyp == CORPSE
         && (obj->corpsenm == PM_LICHEN || obj->corpsenm == PM_LEGENDARY_LICHEN)
         && !Blind) {
+        static boolean first = TRUE;
+        if (first) {
+            first = FALSE;
+            use_skill(P_ALCHEMY, 1);
+        }
         pline("%s %s %s around the edges.", The(cxname(obj)),
               otense(obj, "turn"),
               potion->odiluted ? hcolor(NH_ORANGE) : hcolor(NH_RED));

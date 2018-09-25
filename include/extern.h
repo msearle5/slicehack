@@ -1206,6 +1206,7 @@ E int FDECL(buzzmu, (struct monst *, struct attack *));
 
 E int FDECL(fightm, (struct monst *));
 E int FDECL(mattackm, (struct monst *, struct monst *));
+E int FDECL(mdamagem, (struct monst *, struct monst *, struct attack *));
 E boolean FDECL(engulf_target, (struct monst *, struct monst *));
 E int FDECL(mdisplacem, (struct monst *, struct monst *, BOOLEAN_P));
 E void FDECL(paralyze_monst, (struct monst *, int));
@@ -1420,6 +1421,7 @@ E void FDECL(replmon, (struct monst *, struct monst *));
 E void FDECL(relmon, (struct monst *, struct monst **));
 E struct obj *FDECL(mlifesaver, (struct monst *));
 E boolean FDECL(corpse_chance, (struct monst *, struct monst *, BOOLEAN_P));
+E int FDECL(corpse_frequency, (int));
 E void FDECL(mondead, (struct monst *));
 E void FDECL(mondied, (struct monst *));
 E void FDECL(mongone, (struct monst *));
@@ -1691,6 +1693,9 @@ E void NDECL(objects_init);
 
 /* ### objnam.c ### */
 
+E void FDECL(alchemy_typename, (int, char *));
+E void FDECL(alchemy_recipename, (long, char *));
+E const char *FDECL(actual_name, (int));
 E char *FDECL(obj_typename, (int));
 E char *FDECL(simple_typename, (int));
 E boolean FDECL(obj_is_pname, (struct obj *));
@@ -1956,6 +1961,19 @@ E void FDECL(make_vomiting, (long, BOOLEAN_P));
 E boolean FDECL(make_hallucinated, (long, BOOLEAN_P, long));
 E void FDECL(make_deaf, (long, BOOLEAN_P));
 E void NDECL(self_invis_message);
+E int FDECL(alchemy_failrate, (int));
+E const char * FDECL(alchemy_vague_news, (int));
+E int FDECL(alchemy_mtyp, (int));
+E int FDECL(alchemy_otyp, (int));
+E void FDECL(alchemy_max_id, (int *, int *));
+E int FDECL(alchemy_id, (struct obj *));
+E int FDECL(alchemy_otyp_id, (int otyp));
+E long FDECL(alchemy_pack, (const unsigned short *, int));
+E int FDECL(alchemy_unpack, (unsigned short *, long, int *));
+E void FDECL(explode_potion, (anything *, long));
+E void FDECL(begin_explode, (struct obj *, boolean));
+E void FDECL(end_explode, (struct obj *, boolean));
+E unsigned char * NDECL(alchemy_rarities);
 E int NDECL(dodrink);
 E int FDECL(dopotion, (struct obj *));
 E int FDECL(peffects, (struct obj *));

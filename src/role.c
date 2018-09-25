@@ -770,12 +770,66 @@ struct Role urole = {
 
 /* Table of all subroles */
 const struct Subrole subroles[] = {
-    /* Replace */
-    { { 0, 0 }, "", 0, 0, {} },
+
+    { { "Wizard", 0 },
+        "Wizard",
+        "The traditional unspecialized magic-user. You are capable of handling all spell schools "
+        "effectively and you will begin with a wide assortment of magical items and spells.",
+        SR_WIZARD,
+        0,
+      {
+        SAME_NAME,
+        SAME_RANK,
+        SAME_GODS,
+        "Wiz",
+        SAME_QUEST1,
+        PM_WIZARD,
+        NON_PM,
+        SAME_PET,
+        SAME_QUEST2,
+        SAME_ALLOW,
+        SAME_ATTRIB,
+        SAME_SPELL
+      }
+    },
+
+    { { "Alchemist", 0 },
+        "Wizard",
+        "A wizard who specializes in brewing potions. You'll begin with a stock of potions, an "
+        "alchemist's smock, basic skill in alchemy and knowledge of alchemical recipes. Use #alchemy "
+        "to list known recipes. Your special spell is polymorph.",
+        SR_ALCHEMIST,
+        SR_SPELL | SR_NAME,
+      {
+        { "Alchemist", 0 },
+        SAME_RANK,
+        SAME_GODS,
+        "Wiz",
+        SAME_QUEST1,
+        PM_WIZARD,
+        NON_PM,
+        SAME_PET,
+        SAME_QUEST2,
+        SAME_ALLOW,
+        SAME_ATTRIB,
+        1,
+        0,
+        3,
+        10,
+        A_INT,
+        SPE_POLYMORPH,
+        -4
+      }
+    },
 
     /* Terminator */
-    { { 0, 0 }, "", 0, 0, {} }
+    { { 0, 0 }, "", "", 0, 0, {} }
 };
+
+/* The player's subrole, created at runtime from initial
+ * choices.
+ */
+struct Subrole usubrole;
 
 /* Table of all races */
 const struct Race races[] = {
@@ -1846,6 +1900,7 @@ int subrole;
         const struct Subrole *sr = &subroles[subrole];
         const struct Role *r = &sr->r;
         unsigned f = sr->flags;
+        usubrole = subroles[flags.initsubrole];
 
         /* Does this subrole change... */
 
@@ -2327,6 +2382,31 @@ winid where;
                                                              ? rand_choice
                                                              : aligns[a].adj);
     putstr(where, 0, buf);
+    
+    /* Add subrole info */
+    if (s >= 0) {
+        const int width = 31; // because "alignment: not yet specified"
+        int length = strlen(subroles[s].info);
+        char *buf = malloc(length+1);
+        char *ibuf = buf;
+        memcpy(buf, subroles[s].info, length+1);
+        putstr(where, 0, "");
+        do {
+            if (length <= width) {
+                putstr(where, 0, buf);
+                length = 0;
+            } else {
+                char *at = buf+width;
+                while ((*at != ' ') && (at != buf)) at--;
+                if (at == buf) at = buf+width; // skip 1 - but shouldn't happen
+                *at = 0;
+                putstr(where, 0, buf);
+                buf = at+1;
+                length = strlen(buf);
+            }
+        } while (length);
+        free(ibuf);
+    }
 }
 
 /* add a "pick alignment first"-type entry to the specified menu */

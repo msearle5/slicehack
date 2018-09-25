@@ -29,6 +29,7 @@
 #define PN_CLERIC_SPELL (-12)
 #define PN_ESCAPE_SPELL (-13)
 #define PN_MATTER_SPELL (-14)
+#define PN_ALCHEMY (-15)
 
 STATIC_DCL void FDECL(give_may_advance_msg, (int));
 
@@ -39,7 +40,7 @@ STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     CROSSBOW, DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
-    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING
+    PN_ALCHEMY, PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING
 };
 
 /* note: entry [0] isn't used */
@@ -48,6 +49,7 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "riding", "polearms", "saber", "hammer", "whip",
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
+    "alchemy"
 };
 /* indexed vis `is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
@@ -63,7 +65,8 @@ int skill;
                                         ? "weapon "
                                         : skill <= P_LAST_SPELL
                                               ? "spell casting "
-                                              : "fighting ");
+                                              : skill == P_ALCHEMY
+                                                    ? "alchemical " : "fighting ");
 }
 
 STATIC_DCL boolean FDECL(can_advance, (int, BOOLEAN_P));
@@ -955,6 +958,10 @@ int skill;
      */
     if (skill <= P_LAST_WEAPON || skill == P_TWO_WEAPON_COMBAT)
         return tmp;
+
+    /* Alchemy uses less slots */
+    if (skill == P_ALCHEMY)
+        return (tmp + 2) / 3;
 
     /* Fewer slots used up for unarmed or martial.
      *  unskilled -> basic      1

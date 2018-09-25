@@ -2154,6 +2154,33 @@ register struct monst *mtmp;
     m_detach(mtmp, mptr);
 }
 
+/* Return an integer: 0 if never generated, 1 if always, >1 if 1 time in n.
+ * See following function, which it should be kept in sync with.
+ */
+int
+corpse_frequency(mtyp)
+int mtyp;
+{
+    struct permonst *mdat = &mons[mtyp];
+    int i;
+
+    /* Various reasons for not leaving a corpse */
+    if (mdat == &mons[PM_WORM_THAT_WALKS] || mdat == &mons[PM_LORD_OF_WORMS] || mdat == &mons[PM_FUSION_ELEMENTAL] || mdat == &mons[PM_MASTER_OF_CATS] || mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH || mdat == &mons[PM_MAGMA_ELEMENTAL]) return 0;
+
+    /* Gas spores always explode upon death */
+    for (i = 0; i < NATTK; i++)
+        if (mdat->mattk[i].aatyp == AT_BOOM)
+            return FALSE;
+
+    /* Various reasons to always leave a corpse */
+    if (bigmonst(mdat) || mdat == &mons[PM_LIZARD] || is_golem(mdat))
+        return TRUE;
+
+    /* Default chance */
+    return 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
+}
+    
+
 /* TRUE if corpse might be dropped, magr may die if mon was swallowed */
 boolean
 corpse_chance(mon, magr, was_swallowed)
@@ -2267,7 +2294,29 @@ boolean was_swallowed; /* digestion */
                 obj = mksobj_at(EGG, mon->mx, mon->my, TRUE, FALSE);
                 obj->corpsenm = PM_PHOENIX;
             } else {
+                int x, y;
+                struct monst *mtmp;
+                struct attack mattk = { AT_EXPL, AD_PHYS, 100, 1 };
                 explode(mon->mx, mon->my, 6, tmp, MON_EXPLODE, EXPL_NOXIOUS);
+
+                /* Additional damage to kill any other volatile mushrooms around it.
+                 * It's done this way as there is supposed to be a chain explosion that
+                 * involves all nearby mushrooms - but they resist poison and wouldn't
+                 * otherwise be affected, while the explosion should behave like poison
+                 * towards every other monster involved.
+                 */
+                for(x = -1; x <= 1; x++) {
+                    for(y = -1; y <= 1; y++) {
+                        if ((x != 0) || (y != 0)) {
+                            if (isok(mon->mx + x, mon->my + y)) {
+                                mtmp = m_at(mon->mx + x,mon->my + y);
+                                if ((mtmp) && (mtmp->data == &mons[PM_VOLATILE_MUSHROOM])) {
+                                    mdamagem(mon, mtmp, &mattk);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             killer.name[0] = '\0';
             killer.format = 0;

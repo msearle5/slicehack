@@ -26,8 +26,6 @@ STATIC_DCL int FDECL(gulpmm, (struct monst *, struct monst *,
                               struct attack *));
 STATIC_DCL int FDECL(explmm, (struct monst *, struct monst *,
                               struct attack *));
-STATIC_DCL int FDECL(mdamagem, (struct monst *, struct monst *,
-                                struct attack *));
 STATIC_DCL void FDECL(mswingsm, (struct monst *, struct monst *,
                                  struct obj *));
 STATIC_DCL void FDECL(noises, (struct monst *, struct attack *));
@@ -847,7 +845,7 @@ struct attack *mattk;
 /*
  *  See comment at top of mattackm(), for return values.
  */
-STATIC_OVL int
+int
 mdamagem(magr, mdef, mattk)
 register struct monst *magr, *mdef;
 register struct attack *mattk;

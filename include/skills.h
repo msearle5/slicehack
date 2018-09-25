@@ -58,6 +58,7 @@ enum p_skills {
     P_CLERIC_SPELL,
     P_ESCAPE_SPELL,
     P_MATTER_SPELL,
+    P_ALCHEMY,
 
     /* Other types of combat */
     P_BARE_HANDED_COMBAT, /* actually weaponless; gloves are ok */
@@ -73,7 +74,7 @@ enum p_skills {
 #define P_LAST_WEAPON P_UNICORN_HORN
 
 #define P_FIRST_SPELL P_ATTACK_SPELL
-#define P_LAST_SPELL P_MATTER_SPELL
+#define P_LAST_SPELL P_ALCHEMY
 
 #define P_LAST_H_TO_H P_RIDING
 #define P_FIRST_H_TO_H P_BARE_HANDED_COMBAT
@@ -94,8 +95,8 @@ enum skill_levels {
     P_BASIC,
     P_SKILLED,
     P_EXPERT,
-    P_MASTER,       /* Unarmed combat/martial arts only */
-    P_GRAND_MASTER  /* Unarmed combat/martial arts only */
+    P_MASTER,       /* Unarmed combat/martial arts and alchemy only */
+    P_GRAND_MASTER  /* Unarmed combat/martial arts and alchemy only */
 };
 
 #define practice_needed_to_advance(level) ((level) * (level) *20)

@@ -380,8 +380,14 @@ boolean credit_hero;
                 exercise(A_WIS, TRUE);
         }
         /* moves==1L => initial inventory, gameover => final disclosure */
-        if (moves > 1L && !program_state.gameover)
-            update_inventory();
+        if (moves > 1L && !program_state.gameover) {
+             update_inventory();
+            if ((mark_as_known) && (credit_hero) &&
+                (objects[oindx].oc_class == POTION_CLASS) &&
+                (oindx != POT_WATER) && (oindx != POT_FRUIT_JUICE)) {
+                use_skill(P_ALCHEMY, 1);
+            }
+        }
     }
 }
 

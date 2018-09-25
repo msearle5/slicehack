@@ -124,6 +124,7 @@ struct obj {
 	long ovar1;				/* extra variable. Specifies:
 								something for magic chests :)
 								and whatever else can't be used simultaneously
+								such as a potion of acid being used for alchemy.
 								*/
     struct oextra *oextra; /* pointer to oextra struct */
 };

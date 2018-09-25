@@ -384,6 +384,43 @@ doextlist(VOID_ARGS)
     return 0;
 }
 
+/* List all known alchemical recipes.
+ * A recipe is considered "known" if the base fail rate is below 100%,
+ * and the target potion is known.
+ */
+int
+doalchemy(VOID_ARGS)
+{
+    char descr[BUFSZ];
+    char line[BUFSZ];
+    winid datawin;
+    int i;
+    
+    datawin = create_nhwindow(NHW_TEXT);
+    putstr(datawin, 0, "");
+    if (!Subrole_if(SR_ALCHEMIST))
+        putstr(datawin, 0, "You are not an Alchemist, so you have no knowledge of alchemical recipes.");
+    else {
+        putstr(datawin, 0, "Known alchemical recipes. Dip the ingredients below in any order into acid.");
+        putstr(datawin, 0, "");
+        for(i=0; i<sizeof(u.alchemy)/sizeof(u.alchemy[0]); i++) {
+            int otyp = POT_GAIN_ABILITY + i;
+            if ((u.alchemy[i].base) && (objects[otyp].oc_name_known)) {
+                int failrate = alchemy_failrate(otyp);
+                if (failrate < 1000) {
+                    alchemy_recipename(u.alchemy[i].base, &descr);
+                    sprintf(line, "%s (%s): %s", actual_name(otyp), alchemy_vague_news(failrate), descr);
+                    putstr(datawin, 0, line);
+                }
+            }
+        }
+    }
+    putstr(datawin, 0, "");
+    display_nhwindow(datawin, FALSE);
+    destroy_nhwindow(datawin);
+    return 0;
+}
+
 #if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS)
 #define MAX_EXT_CMD 200 /* Change if we ever have more ext cmds */
 
@@ -2932,6 +2969,8 @@ struct ext_func_tab extcmdlist[] = {
             doextlist, IFBURIED | AUTOCOMPLETE | GENERALCMD },
     { M('a'), "adjust", "adjust inventory letters",
             doorganize, IFBURIED | AUTOCOMPLETE },
+    { '\0', "alchemy", "list known alchemical recipes",
+            doalchemy, IFBURIED | AUTOCOMPLETE },
     { M('A'), "annotate", "name current level",
             donamelevel, IFBURIED | AUTOCOMPLETE },
     { 'a', "apply", "apply (use) a tool (pick-axe, key, lamp...)",

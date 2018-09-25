@@ -159,6 +159,10 @@ enum obj_class_types {
     MAXOCLASSES
 };
 
+/* Alchemy: IDs */
+#define ALC_NONE    0
+#define ALC_UNKNOWN 1
+
 #define ALLOW_COUNT (MAXOCLASSES + 1) /* Can be used in the object class    */
 #define ALL_CLASSES (MAXOCLASSES + 2) /* input to getobj().                 */
 #define ALLOW_NONE  (MAXOCLASSES + 3)

@@ -6,6 +6,7 @@
 /* Edited on 4/14/18 by NullCGT */
 
 #include "hack.h"
+#include <ctype.h>
 
 /* "an uncursed greased partly eaten guardian naga hatchling [corpse]" */
 #define PREFIX 80 /* (56) */
@@ -122,16 +123,12 @@ char *bufp;
         obufidx = (obufidx - 1 + NUMOBUF) % NUMOBUF;
 }
 
-char *
-obj_typename(otyp)
-register int otyp;
+/* Name of an object class, after translation for role-specific names */
+const char *actual_name(otyp)
+int otyp;
 {
-    char *buf = nextobuf();
     struct objclass *ocl = &objects[otyp];
     const char *actualn = OBJ_NAME(*ocl);
-    const char *dn = OBJ_DESCR(*ocl);
-    const char *un = ocl->oc_uname;
-    int nn = ocl->oc_name_known;
 
     if (Role_if(PM_SAMURAI) && Alternate_item_name(otyp,Japanese_items))
      		actualn = Alternate_item_name(otyp,Japanese_items);
@@ -139,6 +136,120 @@ register int otyp;
      		actualn = Alternate_item_name(otyp,Cartomancer_items);
     else if (Role_if(PM_PIRATE) && Alternate_item_name(otyp,Pirate_items))
      		actualn = Alternate_item_name(otyp,Pirate_items);
+    return actualn;
+}
+
+/* Describe an object type for an alchemical recipe.
+ * Takes an alchemy ID and a buffer to write the string into.
+ *  */
+void
+alchemy_typename(id, buf)
+int id;
+char *buf;
+{
+    int otyp;
+    static int nmons = -1;
+    if (nmons < 0) {
+        int total;
+        alchemy_max_id(&nmons, &total);
+    }
+    
+    /* Is it a monster?
+     * If so, describe that.
+     * Typically as "monster's flesh" with exceptions for "green mold", "golem's flesh" and
+     * "T-Rex flesh".
+     */
+    if (id < nmons) {
+        int mtyp = alchemy_mtyp(id);
+        const char *monname = mons[mtyp].mname;
+
+        if ((strstr(monname, "mold")) || (strstr(monname, "jelly")))
+            strcpy(buf, monname);
+        else if (strstr(monname, "golem"))
+            strcpy(buf, "golem's flesh");
+        else if (isupper(monname[0]))
+            sprintf(buf,"%s flesh", monname);
+        else
+            sprintf(buf,"%s's flesh", monname);
+    } else {
+        const char *name;
+        const char *needle;
+    
+        /* No, it's an item.
+         * It may be food, a wand, a gem, a rock, a potion, a tool, or an armor.
+         * Describe it as if known.
+         */
+        otyp = alchemy_otyp(id);
+        
+        name = actual_name(otyp);
+        
+        /* tins are always spinach (if they are items, not monsters) */
+        if (!strcmp(name, "tin")) {
+            strcpy(buf,"spinach");
+            return;
+        }
+
+        if (!strcmp(name, "tooled horn")) {
+            strcpy(buf,"a horn");
+            return;
+        }
+
+        /* scales, not mail */
+        needle = strstr(name, "dragon");
+        if (needle) {
+            strncpy(buf, name, (needle - name)+6);
+            strcpy(buf + (needle - name)+6, " scales");
+            return;
+        }
+        
+        switch (objects[otyp].oc_class) {
+            case POTION_CLASS:
+                Strcpy(buf, "a potion");
+                break;
+            case WAND_CLASS:
+                Strcpy(buf, "a wand");
+                break;
+            default:
+                strcpy(buf, index("aeio", *name) ? "an " : "a ");
+                Strcpy(eos(buf), name);
+                return;
+        }
+        /* here for potion/wand */
+        Sprintf(eos(buf), " of %s", name);
+    }
+}
+
+/* Describe an alchemical recipe.
+ * Takes a packed recipe and a buffer to write the string into.
+ *  */
+void
+alchemy_recipename(packed, buf)
+long packed;
+char *buf;
+{
+    char temp[BUFSZ];
+    unsigned short typ[4];
+    int ids = alchemy_unpack(typ, packed, NULL);
+    int i;
+
+    *buf = 0;
+    for(i = ids-1; i >= 0; i--) {
+        alchemy_typename(typ[i], temp);
+        sprintf(eos(buf), "%s%s", temp, (i == 1) ? " and " : ((i > 1) ? ", " : "."));
+    }
+}
+
+char *
+obj_typename(otyp)
+register int otyp;
+{
+    char *buf = nextobuf();
+    struct objclass *ocl = &objects[otyp];
+    const char *actualn = actual_name(otyp);
+    const char *dn = OBJ_DESCR(*ocl);
+    const char *un = ocl->oc_uname;
+    int nn = ocl->oc_name_known;
+
     switch (ocl->oc_class) {
     case COIN_CLASS:
         Strcpy(buf, "coin");
@@ -1069,6 +1180,9 @@ unsigned doname_flags;
 
     if (obj->greased)
         Strcat(prefix, "greased ");
+    
+    if ((obj->otyp == POT_ACID) && (obj->ovar1))
+		Strcat(prefix, "fuming ");
 
     if (cknown && Has_contents(obj)) {
         /* we count the number of separate stacks, which corresponds

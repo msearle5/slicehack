@@ -1960,7 +1960,7 @@ boolean from_invent;
 {
     boolean fracture = FALSE;
 
-    switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
+    switch (((obj->oclass == POTION_CLASS) && (obj->otyp != POT_ACID)) ? POT_WATER : obj->otyp) {
     case MIRROR:
         if (hero_caused)
             change_luck(-2);
@@ -1970,7 +1970,21 @@ boolean from_invent;
         explode(x, y, 2, d(12, 6), TOOL_CLASS, EXPL_FROSTY);
         You_feel("full of sorrow.");
         break;
-    case POT_WATER:      /* really, all potions */
+    case POT_ACID:
+        if ((obj->otyp == POT_ACID) && (obj->ovar1)) {
+            if (!cansee(x, y)) {
+                pline("BOOM!");
+            } else {
+                pline_The("%s explodes!", cxname(obj));
+            }
+            killer.format = KILLED_BY_AN;
+            strcpy(killer.name, "alchemic blast");
+            explode(x, y, 10, d(obj->quan, 9)+3, /* not physical damage */
+                   POTION_CLASS, EXPL_MAGICAL);
+            return;
+        }
+    /* FALL THRU */
+    case POT_WATER:      /* really, all potions but acid */
         obj->in_use = 1; /* in case it's fatal */
         if (obj->otyp == POT_OIL && obj->lamplit) {
             explode_oil(obj, x, y);
@@ -2086,7 +2100,7 @@ boolean in_view;
     const char *to_pieces;
 
     to_pieces = "";
-    switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
+    switch (((obj->oclass == POTION_CLASS) && (obj->otyp != POT_ACID)) ? POT_WATER : obj->otyp) {
     default: /* glass or crystal wand */
         if (obj->material != GLASS)
             impossible("breaking odd object?");
@@ -2098,6 +2112,10 @@ boolean in_view;
     case EXPENSIVE_CAMERA:
     case ORB_OF_PERMAFROST:
         to_pieces = " into a thousand pieces";
+    /*FALLTHRU*/
+    case POT_ACID:
+        if ((obj->otyp == POT_ACID) && (obj->ovar1))
+            return;
     /*FALLTHRU*/
     case POT_WATER: /* really, all potions */
         if (!in_view)

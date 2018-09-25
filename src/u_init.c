@@ -6,6 +6,7 @@
 /* Edited on 5/8/18 by NullCGT */
 
 #include "hack.h"
+#include <assert.h>
 
 struct trobj {
     short trotyp;
@@ -190,14 +191,23 @@ static struct trobj Valkyrie[] = {
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Wizard[] = {
-#define W_MULTSTART 2
-#define W_MULTEND 6
     { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
     { CLOAK_OF_MAGIC_RESISTANCE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 3, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 3, UNDEF_BLESS },
+    { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1 },
+    { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+static struct trobj Alchemist[] = {
+#define A_POTION 2
+#define A_ACID 3
+    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
+    { ALCHEMY_SMOCK, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { UNDEF_TYP, UNDEF_SPE, POTION_CLASS, 1, UNDEF_BLESS },
+    { POT_ACID, UNDEF_SPE, POTION_CLASS, 1, UNDEF_BLESS },
     { SPE_FORCE_BOLT, 0, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
@@ -213,6 +223,12 @@ static struct trobj Magicmarker[] = { { MAGIC_MARKER, UNDEF_SPE, TOOL_CLASS,
                                         1, 0 },
                                       { 0, 0, 0, 0, 0 } };
 static struct trobj Lamp[] = { { OIL_LAMP, 1, TOOL_CLASS, 1, 0 },
+                               { 0, 0, 0, 0, 0 } };
+static struct trobj Wand[] = { { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, 0 },
+                               { 0, 0, 0, 0, 0 } };
+static struct trobj Ring[] = { { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 1, 0 },
+                               { 0, 0, 0, 0, 0 } };
+static struct trobj Scroll[] = { { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 0 },
                                { 0, 0, 0, 0, 0 } };
 static struct trobj Blindfold[] = { { BLINDFOLD, 0, TOOL_CLASS, 1, 0 },
                                     { 0, 0, 0, 0, 0 } };
@@ -672,6 +688,32 @@ static const struct def_skill Skill_W[] = {
     { P_BARE_HANDED_COMBAT, P_BASIC },
     { P_NONE, 0 }
 };
+static const struct def_skill Skill_Alchemist[] = {
+    { P_DAGGER, P_EXPERT },
+    { P_KNIFE, P_SKILLED },
+    { P_AXE, P_SKILLED },
+    { P_SHORT_SWORD, P_BASIC },
+    { P_CLUB, P_SKILLED },
+    { P_MACE, P_BASIC },
+    { P_QUARTERSTAFF, P_EXPERT },
+    { P_POLEARMS, P_SKILLED },
+    { P_SPEAR, P_BASIC },
+    { P_TRIDENT, P_BASIC },
+    { P_SLING, P_SKILLED },
+    { P_DART, P_EXPERT },
+    { P_SHURIKEN, P_BASIC },
+    { P_ATTACK_SPELL, P_EXPERT },
+    { P_HEALING_SPELL, P_SKILLED },
+    { P_DIVINATION_SPELL, P_EXPERT },
+    { P_ENCHANTMENT_SPELL, P_SKILLED },
+    { P_CLERIC_SPELL, P_SKILLED },
+    { P_ESCAPE_SPELL, P_EXPERT },
+    { P_MATTER_SPELL, P_EXPERT },
+    { P_RIDING, P_BASIC },
+    { P_BARE_HANDED_COMBAT, P_BASIC },
+    { P_ALCHEMY, P_GRAND_MASTER },
+    { P_NONE, 0 }
+};
 
 STATIC_OVL void
 knows_object(obj)
@@ -693,6 +735,225 @@ register char sym;
         if (objects[ct].oc_class == sym && !objects[ct].oc_magic)
             knows_object(ct);
 }
+
+#define BASIC(X)        (X*1)
+#define SKILLED(X)      (X*4)
+#define EXPERT(X)       (X*16)
+#define MASTER(X)       (X*80)
+#define GRAND(X)        (X*400)
+
+static const unsigned char *alchemy_val;
+
+/* Initialize alchemy for one ingredient */
+STATIC_OVL int
+ini_ingredient(difficulty, targetid, others)
+int difficulty;
+int targetid;
+unsigned short *others;
+{
+    static int nmons;
+    static int nids = -1;
+    static int id_gain_level;
+    static int id_extra_healing;
+    static int id_full_healing;
+    static int id_gain_ability;
+    static int id_confusion;
+    static int id_hallucination;
+    static int id_booze;
+    static int id_enlightenment;
+    static int id_see_invisible;
+    static int id_fruit_juice;
+    static int id_healing;
+    int id = -1;
+    
+    /* First time, get the number of IDs */
+    if (nids == -1) {
+        alchemy_max_id(&nmons, &nids);
+        id_gain_level = alchemy_otyp_id(POT_GAIN_LEVEL);
+        id_extra_healing = alchemy_otyp_id(POT_EXTRA_HEALING);
+        id_full_healing = alchemy_otyp_id(POT_FULL_HEALING);
+        id_gain_ability = alchemy_otyp_id(POT_GAIN_ABILITY);
+        id_confusion = alchemy_otyp_id(POT_CONFUSION);
+        id_fruit_juice = alchemy_otyp_id(POT_FRUIT_JUICE);
+        id_hallucination = alchemy_otyp_id(POT_HALLUCINATION);
+        id_booze = alchemy_otyp_id(POT_BOOZE);
+        id_enlightenment = alchemy_otyp_id(POT_ENLIGHTENMENT);
+        id_see_invisible = alchemy_otyp_id(POT_SEE_INVISIBLE);
+        id_healing = alchemy_otyp_id(POT_HEALING);
+    }
+    
+    /* A random ingredient is picked by ID.
+     * It is checked for bad things (same as others,
+     * same as common alchemy, same as the target) and if it passes there
+     * is a rarity roll which favors common items in low-level potions
+     * and exotic items in high-level potions. (Including first going by
+     * monster or not?)
+     * 
+     * Genocided monsters can't be checked for, since this is a one-time set up.
+     * 
+     * A recipe being the same as common alchemy is best checked here, not in
+     * ini_potion, because of all the possible combinations (the same as common
+     * alchemy plus an X is just as bad). It's OK instead to rule out all potions
+     * that could contribute.
+     * 
+     * Checking for being the same as another recipe is done in ini_potion.
+     */
+    do {
+        id = rn2(nids-2)+2;
+        if (id == targetid) id = -1;            /* Don't require an X to make an X */
+        for(int i=0;i<4;i++)
+            if (id == others[i]) id = -1;       /* Don't require 2 X's to make a Y */
+
+        /* Avoid common alchemy duplication. as are the usually useless ones and the effects of dipping
+         * a unihorn or amethyst - as there is no recipe for water or juice.
+         **/
+        if (((targetid == id_extra_healing) && (id == id_healing)) ||
+            ((targetid == id_full_healing) && (id == id_extra_healing)) ||
+            ((targetid == id_gain_ability) && (id == id_full_healing)) ||
+            ((targetid == id_enlightenment) && (id == id_confusion)) ||
+            ((targetid == id_gain_level) && (id == id_enlightenment)) ||
+            ((targetid == id_see_invisible) && (id == id_fruit_juice)) ||
+            ((targetid == id_booze) && (id == id_fruit_juice)) ||
+            ((targetid == id_confusion) && (id == id_enlightenment)) ||
+            ((targetid == id_hallucination) && (id == id_booze)))
+                id = -1;
+        
+        /* Retry rare items */
+        if ((id >= 0) && rn2(alchemy_val[id] + difficulty) < alchemy_val[id])
+            id = -1;
+    } while (id < 0);
+
+    assert(id);
+    return id;
+}
+
+/* Initialize alchemy for one potion */
+STATIC_OVL void
+ini_potion(target, difficulty)
+int target;
+int difficulty;
+{
+    struct recipe *r = u.alchemy + (target - POT_GAIN_ABILITY);
+    unsigned short id[5];
+    int objects, rarity, monsters, bound, targetid;
+    static int nmons, i;
+    long packed;
+    boolean retry;
+    r->difficulty = difficulty;
+    
+    /* First time, get the number of monsters */
+    if (nmons == -1) {
+        int nids;
+        alchemy_max_id(&nmons, &nids);
+    }
+    
+    /* Number of items required is loosely based on the difficulty.
+     * Most potions are 2 or 3. This should be based on the rarity of the
+     * items, though, not calculated up-front.
+     **/
+
+    /* Transform difficulty into 'sum of rarities' */
+    rarity = difficulty;
+    rarity *= 40;
+    rarity = isqrt(rarity);
+    rarity += 30;
+    targetid = alchemy_otyp_id(target);
+
+     /* Loop until acceptable, each time increasing the acceptance window */
+    bound = rarity / 20;
+    do {
+        memset(id, 0, sizeof(id));
+        objects = 0;
+        monsters = 0;
+        difficulty = rarity;
+        bound++;
+        retry = FALSE;
+
+        /* Loop until out of space or difficulty OK or too many monsters */
+        do {
+            
+            /* Add an ingredient */
+            id[objects] = ini_ingredient(difficulty, targetid, &id);
+            if (id[objects] < nmons) {
+                if (monsters >= 2)
+                    continue;
+                monsters++;
+            }
+            difficulty -= alchemy_val[id[objects]];
+            objects++;
+        } while ((difficulty > bound) && (objects < 4));
+        if (monsters >= 2) retry = TRUE;
+        if ((difficulty < -bound) || (difficulty > bound)) retry = TRUE;
+    
+        if (retry == FALSE) {
+            /* Convert them to recipe form, and make sure it's not the same as a previous recipe */
+
+            packed = alchemy_pack(id, objects);
+            for(i = 0; i < (int)(sizeof(u.alchemy)/sizeof(u.alchemy[0])); i++)
+                if (u.alchemy[i].base == packed)
+                    retry = TRUE;
+
+            r->base = packed;
+        }
+    } while (retry);
+}
+
+/* Initialize alchemy - roll up a new set of recipes */
+STATIC_OVL void
+ini_alchemy()
+{
+    /* Clear the alchemy information to 'unalchemizable' (difficulty 0) */
+    memset(u.alchemy, 0, sizeof(u.alchemy));
+    
+    /* Fill in the difficulty table */
+    if (alchemy_val) free((void *)alchemy_val);
+    alchemy_val = alchemy_rarities();
+    
+    /* Potions in order of difficulty, from easiest to hardest.
+     * Typical potions have around 10% chance of fail at their nominal skill level,
+     * but you can try to go for higher ones with a multiplier (x4..5?)
+     */
+     
+    /* Basic */
+    ini_potion(POT_SICKNESS,            BASIC(5));
+    ini_potion(POT_BOOZE,               BASIC(10));
+    ini_potion(POT_SEE_INVISIBLE,       BASIC(13));
+    ini_potion(POT_HEALING,             BASIC(15));
+    
+    /* Skilled */
+    ini_potion(POT_CONFUSION,           SKILLED(5));
+    ini_potion(POT_HALLUCINATION,       SKILLED(7));
+    ini_potion(POT_SLEEPING,            SKILLED(8));
+    ini_potion(POT_RESTORE_ABILITY,     SKILLED(13));
+    ini_potion(POT_EXTRA_HEALING,       SKILLED(15));
+    
+    /* Expert */
+    ini_potion(POT_BLINDNESS,           EXPERT(5));
+    ini_potion(POT_OBJECT_DETECTION,    EXPERT(8));
+    ini_potion(POT_MONSTER_DETECTION,   EXPERT(10));
+    ini_potion(POT_INVISIBILITY,        EXPERT(16));
+    ini_potion(POT_LEVITATION,          EXPERT(18));
+    
+    /* Master */
+    ini_potion(POT_OIL,                 MASTER(5));
+    ini_potion(POT_ENLIGHTENMENT,       MASTER(7));
+    ini_potion(POT_SPEED,               MASTER(9));
+    ini_potion(POT_GAIN_ENERGY,         MASTER(12));
+    ini_potion(POT_POLYMORPH,           MASTER(17));
+    ini_potion(POT_FULL_HEALING,        MASTER(20));
+    
+    /* Grand Master */
+    ini_potion(POT_PARALYSIS,           GRAND(5));
+    ini_potion(POT_REFLECTION,          GRAND(12));
+    ini_potion(POT_GAIN_LEVEL,          GRAND(15));
+    ini_potion(POT_GAIN_ABILITY,        GRAND(20));
+}
+
+#undef BASIC
+#undef SKILLED
+#undef EXPERT
+#undef MASTER
+#undef GRAND
 
 void
 u_init()
@@ -770,7 +1031,6 @@ u_init()
 #else
     (void) time(&ubirthday);
 #endif
-
     /*
      *  For now, everyone starts out with a night vision range of 1 and
      *  their xray range disabled.
@@ -931,12 +1191,38 @@ u_init()
         skill_init(Skill_V);
         break;
     case PM_WIZARD:
-        ini_inv(Wizard);
-        if (!rn2(5))
-            ini_inv(Magicmarker);
-        if (!rn2(5))
-            ini_inv(Blindfold);
-        skill_init(Skill_W);
+        switch Subrole_switch {
+            case SR_WIZARD:
+                ini_inv(Wizard);
+                if (!rn2(5))
+                    ini_inv(Magicmarker);
+                if (!rn2(5))
+                    ini_inv(Blindfold);
+                skill_init(Skill_W);
+                break;
+            case SR_ALCHEMIST:
+                {
+                    int acid = d(10,2) - 9;
+                    int potion = 12-acid;
+                    Alchemist[A_ACID].trquan = acid;
+                    Alchemist[A_POTION].trquan = potion;
+                }
+                ini_inv(Alchemist);
+                ini_alchemy();
+                skill_init(Skill_W);
+                if (!rn2(3)) ini_inv(Wand);
+                else if (!rn2(2)) ini_inv(Ring);
+                else ini_inv(Scroll);
+                if (!rn2(5))
+                    ini_inv(Lamp);
+                if (!rn2(5))
+                    ini_inv(Blindfold);
+                skill_init(Skill_Alchemist);
+                break;
+            default: /* impossible */
+                impossible("Unknown sub-role");
+                break;
+        }
         break;
 
     default: /* impossible */
@@ -1132,12 +1418,13 @@ int otyp;
    putting it in the later position only produced partially
    substituted items such as iron elven arrows.
    */
-STATIC_OVL void
-race_trans(obj, trop)
+STATIC_OVL int
+race_trans(obj, trop, otyp)
 struct obj *obj;
 register struct trobj *trop;
+int otyp;
 {
-    int otyp, i;
+    int i;
     if (urace.malenum != PM_HUMAN) {
         for (i = 0; inv_subs[i].race_pm != NON_PM; ++i)
             if (inv_subs[i].race_pm == urace.malenum
@@ -1150,6 +1437,7 @@ register struct trobj *trop;
                 break;
             }
     }
+    return otyp;
 }
 
 STATIC_OVL void
@@ -1157,13 +1445,16 @@ ini_inv(trop)
 register struct trobj *trop;
 {
     struct obj *obj;
-    int otyp, i;
+    int otyp;
+
+    /* This will fail if the same list is used more than once */
+    assert(trop->trquan > 0);
 
     while (trop->trclass) {
         otyp = (int) trop->trotyp;
         if (otyp != UNDEF_TYP) {
             obj = mksobj(otyp, TRUE, FALSE);
-            race_trans(obj, trop);
+            otyp = race_trans(obj, trop, otyp);
 
             /* Don't allow materials to be start scummed for */
             obj->material = objects[obj->otyp].oc_material;
@@ -1197,6 +1488,8 @@ register struct trobj *trop;
                    /* 'useless' items */
                    || otyp == POT_HALLUCINATION
                    || otyp == POT_ACID
+                   || ((Subrole_if(SR_ALCHEMIST)) && (otyp == POT_WATER))
+                   || ((Subrole_if(SR_ALCHEMIST)) && (otyp == POT_FRUIT_JUICE))
                    || otyp == SCR_AMNESIA
                    || otyp == SCR_FIRE
                    || otyp == SCR_BLANK_PAPER
@@ -1248,7 +1541,7 @@ register struct trobj *trop;
                 nocreate4 = otyp;
         }
 
-        race_trans(obj,trop);
+        otyp = race_trans(obj, trop, otyp);
 
         /* nudist gets no armor */
         if (u.uroleplay.nudist && obj->oclass == ARMOR_CLASS) {

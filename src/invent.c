@@ -3544,6 +3544,10 @@ register struct obj *otmp, *obj;
     if (obj->otyp == POT_OIL && obj->lamplit)
         return FALSE;
 
+    /* fuming potions of acid never merge */
+    if (obj->otyp == POT_ACID && obj->ovar1)
+        return FALSE;
+
     /* don't merge surcharged item with base-cost item */
     if (obj->unpaid && !same_price(obj, otmp))
         return FALSE;
