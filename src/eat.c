@@ -1410,6 +1410,8 @@ const char *mesg;
         else if (which == 2)
             what = the(what);
 
+        if (!strcmp(what, "cows")) what = (Hallucination) ? "hamburgers" : "beef";
+
         pline("It smells like %s.", what);
         if (yn("Eat it?") == 'n') {
             if (flags.verbose)
