@@ -1783,6 +1783,10 @@ struct obj *otmp;
                          && ((rotted < 1) ? TRUE : !rn2(rotted+1)));
         const char *pmxnam = food_xname(otmp, FALSE);
 
+        if (u.umonnum == PM_DWARF)
+            if (!strcmp(mons[mnum].mname + strlen(mons[mnum].mname) - 3, "rat"))
+                yummy = TRUE;
+
         if (!strncmpi(pmxnam, "the ", 4))
             pmxnam += 4;
         pline("%s%s %s %s%c",
