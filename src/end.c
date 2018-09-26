@@ -332,6 +332,11 @@ int sig_unused UNUSED;
 int
 done2()
 {
+    if ((ParanoidLateQuit) && (!wizard) && (u.ulevel != 1)) {
+        pline("Refusing to quit!");
+        return 0;
+    }
+
     if (!paranoid_query(ParanoidQuit, "Really quit?")) {
 #ifndef NO_SIGNAL
         (void) signal(SIGINT, (SIG_RET_TYPE) done1);

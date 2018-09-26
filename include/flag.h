@@ -115,6 +115,7 @@ struct flag {
 #define PARANOID_SWIM       0x0200
 #define PARANOID_TRAP       0x0400
 #define PARANOID_THROW      0x0800
+#define PARANOID_LATEQUIT   0x1000
     int pickup_burden; /* maximum burden before prompt */
     int pile_limit;    /* controls feedback when walking over objects */
     char inv_order[MAXOCLASSES];
@@ -511,6 +512,8 @@ enum runmode_types {
 #define ParanoidConfirm ((flags.paranoia_bits & PARANOID_CONFIRM) != 0)
 /* quit: yes vs y for "Really quit?" and "Enter explore mode?" */
 #define ParanoidQuit ((flags.paranoia_bits & PARANOID_QUIT) != 0)
+/* quit: refuse completely for "Really quit?", when not a wizard or level-1 character */
+#define ParanoidLateQuit ((flags.paranoia_bits & PARANOID_LATEQUIT) != 0)
 /* die: yes vs y for "Die?" (dying in explore mode or wizard mode) */
 #define ParanoidDie ((flags.paranoia_bits & PARANOID_DIE) != 0)
 /* hit: yes vs y for "Save bones?" in wizard mode */

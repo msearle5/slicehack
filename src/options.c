@@ -1304,6 +1304,8 @@ STATIC_VAR const struct paranoia_opts {
       "for \"yes\" confirmations, require \"no\" to reject" },
     { PARANOID_QUIT, "quit", 1, "explore", 1,
       "yes vs y to quit or to enter explore mode" },
+    { PARANOID_LATEQUIT, "latequit", 1, "quitlate", 5,
+      "refuse to quit or enter explore mode when non-wizard and xl>1" },
     { PARANOID_DIE, "die", 1, "death", 2,
       "yes vs y to die (explore mode or debug mode)" },
     { PARANOID_BONES, "bones", 1, 0, 0,
