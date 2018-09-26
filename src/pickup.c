@@ -1492,6 +1492,99 @@ boolean telekinesis; /* not picking it up directly by hand */
     if (obj->quan != count && obj->otyp != LOADSTONE)
         obj = splitobj(obj, count);
 
+    /* Start an explosion timer */
+    if (u.uroleplay.kaboom) {
+        /* Don't change things if the item already has an explode timer,
+         * or if it makes use of age for something else in an incompatible way.
+         * (A lamp will explode when it runs out of oil, which is reasonable.
+         *  A corpse or egg doesn't work that way, so they have been excepted.)
+         **/
+        if ((obj->otyp != CORPSE) && (obj->otyp != EGG)) {
+            /* The essential items (Bell, Book, Candelabrum and Amulet) must not
+             * explode.
+             */
+            if ((obj->otyp != CANDELABRUM_OF_INVOCATION) && (obj->otyp != BELL_OF_OPENING) &&
+                (obj->otyp != SPE_BOOK_OF_THE_DEAD) && (obj->otyp != AMULET_OF_YENDOR)) {
+                /* Everything else is fair game, but some items last longer than others.
+                 * Potions of acid are very fast, consumables (potions, scrolls) fast,
+                 * spellbooks slower (to allow at least one use), tools and gems very slow (except
+                 * land mines!). Armor and weapons are fairly fast, artifacts very slow.
+                 * Cursed items are much worse.
+                 */
+                if (!obj_has_timer(obj, EXPLODE_OBJECT)) {
+                    int time;
+                    switch(obj->oclass) {
+                        case POTION_CLASS:
+                            time = 200;
+                            break;
+                        case SCROLL_CLASS:
+                        case FOOD_CLASS:
+                            time = 400;
+                            break;
+                        case SPBOOK_CLASS:
+                            time = 800;
+                            break;
+                        case WEAPON_CLASS:
+                        case ARMOR_CLASS:
+                            time = 1500;
+                            break;
+                        case WAND_CLASS:
+                            time = 2500;
+                            break;
+                        case TOOL_CLASS:
+                        case GEM_CLASS:
+                        case RING_CLASS:
+                        case AMULET_CLASS:
+                            time = 4000;
+                            break;
+                        default:
+                            time = 0;
+                    }
+                    switch(obj->otyp) {
+                        case POT_ACID:
+                            time = 20;
+                            break;
+                        case POT_BOOZE:
+                            time = 40;
+                            break;
+                        case POT_WATER:
+                        case POT_FRUIT_JUICE:
+                            time = 4000;
+                            break;
+                        case SCR_FIRE:
+                            time = 10;
+                            break;
+                        case LAND_MINE:
+                            time = 5;
+                            break;
+                        case POT_OIL:
+                        case OIL_LAMP:
+                        case MAGIC_LAMP:
+                            time = obj->age;
+                            if (time == 0) time = 1;
+                            break;
+                    }
+
+                    if (time) {
+
+                        if (obj->oartifact)
+                            time *= 5;
+
+                        if ((obj->cursed) || (!rn2(Luck+15)))
+                            time = rn2(time-2) + 2;
+                        else if (obj->blessed)
+                            time += rn2(time);
+                        else
+                            time += rn2(time / 2);
+
+                        obj->age = time;
+                        begin_explode(obj, FALSE);
+                    }
+                }
+            }
+        }
+    }
+
     obj = pick_obj(obj);
 
     if (uwep && uwep == obj)

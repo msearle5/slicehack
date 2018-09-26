@@ -2060,7 +2060,6 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
             if ((ret_mtyp) && (ret_id == id))
                 return mtyp;
         }
-//        fprintf(stderr,"name %s, mtyp %d, id %d\n", mons[mtyp].mname, mtyp, id); 
     }
     
     /* Otherwise check for a matching object type */
@@ -2541,15 +2540,10 @@ begin_explode(obj, already_lit)
 struct obj *obj;
 boolean already_lit;
 {
-    long turns = 0;
-
     if (obj->age == 0)
         return;
 
-    turns = obj->age;
-
     if (start_timer(1, TIMER_OBJECT, EXPLODE_OBJECT, obj_to_any(obj))) {
-      //  obj->age -= turns;
         if (carried(obj) && !already_lit)
             update_inventory();
     }
@@ -2568,23 +2562,6 @@ boolean timer_attached;
             update_inventory();
     } else if (!stop_timer(EXPLODE_OBJECT, obj_to_any(obj)))
         impossible("end_explode: obj %s not timed!", xname(obj));
-}
-
-/*
- * Cleanup a burning object if timer stopped.
- */
-static void
-cleanup_explode(arg, expire_time)
-anything *arg;
-long expire_time;
-{
-    struct obj *obj = arg->a_obj;
-
-    /* restore unused time */
-    obj->age += expire_time - monstermoves;
-
-    if (obj->where == OBJ_INVENT)
-        update_inventory();
 }
 
 /*
@@ -2633,7 +2610,7 @@ long timeout;
     }
     need_newsym = need_invupdate = FALSE;
 
-    if ((int)obj->age == 1) {
+    if ((int)obj->age <= 1) {
         obj->age = 0;
         if (canseeit || obj->where == OBJ_INVENT) {
             switch (obj->where) {
@@ -2655,9 +2632,9 @@ long timeout;
             }
         }
         end_explode(obj, FALSE);
-{
-              int ouch = d(obj->quan, 9);
-        /* it would be better to use up the whole stack in advance
+        {
+            int ouch = d(obj->quan, 9)+3;
+            /* it would be better to use up the whole stack in advance
                of the message, but we can't because we need to keep it
                around for potionbreathe() [and we can't set obj->in_use
                to 'amt' because that's not implemented] */
@@ -2683,12 +2660,11 @@ long timeout;
                 obfree(obj, (struct obj *) 0);
                 obj = (struct obj *) 0;
             }
-            
-}
+        }
     } else {
         obj->age--;
         /* Give them a warning... */
-        if (canseeit) {
+        if (!u.uroleplay.kaboom && canseeit) {
             static const char *smokes[] = {
                 "glow%s", "smoke%s", "boil%s", "froth%s", "bubble%s"
             };
@@ -2709,7 +2685,7 @@ long timeout;
                         pline(line, many ? "" : "s");
                         break;
                     case OBJ_FLOOR:
-                        sprintf(line, "You see a %s %s!", name, smoke);
+                        sprintf(line, "You see %s %s!", name, smoke);
                         pline(line, "");
                         break;
                 }

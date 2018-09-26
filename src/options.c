@@ -164,6 +164,7 @@ static struct Bool_Opt {
 #else
 	{"invweight", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
+    { "kaboom", &u.uroleplay.kaboom, FALSE, DISP_IN_GAME },
     { "large_font", &iflags.obsolete, FALSE, SET_IN_FILE }, /* OBSOLETE */
     { "legacy", &flags.legacy, TRUE, DISP_IN_GAME },
     { "lit_corridor", &flags.lit_corridor, FALSE, SET_IN_GAME },

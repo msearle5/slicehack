@@ -110,6 +110,7 @@ struct u_roleplay {
     boolean nudist; /* has not worn any armor, ever */
     boolean illfated; /* massively increased dungeon danger */
     boolean marathon;  /* cannot heal, fixed high max hp */
+    boolean kaboom;	/* most items will randomly explode */
     long numbones;  /* # of bones files loaded  */
 };
 
