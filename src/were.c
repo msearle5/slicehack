@@ -157,7 +157,8 @@ char *genbuf;
         case PM_HUMAN_WERERAT:
             typ = rn2(3) ? PM_SEWER_RAT
                          : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
-            if (cap = near_capacity())
+            cap = near_capacity();
+            if (cap)
                 if (rn2(5) < cap)
                     typ = PM_PACKRAT;
             if (genbuf)

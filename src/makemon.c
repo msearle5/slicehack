@@ -1646,8 +1646,8 @@ int mmflags;
     if (anymon) {
         /* If loaded, packrats may generate in groups */
         if (mndx == PM_PACKRAT) {
-            int cap;
-            if (cap = near_capacity()) {
+            int cap = near_capacity();
+            if (cap) {
                 if (rn2(7) < cap) {
                     if (rn2(7) < cap) {
                         m_initlgrp(mtmp, mtmp->mx, mtmp->my);
@@ -1898,12 +1898,15 @@ rndmonst()
     }
 
     /* Add packrats if you are loaded - but only as a replacement for
-     * weaker monsters
+     * weaker monsters and not very early on.
      **/
-    if (mons[mndx].mlevel <= mons[PM_PACKRAT].mlevel + cap) {
-        if ((cap = near_capacity()) > 0) {
-            if (rnd(100) <= (cap * 5)) {
-                mndx = PM_PACKRAT;
+    if (u.ulevel > 5) {
+        cap = near_capacity();
+        if (cap > 0) {
+            if (mons[mndx].mlevel <= mons[PM_PACKRAT].mlevel + cap) {
+                if (rnd(100) <= (cap * 5)) {
+                    mndx = PM_PACKRAT;
+                }
             }
         }
     }
