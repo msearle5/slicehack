@@ -973,7 +973,8 @@ boolean atme;
     }
     energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
-    if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD) {
+    if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD &&
+		(!Role_if(PM_WIZARD) || acurr(A_INT)<17)) {
         You("are too hungry to cast that spell.");
         return 0;
     } else if (ACURR(A_STR) < 4 && spellid(spell) != SPE_RESTORE_ABILITY) {
