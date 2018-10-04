@@ -41,6 +41,7 @@ curses_read_char()
 
     ch = getch();
     tmpch = ch;
+    nhUse(tmpch);
     ch = curses_convert_keys(ch);
 
     if (ch == 0) {
@@ -236,7 +237,7 @@ curses_num_lines(const char *str, int width)
     strncpy(substr, str, BUFSZ-1);
     substr[BUFSZ-1] = '\0';
 
-    while (strlen(substr) > width) {
+    while ((int)strlen(substr) > width) {
         last_space = 0;
 
         for (count = 0; count <= width; count++) {
@@ -247,7 +248,7 @@ curses_num_lines(const char *str, int width)
         if (last_space == 0) {  /* No spaces found */
             last_space = count - 1;
         }
-        for (count = (last_space + 1); count < strlen(substr); count++) {
+        for (count = (last_space + 1); count < (int)strlen(substr); count++) {
             tmpstr[count - (last_space + 1)] = substr[count];
         }
         tmpstr[count - (last_space + 1)] = '\0';
@@ -299,7 +300,7 @@ curses_break_str(const char *str, int width, int line_num)
         if (substr[count] == '\0') {
             break;
         }
-        for (count = (last_space + 1); count < strlen(substr); count++) {
+        for (count = (last_space + 1); count < (int)strlen(substr); count++) {
             tmpstr[count - (last_space + 1)] = substr[count];
         }
         tmpstr[count - (last_space + 1)] = '\0';
@@ -326,7 +327,6 @@ curses_str_remainder(const char *str, int width, int line_num)
     int curline = 0;
     int strsize = strlen(str);
     char substr[strsize];
-    char curstr[strsize];
     char tmpstr[strsize];
 
     strcpy(substr, str);
@@ -348,14 +348,10 @@ curses_str_remainder(const char *str, int width, int line_num)
         if (last_space == 0) {  /* No spaces found */
             last_space = count - 1;
         }
-        for (count = 0; count < last_space; count++) {
-            curstr[count] = substr[count];
-        }
-        curstr[count] = '\0';
         if (substr[count] == '\0') {
             break;
         }
-        for (count = (last_space + 1); count < strlen(substr); count++) {
+        for (count = (last_space + 1); count < (int)strlen(substr); count++) {
             tmpstr[count - (last_space + 1)] = substr[count];
         }
         tmpstr[count - (last_space + 1)] = '\0';

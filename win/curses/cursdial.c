@@ -267,7 +267,7 @@ curses_character_input_dialog(const char *prompt, const char *choices,
         }
 
         if (choices != NULL) {
-            for (count = 0; count < strlen(choices); count++) {
+            for (count = 0; count < (int) strlen(choices); count++) {
                 if (choices[count] == answer) {
                     break;
                 }
@@ -323,6 +323,7 @@ curses_ext_cmd()
         /* create window inside window to prevent overwriting of border */
         getbegyx(extwin2,y0,x0);
         getmaxyx(extwin2,h,w);
+        nhUse(h);
         extwin = newwin(1, w-2, y0+1, x0+1);
         if (w - 4 < maxlen) maxlen = w - 4;
     } else {
@@ -402,7 +403,7 @@ curses_ext_cmd()
                 continue;
             if (!(extcmdlist[count].flags & AUTOCOMPLETE))
                 continue;
-            if (strlen(extcmdlist[count].ef_txt) > prompt_width) {
+            if ((int)strlen(extcmdlist[count].ef_txt) > prompt_width) {
                 if (strncasecmp(cur_choice, extcmdlist[count].ef_txt,
                                 prompt_width) == 0) {
                     if ((extcmdlist[count].ef_txt[prompt_width] ==
@@ -1115,6 +1116,7 @@ menu_get_selections(WINDOW * win, nhmenu *menu, int how)
                 curpage = menu_operation(win, menu, INVERT, 0);
                 break;
             }
+            /* fall through */
         default:
             if (isdigit(curletter)) {
                 count = curses_get_count(curletter - '0');

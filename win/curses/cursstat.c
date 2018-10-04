@@ -255,6 +255,7 @@ unsigned long *colormasks;
         int ax = 0;
         int ay = 0;
         getmaxyx(win, ay, ax);
+        nhUse(ax);
         if (border)
             ay -= 2;
 
@@ -542,7 +543,8 @@ unsigned long *colormasks;
 
                 text = status_vals[fldidx1];
                 getmaxyx(win, height, width);
-                bar_len = min(strlen(text), width - (border ? 4 : 2));
+                nhUse(height);
+                bar_len = min((int)strlen(text), width - (border ? 4 : 2));
                 text[bar_len] = '\0';
                 if (bar_len < MAXCO-1) {
                     Strcpy(bar, text);

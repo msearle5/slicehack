@@ -114,7 +114,7 @@ curses_message_win_puts(const char *message, boolean recursed)
         tmpstr = curses_break_str(message, (width - 2), 1);
         mvwprintw(win, my, mx, "%s", tmpstr);
         mx += strlen(tmpstr);
-        if (strlen(tmpstr) < (width - 2)) {
+        if ((int)strlen(tmpstr) < (width - 2)) {
             mx++;
         }
         free(tmpstr);
@@ -482,7 +482,7 @@ curses_message_win_getline(const char *prompt, char *answer, int buffer)
             p_answer[--len] = '\0';
             mvwaddch(win, my, --mx, ' ');
             /* try to unwrap back to the previous line if there is one */
-            if (nlines > 1 && strlen(linestarts[nlines - 2]) < width) {
+            if (nlines > 1 && (int)strlen(linestarts[nlines - 2]) < width) {
                 mvwaddstr(win, my - 1, border_space, linestarts[nlines - 2]);
                 if (nlines-- > height) {
                     unscroll_window(MESSAGE_WIN);

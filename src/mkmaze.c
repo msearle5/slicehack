@@ -11,7 +11,7 @@
 extern lev_region *lregions;
 extern int num_lregions;
 /* for preserving the insect legs when wallifying baalz level */
-static lev_region bughack = { {COLNO, ROWNO, 0, 0}, {COLNO, ROWNO, 0, 0} };
+static lev_region bughack = { {COLNO, ROWNO, 0, 0}, {COLNO, ROWNO, 0, 0}, FALSE, FALSE, 0, 0, { 0 } };
 
 STATIC_DCL int FDECL(iswall, (int, int));
 STATIC_DCL int FDECL(iswall_or_stone, (int, int));

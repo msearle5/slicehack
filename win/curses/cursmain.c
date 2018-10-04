@@ -99,6 +99,8 @@ init_nhwindows(int* argcp, char** argv)
 void
 curses_init_nhwindows(int *argcp, char **argv)
 {
+    nhUse(argcp);
+    nhUse(argv);
 #ifdef PDCURSES
     char window_title[BUFSZ];
 #endif
@@ -238,6 +240,7 @@ curses_exit_nhwindows(const char *str)
 void
 curses_suspend_nhwindows(const char *str)
 {
+    nhUse(str);
     endwin();
 }
 
@@ -570,6 +573,8 @@ curses_print_glyph(winid wid, XCHAR_P x, XCHAR_P y, int glyph, int bkglyph)
     unsigned int special;
     int attr = -1;
 
+    nhUse(bkglyph);
+
     /* map glyph to character and color */
     mapglyph(glyph, &ch, &color, &special, x, y);
     if ((special & MG_PET) && iflags.hilite_pet) {
@@ -748,6 +753,7 @@ number_pad(state)
 void
 curses_number_pad(int state)
 {
+    nhUse(state);
 }
 
 /*
@@ -793,6 +799,8 @@ outrip(winid, int)
 void
 curses_outrip(winid wid, int how)
 {
+    nhUse(wid);
+    nhUse(how);
 }
 
 /*

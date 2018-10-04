@@ -153,7 +153,7 @@ const struct Role roles[] = {
       A_INT,
       SPE_DIG,
       -4 },
-    { { "Cartomancer" },
+    { { "Cartomancer", 0 },
       { { "Learner", 0 },
         { "Shuffler", 0 },
         { "Player", 0 },
@@ -702,7 +702,7 @@ const struct Role roles[] = {
       SPE_MAGIC_MISSILE,
       -4 },
     /* Array terminator */
-    { { 0, 0 } }
+    { }
 };
 
 /* The player's role, created at runtime from initial
@@ -1024,7 +1024,7 @@ const struct Race races[] = {
         { 1, 0, 2, 0, 2, 0 }  /* Energy */
     },
     /* Array terminator */
-    { 0, 0, 0, 0 }
+    { }
 };
 
 /* The player's race, created at runtime from initial
@@ -1489,6 +1489,9 @@ boolean
 ok_subrole(subrolenum, rolenum, racenum, gendnum, alignnum)
 int subrolenum, rolenum, racenum, gendnum, alignnum;
 {
+    nhUse(racenum);
+    nhUse(gendnum);
+    nhUse(alignnum);
     if ((rolenum >= 0) && (!strcmp(roles[rolenum].name.m, subroles[subrolenum].role)))
         return TRUE;
     return FALSE;

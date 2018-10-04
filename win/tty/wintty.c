@@ -4109,8 +4109,9 @@ int x, y;
         }
     } else {
         /* Now we're truncating */
-        if (truncation_expected)
+        if (truncation_expected) {
             ; /* but we knew in advance */
+        }
     }
 }
 
