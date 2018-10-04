@@ -1901,7 +1901,7 @@ struct obj *corpse;
             if (cansee(mtmp->mx, mtmp->my)) {
                 int pm = monsndx(mtmp->data);
                 if (pm == PM_DEATH) {
-                    pline("%s rises from the dead in a whirl of specral skulls!",
+                    pline("%s rises from the dead in a whirl of spectral skulls!",
                         Monnam(mtmp));
                 } else if (pm == PM_PESTILENCE) {
                     pline("%s rises from the dead in a churning pillar of flies!",
