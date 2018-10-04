@@ -383,11 +383,11 @@ register struct obj *obj;
         int bcucount = 0;
         struct obj *otmp = obj->cobj;
 
-		if (cobj_is_magic_chest(obj)) {
-			otmp = magic_chest_objs[((int)obj->ovar1)%10];
-		}
+        if (cobj_is_magic_chest(obj)) {
+            otmp = magic_chest_objs[((int)obj->ovar1)%10];
+        }
 
-        for (otmp; otmp; otmp = otmp->nobj) {
+        for (; otmp; otmp = otmp->nobj) {
             if (otmp->blessed || otmp->cursed)
                 bcucount++;
             if (!Hallucination)

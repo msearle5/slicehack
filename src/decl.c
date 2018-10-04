@@ -39,7 +39,7 @@ NEARDATA int in_doagain = 0;
  *      The following structure will be initialized at startup time with
  *      the level numbers of some "important" things in the game.
  */
-struct dgn_topology dungeon_topology = { DUMMY };
+struct dgn_topology dungeon_topology;
 
 struct q_score quest_status = DUMMY;
 

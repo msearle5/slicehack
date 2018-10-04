@@ -122,10 +122,10 @@
                           (ptr) == &mons[PM_WALLAROO] || \
                           (ptr) == &mons[PM_KANGAROO])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
-#define is_domestic(ptr) (((ptr)->mflags2 & M2_DOMESTIC) != 0L) \
+#define is_domestic(ptr) ((((ptr)->mflags2 & M2_DOMESTIC) != 0L) \
      || (Role_if(PM_DRAGONMASTER) && (((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
                              (ptr) <= &mons[PM_GREEN_DRAGON]) || \
-                             (ptr) == &mons[PM_YELLOW_DRAGON]))
+                             (ptr) == &mons[PM_YELLOW_DRAGON])))
 #define is_demon(ptr) (((ptr)->mflags2 & M2_DEMON) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)

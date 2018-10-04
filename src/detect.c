@@ -308,8 +308,8 @@ register struct obj *sobj;
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue; /* probably not needed in this case but... */
-            if (findgold(mtmp->minvent, TRUE)
-                || monsndx(mtmp->data) == PM_GOLD_GOLEM) {
+        if (findgold(mtmp->minvent, TRUE)
+            || monsndx(mtmp->data) == PM_GOLD_GOLEM) {
             if (mtmp == u.usteed) {
                 steedgold = TRUE;
             } else {

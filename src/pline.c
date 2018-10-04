@@ -274,7 +274,7 @@ VA_DECL(const char *, line)
     switch (msgtyp) {
     case MSGTYP_ALERT:
         iflags.msg_is_alert = TRUE; /* <TAB> */
-        /* FT */
+        /* fall thru */
     case MSGTYP_STOP:
         display_nhwindow(WIN_MESSAGE, TRUE); /* --more-- */
         break;

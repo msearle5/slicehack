@@ -403,7 +403,7 @@ doalchemy(VOID_ARGS)
     else {
         putstr(datawin, 0, "Known alchemical recipes. Dip the ingredients below in any order into acid.");
         putstr(datawin, 0, "");
-        for(i=0; i<sizeof(u.alchemy)/sizeof(u.alchemy[0]); i++) {
+        for(i=0; i<(int)(sizeof(u.alchemy)/sizeof(u.alchemy[0])); i++) {
             int otyp = POT_GAIN_ABILITY + i;
             if ((u.alchemy[i].base) && (objects[otyp].oc_name_known)) {
                 int failrate = alchemy_failrate(otyp);

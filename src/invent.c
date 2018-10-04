@@ -137,6 +137,7 @@ struct obj *obj;
             case DRUM_OF_EARTHQUAKE:
             case HORN_OF_PLENTY: /* not a musical instrument */
                 k = 3; /* instrument or unknown horn of plenty */
+                break;
             default:
                 k = 4; /* 'other' tool */
             }

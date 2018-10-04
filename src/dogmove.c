@@ -374,7 +374,6 @@ struct monst *mtmp;
 register struct permonst *ptr;
 {
     register int type = 0;
-    register int chance;
     /* this loop of code is copied from cpostfx, since symmetry is good.
        In the future this should be put into its own function. */
     int count = 0, i = 0;

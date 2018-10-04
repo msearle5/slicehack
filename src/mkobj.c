@@ -257,7 +257,7 @@ boolean artif;
 		first = 0;
 		for(i = 0; i < NUM_OBJECTS; i++)
 		{
-			maxprob[oc->oc_class] += oc->oc_prob;
+			maxprob[(int)oc->oc_class] += oc->oc_prob;
 			oc++;
 		}
 	}

@@ -2074,8 +2074,8 @@ struct obj *obj;
 {
     if (obj_resists(obj, 1, 99))
         return 0;
-        if (obj->material == GLASS && !obj->oerodeproof
-            && !obj->oartifact && obj->oclass != GEM_CLASS)
+    if (obj->material == GLASS && !obj->oerodeproof
+        && !obj->oartifact && obj->oclass != GEM_CLASS)
         return 1;
     switch (obj->oclass == POTION_CLASS ? POT_WATER : obj->otyp) {
     case EXPENSIVE_CAMERA:
