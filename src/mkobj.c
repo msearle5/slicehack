@@ -3082,6 +3082,9 @@ struct obj* obj;
          * work properly. */
         case BULLWHIP:
         case QUILL:
+        case WORM_TOOTH:
+        case CRYSKNIFE:
+        case SACRIFICIAL_KNIFE:
             return NULL;
         /* Any other cases for specific object types go here. */
         case SHIELD_OF_RESONANCE:
