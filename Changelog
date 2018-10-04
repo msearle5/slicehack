@@ -3,6 +3,119 @@
 This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
+*	Release 0.1.0 'Tripe Ration'
+
+	It's now playable enough that it's my standard Nethack fix, rather
+	than SpliceHack. Try it! (Especially try the Alchemist sub-role.)
+
+*	The big stuff:
+*	Zombie Apocalypse!
+	Zombies are no longer boring.
+    They have a attack which can (with chance increasing for higher level
+	zombies) drain one or more points of INT. This can't kill though
+    brainlessness or cause memory loss - it's not the same as a mind
+    flayer's attack. (This is not expected to make things much more
+    difficult - they are slow and can be attacked from range, and you
+    won't have encountered many before you get a a unicorn horn.) It can
+    also cause confusion. (Anything describes as a zombie has this attack,
+    as do ghouls. Draugr and skeletal pirates are Z's but are weapon users
+    so do not. Nor do skeletons - they are weapon / slow-touch users.)
+    
+    If a zombie kills a monster with a zombie form, it will rise again as
+    a zombie. Liches also have this ability, and zombies will attack any
+    monster which can be zombified. If you are killed by a zombie, the
+    same thing happens and there will be a zombie instead of a ghost in
+    the bones file.
+    
+    A few new zombie types have also been added, to provide more targets
+    for zombies to attack (and add some variety).
+
+*	Sub-roles (and the Alchemist).
+	Sub-roles are a way to define a subset of a role which can be selected
+    at character creation. They take effect by changing the restrictions
+    (alignment, race, gender) on the role, by changing members of urole and
+    by containing a subrole ID which can be checked with Subrole_if and
+    Subrole_switch, which behave like Role_if and Role_switch. They are
+    intended for variations on a role which don't require a whole new role,
+    especially if they are to share the same Quest.
+    
+    This patch breaks savefile compatibility and requires window system
+    support - it includes support only for curses.
+
+	The Alchemist is a variant Wizard with starting equipment biased
+    towards potions (especially potions of acid), along with an
+    alchemist's smock.
+    
+    Alchemists can brew potions using recipes which involves dipping
+    one or more items into a potion of acid. They blow stuff up a lot
+    but can create any potion - limited by the availability of the
+    ingredients and the new Alchemy skill. It is intended to complement,
+    not replace, the existing potion-mixing effects which have not been
+    modified.
+
+*	Deflate experience levels
+    
+    The previous thresholds for level gain increased fast enough that
+    beyond mid-levels it wasn't practical to level up through combat.
+    The replacement table is similar early but finishes at 1e6, not
+    1e8 and was made assuming that most games would include a few
+    level-ups, but more levels would be gained by experience than level
+    up. It's probably not very well balanced yet, though...
+
+
+*	Small changes:
+*	Ask for confirmation when throwing arrows (If you are throwing
+	arrows despite having a bow in your swap slot, this is probably a
+	mistake. So ask for confirmation before throwing. It uses a
+	paranoid_query so can be turned off.)
+*	Add a paranoid-confirmation late quit option.
+*	Add a message for avoiding lava/water (telling you how to force it)
+*	When a flaming or shocking sphere explodes in your face, you now get
+    a real 3x3 explosion - of the element, which can be resisted. Tame
+    spheres will also explode when they hit, and gas spores now produce
+    a gas cloud when they explode.
+*	Add the "kaboom" challenge mode, making items randomly explode.
+*	Amulet versus stone. (Resists stoning, stops stoning when put on,
+	deflects thrown rocks, gives extra damage vs stone golems, speeds
+	digging)
+*	Add the "surrounded" trouble - if there are too many monsters around
+	you (the number depends on how many free spaces there are nearby),
+	#pray can teleport you away (and if you had low enough HP that you
+	could have got healed, you will get that effect too.). It's intended
+	to catch both "surrounded in an open space" and "trapped in a dead end".
+*	Allow you to sit on a cockatrice corpse, and turn to stone.
+*	Tiger eye rings, if exposed in unarmed combat with a tiger will burn
+	it and do extra damage.
+*	Weeping eyes (not just floating eyes) are targeted by ravens
+*	Wizards with no spell hunger can cast when hungry
+*	Extra pack rats due to load don't happen to low level characters
+*	Add a few more items to shops
+*	Various YAFMs, bogus-monsters etc.
+*	Dwarves enjoy eating rats
+*	You no longer find tins that smell like cows.
+*	Add a woodchuck to the Oracle level
+*	Food poisoning can sometimes be recovered from
+*	Use the ISAAC64 RNG.
+
+
+*	Bug fixes:
+*	Misc bug/compiler warning/typo/etc. fixes.
+*	Worm teeth, crysknives and sacrificial knives don't change material
+*	Fix the awkward "silver iron hook" description (grappling hook)
+*	Fix Drakemother generation
+*	Fix a display bug (clumsy conduct)
+*	Fix behaviour of eating an amulet of nausea
+*	Fix "iron elven arrows" (inventory with race specific changes was
+	having its object type changed after the material was assigned)
+*	Cartomancers only get to keep cards played, not those destroyed.
+*	Fix livelog "Is NetHack installed correctly!" messages
+*	Confused scrolls of fire underwater fizzle like non-confused ones do.
+
+
+
+************************************************************************
+*	Release 0.0.1 'Trident'
+
 *	Renamed as SliceHack.
 *	Misc bug/typo/clean-up fixes, including removing Lord of the Foocubi
 	references (the former Malcanthet)
