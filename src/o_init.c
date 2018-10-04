@@ -298,6 +298,21 @@ find_fingerless()
     return -1; /* not 0, or caller would try again each move */
 }
 
+/* find the object index for tiger eye ring; used [once] by unarmed melee code */
+int
+find_tigereye()
+{
+    register int i;
+    register const char *s;
+
+    for (i = RIN_ADORNMENT; i <= RIN_PROTECTION_FROM_SHAPE_CHAN; i++)
+        if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "tiger eye"))
+            return i;
+
+    impossible("tiger eye ring not found?");
+    return -1; /* not 0, or caller would try again each move */
+}
+
 /* level dependent initialization */
 void
 oinit()

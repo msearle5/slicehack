@@ -660,9 +660,11 @@ int thrown; /* HMON_xxx (0 => hand-to-hand, other => ranged) */
 int dieroll;
 {
 	static int fingerless = 0;
+	static int tigereye = 0;
     int tmp;
     struct permonst *mdat = mon->data;
     int barehand_silver_rings = 0;
+    int barehand_tigereye_rings = 0;
     /* The basic reason we need all these booleans is that we don't want
      * a "hit" message when a monster dies, so we have to know how much
      * damage it did _before_ outputting a hit message, but any messages
@@ -674,6 +676,7 @@ int dieroll;
     boolean ispoisoned = FALSE, needpoismsg = FALSE, poiskilled = FALSE,
             unpoisonmsg = FALSE;
     boolean silvermsg = FALSE, silverobj = FALSE;
+    boolean tigermsg = FALSE;
     boolean valid_weapon_attack = FALSE;
     boolean unarmed = !uwep && !uarm && !uarms;
     boolean not_melee_weapon = FALSE;
@@ -691,6 +694,7 @@ int dieroll;
 
 	if (!fingerless) {
 		fingerless = find_fingerless();
+		tigereye = find_tigereye();
 	}
 
     wakeup(mon, TRUE);
@@ -728,6 +732,16 @@ int dieroll;
             } else if (is_silver(youmonst.data)) {
                 tmp += rnd(20);
                 silvermsg = TRUE;
+            }
+            if (mdat == &mons[PM_TIGER]) {
+                if ((uleft) && (uleft->otyp == tigereye))
+                    barehand_tigereye_rings++;
+                if ((uright) && (uright->otyp == tigereye))
+                    barehand_tigereye_rings++;
+                if (barehand_tigereye_rings) {
+                    tmp += d(2 * barehand_tigereye_rings, 10);
+                    tigermsg = TRUE;
+                }
             }
         }
     } else {
@@ -1339,6 +1353,23 @@ int dieroll;
             whom = strcat(s_suffix(whom), " flesh");
         pline(fmt, whom);
     }
+
+    if (tigermsg) {
+        const char *fmt;
+        char *whom = mon_nam(mon);
+
+        if (canspotmon(mon)) {
+            if (barehand_tigereye_rings == 1)
+                fmt = "Your ring burns %s!";
+            else if (barehand_tigereye_rings == 2)
+                fmt = "Your rings burn %s!";
+        } else {
+            *whom = highc(*whom); /* "it" -> "It" */
+            fmt = "%s is burned!";
+        }
+        pline(fmt, whom);
+    }
+
     /* if a "no longer poisoned" message is coming, it will be last;
        obj->opoisoned was cleared above and any message referring to
        "poisoned <obj>" has now been given; we want just "<obj>" for
@@ -2148,6 +2179,7 @@ register struct attack *mattk;
         goto common;
     case AD_ELEC:
         resistance = resists_elec(mdef);
+        goto common;
     case AD_ACID:
         resistance = resists_acid(mdef);
     common:
