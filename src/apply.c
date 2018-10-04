@@ -333,7 +333,7 @@ struct obj *obj;
         draws = 0L;
     if (draws > 5)
         draws = 5;
-    if (buf <= 0L || draws <= 0L) {
+    if (draws <= 0L) {
         pline("You decide not to try your luck.");
         pline("The pack of cards vanishes in a puff of smoke.");
         useup(obj);
@@ -357,6 +357,7 @@ struct obj *obj;
                 explode(u.ux, u.uy, 15, rnd(30), TOOL_CLASS, EXPL_MAGICAL);
                 explode(u.ux, u.uy, 11, rnd(30), TOOL_CLASS, EXPL_FIERY);
                 (void) cancel_monst(&youmonst, obj, TRUE, FALSE, TRUE);
+                break;
             case 2:
                 pline("You draw the Wheel of Fortune... Two cards flip out of the deck.");
                 draws += 2;

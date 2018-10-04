@@ -476,12 +476,21 @@ STATIC_DCL boolean FDECL(status_hilite_menu_add, (int));
 #define has_hilite(i) (blstats[0][(i)].thresholds)
 #endif
 
+#ifdef STATUS_HILITES
+#define INIT_BLSTAT(name, fmtstr, anytyp, wid, fld)                     \
+    { name, fmtstr, 0L, FALSE, anytyp,  { (genericptr_t) 0 }, (char *) 0, \
+      wid,  -1, fld, NULL }
+#define INIT_BLSTATP(name, fmtstr, anytyp, wid, maxfld, fld)            \
+    { name, fmtstr, 0L, FALSE, anytyp,  { (genericptr_t) 0 }, (char *) 0, \
+      wid,  maxfld, fld, NULL }
+#else
 #define INIT_BLSTAT(name, fmtstr, anytyp, wid, fld)                     \
     { name, fmtstr, 0L, FALSE, anytyp,  { (genericptr_t) 0 }, (char *) 0, \
       wid,  -1, fld }
 #define INIT_BLSTATP(name, fmtstr, anytyp, wid, maxfld, fld)            \
     { name, fmtstr, 0L, FALSE, anytyp,  { (genericptr_t) 0 }, (char *) 0, \
       wid,  maxfld, fld }
+#endif
 
 /* If entries are added to this, botl.h will require updating too */
 STATIC_DCL struct istat_s initblstats[MAXBLSTATS] = {
@@ -3009,8 +3018,8 @@ choose_value:
                   op, aval.a_int, is_out_of_range);
             goto choose_value;
         } else if (dt == ANY_LONG
-                   && (aval.a_long < (lt_gt_eq == GT_VALUE) ? -1L
-                                     : (lt_gt_eq == LT_VALUE) ? 1L : 0L)) {
+                   && (aval.a_long < ((lt_gt_eq == GT_VALUE) ? -1L
+                                     : (lt_gt_eq == LT_VALUE) ? 1L : 0L))) {
             pline("%s'%s%ld'%s", threshold_value,
                   op, aval.a_long, is_out_of_range);
             goto choose_value;

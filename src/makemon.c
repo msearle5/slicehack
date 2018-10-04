@@ -243,6 +243,7 @@ register struct monst *mtmp;
     case S_EEL:
         if (rn2(2) && mm == PM_MERFOLK)
             (void) mongets(mtmp, TRIDENT);
+        /* fall thru */
     case S_HUMAN:
         if (is_mercenary(ptr)) {
             w1 = w2 = 0;
@@ -498,6 +499,7 @@ register struct monst *mtmp;
             default:
                 break;
         }
+        /* fall thru */
     case S_HUMANOID:
         if (mm == PM_HOBBIT) {
             switch (rn2(3)) {
@@ -1521,6 +1523,7 @@ int mmflags;
     case S_JABBERWOCK:
         if (rn2(5) && !u.uhave.amulet)
             mtmp->msleeping = 1;
+        break;
     case S_NYMPH:
         if (rn2(5) && !u.uhave.amulet)
             mtmp->msleeping = 1;

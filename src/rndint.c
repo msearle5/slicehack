@@ -130,7 +130,7 @@ void seed_rng(seed)
 unsigned long seed;
 {
     int i;
-    for (i=0; i<(RANDSIZ * sizeof(uint64)/sizeof(seed)); ++i) ((unsigned long *)randrsl)[i]=seed;
+    for (i=0; i<(int)(RANDSIZ * sizeof(uint64)/sizeof(seed)); ++i) ((unsigned long *)randrsl)[i]=seed;
     randinit(TRUE);
 }
 

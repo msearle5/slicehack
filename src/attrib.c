@@ -789,6 +789,7 @@ long frommask;
             break;
         case PM_INFERNAL:
             abil = inf_abil;
+            break;
         case PM_MINOR_ANGEL:
             abil = ang_abil;
         default:
