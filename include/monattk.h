@@ -94,7 +94,8 @@
 
 #define AD_SAMU 54 /* hits, may steal Amulet (Wizard) */
 #define AD_CURS 55 /* random curse (ex. gremlin) */
-#define LAST_AD AD_CURS
+#define AD_ZOMB	56 /* temp int drain/confusion (Zombie) */
+#define LAST_AD AD_ZOMB
 
 /*
  *  Monster to monster attacks.  When a monster attacks another (mattackm),

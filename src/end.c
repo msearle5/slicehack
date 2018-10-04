@@ -513,6 +513,8 @@ int how;
     else if (mptr == &mons[PM_WORM_THAT_WALKS] ||
               mptr == &mons[PM_LORD_OF_WORMS])
         u.ugrave_arise = PM_WORM_THAT_WALKS;
+    else if (zombie_maker(mptr) && (zombie_target(youmonst.data) >= 0))
+		u.ugrave_arise = zombie_target(youmonst.data);
     else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 15)
         u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a high-end vampire kills the hero

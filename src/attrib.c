@@ -238,6 +238,26 @@ register int num;
     (void) adjattrib(A_STR, -num, 1);
 }
 
+/* may kill you; cause is probably a zombie */
+void
+loseint(num)
+register int num;
+{
+    int ui = ABASE(A_INT) - num;
+
+    while (ui < 3) {
+        ++ui;
+        --num;
+        if (Upolyd) {
+            u.mh -= 2;
+        } else {
+            u.uhp -= 2;
+        }
+    }
+    (void) adjattrib(A_INT, -num, 1);
+}
+
+
 static const struct poison_effect_message {
     void VDECL((*delivery_func), (const char *, ...));
     const char *effect_msg;

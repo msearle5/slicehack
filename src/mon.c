@@ -134,6 +134,99 @@ mon_sanity_check()
 }
 
 
+/* return true if the monster can turn its victims into zombies when it
+ * kills them. All zombies (by name - not just by being Z's) can do this.
+ * A few other monsters can too - liches, at least.
+ */
+boolean
+zombie_maker(pm)
+struct permonst *pm;
+{
+    if ((pm->mlet == S_ZOMBIE) && (strstr(pm->mname, "zombie")))
+        return TRUE;
+
+    if (pm->mlet == S_LICH)
+        return TRUE;
+
+    return FALSE;
+}
+
+/* return the monster index of the zombie monster which this monster could
+ * be turned into. Or DEFUNCT_MONSTER if it cannot be zombified.
+ */
+int
+zombie_target(pm)
+struct permonst *pm;
+{
+    int zom = DEFUNCT_MONSTER;
+    switch (pm->mlet) {
+        case S_KOBOLD:
+            zom = PM_KOBOLD_ZOMBIE;
+            break;
+        case S_KOP:
+            zom = PM_HUMAN_ZOMBIE;
+            break;
+        case S_HUMAN:
+            zom = (is_elf(pm) ? PM_ELF_ZOMBIE : PM_HUMAN_ZOMBIE);
+            break;
+        case S_GIANT:
+            if (pm == &mons[PM_ETTIN])
+                zom = PM_ETTIN_ZOMBIE;
+            else if (strstr(pm->mname, "giant"))
+                zom = PM_GIANT_ZOMBIE;
+            break;
+        case S_ORC:
+            if (pm == &mons[PM_HOBGOBLIN])
+                zom = PM_HOBGOBLIN_ZOMBIE;
+            else if (strstr(pm->mname, "goblin"))
+                zom = PM_GOBLIN_ZOMBIE;
+            else
+                zom = PM_ORC_ZOMBIE;
+            break;
+        case S_HUMANOID:
+            if (pm == &mons[PM_HOBBIT])
+                zom = PM_HOBBIT_ZOMBIE;
+            else if (pm == &mons[PM_PLANAR_PIRATE])
+                zom = PM_HUMAN_ZOMBIE;
+            else if (pm == &mons[PM_BUGBEAR])
+                zom = PM_BUGBEAR_ZOMBIE;
+            else if (strstr(pm->mname, "dwarf"))
+                zom = PM_DWARF_ZOMBIE;
+            else if (strstr(pm->mname, "flayer"))
+                zom = PM_MIND_FLAYER_ZOMBIE;
+            break;
+        case S_GNOME:
+            if (strstr(pm->mname, "gnoll"))
+                zom = PM_GNOLL_ZOMBIE;
+            else
+                zom = PM_GNOME_ZOMBIE;
+            break;
+        case S_RODENT:
+            if (strstr(pm->mname, "ratman"))
+                zom = PM_RATMAN_ZOMBIE;
+            break;
+        case S_NYMPH:
+            if (strstr(pm->mname, "nymph"))
+                zom = PM_NYMPH_ZOMBIE;
+            break;
+        case S_CENTAUR:
+            zom = PM_CENTAUR_ZOMBIE;
+            break;
+        case S_OGRE:
+            zom = PM_OGRE_ZOMBIE;
+            break;
+        case S_TROLL:
+            zom = PM_TROLL_ZOMBIE;
+            break;
+        case S_EEL:
+            if (pm == &mons[PM_MERFOLK])
+                zom = PM_HUMAN_ZOMBIE;
+            break;
+    }
+            
+    return zom;
+}
+
 /* convert the monster index of an undead to its living counterpart */
 int
 undead_to_corpse(mndx)
@@ -177,7 +270,40 @@ int mndx;
         mndx = PM_ETTIN;
         break;
     case PM_ZOMBIE_DRAGON:
-        mndx =  PM_RED_DRAGON;
+        mndx = PM_RED_DRAGON;
+        break;
+    case PM_GOBLIN_ZOMBIE:
+        mndx = PM_GOBLIN;
+        break;
+    case PM_HOBGOBLIN_ZOMBIE:
+        mndx = PM_HOBGOBLIN;
+        break;
+    case PM_CENTAUR_ZOMBIE:
+        mndx = PM_CENTAUR;
+        break;
+    case PM_MIND_FLAYER_ZOMBIE:
+        mndx = PM_MIND_FLAYER;
+        break;
+    case PM_TROLL_ZOMBIE:
+        mndx = PM_TROLL;
+        break;
+    case PM_OGRE_ZOMBIE:
+        mndx = PM_OGRE;
+        break;
+    case PM_NYMPH_ZOMBIE:
+        mndx = PM_NYMPH;
+        break;
+    case PM_HOBBIT_ZOMBIE:
+        mndx = PM_HOBBIT;
+        break;
+    case PM_GNOLL_ZOMBIE:
+        mndx = PM_GNOLL;
+        break;
+    case PM_RATMAN_ZOMBIE:
+        mndx = PM_RATMAN;
+        break;
+    case PM_BUGBEAR_ZOMBIE:
+        mndx = PM_BUGBEAR;
         break;
     default:
         break;
@@ -577,7 +703,7 @@ register struct monst *mtmp;
         if (mtmp->mhpmax > dam)
             mtmp->mhpmax -= dam;
         if (mtmp->mhp < 1) {
-            mondead(mtmp);
+            mondead(mtmp, NULL);
             if (mtmp->mhp < 1)
                 return 1;
         }
@@ -602,13 +728,13 @@ register struct monst *mtmp;
                              : !strcmp(how, "melting") ? "melts away"
                                 : "burns to a crisp");
                 }
-                mondead(mtmp);
+                mondead(mtmp, NULL);
             } else {
                 mtmp->mhp -= 1;
                 if (mtmp->mhp < 1) {
                     if (cansee(mtmp->mx, mtmp->my))
                         pline("%s surrenders to the fire.", Monnam(mtmp));
-                    mondead(mtmp);
+                    mondead(mtmp, NULL);
                 } else if (cansee(mtmp->mx, mtmp->my))
                     pline("%s burns slightly.", Monnam(mtmp));
             }
@@ -636,7 +762,7 @@ register struct monst *mtmp;
                 pline("%s sinks as %s rushes in and flushes you out.",
                       Monnam(mtmp), hliquid("water"));
             }
-            mondead(mtmp);
+            mondead(mtmp, NULL);
             if (mtmp->mhp > 0) {
                 water_damage_chain(mtmp->minvent, FALSE);
                 (void) rloc(mtmp, FALSE);
@@ -1623,6 +1749,11 @@ struct monst *magr, /* monster that is currently deciding where to move */
    		u.ukinghill)
    	    return ALLOW_M|ALLOW_TM;
 
+    /* zombies vs. zombifiable */
+    if ((zombie_maker(ma) && (zombie_target(md) >= 0)) ||
+        (zombie_maker(md) && (zombie_target(ma) >= 0)))
+        return ALLOW_M|ALLOW_TM;
+
     /* Endgame amulet theft / fleeing */
     if(mon_has_amulet(magr) && In_endgame(&u.uz)) {
         return ALLOW_M|ALLOW_TM;
@@ -1988,8 +2119,9 @@ struct monst *mtmp;
 }
 
 void
-mondead(mtmp)
+mondead(mtmp, magr)
 register struct monst *mtmp;
+register struct monst *magr;
 {
     struct permonst *mptr;
     int tmp;
@@ -2151,6 +2283,25 @@ register struct monst *mtmp;
 
     if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph))
         unmap_object(mtmp->mx, mtmp->my);
+
+    /* If this is a zombifiable monster and was killed by a zombie-maker,
+     * rise again as a zombie.
+     */
+    tmp = zombie_target(mtmp->data);
+    if ((tmp >= 0) && (magr) && (magr != mtmp) && (zombie_maker(magr->data))) {
+        if (canspotmon(mtmp))
+            pline("%s rises again as a zombie!", Monnam(mtmp));
+        newcham(mtmp, &mons[tmp], FALSE, FALSE);
+        if (mtmp->data == &mons[tmp])
+            mtmp->cham = NON_PM;
+        else
+            mtmp->cham = tmp;
+        mtmp->mcanmove = 1;
+        mtmp->mfrozen = 0;
+        newsym(mtmp->mx, mtmp->my);
+        return;
+    }
+
     m_detach(mtmp, mptr);
 }
 
@@ -2274,7 +2425,7 @@ boolean was_swallowed; /* digestion */
                     You_hear("an explosion.");
                     magr->mhp -= tmp;
                     if (magr->mhp < 1)
-                        mondied(magr);
+                        mondied(magr, magr);
                     if (magr->mhp < 1) { /* maybe lifesaved */
                         if (canspotmon(magr))
                             pline("%s rips open!", Monnam(magr));
@@ -2339,10 +2490,11 @@ boolean was_swallowed; /* digestion */
 
 /* drop (perhaps) a cadaver and remove monster */
 void
-mondied(mdef)
+mondied(mdef, magr)
 register struct monst *mdef;
+register struct monst *magr;
 {
-    mondead(mdef);
+    mondead(mdef, magr);
     if (mdef->mhp > 0)
         return; /* lifesaved */
 
@@ -2454,7 +2606,7 @@ struct monst *mdef;
      * could */
     if (u.uswallow && u.ustuck == mdef)
         wasinside = TRUE;
-    mondead(mdef);
+    mondead(mdef, NULL);
     if (wasinside) {
         if (is_animal(mdef->data))
             You("%s through an opening in the new %s.",
@@ -2464,8 +2616,9 @@ struct monst *mdef;
 
 /* another monster has killed the monster mdef */
 void
-monkilled(mdef, fltxt, how)
+monkilled(mdef, magr, fltxt, how)
 struct monst *mdef;
+struct monst *magr;
 const char *fltxt;
 int how;
 {
@@ -2482,9 +2635,9 @@ int how;
     /* no corpses if digested or disintegrated */
     disintegested = (how == AD_DGST || how == -AD_RBRE);
     if (disintegested)
-        mondead(mdef);
+        mondead(mdef, NULL);
     else
-        mondied(mdef);
+        mondied(mdef, magr);
 
     if (be_sad && mdef->mhp <= 0)
         You("have a sad feeling for a moment, then it passes.");
@@ -2584,7 +2737,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     if (stoned)
         monstone(mtmp);
     else
-        mondead(mtmp);
+        mondead(mtmp, &youmonst);
     disintegested = FALSE; /* reset */
 
     if (mtmp->mhp > 0) { /* monster lifesaved */
@@ -4075,7 +4228,7 @@ kill_genocided_monsters()
             if (mtmp->cham >= LOW_PM && !kill_cham)
                 (void) newcham(mtmp, (struct permonst *) 0, FALSE, FALSE);
             else
-                mondead(mtmp);
+                mondead(mtmp, NULL);
         }
         if (mtmp->minvent)
             kill_eggs(mtmp->minvent);

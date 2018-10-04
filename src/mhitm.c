@@ -810,11 +810,11 @@ struct attack *mattk;
         noises(magr, mattk);
 
     if (magr->mtame && magr->data == &mons[PM_FLAMING_SPHERE]) {
-            mondead(magr);
+            mondead(magr, NULL);
             explode(magr->mx, magr->my, 1, d(4,6), TOOL_CLASS, EXPL_FIERY);
             result = MM_AGR_DIED;
     } else if (magr->mtame && magr->data == &mons[PM_FREEZING_SPHERE]) {
-            mondead(magr);
+            mondead(magr, NULL);
             explode(magr->mx, magr->my, 2, d(4,6), TOOL_CLASS, EXPL_FROSTY);
             result = MM_AGR_DIED;
     } else {
@@ -822,7 +822,7 @@ struct attack *mattk;
         result = mdamagem(magr, mdef, mattk);
         /* Kill off aggressor if it didn't die. */
         if (!(result & MM_AGR_DIED)) {
-            mondead(magr);
+            mondead(magr, NULL);
             if (magr->mhp > 0)
                 return result; /* life saved */
             result |= MM_AGR_DIED;
@@ -899,7 +899,7 @@ register struct attack *mattk;
                           : (pd == &mons[PM_PESTILENCE])
                                 ? "coughs spasmodically and collapses"
                                 : "vomits violently and drops dead");
-            mondied(magr);
+            mondied(magr, mdef);
             if (magr->mhp > 0)
                 return 0; /* lifesaved */
             else if (magr->mtame && !vis)
@@ -1038,7 +1038,7 @@ register struct attack *mattk;
         tmp += destroy_mitem(mdef, POTION_CLASS, AD_LOUD);
         if (pd == &mons[PM_GLASS_GOLEM]) {
             pline("%s shatters into a million pieces!", Monnam(mdef));
-            mondied(mdef);
+            mondied(mdef, magr);
             if (mdef->mhp > 0)
                 return 0;
             return (MM_DEF_DIED | (grow_up(magr, mdef) ? 0 : MM_AGR_DIED));
@@ -1054,7 +1054,7 @@ register struct attack *mattk;
         if (completelyburns(pd)) { /* paper golem or straw golem */
             if (vis && canseemon(mdef))
                 pline("%s burns completely!", Monnam(mdef));
-            mondead(mdef); /* was mondied() but that dropped paper scrolls */
+            mondead(mdef, NULL); /* was mondied() but that dropped paper scrolls */
             if (mdef->mhp > 0)
                 return 0;
             else if (mdef->mtame && !vis)
@@ -1132,7 +1132,7 @@ register struct attack *mattk;
         if (pd == &mons[PM_IRON_GOLEM]) {
             if (vis && canseemon(mdef))
                 pline("%s falls to pieces!", Monnam(mdef));
-            mondied(mdef);
+            mondied(mdef, magr);
             if (mdef->mhp > 0)
                 return 0;
             else if (mdef->mtame && !vis)
@@ -1156,7 +1156,7 @@ register struct attack *mattk;
         if (pd == &mons[PM_WOOD_GOLEM] || pd == &mons[PM_LEATHER_GOLEM]) {
             if (vis && canseemon(mdef))
                 pline("%s falls to pieces!", Monnam(mdef));
-            mondied(mdef);
+            mondied(mdef, magr);
             if (mdef->mhp > 0)
                 return 0;
             else if (mdef->mtame && !vis)
@@ -1287,7 +1287,7 @@ register struct attack *mattk;
                           s_suffix(mon_nam(mdef)));
                     pline("%s is destroyed!", Monnam(mdef));
                 }
-                mondied(mdef);
+                mondied(mdef, magr);
                 if (mdef->mhp > 0)
                     return 0;
                 else if (mdef->mtame && !vis)
@@ -1444,6 +1444,38 @@ register struct attack *mattk;
         }
         res = eat_brains(magr, mdef, vis, &tmp);
         break;
+    case AD_ZOMB:
+        /* A zombie has attacked something, probably by clawing at it.
+         * 
+         * There is a high chance that it will do nothing
+         * (besides doing damage as AD_PHYS), which depends on
+         * the attacker's level.
+         * 
+         * If it succeeds it may confuse - if it was attacking you it
+         * would drain INT. There's no direct equivalent, but draining
+         * a level reduces spellcasting ability. This is not exactly
+         * like standard level draining - it can't kill, doesn't
+         * reduce max hp, and doesn't respect drain resistance.
+         */
+        if (!cancelled && (zombie_target(pd) >= 0) && (rn2(6+magr->m_lev) <= magr->m_lev)) {
+            int loss = 1+(rn2(15+magr->m_lev) <= magr->m_lev)+(rn2(25+magr->m_lev) <= magr->m_lev);
+            int i;
+            for(i = 0; i < loss; i++)
+                if (mdef->m_lev > 0)
+                    mdef->m_lev--;
+            if (loss > 1) {
+                if (vis && canspotmon(magr) && canseemon(mdef))
+                    pline("%s claws at %s, and %s staggers back!", Monnam(magr), a_monnam(mdef), mhe(mdef));
+                mdef->mconf = 1;
+                mdef->mstrategy &= ~STRAT_WAITFORU;
+            } else {
+                if (vis && canspotmon(magr) && canseemon(mdef))
+                    pline("%s claws at %s, and %s shudders!", Monnam(magr), a_monnam(mdef), mhe(mdef));
+            }
+        } else {
+            goto physical;
+        }
+        break;
     case AD_CALM:	/* KMH -- koala attack */
     /* Certain monsters aren't even made peaceful. */
         if (!mdef->iswiz && mdef->data != &mons[PM_MEDUSA] &&
@@ -1548,7 +1580,7 @@ register struct attack *mattk;
             place_monster(mdef, mdef->mx, mdef->my);
             mdef->mhp = 0;
         }
-        monkilled(mdef, "", (int) mattk->adtyp);
+        monkilled(mdef, magr, "", (int) mattk->adtyp);
         if (mdef->mhp > 0)
             return res; /* mdef lifesaved */
         else if (res == MM_AGR_DIED)
@@ -1840,7 +1872,7 @@ int mdead;
 
 assess_dmg:
     if ((magr->mhp -= tmp) <= 0) {
-        monkilled(magr, "", (int) mddat->mattk[i].adtyp);
+        monkilled(magr, mdef, "", (int) mddat->mattk[i].adtyp);
         return (mdead | mhit | MM_AGR_DIED);
     }
     return (mdead | mhit);

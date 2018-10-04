@@ -993,7 +993,7 @@ genericptr_t p2;
                 if (heros_fault(reg))
                     killed(mtmp);
                 else
-                    monkilled(mtmp, "gas cloud", AD_DRST);
+                    monkilled(mtmp, NULL, "gas cloud", AD_DRST);
                 if (mtmp->mhp <= 0) { /* not lifesaved */
                     return TRUE;
                 }

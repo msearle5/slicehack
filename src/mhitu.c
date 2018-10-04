@@ -7,6 +7,7 @@
 
 #include "hack.h"
 #include "artifact.h"
+#include <assert.h>
 
 STATIC_VAR NEARDATA struct obj *mon_currwep = (struct obj *) 0;
 
@@ -155,7 +156,10 @@ struct attack *mattk;
                 break;
             } /*fallthrough*/
         case AT_CLAW:
-            pline("%s %s you!", Monst_name, makeplural(barehitmsg(mtmp)));
+            if (mattk->adtyp == AD_ZOMB)
+                pline("%s claws at you!", Monst_name);
+            else
+                pline("%s %s you!", Monst_name, makeplural(barehitmsg(mtmp)));
             break;
         default:
             pfmt = "%s hits!";
@@ -1351,6 +1355,40 @@ register struct attack *mattk;
         forget_levels(25);  /* lose memory of 25% of levels */
         forget_objects(25); /* lose memory of 25% of objects */
         break;
+    case AD_ZOMB:
+        /* A zombie has attacked you, probably by clawing at you.
+         * 
+         * This doesn't involve a special location to hit, like
+         * mindflayers - it's not eating your brains - but you do
+         * need to be in a zombifiable form. This includes all
+         * character races, but not all polymorphed forms.
+         * 
+         * There is also a high chance that it will do nothing
+         * (besides doing damage as AD_PHYS), which depends on
+         * the attacker's level.
+         * 
+         * If it succeeds it will drain INT temporarily and may
+         * confuse.
+         */
+        if ((zombie_target(youmonst.data) >= 0) && (rn2(6+mdat->mlevel) <= mdat->mlevel)) {
+            int loss = 1+(rn2(15+mdat->mlevel) <= mdat->mlevel)+(rn2(25+mdat->mlevel) <= mdat->mlevel);
+            loseint(loss);
+            if (loss > 1) {
+                pline("%s claws at you, and you stagger as your mind shrivels!", Monnam(mtmp));
+                make_confused(loss+rn2((loss*2)+mdat->mlevel), FALSE);
+            } else {
+                pline("%s claws at you, and you feel your mind shrivel!", Monnam(mtmp));
+            }
+        } else {
+            hitmsg(mtmp, mattk);
+        }
+
+        /* negative armor class doesn't reduce this damage */
+        if (Half_physical_damage)
+            dmg = (dmg + 1) / 2;
+        mdamageu(mtmp, dmg);
+        dmg = 0; /* don't inflict a second dose below */
+        break;
     case AD_CALM:	/* KMH -- koala attack */
         hitmsg(mtmp, mattk);
         if (uncancelled)
@@ -2337,7 +2375,7 @@ boolean ufound;
                 }
             }
             kill_agr = FALSE;
-            mondead(mtmp);
+            mondead(mtmp, mtmp);
             Sprintf(killer.name, "%s's explosion", mtmp->data->mname);
             killer.format = KILLED_BY_AN;
             explode(mtmp->mx, mtmp->my, type, tmp, MON_EXPLODE, expl);
@@ -2369,7 +2407,7 @@ boolean ufound;
                 if (!Hallucination)
                     You("are caught in a blast of kaleidoscopic light!");
                 /* avoid hallucinating the black light as it dies */
-                mondead(mtmp);    /* remove it from map now */
+                mondead(mtmp, mtmp);    /* remove it from map now */
                 kill_agr = FALSE; /* already killed (maybe lifesaved) */
                 chg =
                     make_hallucinated(HHallucination + (long) tmp, FALSE, 0L);
@@ -2392,7 +2430,7 @@ boolean ufound;
         }
     }
     if (kill_agr)
-        mondead(mtmp);
+        mondead(mtmp, mtmp);
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
     return (mtmp->mhp > 0) ? 0 : 2;
 }

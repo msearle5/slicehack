@@ -35,7 +35,7 @@ struct monst *mtmp;
     mtmp->mstun = 1;
     mtmp->mhp -= rnd(15);
     if (mtmp->mhp <= 0) {
-        mondied(mtmp);
+        mondied(mtmp, mtmp);
         if (mtmp->mhp > 0) /* lifesaved */
             return FALSE;
         else
@@ -559,7 +559,7 @@ register struct monst *mtmp;
                     pline("It locks on to %s.", mon_nam(m2));
                 m2->mhp -= rnd(15);
                 if (m2->mhp <= 0)
-                    monkilled(m2, "", AD_DRIN);
+                    monkilled(m2, mtmp, "", AD_DRIN);
                 else
                     m2->msleeping = 0;
             }

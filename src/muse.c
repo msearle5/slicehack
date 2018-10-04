@@ -165,7 +165,7 @@ struct obj *obj;
         m_useup(mon, obj);
         mon->mhp -= dam;
         if (mon->mhp <= 0) {
-            monkilled(mon, "", AD_RBRE);
+            monkilled(mon, mon, "", AD_RBRE);
             return 1;
         }
         m.has_defense = m.has_offense = m.has_misc = 0;
@@ -1646,7 +1646,7 @@ struct monst *mtmp;
                     if (resists_cold(mtmp2))
                         mtmp2->mhp -= 3 * num;
                     if (mtmp2->mhp < 1) {
-                        mondied(mtmp2);
+                        mondied(mtmp2, mtmp);
                         break;
                     }
                 }
@@ -2494,7 +2494,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
                    mon) for the kill but does not break pacifism conduct */
                 xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT);
             else
-                mondead(mon);
+                mondead(mon, mon);
             return;
         }
     }
@@ -2738,7 +2738,7 @@ boolean by_you; /* true: if mon kills itself, hero gets credit/blame */
                           nonliving(mon->data) ? "destroyed" : "killed");
                 xkilled(mon, XKILL_NOMSG | XKILL_NOCONDUCT);
             } else
-                monkilled(mon, "fire", AD_FIRE);
+                monkilled(mon, mon, "fire", AD_FIRE);
         } else {
             /* non-fatal damage occurred */
             if (vis)

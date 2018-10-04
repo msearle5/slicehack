@@ -510,7 +510,7 @@ int expltype;
                     } else {
                         if (xkflg)
                             adtyp = AD_RBRE; /* no corpse */
-                        monkilled(mtmp, "", (int) adtyp);
+                        monkilled(mtmp, mdef, "", (int) adtyp);
                     }
                 } else if (!context.mon_moving) {
                     /* all affected monsters, even if mdef is set */

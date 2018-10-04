@@ -3090,7 +3090,7 @@ int dmg;
     wake_nearto(mon->mx, mon->my, 30);
     if (mon->mhp <= 0) {
         if (context.mon_moving)
-            monkilled(mon, (char *) 0, AD_BLND);
+            monkilled(mon, NULL, (char *) 0, AD_BLND);
         else
             killed(mon);
     } else if (cansee(mon->mx, mon->my) && !canspotmon(mon)) {

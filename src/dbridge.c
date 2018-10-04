@@ -463,7 +463,7 @@ int xkill_flags, how;
 #define mk_corpse(dest) (((dest & XKILL_NOCORPSE) != 0) ? AD_DGST : AD_PHYS)
         /* if monsters are moving, one of them caused the destruction */
         if (context.mon_moving)
-            monkilled(etmp->emon,
+            monkilled(etmp->emon, NULL,
                       mk_message(xkill_flags), mk_corpse(xkill_flags));
         else /* you caused it */
             xkilled(etmp->emon, xkill_flags);

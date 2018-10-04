@@ -623,7 +623,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 pline("%s doesn't notice.", Monnam(mdef));
             return MM_MISS;
         } else if (is_rider(pd)) {
-            mondied(magr);
+            mondied(magr, mdef);
             if (magr->mhp <= 0)
                 result = MM_AGR_DIED;
             /* Rider takes extra damage regardless of whether attacker dies */

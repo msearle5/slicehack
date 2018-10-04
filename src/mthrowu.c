@@ -438,7 +438,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
                                             || range >= 0 || otmp->otrapped))
                     xkilled(mtmp, XKILL_NOMSG);
                 else
-                    mondied(mtmp);
+                    mondied(mtmp, archer);
             }
         }
 

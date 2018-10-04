@@ -2849,7 +2849,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
                 if (youattack)
                     killed(mdef);
                 else
-                    monkilled(mdef, "", AD_SPEL);
+                    monkilled(mdef, NULL, "", AD_SPEL);
             }
         }
     }
@@ -4126,7 +4126,7 @@ const char *fltxt;
 #undef oresist_disintegration
 
     if (type < 0)
-        monkilled(mon, (char *) 0, -AD_RBRE);
+        monkilled(mon, NULL, (char *) 0, -AD_RBRE);
     else
         xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE);
 }
@@ -4276,7 +4276,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     } else if (mon->mhp < 1) {
                         if (type < 0) {
                             /* mon has just been killed by another monster */
-                            monkilled(mon, fltxt, AD_RBRE);
+                            monkilled(mon, NULL, fltxt, AD_RBRE);
                         } else {
                             int xkflags = XKILL_GIVEMSG; /* killed(mon); */
 
@@ -5302,7 +5302,7 @@ int damage, tell;
         mtmp->mhp -= damage;
         if (mtmp->mhp < 1) {
             if (m_using)
-                monkilled(mtmp, "", AD_RBRE);
+                monkilled(mtmp, NULL, "", AD_RBRE);
             else
                 killed(mtmp);
         }

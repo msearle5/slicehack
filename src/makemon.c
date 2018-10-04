@@ -2155,7 +2155,7 @@ struct monst *mtmp, *victim;
                       an(ptr->mname), mhe(mtmp),
                       nonliving(ptr) ? "expires" : "dies");
             set_mon_data(mtmp, ptr, -1); /* keep mvitals[] accurate */
-            mondied(mtmp);
+            mondied(mtmp, mtmp);
             return (struct permonst *) 0;
         } else if (canspotmon(mtmp)) {
             char buf[BUFSZ];

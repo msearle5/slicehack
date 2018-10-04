@@ -2503,7 +2503,7 @@ register struct monst *mtmp;
                     pline("%s falls to pieces!", Monnam(mtmp));
                 else if (mtmp->mtame)
                     pline("May %s rust in peace.", mon_nam(mtmp));
-                mondied(mtmp);
+                mondied(mtmp, mtmp);
                 if (mtmp->mhp <= 0)
                     trapkilled = TRUE;
             } else if (mptr == &mons[PM_GREMLIN] && rn2(3)) {
@@ -2766,7 +2766,7 @@ register struct monst *mtmp;
                     seetrap(trap);
                 mtmp->mhp -= dmgval2;
                 if (mtmp->mhp <= 0)
-                    monkilled(mtmp,
+                    monkilled(mtmp, NULL,
                               in_sight
                                   ? "compression from an anti-magic field"
                                   : (const char *) 0,
@@ -5280,7 +5280,7 @@ boolean nocorpse;
         if (mon->mhp <= 0) {
             int xx = mon->mx, yy = mon->my;
 
-            monkilled(mon, "", nocorpse ? -AD_RBRE : AD_PHYS);
+            monkilled(mon, NULL, "", nocorpse ? -AD_RBRE : AD_PHYS);
             if (mon->mhp <= 0) {
                 newsym(xx, yy);
                 trapkilled = TRUE;

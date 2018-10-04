@@ -2096,7 +2096,7 @@ boolean confused, byu;
                 killed(mtmp);
             } else {
                 pline("%s is killed.", Monnam(mtmp));
-                mondied(mtmp);
+                mondied(mtmp, byu ? &youmonst : mtmp);
             }
         } else {
             wakeup(mtmp, byu);

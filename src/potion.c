@@ -1613,7 +1613,7 @@ int how;
                     if (your_fault)
                         killed(mon);
                     else
-                        monkilled(mon, "", AD_ACID);
+                        monkilled(mon, NULL, "", AD_ACID);
                 }
             }
             break;

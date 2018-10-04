@@ -590,6 +590,7 @@ static const char * damagetypes[] = {
     "random breath",
     "steal Amulet",
     "steal intrinsic",
+    "infect",
 };
 
 /* Add some information to an encyclopedia window which is printing information

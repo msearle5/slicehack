@@ -472,7 +472,7 @@ struct edog *edog;
             else
                 You_feel("%s for a moment.",
                          Hallucination ? "bummed" : "sad");
-            mondied(mtmp);
+            mondied(mtmp, mtmp);
             return  TRUE;
         }
     }
