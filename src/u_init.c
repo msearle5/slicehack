@@ -836,7 +836,8 @@ int difficulty;
     struct recipe *r = u.alchemy + (target - POT_GAIN_ABILITY);
     unsigned short id[5];
     int objects, rarity, monsters, bound, targetid;
-    static int nmons, i;
+    static int nmons = -1;
+    int i;
     long packed;
     boolean retry;
     r->difficulty = difficulty;
@@ -871,10 +872,9 @@ int difficulty;
 
         /* Loop until out of space or difficulty OK or too many monsters */
         do {
-            
             /* Add an ingredient */
             id[objects] = ini_ingredient(difficulty, targetid, &id);
-            if (id[objects] < nmons) {
+            if (id[objects] <= nmons) {
                 if (monsters >= 2)
                     continue;
                 monsters++;
@@ -902,51 +902,125 @@ int difficulty;
 STATIC_OVL void
 ini_alchemy()
 {
-    /* Clear the alchemy information to 'unalchemizable' (difficulty 0) */
-    memset(u.alchemy, 0, sizeof(u.alchemy));
-    
+    int i, j;
+    boolean retry = FALSE;
+
     /* Fill in the difficulty table */
     if (alchemy_val) free((void *)alchemy_val);
     alchemy_val = alchemy_rarities();
     
-    /* Potions in order of difficulty, from easiest to hardest.
-     * Typical potions have around 10% chance of fail at their nominal skill level,
-     * but you can try to go for higher ones with a multiplier (x4..5?)
-     */
-     
-    /* Basic */
-    ini_potion(POT_SICKNESS,            BASIC(5));
-    ini_potion(POT_BOOZE,               BASIC(10));
-    ini_potion(POT_SEE_INVISIBLE,       BASIC(13));
-    ini_potion(POT_HEALING,             BASIC(15));
-    
-    /* Skilled */
-    ini_potion(POT_CONFUSION,           SKILLED(5));
-    ini_potion(POT_HALLUCINATION,       SKILLED(7));
-    ini_potion(POT_SLEEPING,            SKILLED(8));
-    ini_potion(POT_RESTORE_ABILITY,     SKILLED(13));
-    ini_potion(POT_EXTRA_HEALING,       SKILLED(15));
-    
-    /* Expert */
-    ini_potion(POT_BLINDNESS,           EXPERT(5));
-    ini_potion(POT_OBJECT_DETECTION,    EXPERT(8));
-    ini_potion(POT_MONSTER_DETECTION,   EXPERT(10));
-    ini_potion(POT_INVISIBILITY,        EXPERT(16));
-    ini_potion(POT_LEVITATION,          EXPERT(18));
-    
-    /* Master */
-    ini_potion(POT_OIL,                 MASTER(5));
-    ini_potion(POT_ENLIGHTENMENT,       MASTER(7));
-    ini_potion(POT_SPEED,               MASTER(9));
-    ini_potion(POT_GAIN_ENERGY,         MASTER(12));
-    ini_potion(POT_POLYMORPH,           MASTER(17));
-    ini_potion(POT_FULL_HEALING,        MASTER(20));
-    
-    /* Grand Master */
-    ini_potion(POT_PARALYSIS,           GRAND(5));
-    ini_potion(POT_REFLECTION,          GRAND(12));
-    ini_potion(POT_GAIN_LEVEL,          GRAND(15));
-    ini_potion(POT_GAIN_ABILITY,        GRAND(20));
+    do
+    {
+        /* Clear the alchemy information to 'unalchemizable' (difficulty 0) */
+        memset(u.alchemy, 0, sizeof(u.alchemy));
+
+        /* Potions in order of difficulty, from easiest to hardest.
+         * Typical potions have around 10% chance of fail at their nominal skill level,
+         * but you can try to go for higher ones with a multiplier (x4..5?)
+         */
+
+        /* Basic */
+        ini_potion(POT_SICKNESS,            BASIC(5));
+        ini_potion(POT_BOOZE,               BASIC(10));
+        ini_potion(POT_SEE_INVISIBLE,       BASIC(13));
+        ini_potion(POT_HEALING,             BASIC(15));
+
+        /* Skilled */
+        ini_potion(POT_CONFUSION,           SKILLED(5));
+        ini_potion(POT_HALLUCINATION,       SKILLED(7));
+        ini_potion(POT_SLEEPING,            SKILLED(8));
+        ini_potion(POT_RESTORE_ABILITY,     SKILLED(13));
+        ini_potion(POT_EXTRA_HEALING,       SKILLED(15));
+
+        /* Expert */
+        ini_potion(POT_BLINDNESS,           EXPERT(5));
+        ini_potion(POT_OBJECT_DETECTION,    EXPERT(8));
+        ini_potion(POT_MONSTER_DETECTION,   EXPERT(10));
+        ini_potion(POT_INVISIBILITY,        EXPERT(16));
+        ini_potion(POT_LEVITATION,          EXPERT(18));
+
+        /* Master */
+        ini_potion(POT_OIL,                 MASTER(5));
+        ini_potion(POT_ENLIGHTENMENT,       MASTER(7));
+        ini_potion(POT_SPEED,               MASTER(9));
+        ini_potion(POT_GAIN_ENERGY,         MASTER(12));
+        ini_potion(POT_POLYMORPH,           MASTER(17));
+        ini_potion(POT_FULL_HEALING,        MASTER(20));
+
+        /* Grand Master */
+        ini_potion(POT_PARALYSIS,           GRAND(5));
+        ini_potion(POT_REFLECTION,          GRAND(12));
+        ini_potion(POT_GAIN_LEVEL,          GRAND(15));
+        ini_potion(POT_GAIN_ABILITY,        GRAND(20));
+
+        /* Ensure that no potions are unbrewable due to there being no way
+         * to add the listed ingredients without passing through another
+         * recipe first.
+         */
+        for(i=0;i<(int)(sizeof(u.alchemy)/sizeof(u.alchemy[0]));i++) {
+            unsigned short id[5] = { 0 };
+            int monsters;
+            boolean skip = FALSE;
+            if (u.alchemy[i].difficulty) {
+                int nids = alchemy_unpack(id, u.alchemy[i].base, &monsters);
+                if (nids > 1) {
+                    static const short order2[] = { 0, -1, 1, -1 };
+                    static const short order3[] = { 0, 1, -1, 0, 2, -1,
+                                                    1, 0, -1, 1, 2, -1,
+                                                    2, 0, -1, 2, 1, -1 };
+                    static const short order4[] = { 3, 0, 1, -1, 3, 0, 2, -1,
+                                                    3, 1, 0, -1, 3, 1, 2, -1,
+                                                    3, 2, 0, -1, 3, 2, 1, -1,
+                                                    0, 3, 1, -1, 0, 3, 2, -1,
+                                                    1, 3, 0, -1, 1, 3, 2, -1,
+                                                    2, 3, 0, -1, 2, 3, 1, -1,
+                                                    0, 1, 3, -1, 0, 2, 3, -1,
+                                                    1, 0, 3, -1, 1, 2, 3, -1,
+                                                    2, 0, 3, -1, 2, 1, 3, -1,
+                                                    0, 1, 2, -1, 0, 2, 1, -1,
+                                                    1, 0, 2, -1, 1, 2, 0, -1,
+                                                    2, 0, 1, -1, 2, 1, 0, -1 };
+                    static const short *orders[] = { NULL, NULL, order2, order3, order4 };
+                    static const int norders[] = { 0, 0, 2, 6, 24 };
+                    const short *order = orders[nids];
+                    int norder = norders[nids];
+
+                    do {
+                        int current_id = 0;
+                        unsigned short pack_id[5] = { 0 };
+                        long recipe;
+
+                        skip = FALSE;
+
+                        /* Put the IDs in an order */
+                        do {
+                            pack_id[current_id++] = id[*order++];
+
+                            /* Pack the partial and test it against all recipes */
+                            recipe = alchemy_pack(pack_id, current_id);
+                            for(j = 0; j < (int)(sizeof(u.alchemy)/sizeof(u.alchemy[0])); j++)
+                                if (u.alchemy[j].base == recipe)
+                                    skip = TRUE;
+
+                        } while (*order >= 0);
+
+                        /* If it has got to this point with skip FALSE, then
+                         * this order is OK - so can stop now.
+                         */
+                        if (!skip) break;
+
+                        order++;
+                        norder--;
+                    } while (norder > 0);
+
+                    /* If it has got to this point by breaking out, then there is
+                     * an order and this recipe is OK.
+                     */
+                    retry = (norder == 0);
+                }
+            }
+        }
+    } while (retry);
 }
 
 #undef BASIC

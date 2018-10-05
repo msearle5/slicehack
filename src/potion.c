@@ -2467,7 +2467,7 @@ int *monsters;
     /* Packed now contains the number of monsters, so adjust IDs */
     for(i=0;i<4;i++) {
         if (out[i] == 0) break;
-        if (i >= (int)packed) out[i] += nmons;
+        if (i >= (int)packed) out[i] += nmons-1;
     }
 
     assert(i);
@@ -2518,7 +2518,8 @@ int ids;
         if (id[i] < nmons)
             monsters++;
         else
-            id[i] -= nmons;
+            id[i] -= (nmons-1);
+        assert(id[i]);
     }
     assert(monsters <= 2);
     
@@ -2531,7 +2532,6 @@ int ids;
     if (ids > 3)
         packed += (id[3] * nmons * nmons * nobjs);
     packed += (monsters * nmons * nmons * nobjs * nobjs);
-    assert(packed != 364046400);
     
     return (long)packed;
 }
