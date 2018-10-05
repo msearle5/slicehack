@@ -1365,12 +1365,18 @@ int how;
     if (isyou) {
         tx = u.ux, ty = u.uy;
         distance = 0;
-        pline_The("%s crashes on your %s and breaks into shards.", botlnam,
-                  body_part(HEAD));
-        losehp(Maybe_Half_Phys(rnd(2)),
-               (how == POTHIT_OTHER_THROW) ? "propelled potion" /* scatter */
-                                           : "thrown potion",
-               KILLED_BY_AN);
+        if ((obj->otyp == POT_ACID) && (obj->ovar1)) {
+            pline_The("%s crashes on your %s and explodes!", botlnam, body_part(HEAD));
+            killer.format = KILLED_BY_AN;
+            strcpy(killer.name, "alchemic blast");
+            explode(tx, ty, 10, d(obj->quan, 9)+3, /* not physical damage */
+                   POTION_CLASS, EXPL_MAGICAL);
+        } else {
+            pline_The("%s crashes on your %s and breaks into shards.", botlnam,
+                      body_part(HEAD));
+            losehp(Maybe_Half_Phys(rnd(2)), (how == POTHIT_OTHER_THROW) ? "propelled potion" /* scatter */
+                : "thrown potion", KILLED_BY_AN);
+        }
     } else {
         tx = mon->mx, ty = mon->my;
         /* sometimes it hits the saddle */
