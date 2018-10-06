@@ -42,7 +42,6 @@ STATIC_DCL boolean FDECL(dospellmenu, (const char *, int, int *));
 STATIC_DCL int FDECL(percent_success, (int));
 STATIC_DCL char *FDECL(spellretention, (int, char *));
 STATIC_DCL int NDECL(throwspell);
-STATIC_DCL void NDECL(cast_protection);
 STATIC_DCL void FDECL(spell_backfire, (int));
 STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
 
@@ -84,6 +83,7 @@ STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
  *      Tou to smile (SPE_CHARM_MONSTER)
  *      Val control the cold (SPE_CONE_OF_COLD)
  *      Wiz all really, but SPE_MAGIC_MISSILE is their party trick
+ *      Wiz/Alchemist to transmute (SPE_POLYMORPH)
  *
  *      See percent_success() below for more comments.
  *
@@ -806,8 +806,10 @@ int booktype;
     return objects[booktype].oc_skill;
 }
 
-STATIC_OVL void
-cast_protection()
+int
+cast_protection(expert, verbose)
+boolean expert;
+boolean verbose;
 {
     int l = u.ulevel, loglev = 0,
         gain, natac = u.uac + u.uspellprot;
@@ -851,7 +853,7 @@ cast_protection()
             const char *hgolden = hcolor(NH_GOLDEN), *atmosphere;
 
             if (u.uspellprot) {
-                pline_The("%s haze around you becomes more dense.", hgolden);
+                if (verbose) pline_The("%s haze around you becomes more dense.", hgolden);
             } else {
                 rmtyp = levl[u.ux][u.uy].typ;
                 atmosphere = u.uswallow
@@ -871,19 +873,20 @@ cast_protection()
                                          : IS_STWALL(rmtyp)
                                             ? "stone"
                                             : "air");
-                pline_The("%s around you begins to shimmer with %s haze.",
+                if (verbose) pline_The("%s around you begins to shimmer with %s haze.",
                           atmosphere, an(hgolden));
             }
         }
         u.uspellprot += gain;
-        u.uspmtime = (P_SKILL(spell_skilltype(SPE_PROTECTION)) == P_EXPERT)
-                        ? 20 : 10;
+        u.uspmtime = expert ? 20 : 10;
         if (!u.usptime)
             u.usptime = u.uspmtime;
         find_ac();
     } else {
-        Your("skin feels warm for a moment.");
+        if (verbose) Your("skin feels warm for a moment.");
     }
+
+    return gain;
 }
 
 /* attempting to cast a forgotten spell will cause disorientation */
@@ -1265,7 +1268,7 @@ boolean atme;
             You("sense a pointy hat on top of your %s.", body_part(HEAD));
         break;
     case SPE_PROTECTION:
-        cast_protection();
+        cast_protection((P_SKILL(spell_skilltype(SPE_PROTECTION)) == P_EXPERT), TRUE);
         break;
     case SPE_JUMPING:
         if (!jump(max(role_skill, 1)))

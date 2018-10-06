@@ -629,16 +629,23 @@ register struct obj *otmp;
     switch (otmp->otyp) {
     case POT_RESTORE_ABILITY:
     case SPE_RESTORE_ABILITY:
+    case SCR_ENCHANT_ARMOR:
         unkn++;
         if (otmp->cursed) {
             pline("Ulch!  This makes you feel mediocre!");
             break;
         } else {
             /* unlike unicorn horn, overrides Fixed_abil */
-            pline("Wow!  This makes you feel %s!",
-                  (otmp->blessed)
-                      ? (unfixable_trouble_count(FALSE) ? "better" : "great")
-                      : "good");
+            if (otmp->otyp == SCR_ENCHANT_ARMOR) {
+                pline("You feel %s!", (otmp->blessed)
+                          ? (unfixable_trouble_count(TRUE) ? "better" : "as good as new")
+                          : "good");
+            } else {
+                pline("Wow!  This makes you feel %s!",
+                      (otmp->blessed)
+                          ? (unfixable_trouble_count(FALSE) ? "better" : "great")
+                          : "good");
+            }
             i = rn2(A_MAX); /* start at a random point */
             for (ii = 0; ii < A_MAX; ii++) {
                 lim = AMAX(i);
@@ -660,7 +667,7 @@ register struct obj *otmp;
                the spell or with a unihorn; this is better than full healing
                in that it can restore all of them, not just half, and a
                blessed potion restores them all at once */
-            if (otmp->otyp == POT_RESTORE_ABILITY &&
+            if (otmp->otyp != SPE_RESTORE_ABILITY &&
                 u.ulevel < u.ulevelmax) {
                 do {
                     pluslvl(FALSE);

@@ -2399,6 +2399,7 @@ E int FDECL(spell_skilltype, (int));
 E int FDECL(spelleffects, (int, BOOLEAN_P));
 E void NDECL(losespells);
 E int NDECL(dovspell);
+E int FDECL(cast_protection, (boolean expert, boolean verbose));
 E void FDECL(initialspell, (struct obj *));
 
 /* ### steal.c ### */

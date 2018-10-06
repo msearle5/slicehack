@@ -1071,6 +1071,24 @@ int state;
     }
 }
 
+/* Effects of a scroll of enchant armor read without wearing armor.
+ * Equivalent to one casting at low skill of protection if the scroll
+ * is uncursed, or d3 castings at expert skill if the scroll is
+ * blessed. Cursed scrolls do nothing useful.
+ * Returns the total amount of AC gained.
+ */
+STATIC_OVL int
+read_protection(boolean blessed)
+{
+    int i;
+    int gain;
+    gain = cast_protection(blessed, TRUE);
+    if (blessed)
+        for(i=0;i<rn2(3);i++)
+            gain += cast_protection(blessed, FALSE);
+    return gain;
+}
+
 /* scroll effects; return 1 if we use up the scroll and possibly make it
    become discovered, 0 if caller should take care of those side-effects */
 int
@@ -1116,12 +1134,28 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
 
         otmp = some_armor(&youmonst);
         if (!otmp) {
-            strange_feeling(sobj, !Blind
-                                      ? "Your skin glows then fades."
-                                      : "Your skin feels warm for a moment.");
-            sobj = 0; /* useup() in strange_feeling() */
-            exercise(A_CON, !scursed);
-            exercise(A_STR, !scursed);
+            if (confused) {
+                /* Confused enchant armor removes erosion from yourself,
+                 * that is it acts as a potion of restore ability - which
+                 * is blessed or uncursed depending on the scroll's BUC.
+                 * Cursed confused enchant armor has the opposite effect...
+                 */
+                You("are covered by a %s %s %s!",
+                      scursed ? "mottled" : "shimmering",
+                      hcolor(scursed ? NH_BLACK : NH_GOLDEN),
+                      scursed ? "glow"
+                              : "shield");
+                if (scursed) {
+                    (void) adjattrib(rn2(A_MAX), -1, FALSE);
+                } else {
+                    peffects(sobj);
+                }
+            } else {
+                if (!scursed)
+                    read_protection(sblessed);
+                exercise(A_CON, !scursed);
+                exercise(A_STR, !scursed);
+            }
             break;
         }
         if (confused) {
