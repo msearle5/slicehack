@@ -686,6 +686,8 @@ long flag;
             return uarmf;
         case W_ARMU:
             return uarmu;
+        case W_AMUL:
+            return (uamul && uamul->otyp == GORGET) ? uamul : NULL;
         default:
             impossible("bad flag in which_armor");
             return 0;

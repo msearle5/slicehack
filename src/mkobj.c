@@ -982,6 +982,11 @@ boolean artif;
                 curse(otmp);
             } else
                 blessorcurse(otmp, 10);
+            if ((otmp->otyp == GORGET) && (!rn2(3))) {
+                otmp->spe = rne(3);
+                if (otmp->cursed)
+                    otmp->spe = -otmp->spe;
+            }
             break;
         case VENOM_CLASS:
         case CHAIN_CLASS:
@@ -3105,6 +3110,7 @@ struct obj* obj;
         case SKELETON_KEY:
         case LOCK_PICK:
         case TIN_OPENER:
+        case GORGET:
             return metal_materials;
         default:
             break;

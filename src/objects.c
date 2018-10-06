@@ -667,6 +667,11 @@ AMULET("amulet of change",               "square", 0, 130),
 AMULET("amulet of unchanging",          "concave", UNCHANGING, 45),
 AMULET("amulet of reflection",        "hexagonal", REFLECTING, 75),
 AMULET("amulet of magical breathing", "octagonal", MAGICAL_BREATHING, 65),
+
+OBJECT(OBJ("gorget",
+           "neck armor"),
+       BITS(1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, P_NONE, IRON),
+       0, AMULET_CLASS, 75, 0, 40, 20, 0, 0, 2, 0, 40, HI_METAL),
 /* fixed descriptions; description duplication is deliberate;
  * fake one must come before real one because selection for
  * description shuffling stops when a non-magic amulet is encountered

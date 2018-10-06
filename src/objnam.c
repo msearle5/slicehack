@@ -1198,7 +1198,8 @@ unsigned doname_flags;
     case AMULET_CLASS:
         if (obj->owornmask & W_AMUL)
             Strcat(bp, " (being worn)");
-        break;
+        if (obj->otyp != GORGET) break;
+        /*FALLTHRU*/
     case ARMOR_CLASS:
         if (obj->owornmask & W_ARMOR)
             Strcat(bp, (obj == uskin) ? " (embedded in your skin)"

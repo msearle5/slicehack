@@ -3658,6 +3658,8 @@ doprarm()
             lets[ct++] = obj_to_let(uarmg);
         if (uarmf)
             lets[ct++] = obj_to_let(uarmf);
+        if ((uamul) && (uamul->otyp == GORGET))
+            lets[ct++] = obj_to_let(uamul);
         lets[ct] = 0;
         (void) display_inventory(lets, FALSE);
     }

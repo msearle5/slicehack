@@ -1996,7 +1996,7 @@ struct obj *obj;
     if (!retouch_object(&obj, FALSE))
         return 1; /* costs a turn even though it didn't get worn */
 
-    if (armor) {
+    if (armor || (obj->otyp == GORGET)) {
         int delay;
 
         obj->known = 1; /* since AC is shown on the status line */
@@ -2118,6 +2118,8 @@ find_ac()
         uac -= uleft->spe;
     if (uright && uright->otyp == RIN_PROTECTION)
         uac -= uright->spe;
+    if (uamul && uamul->otyp == GORGET)
+        uac -= ARM_BONUS(uamul);
 
     /* armor class from other sources */
     if (HProtection & INTRINSIC)
@@ -2249,6 +2251,9 @@ struct monst *victim;
     if (otmp && (!otmph || !rn2(4)))
         otmph = otmp;
     otmp = (victim == &youmonst) ? uarms : which_armor(victim, W_ARMS);
+    if (otmp && (!otmph || !rn2(4)))
+        otmph = otmp;
+    otmp = ((victim == &youmonst) && uamul && (uamul->otyp == GORGET)) ? uamul : which_armor(victim, W_AMUL);
     if (otmp && (!otmph || !rn2(4)))
         otmph = otmp;
     return otmph;
@@ -2730,6 +2735,12 @@ register struct obj *atmp;
             cancel_don();
         Your("shield crumbles away!");
         (void) Shield_off();
+        useup(otmp);
+    } else if ((uamul) && (uamul->otyp == GORGET) && (DESTROY_ARM(uamul))) {
+        if (donning(otmp))
+            cancel_don();
+        Your("gorget crumbles to dust!");
+        (void) Amulet_off();
         useup(otmp);
     } else {
         return 0; /* could not destroy anything */

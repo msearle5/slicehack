@@ -95,6 +95,8 @@ STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
  */
 
 #define uarmhbon 4 /* Metal helmets interfere with the mind */
+#define uarmabon 3 /* A gorget is similar enough to a helmet that it behaves in the same way */
+#define uarmhabon 5 /* Both gorget and helmet: worse than either alone, but less than the sum */
 #define uarmgbon 6 /* Casting channels through the hands */
 #define uarmfbon 2 /* All metal interferes to some degree */
 
@@ -1741,6 +1743,7 @@ int spell;
     int chance, splcaster, special, statused;
     int difficulty;
     int skill;
+    boolean hat, scarf;
 
     /* Calculate intrinsic ability (splcaster) */
 
@@ -1756,8 +1759,15 @@ int spell;
     if (uarms)
         splcaster += urole.spelshld;
 
-    if (uarmh && is_metallic(uarmh) && uarmh->otyp != HELM_OF_BRILLIANCE)
+    hat = (uarmh && is_metallic(uarmh) && uarmh->otyp != HELM_OF_BRILLIANCE);
+    scarf = (uamul && (uamul->otyp == GORGET));
+    if (hat && scarf)
+        splcaster += uarmhabon;
+    else if (hat)
         splcaster += uarmhbon;
+    else if (scarf)
+        splcaster += uarmabon;
+        
     if (uarmg && is_metallic(uarmg))
         splcaster += uarmgbon;
     if (uarmf && is_metallic(uarmf))

@@ -912,7 +912,7 @@ struct obj *list; /* inventory or container contents */
             get_valuables(obj->cobj);
         } else if (obj->oartifact) {
             continue;
-        } else if (obj->oclass == AMULET_CLASS) {
+        } else if ((obj->oclass == AMULET_CLASS) && (obj->otyp != GORGET)) {
             i = obj->otyp - FIRST_AMULET;
             if (!amulets[i].count) {
                 amulets[i].count = obj->quan;
