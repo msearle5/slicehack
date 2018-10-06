@@ -3083,7 +3083,8 @@ calc_capacity(xtra_wt)
 int xtra_wt;
 {
     int cap, wt = inv_weight() + xtra_wt;
-
+	if (Is_airlevel(&u.uz))
+		return UNENCUMBERED;
     if (wt <= 0)
         return UNENCUMBERED;
     if (wc <= 1)
