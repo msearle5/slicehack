@@ -35,7 +35,8 @@
 /* Level location types.  [Some debugging code in src/display.c
    defines array type_names[] which contains an entry for each of
    these, so needs to be kept in sync if any new types are added
-   or existing ones renumbered.] */
+   or existing ones renumbered. There is also an array levltyp[]
+   of names in cmd.c */
 enum levl_typ_types {
     STONE = 0,
     VWALL,

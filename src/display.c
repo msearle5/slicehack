@@ -1891,8 +1891,8 @@ static const char *type_names[MAX_TYPE] = {
     "CROSSWALL", "TUWALL", "TDWALL", "TLWALL", "TRWALL", "DBWALL", "TREE",
     "SDOOR", "SCORR", "POOL", "MOAT", "WATER", "DRAWBRIDGE_UP", "LAVAPOOL",
     "IRON_BARS", "DOOR", "CORR", "ROOM", "STAIRS", "LADDER", "FOUNTAIN",
-    "THRONE", "SINK", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN", "AIR",
-    "CLOUD", "FURNACE",
+    "THRONE", "SINK", "FURNACE", "GRAVE", "ALTAR", "ICE", "DRAWBRIDGE_DOWN", "AIR",
+    "CLOUD",
 };
 
 static const char *

@@ -928,18 +928,27 @@ skip0:
             mkgrave(croom);
 
         /* put statues inside */
-        if ((!rn2(20)) || Is_oracle_level(&u.uz))
-            (void) mkcorpstat(STATUE, (struct monst *) 0,
+        if ((!rn2(20)) || Is_oracle_level(&u.uz)) {
+            x = somex(croom);
+            y = somey(croom);
+            if (ACCESSIBLE(levl[x][y].typ))
+                (void) mkcorpstat(STATUE, (struct monst *) 0,
                               (struct permonst *) 0, somex(croom),
                               somey(croom), CORPSTAT_INIT);
+        }
+
         /* put box/chest inside;
          *  40% chance for at least 1 box, regardless of number
          *  of rooms; about 5 - 7.5% for 2 boxes, least likely
          *  when few rooms; chance for 3 or more is negligible.
          */
-        if (!rn2(nroom * 5 / 2))
+        if (!rn2(nroom * 5 / 2)) {
+            x = somex(croom);
+            y = somey(croom);
+            if (ACCESSIBLE(levl[x][y].typ))
             (void) mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, somex(croom),
                              somey(croom), TRUE, FALSE);
+        }
 
         /* maybe make some graffiti */
         if (!rn2(27 + 3 * abs(depth(&u.uz)))) {
@@ -958,14 +967,20 @@ skip0:
 
     skip_nonrogue:
         if (!rn2(3)) {
-            (void) mkobj_at(0, somex(croom), somey(croom), TRUE);
+            x = somex(croom);
+            y = somey(croom);
+            if (ACCESSIBLE(levl[x][y].typ))
+                (void) mkobj_at(0, x, y, TRUE);
             tryct = 0;
             while (!rn2(5)) {
                 if (++tryct > 100) {
                     impossible("tryct overflow4");
                     break;
                 }
-                (void) mkobj_at(0, somex(croom), somey(croom), TRUE);
+                x = somex(croom);
+                y = somey(croom);
+                if (ACCESSIBLE(levl[x][y].typ))
+                    (void) mkobj_at(0, x, y, TRUE);
             }
         }
     }
