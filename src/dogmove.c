@@ -1107,7 +1107,7 @@ int after; /* this is extra fast monster movement */
             int mstatus;
             register struct monst *mtmp2 = m_at(nx, ny);
 
-            if ((int) mtmp2->m_lev >= (int) mtmp->m_lev + 2
+            if ((int) mtmp2->m_lev >= (int) mtmp->m_lev + (((6 * mtmp->mhp) / (mtmp->mhpmax + 1)) - 3)
                 || (mtmp2->data == &mons[PM_FLOATING_EYE] && rn2(10)
                     && mtmp->mcansee && haseyes(mtmp->data) && mtmp2->mcansee
                     && (perceives(mtmp->data) || !mtmp2->minvis))

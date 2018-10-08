@@ -556,7 +556,7 @@ long nmv; /* number of moves */
 
     /* reduce tameness for every 150 moves you are separated */
     if (mtmp->mtame) {
-        int wilder = (imv + 75) / 150;
+        int wilder = (imv + rn2(150)) / 150;
         if (mtmp->mtame > wilder)
             mtmp->mtame -= wilder; /* less tame */
         else if (mtmp->mtame > rn2(wilder))
