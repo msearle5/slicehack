@@ -1591,7 +1591,7 @@ register struct trobj *trop;
             obj->material = objects[obj->otyp].oc_material;
             /* Don't start with +0 or negative rings */
             if (objects[otyp].oc_charged && obj->spe <= 0)
-                obj->spe = rne(3);
+                obj->spe = rnew(0, FALSE, TRUE);
 
             /* Heavily relies on the fact that 1) we create wands
              * before rings, 2) that we create rings before

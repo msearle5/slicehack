@@ -2159,6 +2159,7 @@ E int FDECL(rnl, (int));
 E int FDECL(rnd, (int));
 E int FDECL(d, (int, int));
 E int FDECL(rne, (int));
+E int FDECL(rnew, (int, boolean, boolean));
 E int FDECL(rnz, (int));
 
 /* ### rndint.c ### */

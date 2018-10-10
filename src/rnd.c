@@ -3,6 +3,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include <assert.h>
 
 /* "Rand()"s definition is determined by [OS]conf.h */
 #if defined(LINT) && defined(UNIX) /* rand() is long... */
@@ -133,6 +134,94 @@ register int x;
      * which is clearer but less efficient and stands a vanishingly
      * small chance of overflowing tmp
      */
+}
+
+/* Produce a random enchantment for weapons, armor or charged rings.
+ * The enchantments are distributed exponentially, but unlike rne()
+ * they are biased according to Luck (but not affected by level).
+ *
+ * They are also distributed in a way that is intended to model the
+ * behaviour of scrolls of enchant armor, enchant weapon and charging
+ * against highly enchanted items.
+ *
+ * For armor enchanted above +3 (armor) / +5 (elven armor) the
+ * chance of survival is 1 in (enchantment). "Not surviving" here
+ * means starting over from +1.
+ *
+ * For weapons enchanted above +5 the chance of survival is 1 in 3,
+ * so a similar check is used.
+ *
+ * For armor and weapons, from +9 there is a second 1-in-enchantment
+ * check for no effect (meaning keep the current enchantment but
+ * don't add anything.)
+ *
+ * Rings have a current charge / 7 change of not surviving, but can
+ * be charged up to d3 points at once giving a maximum possible ring
+ * charge of +9. (Armor and weapons can be enchanted by d2 from their
+ * maximum safe enchantment - but this can be ignored if you assume
+ * that such arms getting only +1 would be drained and retried.)
+ *
+ * There is no absolute limit for weapons or armor.
+ *
+ * Average results from a test (1e9 reps of each):
+ *
+ * Luck -13:
+ * Armor:       1:0.830095	2:0.141121	3:0.0239911	4:0.00407551	5:0.000692566	6:2.3776e-05	7:6.11e-07	    8:1.9e-08	                                                            Average 1.204223
+ * Elven Armor: 1:0.829999	2:0.141102	3:0.023991	4:0.00407717	5:0.000692839	6:0.000117782	7:1.9936e-05	8:4.91e-07	    9:1e-08	                                                Average 1.204799
+ * WeaponL      1:0.830001	2:0.141104	3:0.0239823	4:0.00408001	5:0.00069301	6:0.000118003	7:2.022e-05	    8:1.108e-06	    9:7.4e-08	                                            Average 1.204801
+ * Ring:        1:0.767481	2:0.177814	3:0.0434097	4:0.00942346	5:0.00156621	6:0.000268194	7:3.5526e-05	8:2.569e-06	    9:1.42e-07	                                            Average 1.300742
+ *
+ * Luck 0:
+ * Armor:       1:0.701468	2:0.210433	3:0.0631245	4:0.018939	    5:0.0056782	    6:0.000339627	7:1.6896e-05	8:7.36e-07	    9:3.3e-08	                                            Average 1.418016
+ * Elven Armor: 1:0.700126	2:0.210051	3:0.06301	4:0.0189081	    5:0.00566787	6:0.00170305	7:0.000511327	8:2.1954e-05	9:8.76e-07	    10:4e-09	                            Average 1.427211
+ * Weapon:      1:0.700102	2:0.210047	3:0.0630073	4:0.0189044	    5:0.00567031	6:0.00170189	7:0.000510719	8:5.0898e-05	9:5.646e-06	    10:7.4e-08	                            Average 1.427432
+ * Ring:        1:0.657527	2:0.226064	3:0.0816975	4:0.0262375	    5:0.0064746	    6:0.00164317	7:0.000317859	8:3.5491e-05	9:3.004e-06	                                            Average 1.504465
+ *
+ * Luck 13:
+ * Armor:       1:0.577462	2:0.248288	3:0.106766	4:0.0459098	    5:0.0197488	    6:0.00169662	7:0.00012125	8:7.551e-06	    9:4e-07	                                                Average 1.687811
+ * Elven Armor: 1:0.571437	2:0.245697	3:0.105655	4:0.0454326	    5:0.0195353	    6:0.00839446	7:0.0036141	    8:0.000221525	9:1.2295e-05	10:8.1e-08	                            Average 1.736753
+ * Weapon:      1:0.571208	2:0.245612	3:0.105629	4:0.0454136	    5:0.0195258	    6:0.00839673	7:0.0036099	    8:0.000518002	9:8.5108e-05	10:1.583e-06	11:2e-08	12:1e-09	Average 1.739179
+ * Ring:        1:0.552074	2:0.252107	3:0.120509	4:0.0511995	    5:0.0167925	    6:0.00563639	7:0.00144528	8:0.00021222	9:2.402e-05	                                            Average 1.752425
+ */
+int
+rnew(limit, armor, ring)
+int limit;
+boolean armor;
+boolean ring;
+{
+    boolean ok;
+    int tmp;
+    int check = 0;
+    int chance = (Luck * 10)+300;
+    if (ring) chance += 100;
+    do
+    {
+        ok = TRUE;
+        tmp = 1;
+        while (rn2(1000) < chance) {
+            check--;
+            if (tmp > limit) {
+                if (ring) {
+                    if (check >= 0)
+                        tmp++;
+                    else if (rn2(7) >= tmp) {
+                        check = rn2(3);
+                        tmp++;
+                    } else
+                        ok = FALSE;
+                }
+                else if (rn2(armor ? tmp : 3))
+                    ok = FALSE;
+                else if ((tmp < 9) || (!rn2(tmp)))
+                    tmp++;
+            } else
+                tmp++;
+        }
+        assert(tmp < 128);
+        assert(tmp > 0);
+    } while (!ok);
+
+    return tmp;
 }
 
 /* rnz: everyone's favorite! */

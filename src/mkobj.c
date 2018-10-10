@@ -792,7 +792,7 @@ boolean artif;
         case WEAPON_CLASS:
             otmp->quan = is_multigen(otmp) ? (long) rn1(6, 6) : 1L;
             if (!rn2(11)) {
-                otmp->spe = rne(3);
+                otmp->spe = rnew(6, FALSE, FALSE);
                 otmp->blessed = rn2(2);
             } else if (!rn2(10)) {
                 curse(otmp);
@@ -983,7 +983,7 @@ boolean artif;
             } else
                 blessorcurse(otmp, 10);
             if ((otmp->otyp == GORGET) && (!rn2(3))) {
-                otmp->spe = rne(3);
+                otmp->spe = rnew(4, TRUE, FALSE);
                 if (otmp->cursed)
                     otmp->spe = -otmp->spe;
             }
@@ -1013,7 +1013,7 @@ boolean artif;
                 otmp->spe = -rne(3);
             } else if (!rn2(10)) {
                 otmp->blessed = rn2(2);
-                otmp->spe = rne(3);
+                otmp->spe = rnew(is_elven_armor(otmp) ? 6 : 4, TRUE, FALSE);
             } else
                 blessorcurse(otmp, 10);
             if (artif && !rn2(40))
@@ -1043,10 +1043,11 @@ boolean artif;
             if (objects[otmp->otyp].oc_charged) {
                 blessorcurse(otmp, 3);
                 if (rn2(10)) {
+                    int rn = rnew(0, FALSE, TRUE);
                     if (rn2(10) && bcsign(otmp))
-                        otmp->spe = bcsign(otmp) * rne(3);
+                        otmp->spe = bcsign(otmp) * rn;
                     else
-                        otmp->spe = rn2(2) ? rne(3) : -rne(3);
+                        otmp->spe = rn2(2) ? rn : -rn;
                 }
                 /* make useless +0 rings much less common */
                 if (otmp->spe == 0)
