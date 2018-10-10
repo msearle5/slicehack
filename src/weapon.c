@@ -929,7 +929,7 @@ char *buf;
     case P_EXPERT:
         ptr = "Expert";
         break;
-    /* these are for unarmed combat/martial arts only */
+    /* these are for unarmed combat/martial arts/alchemy only */
     case P_MASTER:
         ptr = "Master";
         break;

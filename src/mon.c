@@ -1683,7 +1683,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
     md = mdef->data;
     /* supposedly purple worms are attracted to shrieking because they
        like to eat shriekers, so attack the latter when feasible */
-    if (ma == &mons[PM_PURPLE_WORM] && md == &mons[PM_SHRIEKER])
+    if ((ma == &mons[PM_PURPLE_WORM] || ma == &mons[PM_BABY_PURPLE_WORM]) && md == &mons[PM_SHRIEKER])
         return ALLOW_M | ALLOW_TM;
     /* Nephi's Grudge patch. */
 

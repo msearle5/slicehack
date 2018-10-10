@@ -1859,6 +1859,7 @@ polysense()
     HWarn_of_mon &= ~FROMRACE;
 
     switch (u.umonnum) {
+    case PM_BABY_PURPLE_WORM:
     case PM_PURPLE_WORM:
         warnidx = PM_SHRIEKER;
         break;
