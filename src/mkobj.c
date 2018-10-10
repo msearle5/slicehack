@@ -788,6 +788,9 @@ boolean artif;
     init_obj_material(otmp);
 
     if (init) {
+        boolean rustable = FALSE;
+        boolean erodable = FALSE;
+        boolean rustproofable = FALSE;
         switch (let) {
         case WEAPON_CLASS:
             otmp->quan = is_multigen(otmp) ? (long) rn1(6, 6) : 1L;
@@ -809,6 +812,9 @@ boolean artif;
                 && (otmp->spe + otmp->oerodeproof > rnd(5)))
                 otmp = weapon_oname(otmp);
 
+            rustable = TRUE;
+            erodable = TRUE;
+            rustproofable = TRUE;
             break;
         case FOOD_CLASS:
             otmp->oeaten = 0;
@@ -855,6 +861,7 @@ boolean artif;
                         }
                     }
                 blessorcurse(otmp, 10);
+                rustable = TRUE;
                 break;
             case SLIME_MOLD:
                 otmp->spe = context.current_fruit;
@@ -888,6 +895,7 @@ boolean artif;
                 otmp->quan = 1L;
             break;
         case TOOL_CLASS:
+            rustable = TRUE;
             switch (otmp->otyp) {
             case TALLOW_CANDLE:
             case WAX_CANDLE:
@@ -1004,6 +1012,9 @@ boolean artif;
             blessorcurse(otmp, 17);
             break;
         case ARMOR_CLASS:
+            rustable = TRUE;
+            erodable = TRUE;
+            rustproofable = TRUE;
             if (rn2(10)
                 && (otmp->otyp == FUMBLE_BOOTS
                     || otmp->otyp == LEVITATION_BOOTS
@@ -1079,8 +1090,27 @@ boolean artif;
                        objects[otmp->otyp].oc_class);
             return (struct obj *) 0;
         }
-    }
 
+        /* Based on the flags set above from object classes, determine whether
+         * the object is rusty, eroded in another way, or rustproofed.
+         * Weapons and armor can be rusty, corroded or rustproof.
+         * Tools and tins can be rusty. (This to prevent corroded oil lamps, etc.
+         * and rustproofing on items where it wouldn't make much sense)
+         * In any case, if the object is an artifact or already rustproof then
+         * it will not be made rusty or corroded. Only objects made of iron can
+         * be rusty, and only objects made of something damageable or glass
+         * (shatterable) can be eroded or proofed. It is possible to be both
+         * rusty and corroded - though the chance of getting corrosion is less
+         * (as there are less common causes).
+         */
+        if (rustable && is_rustprone(otmp) && (!otmp->oerodeproof) && (!otmp->oartifact) && (!rn2(40)))
+            otmp->oeroded = (rn2(2)) ? 1 : ((rn2(3) ? 2 : 3));
+        if (erodable && is_damageable(otmp) && (!otmp->oerodeproof) && (!otmp->oartifact) && (!rn2((otmp->oeroded ? 10 : 120))))
+            otmp->oeroded2 = (rn2(4)) ? 1 : ((rn2(6) ? 2 : 3));
+        if (rustproofable && (is_damageable(otmp) || (otmp->material == GLASS)) && (!otmp->oeroded) && (!otmp->oeroded2) && (!rn2(40)))
+            otmp->oerodeproof = TRUE;
+    }
+    
     /* some things must get done (corpsenm, timers) even if init = 0 */
     switch ((otmp->oclass == POTION_CLASS && otmp->otyp != POT_OIL)
             ? POT_WATER
