@@ -887,6 +887,11 @@ POTION("sickness",              "fizzy",  0, 0, 42,  50, CLR_CYAN),
 POTION("fruit juice",            "dark",  0, 0, 42,  50, CLR_BLACK),
 POTION("acid",                  "white",  0, 0, 10, 250, CLR_WHITE),
 POTION("oil",                   "murky",  0, 0, 20, 250, CLR_BROWN),
+POTION(None,               "iridescent", 0, 0,  0, 100, CLR_BRIGHT_CYAN),
+POTION(None,                   "creamy", 0, 0,  0, 100, CLR_WHITE),
+POTION(None,                    "thick", 0, 0,  0, 100, CLR_GREEN),
+POTION(None,                 "stinking", 0, 0,  0, 100, CLR_BROWN),
+POTION(None,                    "slimy", 0, 0,  0, 100, CLR_BRIGHT_GREEN),
 /* fixed description
  */
 POTION("water",                 "clear",  0, 0, 92, 100, CLR_CYAN),
@@ -1067,6 +1072,8 @@ SPELL("flame sphere",    "canvas",
       P_MATTER_SPELL,      10,  2, 1, 1, NODIR, CLR_BROWN),
 SPELL("freeze sphere",   "hardcover",
       P_MATTER_SPELL,      10,  2, 1, 1, NODIR, CLR_BROWN),
+SPELL(None,              "starry",
+      0,                    0,  0, 0, 1, NODIR, CLR_WHITE),
 /* books with fixed descriptions
  */
 SPELL("blank paper", "plain", P_NONE, 18, 0, 0, 0, 0, HI_PAPER),

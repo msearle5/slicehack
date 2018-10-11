@@ -103,6 +103,7 @@ stuffed raccoon puppet
 viking
 wee green blobbie
 wereplatypus
+locust
 wereshopkeeper
 hag of bolding
 blancmange
@@ -144,6 +145,8 @@ dishwasher
 antimatter fragment
 core warrior
 worm that remains stationary
+worm that talks
+worm that wiggles
 insulated eel
 really big rock
 scintillating serpent
@@ -153,6 +156,19 @@ ascii art
 exploding kitten
 crunchy frog
 pinch of catsbane
+violent gem
+samurai pizza cat
++Ignatz
+combinatorial explosion
+floatin' guy
+wish parser
+technical difficulty
+foocubus
+Lord of the Foocubi
+jabbermouth
+blatherwock
+ratpack
+pesky muskrat
 
 # Quendor (Zork, &c.)
 grue
@@ -345,6 +361,7 @@ hippogriff
 kelpie
 catoblepas
 trow
+chupacabras
 
 # Unusually animate body parts
 bouncing eye
@@ -458,6 +475,7 @@ MissingNo
 -M
 =Test0
 corrupted cream pie
+glitch
 
 # South Park
 manbearpig
