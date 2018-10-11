@@ -25,6 +25,29 @@ STATIC_DCL void FDECL(debug_fields, (const char *));
 static long prev_dgl_extrainfo = 0;
 #endif
 
+/* Cursed land mines - recurse into containers. Only one mine explodes. */
+boolean
+checklandmine(pobj)
+struct obj *pobj;
+{
+    if (pobj) {
+        if (Has_contents(pobj)) {
+            struct obj *cobj;
+            for(cobj = pobj->cobj; cobj; cobj = cobj->nobj) {
+                if (checklandmine(cobj))
+                    return TRUE;
+            }
+        } else if (pobj->otyp == LAND_MINE) {
+            pline("KABOOM! The cursed landmine explodes in your %s!",
+                                        pobj->ocontainer ? xname(pobj->ocontainer) : "pack");
+            explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
+            delobj(pobj);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 void
 moveloop(resuming)
 boolean resuming;
@@ -193,6 +216,13 @@ boolean resuming;
                     /********************************/
                     /* once-per-turn things go here */
                     /********************************/
+                    
+                    /* Cursed land mines are a bad idea to carry around */
+                    if (invent && !rn2(100)) {
+                        for(pobj = invent; pobj; pobj = pobj->nobj) {
+                            if (checklandmine(pobj)) break;
+                        }
+                    }
 
                     if (Glib)
                         glibr();
