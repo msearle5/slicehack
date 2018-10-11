@@ -164,7 +164,7 @@ curses_init_nhwindows(int *argcp, char **argv)
     counting = FALSE;
     curses_init_options();
     if ((term_rows < 15) || (term_cols < 40)) {
-        panic("Terminal too small.  Must be minumum 40 width and 15 height");
+        panic("Terminal too small.  Must be minimum 40 width and 15 height");
     }
 
     curses_create_main_windows();
