@@ -547,7 +547,7 @@ long wp_mask;
             pline("This weapon feels good in your hands.");
             EConflict |= wp_mask;
         } else {
-            You("Reluctantly relinquish the sword.");
+            You("reluctantly relinquish the sword.");
             EConflict &= ~wp_mask;
         }
     }
