@@ -3027,10 +3027,10 @@ static const struct icp metal_materials[] = {
  * that can hold a polish */
 static const struct icp shiny_materials[] = {
     {30, SILVER},
-    {20, COPPER},
+    {22, COPPER},
     {10, GOLD},
-    {10, IRON}, /* stainless steel */
-    {10, GLASS},
+    {12, IRON}, /* stainless steel */
+    {12, GLASS},
     { 7, MITHRIL},
     { 5, METAL}, /* aluminum, or similar */
     { 2, PLATINUM}
