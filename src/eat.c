@@ -1780,10 +1780,21 @@ struct obj *otmp;
                          && rn2(10)
                          && ((rotted < 1) ? TRUE : !rn2(rotted+1)));
         const char *pmxnam = food_xname(otmp, FALSE);
+        const char *yum;
 
         if (u.umonnum == PM_DWARF)
             if (!strcmp(mons[mnum].mname + strlen(mons[mnum].mname) - 3, "rat"))
                 yummy = TRUE;
+
+        yum = Hallucination
+                 ? (yummy ? ((u.umonnum == PM_TIGER) ? "gr-r-reat" : "gnarly")
+                          : palatable ? "copacetic" : "grody")
+                 : (yummy ? "delicious" : palatable ? "okay" : "terrible");
+
+        if (((mnum == PM_LONG_WORM) || (mnum == PM_BABY_LONG_WORM)) && palatable) {
+            yummy = TRUE;
+            yum = "spicy";
+        }
 
         if (!strncmpi(pmxnam, "the ", 4))
             pmxnam += 4;
@@ -1794,10 +1805,7 @@ struct obj *otmp;
               Hallucination ? "is" : "tastes",
                   /* tiger reference is to TV ads for "Frosted Flakes",
                      breakfast cereal targeted at kids by "Tony the tiger" */
-              Hallucination
-                 ? (yummy ? ((u.umonnum == PM_TIGER) ? "gr-r-reat" : "gnarly")
-                          : palatable ? "copacetic" : "grody")
-                 : (yummy ? "delicious" : palatable ? "okay" : "terrible"),
+              yum,
               (yummy || !palatable) ? '!' : '.');
     }
 
