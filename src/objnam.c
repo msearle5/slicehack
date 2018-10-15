@@ -1129,7 +1129,7 @@ unsigned doname_flags;
         && ((obj->otyp == BAG_OF_TRICKS)
              ? (obj->spe == 0 && !obj->known)
              /* not bag of tricks: empty if container which has no contents */
-             : ((Is_container(obj) || obj->otyp == STATUE)
+             : (((Is_container(obj) && obj->otyp != MAGIC_CHEST) || obj->otyp == STATUE)
                 && !Has_contents(obj))))
         Strcat(prefix, "empty ");
 
