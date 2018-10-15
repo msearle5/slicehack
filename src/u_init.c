@@ -244,6 +244,8 @@ static struct trobj Wishing[] = { { WAN_WISHING, 3, WAND_CLASS, 1, 0 },
                                   { 0, 0, 0, 0, 0 } };
 static struct trobj Money[] = { { GOLD_PIECE, 0, COIN_CLASS, 1, 0 },
                                 { 0, 0, 0, 0, 0 } };
+static struct trobj Gem[] = { { UNDEF_TYP, 0, GEM_CLASS, 1, 0 },
+                                { 0, 0, 0, 0, 0 } };
 
 /* race-based substitutions for initial inventory;
    the weaker cloak for elven rangers is intentional--they shoot better */
@@ -281,6 +283,10 @@ static struct inv_sub {
     { PM_DWARF, LEMBAS_WAFER, CRAM_RATION },
     { PM_GNOME, BOW, CROSSBOW },
     { PM_GNOME, ARROW, CROSSBOW_BOLT },
+    { PM_GIANT, HAWAIIAN_SHIRT, LOW_BOOTS },
+    { PM_GIANT, ROBE, LOW_BOOTS },
+    { PM_GIANT, RING_MAIL, HIGH_BOOTS },
+    { PM_GIANT, LIGHT_ARMOR, LOW_BOOTS },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -1138,6 +1144,16 @@ u_init()
         ini_inv(Barbarian);
         if (!rn2(6))
             ini_inv(Lamp);
+        if (Race_if(PM_GIANT)) {
+            while (!rn2(3)) {
+                struct trobj RandomGem = Gem[0];
+                int gem = rnd_class(TOPAZ, JADE);
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            }
+        }
         knows_class(WEAPON_CLASS);
         knows_class(ARMOR_CLASS);
         skill_init(Skill_B);
@@ -1145,6 +1161,16 @@ u_init()
     case PM_CAVEMAN:
         Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
         ini_inv(Cave_man);
+        if (Race_if(PM_GIANT)) {
+            while (!rn2(8)) {
+                struct trobj RandomGem = Gem[0];
+                int gem = rnd_class(TOPAZ, JADE);
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            }
+        }
         skill_init(Skill_C);
         break;
     case PM_CARTOMANCER:
@@ -1245,6 +1271,20 @@ u_init()
     case PM_TOURIST:
         Tourist[T_DARTS].trquan = rn1(20, 21);
         u.umoney0 = rnd(1000);
+        /* Giants get gems instead - worth a bit more, because of being harder to use */
+        if (Race_if(PM_GIANT)) {
+            u.umoney0 += 250;
+            struct trobj RandomGem = Gem[0];
+            do {
+                int gem = rnd_class(TOPAZ, JADE);
+                u.umoney0 -= objects[gem].oc_cost;
+                Gem[0] = RandomGem;
+                Gem[0].trotyp = gem;
+                ini_inv(Gem);
+                knows_object(gem);
+            } while (u.umoney0 >= 0);
+            u.umoney0 = 0;
+        }
         ini_inv(Tourist);
         if (!rn2(25))
             ini_inv(Tinopener);
@@ -1350,6 +1390,16 @@ u_init()
 
     case PM_MERFOLK:
     case PM_GNOME:
+        break;
+
+    case PM_GIANT:
+        /* you need more food */
+        if (!Role_if(PM_WIZARD))
+            ini_inv(Xtra_food);
+        /* Giants know valuable gems from glass, and may recognize a few types of valuable gem. */
+        for(i=DILITHIUM_CRYSTAL; i<=LUCKSTONE; i++)
+            if ((objects[i].oc_cost <= 1) || (rn2(100) < 5+ACURR(A_INT)))
+                knows_object(i);
         break;
 
     case PM_ORC:

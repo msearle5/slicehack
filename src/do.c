@@ -1212,7 +1212,7 @@ dodown()
     }
 
     if (trap) {
-        You("%s %s.", Flying ? "fly" : (climbable_trap(trap) ? "climb" : locomotion(youmonst.data, "jump")),
+        You("%s %s.", Flying ? "fly" : (climbable_trap(trap) ? "climb" : is_giant(youmonst.data) ? "squeeze" : locomotion(youmonst.data, "jump")),
             trap->ttyp == HOLE ? "down the hole" : "through the trap door");
         if (!Flying && !climbable_trap(trap)) {
 			losehp(Maybe_Half_Phys(rnd(4)+1),

@@ -301,7 +301,7 @@ dig(VOID_ARGS)
 
     context.digging.effort +=
         10 + rn2(5) + abon() + uwep->spe - greatest_erosion(uwep) + u.udaminc;
-    if (Race_if(PM_DWARF))
+    if (Race_if(PM_DWARF) || Race_if(PM_GIANT))
         context.digging.effort *= 2;
     if (uamul && (uamul->otyp == AMULET_VERSUS_STONE) && (!uamul->cursed))
         context.digging.effort *= (uamul->blessed) ? 3 : 2;

@@ -1439,17 +1439,19 @@ struct obj *weapon;
         }
     } else if (type == P_BARE_HANDED_COMBAT) {
         /*
-         *        b.h. m.a.
-         * unskl:   0  n/a
-         * basic:  +1   +3
-         * skild:  +1   +4
-         * exprt:  +2   +6
-         * mastr:  +2   +7
-         * grand:  +3   +9
+         *        b.h. m.a. giant b.h. m.a.
+         * unskl:   0  n/a         +2   +1
+         * basic:  +1   +3         +3   +4
+         * skild:  +1   +4         +3   +5
+         * exprt:  +2   +6         +4   +7
+         * mastr:  +2   +7         +4   +8
+         * grand:  +3   +9         +5   +10
          */
         bonus = P_SKILL(type);
         bonus = max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
         bonus = ((bonus + 1) * (martial_bonus() ? 3 : 1)) / 2;
+        if (Race_if(PM_GIANT))
+            bonus += martial_bonus() ? 1 : 2;
     }
 
     /* KMH -- Riding gives some thrusting damage */

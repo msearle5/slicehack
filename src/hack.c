@@ -3006,6 +3006,7 @@ int
 weight_cap()
 {
     long carrcap, save_ELev = ELevitation;
+    long maxcarrcap = MAX_CARR_CAP;
 
     /* boots take multiple turns to wear but any properties they
        confer are enabled at the start rather than the end; that
@@ -3017,10 +3018,13 @@ weight_cap()
     }
 
     carrcap = 25 * (ACURRSTR + ACURR(A_CON)) + 50;
-    if (Upolyd) {
+    if (is_giant(youmonst.data)) {
+        carrcap += 100;
+        maxcarrcap += 400;
+    } else if (Upolyd) {
         /* consistent with can_carry() in mon.c */
         if (youmonst.data->mlet == S_NYMPH)
-            carrcap = MAX_CARR_CAP;
+            carrcap = maxcarrcap;
         else if (!youmonst.data->cwt)
             carrcap = (carrcap * (long) youmonst.data->msize) / MZ_HUMAN;
         else if (!strongmonst(youmonst.data)
@@ -3031,10 +3035,10 @@ weight_cap()
 
     if (Levitation || Is_airlevel(&u.uz) /* pugh@cornell */
         || (u.usteed && strongmonst(u.usteed->data))) {
-        carrcap = MAX_CARR_CAP;
+        carrcap = maxcarrcap;
     } else {
-        if (carrcap > MAX_CARR_CAP)
-            carrcap = MAX_CARR_CAP;
+        if (carrcap > maxcarrcap)
+            carrcap = maxcarrcap;
         if (!Flying) {
             if (EWounded_legs & LEFT_SIDE)
                 carrcap -= 100;

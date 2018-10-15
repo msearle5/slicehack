@@ -105,7 +105,7 @@ E struct obj *FDECL(has_magic_key, (struct monst *));
 /* ### attrib.c ### */
 
 E boolean FDECL(adjattrib, (int, int, int));
-E void FDECL(gainstr, (struct obj *, int, BOOLEAN_P));
+E boolean FDECL(gainstr, (struct obj *, int, BOOLEAN_P));
 E void FDECL(losestr, (int));
 E void FDECL(loseint, (int));
 E void FDECL(poisontell, (int, BOOLEAN_P));

@@ -94,7 +94,7 @@ const struct Role roles[] = {
       S_OGRE,
       S_TROLL,
       ART_HEART_OF_AHRIMAN,
-      MH_HUMAN | MH_ORC | MH_DEMON | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL
+      MH_HUMAN | MH_ORC | MH_DEMON | MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
@@ -136,7 +136,7 @@ const struct Role roles[] = {
       S_HUMANOID,
       S_GIANT,
       ART_SCEPTRE_OF_MIGHT,
-      MH_HUMAN | MH_DWARF | MH_GNOME | ROLE_MALE | ROLE_FEMALE
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_GIANT | ROLE_MALE | ROLE_FEMALE
           | ROLE_LAWFUL | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 7, 7, 8, 6 },
@@ -343,7 +343,7 @@ const struct Role roles[] = {
       S_ELEMENTAL,
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
+      MH_HUMAN | MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 10, 7, 8, 8, 7, 7 },
@@ -602,7 +602,7 @@ const struct Role roles[] = {
       S_SPIDER,
       S_CENTAUR,
       ART_YENDORIAN_EXPRESS_CARD,
-      MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
+      MH_HUMAN | MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL,
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 6, 7, 7, 10 },
       { 15, 10, 10, 15, 30, 20 },
@@ -1022,6 +1022,27 @@ const struct Race races[] = {
         /* Init   Lower  Higher */
         { 2, 0, 0, 2, 1, 0 }, /* Hit points */
         { 1, 0, 2, 0, 2, 0 }  /* Energy */
+    },
+    {
+        "giant",
+        "giant",
+        "giant-kind",
+        "Gia",
+        { 0, 0 },
+        PM_GIANT,
+        NON_PM,
+        PM_GIANT_MUMMY,
+        PM_GIANT_ZOMBIE,
+        MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NEUTRAL,
+        MH_GIANT,
+        MH_GIANT,
+        0,
+        /*  Str    Int Wis Dex Con Cha */
+        { 3, 3, 3, 3, 3, 3 },
+        { STR19(25), 14, 18, 14, 25, 16 },
+        /* Init   Lower  Higher */
+        { 5, 0, 1, 3, 3, 0 }, /* Hit points */
+        { 1, 0, 1, 0, 1, 0 }  /* Energy */
     },
     /* Array terminator */
     { }

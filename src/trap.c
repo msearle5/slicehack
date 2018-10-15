@@ -508,6 +508,19 @@ boolean td; /* td == TRUE : trap door or hole */
         dont_fall = "don't fall in.";
     } else if (youmonst.data->msize >= MZ_HUGE) {
         dont_fall = "don't fit through.";
+        /* This is mainly a hint for the sake of giant players trying to get
+         * past the Castle and finding that they can't just fall through.
+         * That actually makes it easier for giants, but not if they thought
+         * it was a bug and gave up there!
+         *
+         * It does apply to polymorphed giants and traps elsewhere, but it's
+         * reasonable enough - it's too much of a tight squeeze to accidentally
+         * fall down, and not every MZ_HUGE monster could do it, only those
+         * which are humanoid and so capable of climbing.
+         */
+        if (is_giant(youmonst.data)) {
+            dont_fall = "don't fall, but you could climb down.";
+        }
     } else if (!next_to_u()) {
         dont_fall = "are jerked back by your pet!";
     }
@@ -1465,7 +1478,7 @@ unsigned trflags;
 
         /* Time stuck in the web depends on your/steed strength. */
         {
-            register int str = ACURR(A_STR);
+            register int str = is_giant(youmonst.data) ? 125 : ACURR(A_STR);
 
             /* If mounted, the steed gets trapped.  Use mintrap
              * to do all the work.  If mtrapped is set as a result,

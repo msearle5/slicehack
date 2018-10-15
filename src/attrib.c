@@ -125,6 +125,12 @@ static const struct innate {
                  { 1, &HPoison_resistance, "", "" },
                  { 0, 0, 0, 0 } },
 
+  gia_abil[] = { { 1, &HAggravate_monster, "", "" },
+                 { 1, &HHunger, "", "" },
+                 { 12, &HRegeneration, "resilient",
+                                            "less resilient" },
+                 { 0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -155,6 +161,9 @@ int msgflg; /* positive => no message, zero => message, and */
     old_acurr = ACURR(ndx);
     old_abase = ABASE(ndx);
     if (incr > 0) {
+        /* Avoid overflow */
+        while ((ABASE(ndx) + incr) >= 128)
+            incr--;
         ABASE(ndx) += incr;
         if (ABASE(ndx) > AMAX(ndx)) {
             incr = ABASE(ndx) - AMAX(ndx);
@@ -197,7 +206,7 @@ int msgflg; /* positive => no message, zero => message, and */
     return TRUE;
 }
 
-void
+boolean
 gainstr(otmp, incr, givemsg)
 struct obj *otmp;
 int incr;
@@ -205,15 +214,19 @@ boolean givemsg;
 {
     int num = incr;
 
-    if (!num) {
+    if ((!num) || ((Race_if(PM_GIANT)) && (!(otmp && otmp->cursed)))) {
         if (ABASE(A_STR) < 18)
             num = (rn2(4) ? 1 : rnd(6));
         else if (ABASE(A_STR) < STR18(85))
             num = rnd(10);
         else
             num = 1;
+        if (Race_if(PM_GIANT) && (ABASE(A_STR) < STR18(100)))
+            num += d(2,2);
+        if ((ABASE(A_STR) < STR18(100)) && (ABASE(A_STR)+num > STR18(100)))
+            num = STR18(100) - ABASE(A_STR);
     }
-    (void) adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
+    return adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num,
                      givemsg ? -1 : 1);
 }
 
@@ -648,8 +661,18 @@ register int np;
 
     for (i = 0; i < A_MAX; i++) {
         ABASE(i) = AMAX(i) = urole.attrbase[i];
+        /* If the minimum role stat exceeds the maximum race stat
+         * (e.g. Giant Barbarian: Giant has max 14 dex, B has min 15)
+         * reduce it. This is not an off-by-one error: it intentionally
+         * goes one further to give more variety (i.e. Giant Barbarians
+         * don't always have 14 DEX, but may also have 13.)
+         */
+        while (ABASE(i) >= ATTRMAX(i)) {
+            ABASE(i)--;
+            AMAX(i)--;
+        }
         ATEMP(i) = ATIME(i) = 0;
-        np -= urole.attrbase[i];
+        np -= ABASE(i);
     }
 
     tryct = 0;
@@ -779,6 +802,9 @@ long frommask;
             break;
         case PM_ORC:
             abil = orc_abil;
+            break;
+        case PM_GIANT:
+            abil = gia_abil;
             break;
         case PM_HUMAN_WEREWOLF:
         case PM_HUMAN:
@@ -976,6 +1002,9 @@ int oldlevel, newlevel;
     case PM_ORC:
         rabil = orc_abil;
         break;
+    case PM_GIANT:
+        rabil = gia_abil;
+        break;
     case PM_HUMAN_WEREWOLF:
     case PM_HUMAN:
     case PM_DWARF:
@@ -996,28 +1025,30 @@ int oldlevel, newlevel;
             mask = FROMRACE;
         }
         prevabil = *(abil->ability);
-        if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
-            /* Abilities gained at level 1 can never be lost
-             * via level loss, only via means that remove _any_
-             * sort of ability.  A "gain" of such an ability from
-             * an outside source is devoid of meaning, so we set
-             * FROMOUTSIDE to avoid such gains.
-             */
-            if (abil->ulevel == 1)
-                *(abil->ability) |= (mask | FROMOUTSIDE);
-            else
-                *(abil->ability) |= mask;
-            if (!(*(abil->ability) & INTRINSIC & ~mask)) {
-                if (*(abil->gainstr))
-                    You_feel("%s!", abil->gainstr);
-            }
-        } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
-            *(abil->ability) &= ~mask;
-            if (!(*(abil->ability) & INTRINSIC)) {
-                if (*(abil->losestr))
-                    You_feel("%s!", abil->losestr);
-                else if (*(abil->gainstr))
-                    You_feel("less %s!", abil->gainstr);
+        if (!(Race_if(PM_GIANT) && (abil->ability == &HStealth))) {
+            if (oldlevel < abil->ulevel && newlevel >= abil->ulevel) {
+                /* Abilities gained at level 1 can never be lost
+                 * via level loss, only via means that remove _any_
+                 * sort of ability.  A "gain" of such an ability from
+                 * an outside source is devoid of meaning, so we set
+                 * FROMOUTSIDE to avoid such gains.
+                 */
+                if (abil->ulevel == 1)
+                    *(abil->ability) |= (mask | FROMOUTSIDE);
+                else
+                    *(abil->ability) |= mask;
+                if (!(*(abil->ability) & INTRINSIC & ~mask)) {
+                    if (*(abil->gainstr))
+                        You_feel("%s!", abil->gainstr);
+                }
+            } else if (oldlevel >= abil->ulevel && newlevel < abil->ulevel) {
+                *(abil->ability) &= ~mask;
+                if (!(*(abil->ability) & INTRINSIC)) {
+                    if (*(abil->losestr))
+                        You_feel("%s!", abil->losestr);
+                    else if (*(abil->gainstr))
+                        You_feel("less %s!", abil->gainstr);
+                }
             }
         }
         if (prevabil != *(abil->ability)) /* it changed */
