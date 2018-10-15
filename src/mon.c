@@ -2302,6 +2302,7 @@ register struct monst *magr;
             mtmp->cham = tmp;
         mtmp->mcanmove = 1;
         mtmp->mfrozen = 0;
+        mtmp->mpeaceful = mtmp->mtame = FALSE;
         newsym(mtmp->mx, mtmp->my);
         return;
     }
