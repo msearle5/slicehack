@@ -71,43 +71,49 @@ static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
  * order to have the values be meaningful.
  */
 
-#define TROUBLE_STONED 15
-#define TROUBLE_SLIMED 14
-#define TROUBLE_STRANGLED 13
-#define TROUBLE_LAVA 12
-#define TROUBLE_SICK 11
-#define TROUBLE_STARVING 10
-#define TROUBLE_REGION 9 /* stinking cloud */
-#define TROUBLE_SURROUNDED 8
-#define TROUBLE_HIT 7
-#define TROUBLE_LYCANTHROPE 6
-#define TROUBLE_COLLAPSING 5
-#define TROUBLE_STUCK_IN_WALL 4
-#define TROUBLE_CURSED_LEVITATION 3
-#define TROUBLE_UNUSEABLE_HANDS 2
-#define TROUBLE_CURSED_BLINDFOLD 1
+#define TROUBLE_STONED 16
+#define TROUBLE_SLIMED 15
+#define TROUBLE_STRANGLED 14
+#define TROUBLE_LAVA 13
+#define TROUBLE_SICK 12
+#define TROUBLE_STARVING 11
+#define TROUBLE_REGION 10 /* stinking cloud */
+#define TROUBLE_SURROUNDED 9
+#define TROUBLE_HIT_CRITICAL 8
+#define TROUBLE_LYCANTHROPE 7
+#define TROUBLE_COLLAPSING 6
+#define TROUBLE_STUCK_IN_WALL 5
+#define TROUBLE_CURSED_LEVITATION 4
+#define TROUBLE_UNUSEABLE_HANDS 3
+#define TROUBLE_CURSED_BLINDFOLD 2
+#define TROUBLE_HIT_MAJOR 1
 
-#define TROUBLE_PUNISHED (-1)
-#define TROUBLE_FUMBLING (-2)
-#define TROUBLE_CURSED_ITEMS (-3)
-#define TROUBLE_SADDLE (-4)
-#define TROUBLE_BLIND (-5)
-#define TROUBLE_POISONED (-6)
-#define TROUBLE_WOUNDED_LEGS (-7)
-#define TROUBLE_HUNGRY (-8)
-#define TROUBLE_STUNNED (-9)
-#define TROUBLE_CONFUSED (-10)
-#define TROUBLE_HALLUCINATION (-11)
+#define TROUBLE_HIT_MID (-1)
+#define TROUBLE_PUNISHED (-2)
+#define TROUBLE_FUMBLING (-3)
+#define TROUBLE_CURSED_ITEMS (-4)
+#define TROUBLE_SADDLE (-5)
+#define TROUBLE_HIT_MINOR (-6)
+#define TROUBLE_BLIND (-7)
+#define TROUBLE_POISONED (-8)
+#define TROUBLE_WOUNDED_LEGS (-9)
+#define TROUBLE_HUNGRY (-10)
+#define TROUBLE_STUNNED (-11)
+#define TROUBLE_CONFUSED (-12)
+#define TROUBLE_HALLUCINATION (-13)
 
 
 #define ugod_is_angry() (u.ualign.record < 0)
 #define on_altar() IS_ALTAR(levl[u.ux][u.uy].typ)
 #define on_shrine() ((levl[u.ux][u.uy].altarmask & AM_SHRINE) != 0)
 
-/* critically low hit points if hp <= 5 or hp <= maxhp/N for some N */
+/* critically low hit points if hp <= 5 or hp <= maxhp/N for some N.
+ * uses a multiplier for less critical levels
+ **/
 boolean
-critically_low_hp(only_if_injured)
+critically_low_hp(only_if_injured, multiplier)
 boolean only_if_injured; /* determines whether maxhp <= 5 matters */
+int multiplier;
 {
     int divisor, hplim, curhp = Upolyd ? u.mh : u.uhp,
                         maxhp = Upolyd ? u.mhmax : u.uhpmax;
@@ -121,30 +127,13 @@ boolean only_if_injured; /* determines whether maxhp <= 5 matters */
     hplim = 15 * u.ulevel;
     if (maxhp > hplim)
         maxhp = hplim;
-    /* 7 used to be the unconditional divisor */
-    switch (xlev_to_rank(u.ulevel)) { /* maps 1..30 into 0..8 */
-    case 0:
-    case 1:
-        divisor = 5;
-        break; /* explvl 1 to 5 */
-    case 2:
-    case 3:
-        divisor = 6;
-        break; /* explvl 6 to 13 */
-    case 4:
-    case 5:
-        divisor = 7;
-        break; /* explvl 14 to 21 */
-    case 6:
-    case 7:
-        divisor = 8;
-        break; /* explvl 22 to 29 */
-    default:
-        divisor = 9;
-        break; /* explvl 30+ */
-    }
+    /* 7 used to be the unconditional divisor - these are multiplied by 2,
+     * i.e. pass multiplier = 2 to get something similar to the original
+     * behaviour
+     **/
+    divisor = 10 + xlev_to_rank(u.ulevel);
     /* 5 is a magic number in TROUBLE_HIT handling below */
-    return (boolean) (curhp <= 5 || curhp * divisor <= maxhp);
+    return (boolean) (curhp <= 5 || curhp * divisor <= maxhp * multiplier);
 }
 
 /* return True if surrounded by impassible rock, regardless of the state
@@ -402,9 +391,9 @@ in_trouble()
     if (region_danger())
         return TROUBLE_REGION;
     if (surrounded())
-		return TROUBLE_SURROUNDED;
-    if (critically_low_hp(FALSE))
-        return TROUBLE_HIT;
+        return TROUBLE_SURROUNDED;
+    if (critically_low_hp(FALSE, 2))
+        return TROUBLE_HIT_CRITICAL;
     if (u.ulycn >= LOW_PM)
         return TROUBLE_LYCANTHROPE;
     if (near_capacity() >= EXT_ENCUMBER && AMAX(A_STR) - ABASE(A_STR) > 3)
@@ -427,10 +416,14 @@ in_trouble()
     }
     if (Blindfolded && ublindf->cursed)
         return TROUBLE_CURSED_BLINDFOLD;
+    if (critically_low_hp(FALSE, 3))
+        return TROUBLE_HIT_MAJOR;
 
     /*
      * minor troubles
      */
+    if (critically_low_hp(FALSE, 5))
+        return TROUBLE_HIT_MID;
     if (Punished || (u.utrap && u.utraptype == TT_BURIEDBALL))
         return TROUBLE_PUNISHED;
     if (Cursed_obj(uarmg, GAUNTLETS_OF_FUMBLING)
@@ -443,6 +436,8 @@ in_trouble()
         if (Cursed_obj(otmp, SADDLE))
             return TROUBLE_SADDLE;
     }
+    if (critically_low_hp(FALSE, 6))
+        return TROUBLE_HIT_MINOR;
 
     if (Blinded > 1 && haseyes(youmonst.data)
         && (!u.uswallow
@@ -576,9 +571,9 @@ int trouble;
         break;
     case TROUBLE_SURROUNDED:
 		safe_teleds(FALSE);
-		if (!critically_low_hp(FALSE)) break;
+		if (!critically_low_hp(FALSE, 2)) break;
 		/*FALLTHRU*/
-    case TROUBLE_HIT:
+    case TROUBLE_HIT_CRITICAL:
         /* "fix all troubles" will keep trying if hero has
            5 or less hit points, so make sure they're always
            boosted to be more than that */
@@ -2197,10 +2192,10 @@ dopray()
     if (wizard && p_type >= 0) {
         if (yn("Force the gods to be pleased?") == 'y') {
             u.ublesscnt = 0;
-            if (u.uluck < 0)
-                u.uluck = 0;
-            if (u.ualign.record <= 0)
-                u.ualign.record = 1;
+            if (u.uluck < 13)
+                u.uluck = 13;
+            if (u.ualign.record <= 20)
+                u.ualign.record = 21;
             u.ugangr = 0;
             if (p_type < 2)
                 p_type = 3;

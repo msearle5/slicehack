@@ -1998,7 +1998,7 @@ E const char *NDECL(bottlename);
 
 /* ### pray.c ### */
 
-E boolean FDECL(critically_low_hp, (BOOLEAN_P));
+E boolean FDECL(critically_low_hp, (BOOLEAN_P, int));
 E boolean NDECL(stuck_in_wall);
 E int NDECL(scrollpray);
 #ifdef USE_TRAMPOLI
