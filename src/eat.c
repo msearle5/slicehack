@@ -16,7 +16,6 @@ STATIC_PTR int NDECL(unfaint);
 STATIC_DCL const char *FDECL(food_xname, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(choke, (struct obj *));
 STATIC_DCL void NDECL(recalc_wt);
-STATIC_DCL unsigned FDECL(obj_nutrition, (struct obj *));
 STATIC_DCL struct obj *FDECL(touchfood, (struct obj *));
 STATIC_DCL void NDECL(do_reset_eat);
 STATIC_DCL void FDECL(done_eating, (BOOLEAN_P));
@@ -44,15 +43,6 @@ char msgbuf[BUFSZ];
 
 /* also used to see if you're allowed to eat cats and dogs */
 #define CANNIBAL_ALLOWED() (Role_if(PM_CAVEMAN) || Race_if(PM_ORC))
-
-/* monster types that cause hero to be turned into stone if eaten */
-#define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
-
-/* Rider corpses are treated as non-rotting so that attempting to eat one
-   will be sure to reach the stage of eating where that meal is fatal */
-#define nonrotting_corpse(mnum) \
-    ((mnum) == PM_LIZARD || (mnum) == PM_LICHEN || \
-     (mnum) == PM_LEGENDARY_LICHEN || is_rider(&mons[mnum]))
 
 /* non-rotting non-corpses; unlike lizard corpses, these items will behave
    as if rotten if they are cursed (fortune cookies handled elsewhere) */
@@ -310,7 +300,7 @@ reset_eat()
 }
 
 /* base nutrition of a food-class object */
-STATIC_OVL unsigned
+unsigned
 obj_nutrition(otmp)
 struct obj *otmp;
 {
@@ -645,6 +635,21 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
     return result;
 }
 
+boolean
+is_cannibal(pm)
+int pm;
+{
+    struct permonst *fptr = &mons[pm]; /* food type */
+    return (!CANNIBAL_ALLOWED()
+        /* non-cannibalistic heroes shouldn't eat own species ever
+           and also shouldn't eat current species when polymorphed
+           (even if having the form of something which doesn't care
+           about cannibalism--hero's innate traits aren't altered) */
+        && (your_race(fptr)
+            || (Upolyd && same_race(youmonst.data, fptr))
+            || (u.ulycn >= LOW_PM && were_beastie(pm) == u.ulycn)));
+}
+
 /* eating a corpse or egg of one's own species is usually naughty */
 STATIC_OVL boolean
 maybe_cannibal(pm, allowmsg)
@@ -652,7 +657,6 @@ int pm;
 boolean allowmsg;
 {
     static NEARDATA long ate_brains = 0L;
-    struct permonst *fptr = &mons[pm]; /* food type */
 
     /* when poly'd into a mind flayer, multiple tentacle hits in one
        turn cause multiple digestion checks to occur; avoid giving
@@ -661,21 +665,34 @@ boolean allowmsg;
         return FALSE;
     ate_brains = moves; /* ate_anything, not just brains... */
 
-    if (!CANNIBAL_ALLOWED()
-        /* non-cannibalistic heroes shouldn't eat own species ever
-           and also shouldn't eat current species when polymorphed
-           (even if having the form of something which doesn't care
-           about cannibalism--hero's innate traits aren't altered) */
-        && (your_race(fptr)
-            || (Upolyd && same_race(youmonst.data, fptr))
-            || (u.ulycn >= LOW_PM && were_beastie(pm) == u.ulycn))) {
+    if (is_cannibal(pm)) {
         if (allowmsg) {
-            if (Upolyd && your_race(fptr))
+            if (Upolyd && your_race(&mons[pm]))
                 You("have a bad feeling deep inside.");
             You("cannibal!  You will regret this!");
         }
         HAggravate_monster |= FROMOUTSIDE;
         change_luck(-rn1(4, 2)); /* -5..-2 */
+        return TRUE;
+    }
+    return FALSE;
+}
+
+boolean is_inedible_pet(pm)
+int pm;
+{
+    /* cannibals are allowed to eat domestic animals without penalty */
+    if (!CANNIBAL_ALLOWED()) return FALSE;
+    switch (pm) {
+    case PM_LITTLE_DOG:
+    case PM_DOG:
+    case PM_LARGE_DOG:
+    case PM_KITTEN:
+    case PM_HOUSECAT:
+    case PM_LARGE_CAT:
+    case PM_LITTLE_BIRD:
+    /*case PM_FALCON:
+    case PM_GIANT_FALCON:*/
         return TRUE;
     }
     return FALSE;
@@ -700,22 +717,12 @@ register int pm;
         }
     }
 
+    if (is_inedible_pet(pm)) {
+        You_feel("that eating the %s was a bad idea.", mons[pm].mname);
+        HAggravate_monster |= FROMOUTSIDE;
+    }
+
     switch (pm) {
-    case PM_LITTLE_DOG:
-    case PM_DOG:
-    case PM_LARGE_DOG:
-    case PM_KITTEN:
-    case PM_HOUSECAT:
-    case PM_LARGE_CAT:
-    case PM_LITTLE_BIRD:
-    /*case PM_FALCON:
-    case PM_GIANT_FALCON:*/
-        /* cannibals are allowed to eat domestic animals without penalty */
-        if (!CANNIBAL_ALLOWED()) {
-            You_feel("that eating the %s was a bad idea.", mons[pm].mname);
-            HAggravate_monster |= FROMOUTSIDE;
-        }
-        break;
     case PM_LIZARD:
         if (Stoned)
             fix_petrification();
@@ -2886,6 +2893,47 @@ bite()
     force_save_hs = FALSE;
     recalc_wt();
     return 0;
+}
+
+/* Rate of increase of hunger in points per 20 turns.
+ * Based on gethungry() - should remain in sync
+ **/
+int
+hungerrate()
+{
+    int rate = 0;
+
+    if (u.uinvulnerable)
+        return 0; /* you don't feel hungrier */
+
+    /* being polymorphed into a creature which doesn't eat prevents
+       this first uhunger decrement, but to stay in such form the hero
+       will need to wear an Amulet of Unchanging so still burn a small
+       amount of nutrition in the 'moves % 20' ring/amulet check below */
+    if ((carnivorous(youmonst.data)
+            || herbivorous(youmonst.data)
+            || metallivorous(youmonst.data)) && !Slow_digestion)
+        rate = (Unaware ? 2 : 20);
+        /* ordinary food consumption - slow metabolic rate while asleep */
+
+    if ((HRegeneration & ~FROMFORM)
+            || (ERegeneration & ~(W_ARTI | W_WEP)))
+        rate += 10;
+    if (near_capacity() > SLT_ENCUMBER)
+        rate += 10;
+    if (Hunger)
+        rate += 10;
+    if (HConflict || (EConflict & (~W_ARTI)))
+        rate += 10;
+    if (uleft && (uleft->spe || !objects[uleft->otyp].oc_charged))
+        rate++;
+    if (uamul)
+        rate++;
+    if (uright && (uright->spe || !objects[uright->otyp].oc_charged))
+        rate++;
+    if (u.uhave.amulet)
+        rate++;
+    return rate;
 }
 
 /* as time goes by - called by moveloop(every move) & domove(melee attack) */

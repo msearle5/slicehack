@@ -178,6 +178,12 @@
 #define is_rider(ptr)                                      \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
+/* Rider corpses are treated as non-rotting so that attempting to eat one
+   will be sure to reach the stage of eating where that meal is fatal */
+#define nonrotting_corpse(mnum) \
+    ((mnum) == PM_LIZARD || (mnum) == PM_LICHEN || \
+     (mnum) == PM_LEGENDARY_LICHEN || is_rider(&mons[mnum]))
+
 #define is_silver(ptr) \
     ((ptr) == &mons[PM_SILVER_GOLEM])
 #define is_placeholder(ptr)                             \
@@ -212,6 +218,9 @@
 
 #define touch_petrifies(ptr) \
     ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE])
+
+/* monster types that cause hero to be turned into stone if eaten */
+#define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
 
 #define is_mind_flayer(ptr) \
     ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \

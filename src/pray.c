@@ -172,6 +172,156 @@ stuck_in_wall()
     return (count == 8) ? TRUE : FALSE;
 }
 
+/* see starving(), below */
+STATIC_OVL long
+starvingCount(otmp, food, hiddenfood, toplevel)
+struct obj *otmp;
+long *food;
+long *hiddenfood;
+boolean toplevel;
+{
+    long value = 0;
+    if (otmp->oclass == FOOD_CLASS) {
+        switch(otmp->otyp) {
+            case TIN:
+            case EGG:
+            case TRIPE_RATION:
+            case PINCH_OF_CATNIP:
+            case CLOVE_OF_GARLIC:
+            case SPRIG_OF_WOLFSBANE:
+            case EUCALYPTUS_LEAF:
+                /* ignore */
+                break;
+            case GLOB_OF_GRAY_OOZE:
+            case GLOB_OF_BROWN_PUDDING:
+            case GLOB_OF_GREEN_SLIME:
+            case GLOB_OF_BLACK_PUDDING:
+            case CORPSE: {
+                int pm = otmp->corpsenm;
+                if (otmp->otyp == GLOB_OF_GRAY_OOZE)
+                    pm = PM_GRAY_OOZE;
+                if (otmp->otyp == GLOB_OF_BROWN_PUDDING)
+                    pm = PM_BROWN_PUDDING;
+                if (otmp->otyp == GLOB_OF_GREEN_SLIME)
+                    pm = PM_GREEN_SLIME;
+                if (otmp->otyp == GLOB_OF_BLACK_PUDDING)
+                    pm = PM_BLACK_PUDDING;
+
+                /* Not if it is slime */
+                if ((pm == PM_GREEN_SLIME) &&
+                    (!Unchanging && !slimeproof(youmonst.data)))
+                    break;
+
+                /* or petrifying */
+                if ((flesh_petrifies(&mons[pm])) && !Stone_resistance)
+                    break;
+
+                /* or poisonous */
+                if (poisonous(&mons[pm]) && !Poison_resistance)
+                    break;
+
+                /* or acidic */
+                if (acidic(&mons[pm]) && !Acid_resistance && (u.uhp > 15))
+                    break;
+
+                /* or a lizard */
+                if (pm == PM_LIZARD)
+                    break;
+
+                /* or tainted - you don't know this precisely, not just because you haven't
+                 * counted moves but because there is a random check in eatcorpse(). So use
+                 * a five-second rule - based on the eatcorpse() code but non-random, and
+                 * assuming the worst case if BUC is unknown. (This is the usual case, in
+                 * which case you have 20 moves.)
+                 **/
+                if (!nonrotting_corpse(pm) && !Sick_resistance) {
+                    long age = peek_at_iced_corpse_age(otmp);
+                    int rotted = (monstermoves - age) / 10L;
+                    if (otmp->bknown) {
+                        if (otmp->cursed)
+                            rotted += 2L;
+                        else if (otmp->blessed)
+                            rotted -= 2L;
+                    } else
+                        rotted += 2L;
+                    if (rotted > 3L)
+                        break;
+                }
+
+                /* or cannibal / domestic animal */
+                if (is_cannibal(pm) || is_inedible_pet(pm))
+                    break;
+                /* fall thru */
+            }
+            default:
+                value = obj_nutrition(otmp);
+        }
+    } else if (Has_contents(otmp)) {
+        struct obj *ot;
+        for (ot = otmp->cobj; ot; ot = ot->nobj)
+            starvingCount(ot, &food, &hiddenfood, FALSE);
+    }
+    if (toplevel)
+        *food += value;
+    else
+        *hiddenfood += value;
+}
+
+/* Are you starving of the hunger?
+ * If you are at HUNGRY or better, then no.
+ *
+ * Otherwise, see if you are carrying anything edible in open inventory.
+ * Check carried containers, too - but not if you can't get into them.
+ *
+ * Tins don't count (because there is a delay before eating which may be too much).
+ * Tripe doesn't count, as it may make you sick.
+ * Corpses may count, but not if they are old (being cautious here), poisonous (if
+ * you don't resist), stoning, sliming, acidic (if low HP), cannibal/domestic...
+ * Globs count, but like corpses not if they are sliming or acidic.
+ * Eggs don't count as you don't generally know if they are cockatrice eggs.
+ *
+ * This may be too generous - although it doesn't make much difference as none of
+ * these items have much food value - but lizards, eucalyptus leaves, catnip,
+ * wolfsbane and garlic shouldn't be considered food items.
+ *
+ * Currently it only cares about food. It could and would be more accurate to also
+ * count potions of fruit juice, (charged, identified) horns of plenty, etc.
+ *
+ * Some foods have very little food value, so if the total is below a certain amount
+ * (in estimated turns) this counts as effectively none (returns true).
+ */
+boolean
+starving()
+{
+    long food = 0;
+    long hiddenfood = 0;
+    long rate;
+    struct obj *otmp;
+
+    if (u.uhs < WEAK) return FALSE;
+
+    /* Recursively descend into containers to find food. Returns two counts for
+     * food in open inventory (food) and food in containers (hiddenfood)
+     */
+    for (otmp = invent; otmp; otmp = otmp->nobj)
+        starvingCount(otmp, &food, &hiddenfood, TRUE);
+
+    /* Include food in containers if containers are accessible to you */
+    if (!(nohands(youmonst.data) || !freehand()))
+        food += hiddenfood;
+
+    /* Convert to turns, based on the hunger rate. */
+    rate = hungerrate();
+    if (rate <= 1) rate = 1;
+    food /= rate;
+
+    /* You are 'starving' if you have less than the equivalent of a fortune cookie
+     * (scales from 40 to 2 as the hunger rate is per 20 turns) which is the least
+     * nutritious common (randomly generated) non-perishable foodstuff.
+     */
+    return (food < 2);
+}
+
 /* Return true if surrounded by monsters (or wall). 
  * Checks up to 4 grids away, but grids further away are worth less.
  * Intended to catch both being trapped in a tight space by 1 or 2 monsters,
@@ -247,7 +397,7 @@ in_trouble()
         return TROUBLE_LAVA;
     if (Sick)
         return TROUBLE_SICK;
-    if (u.uhs >= WEAK)
+    if (starving())
         return TROUBLE_STARVING;
     if (region_danger())
         return TROUBLE_REGION;
