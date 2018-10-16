@@ -2245,10 +2245,10 @@ int otyp;
         }
 
         /* leaders don't tolerate inferior quality battle gear */
-        if (is_prince(mtmp->data)) {
-            if (otmp->oclass == WEAPON_CLASS && otmp->spe < 1)
-                otmp->spe = 1;
-            else if (otmp->oclass == ARMOR_CLASS && otmp->spe < 0)
+        if (is_prince(mtmp->data) || is_lord(mtmp->data)) {
+            if (otmp->oclass == WEAPON_CLASS && otmp->spe < is_prince(mtmp->data))
+                otmp->spe = is_prince(mtmp->data);
+            if (otmp->oclass == ARMOR_CLASS && otmp->spe < 0)
                 otmp->spe = 0;
         }
 
