@@ -76,7 +76,7 @@ E boolean FDECL(restrict_name, (struct obj *, const char *));
 E boolean FDECL(defends, (int, struct obj *));
 E boolean FDECL(defends_when_carried, (int, struct obj *));
 E boolean FDECL(protects, (struct obj *, BOOLEAN_P));
-E void FDECL(set_artifact_intrinsic, (struct obj *, BOOLEAN_P, long));
+E void FDECL(set_artifact_intrinsic, (struct obj *, BOOLEAN_P, long, boolean));
 E int FDECL(touch_artifact, (struct obj *, struct monst *));
 E int FDECL(spec_abon, (struct obj *, struct monst *));
 E int FDECL(spec_dbon, (struct obj *, struct monst *, int));
@@ -2845,6 +2845,7 @@ E void FDECL(set_ulycn, (int));
 
 /* ### wield.c ### */
 
+E void FDECL(do_setuwep, (struct obj *, boolean));
 E void FDECL(setuwep, (struct obj *));
 E void FDECL(setuqwep, (struct obj *));
 E void FDECL(setuswapwep, (struct obj *));
@@ -2939,7 +2940,7 @@ E int FDECL(wseg_at, (struct monst *, int, int));
 
 /* ### worn.c ### */
 
-E void FDECL(setworn, (struct obj *, long));
+E void FDECL(setworn, (struct obj *, long, boolean));
 E void FDECL(setnotworn, (struct obj *));
 E struct obj *FDECL(wearmask_to_obj, (long));
 E long FDECL(wearslot, (struct obj *));

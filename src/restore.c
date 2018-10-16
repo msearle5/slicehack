@@ -634,7 +634,7 @@ unsigned int *stuckid, *steedid;
     if (tmp_bc) {
         for (otmp = tmp_bc; otmp; otmp = otmp->nobj) {
             if (otmp->owornmask)
-                setworn(otmp, otmp->owornmask);
+                setworn(otmp, otmp->owornmask, TRUE);
         }
         if (!uball || !uchain)
             impossible("restgamestate: lost ball & chain");
@@ -653,19 +653,19 @@ unsigned int *stuckid, *steedid;
     defer_see_monsters = TRUE;
 
     /* this comes after inventory has been loaded */
+
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (otmp->owornmask)
-            setworn(otmp, otmp->owornmask);
+            setworn(otmp, otmp->owornmask, TRUE);
     /* reset weapon so that player will get a reminder about "bashing"
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
        applied or wielded it, so be conservative and assume the former */
     otmp = uwep;   /* `uwep' usually init'd by setworn() in loop above */
     uwep = 0;      /* clear it and have setuwep() reinit */
-    setuwep(otmp); /* (don't need any null check here) */
+    do_setuwep(otmp, TRUE); /* (don't need any null check here) */
     if (!uwep || uwep->otyp == PICK_AXE || uwep->otyp == GRAPPLING_HOOK)
         unweapon = TRUE;
-
     restore_dungeon(fd);
     restlevchn(fd);
     mread(fd, (genericptr_t) &moves, sizeof moves);
@@ -929,7 +929,7 @@ register int fd;
     /* take care of iron ball & chain */
     for (otmp = fobj; otmp; otmp = otmp->nobj)
         if (otmp->owornmask)
-            setworn(otmp, otmp->owornmask);
+            setworn(otmp, otmp->owornmask, TRUE);
 
     /* in_use processing must be after:
      *    + The inventory has been read so that freeinv() works.

@@ -1203,7 +1203,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             obj = addinv(obj);
             (void) encumber_msg();
             if (wep_mask && !(obj->owornmask & wep_mask)) {
-                setworn(obj, wep_mask);
+                setworn(obj, wep_mask, FALSE);
                 u.twoweap = twoweap;
             }
             thrownobj = (struct obj *) 0;
@@ -2172,7 +2172,7 @@ struct obj* obj;
             if (obj == uwep) {
                 unweapon = TRUE;
             }
-            setworn(NULL, unwornmask);
+            setworn(NULL, unwornmask, FALSE);
         }
         update_inventory();
     }

@@ -1712,21 +1712,21 @@ register struct trobj *trop;
 
         if (obj->oclass == ARMOR_CLASS) {
             if (is_shield(obj) && !uarms) {
-                setworn(obj, W_ARMS);
+                setworn(obj, W_ARMS, TRUE);
                 if (uswapwep)
                     setuswapwep((struct obj *) 0);
             } else if (is_helmet(obj) && !uarmh)
-                setworn(obj, W_ARMH);
+                setworn(obj, W_ARMH, TRUE);
             else if (is_gloves(obj) && !uarmg)
-                setworn(obj, W_ARMG);
+                setworn(obj, W_ARMG, TRUE);
             else if (is_shirt(obj) && !uarmu)
-                setworn(obj, W_ARMU);
+                setworn(obj, W_ARMU, TRUE);
             else if (is_cloak(obj) && !uarmc)
-                setworn(obj, W_ARMC);
+                setworn(obj, W_ARMC, TRUE);
             else if (is_boots(obj) && !uarmf)
-                setworn(obj, W_ARMF);
+                setworn(obj, W_ARMF, TRUE);
             else if (is_suit(obj) && !uarm)
-                setworn(obj, W_ARM);
+                setworn(obj, W_ARM, TRUE);
         }
 
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)

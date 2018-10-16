@@ -729,7 +729,7 @@ struct obj **potmp, **pobj;
             }
             if ((otmp->owornmask & ~wmask) != 0L)
                 setnotworn(otmp);
-            setworn(otmp, wmask);
+            setworn(otmp, wmask, FALSE);
             setnotworn(obj);
 #if 0
         /* (this should not be necessary, since items
@@ -815,7 +815,7 @@ struct obj *obj;
             		u.ukinghill = TRUE;
              }
         }
-        set_artifact_intrinsic(obj, 1, W_ART);
+        set_artifact_intrinsic(obj, 1, W_ART, FALSE);
     }
 
     /* "special achievements" aren't discoverable during play, they
@@ -1107,7 +1107,7 @@ struct obj *obj;
         if(obj->oartifact == ART_TREASURY_OF_PROTEUS){
         		u.ukinghill = FALSE;
         }
-        set_artifact_intrinsic(obj, 0, W_ART);
+        set_artifact_intrinsic(obj, 0, W_ART, FALSE);
     }
 
     if (obj->otyp == LOADSTONE) {

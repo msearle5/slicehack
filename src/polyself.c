@@ -935,7 +935,7 @@ break_armor()
                 You("seep right through your shirt!");
             else
                 You("become much too small for your shirt!");
-            setworn((struct obj *) 0, otmp->owornmask & W_ARMU);
+            setworn((struct obj *) 0, otmp->owornmask & W_ARMU, FALSE);
             dropx(otmp);
         }
     }

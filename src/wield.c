@@ -66,6 +66,13 @@ STATIC_DCL int FDECL(ready_weapon, (struct obj *));
     ((optr)->cursed && (erodeable_wep(optr) || (optr)->otyp == TIN_OPENER))
 
 /*** Functions that place a given item in a slot ***/
+void
+setuwep(obj)
+register struct obj *obj;
+{
+    do_setuwep(obj, FALSE);
+}
+
 /* Proper usage includes:
  * 1.  Initializing the slot during character generation or a
  *     restore.
@@ -81,8 +88,9 @@ STATIC_DCL int FDECL(ready_weapon, (struct obj *));
  * to print the appropriate messages.
  */
 void
-setuwep(obj)
+do_setuwep(obj, quiet)
 register struct obj *obj;
+boolean quiet;
 {
     struct obj *olduwep = uwep;
 
@@ -91,7 +99,7 @@ register struct obj *obj;
     /* This message isn't printed in the caller because it happens
      * *whenever* Sunsword is unwielded, from whatever cause.
      */
-    setworn(obj, W_WEP);
+    setworn(obj, W_WEP, quiet);
     if (uwep == obj && artifact_light(olduwep) && olduwep->lamplit) {
         end_burn(olduwep, FALSE);
         if (!Blind)
@@ -229,7 +237,7 @@ void
 setuqwep(obj)
 register struct obj *obj;
 {
-    setworn(obj, W_QUIVER);
+    setworn(obj, W_QUIVER, FALSE);
     /* no extra handling needed; this used to include a call to
        update_inventory() but that's already performed by setworn() */
     return;
@@ -239,7 +247,7 @@ void
 setuswapwep(obj)
 register struct obj *obj;
 {
-    setworn(obj, W_SWAPWEP);
+    setworn(obj, W_SWAPWEP, FALSE);
     return;
 }
 
@@ -680,7 +688,7 @@ uwepgone()
             if (!Blind)
                 pline("%s shining.", Tobjnam(uwep, "stop"));
         }
-        setworn((struct obj *) 0, W_WEP);
+        setworn((struct obj *) 0, W_WEP, TRUE);
         unweapon = TRUE;
         update_inventory();
     }
@@ -690,7 +698,7 @@ void
 uswapwepgone()
 {
     if (uswapwep) {
-        setworn((struct obj *) 0, W_SWAPWEP);
+        setworn((struct obj *) 0, W_SWAPWEP, TRUE);
         update_inventory();
     }
 }
@@ -699,7 +707,7 @@ void
 uqwepgone()
 {
     if (uquiver) {
-        setworn((struct obj *) 0, W_QUIVER);
+        setworn((struct obj *) 0, W_QUIVER, TRUE);
         update_inventory();
     }
 }

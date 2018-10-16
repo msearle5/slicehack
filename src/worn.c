@@ -46,9 +46,10 @@ const struct worn {
 
 /* Updated to use the extrinsic and blocked fields. */
 void
-setworn(obj, mask)
+setworn(obj, mask, quiet)
 register struct obj *obj;
 long mask;
+boolean quiet;
 {
     register const struct worn *wp;
     register struct obj *oobj;
@@ -79,7 +80,7 @@ long mask;
                         if ((p = w_blocks(oobj, mask)) != 0)
                             u.uprops[p].blocked &= ~wp->w_mask;
                         if (oobj->oartifact)
-                            set_artifact_intrinsic(oobj, 0, mask);
+                            set_artifact_intrinsic(oobj, 0, mask, quiet);
                     }
                     /* in case wearing or removal is in progress or removal
                        is pending (via 'A' command for multiple items) */
@@ -103,7 +104,7 @@ long mask;
                                 u.uprops[p].blocked |= wp->w_mask;
                         }
                         if (obj->oartifact)
-                            set_artifact_intrinsic(obj, 1, mask);
+                            set_artifact_intrinsic(obj, 1, mask, quiet);
                     }
                 }
             }
@@ -135,7 +136,7 @@ register struct obj *obj;
             u.uprops[p].extrinsic = u.uprops[p].extrinsic & ~wp->w_mask;
             obj->owornmask &= ~wp->w_mask;
             if (obj->oartifact)
-                set_artifact_intrinsic(obj, 0, wp->w_mask);
+                set_artifact_intrinsic(obj, 0, wp->w_mask, FALSE);
             if ((p = w_blocks(obj, wp->w_mask)) != 0)
                 u.uprops[p].blocked &= ~wp->w_mask;
         }

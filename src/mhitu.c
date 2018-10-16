@@ -2837,22 +2837,22 @@ struct monst *mon;
                 pline("%s puts %s on your right %s.",
                       Blind ? "He" : Monnam(mon), the(xname(ring)),
                       body_part(HAND));
-                setworn(ring, RIGHT_RING);
+                setworn(ring, RIGHT_RING, FALSE);
             } else if (!uleft) {
                 pline("%s puts %s on your left %s.",
                       Blind ? "He" : Monnam(mon), the(xname(ring)),
                       body_part(HAND));
-                setworn(ring, LEFT_RING);
+                setworn(ring, LEFT_RING, FALSE);
             } else if (uright && uright->otyp != RIN_ADORNMENT) {
                 pline("%s replaces %s with %s.", Blind ? "He" : Monnam(mon),
                       yname(uright), yname(ring));
                 Ring_gone(uright);
-                setworn(ring, RIGHT_RING);
+                setworn(ring, RIGHT_RING, FALSE);
             } else if (uleft && uleft->otyp != RIN_ADORNMENT) {
                 pline("%s replaces %s with %s.", Blind ? "He" : Monnam(mon),
                       yname(uleft), yname(ring));
                 Ring_gone(uleft);
-                setworn(ring, LEFT_RING);
+                setworn(ring, LEFT_RING, FALSE);
             } else
                 impossible("ring replacement");
             Ring_on(ring);

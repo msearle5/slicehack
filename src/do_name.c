@@ -1367,7 +1367,7 @@ const char *name;
             untwoweapon();
         /* activate warning if you've just named your weapon "Sting" */
         if (obj == uwep)
-            set_artifact_intrinsic(obj, TRUE, W_WEP);
+            set_artifact_intrinsic(obj, TRUE, W_WEP, FALSE);
         /* if obj is owned by a shop, increase your bill */
         if (obj->unpaid)
             alter_cost(obj, 0L);

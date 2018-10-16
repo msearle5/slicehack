@@ -467,10 +467,11 @@ boolean being_worn;
  * unworn/unwielded/dropped.  Pickup/drop only set/reset the W_ART mask.
  */
 void
-set_artifact_intrinsic(otmp, on, wp_mask)
+set_artifact_intrinsic(otmp, on, wp_mask, quiet)
 struct obj *otmp;
 boolean on;
 long wp_mask;
+boolean quiet;
 {
     long *mask = 0;
     register const struct artifact *art, *oart = get_artifact(otmp);
@@ -545,10 +546,10 @@ long wp_mask;
     }
     if (spfx & SPFX_CONFLICT) {
         if (on) {
-            pline("This weapon feels good in your hands.");
+            if (!quiet) pline("This weapon feels good in your hands.");
             EConflict |= wp_mask;
         } else {
-            You("reluctantly relinquish the sword.");
+            if (!quiet) You("reluctantly relinquish the sword.");
             EConflict &= ~wp_mask;
         }
     }
@@ -561,7 +562,7 @@ long wp_mask;
          */
         if (u.uroleplay.hallu) {
             u.uroleplay.hallu = FALSE;
-            pline("The world no longer makes any sense to you!");
+            if (!quiet) pline("The world no longer makes any sense to you!");
         }
         (void) make_hallucinated((long) !on, restoring ? FALSE : TRUE,
                                  wp_mask);

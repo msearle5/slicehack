@@ -620,8 +620,10 @@ int curse_bless;
             if (is_on)
                 Ring_off(obj);
             obj->spe += s; /* update the ring while it's off */
-            if (is_on)
-                setworn(obj, mask), Ring_on(obj);
+            if (is_on) {
+                setworn(obj, mask, FALSE);
+                Ring_on(obj);
+            }
             /* oartifact: if a touch-sensitive artifact ring is
                ever created the above will need to be revised  */
             /* update shop bill to reflect new higher price */
@@ -1222,7 +1224,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (s >= 0 && Is_dragon_scales(otmp)) {
             /* dragon scales get turned into dragon scale mail */
             pline("%s merges and hardens!", Yname2(otmp));
-            setworn((struct obj *) 0, W_ARM);
+            setworn((struct obj *) 0, W_ARM, FALSE);
             /* assumes same order */
             otmp->otyp += GRAY_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALES;
             if (sblessed) {
@@ -1232,7 +1234,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             } else if (otmp->cursed)
                 uncurse(otmp);
             otmp->known = 1;
-            setworn(otmp, W_ARM);
+            setworn(otmp, W_ARM, FALSE);
             if (otmp->unpaid)
                 alter_cost(otmp, 0L); /* shop bill */
             break;
@@ -2691,11 +2693,11 @@ struct obj *sobj;
         }
         return;
     }
-    setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
+    setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN, FALSE);
     if (!reuse_ball)
-        setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+        setworn(mkobj(BALL_CLASS, TRUE), W_BALL, FALSE);
     else
-        setworn(reuse_ball, W_BALL);
+        setworn(reuse_ball, W_BALL, FALSE);
     uball->spe = 1; /* special ball (see save) */
 
     /*
@@ -2718,10 +2720,10 @@ unpunish()
 
     obj_extract_self(uchain);
     newsym(uchain->ox, uchain->oy);
-    setworn((struct obj *) 0, W_CHAIN);
+    setworn((struct obj *) 0, W_CHAIN, FALSE);
     dealloc_obj(savechain);
     uball->spe = 0;
-    setworn((struct obj *) 0, W_BALL);
+    setworn((struct obj *) 0, W_BALL, FALSE);
 }
 
 /* some creatures have special data structures that only make sense in their

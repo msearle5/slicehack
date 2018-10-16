@@ -225,7 +225,7 @@ boolean unchain_ball; /* whether to unpunish or just unwield */
             (void) Shirt_off();
         /* catchall -- should never happen */
         else
-            setworn((struct obj *) 0, obj->owornmask & W_ARMOR);
+            setworn((struct obj *) 0, obj->owornmask & W_ARMOR, TRUE);
     } else if (obj->owornmask & W_AMUL) {
         Amulet_off();
     } else if (obj->owornmask & W_RING) {

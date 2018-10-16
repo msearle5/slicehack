@@ -1639,7 +1639,7 @@ int id;
             } else if ((new_wornmask & W_QUIVER) != 0L) {
                 setuqwep(otmp);
             } else if (new_wornmask) {
-                setworn(otmp, new_wornmask);
+                setworn(otmp, new_wornmask, FALSE);
                 /* set_wear() might result in otmp being destroyed if
                    worn amulet has been turned into an amulet of change */
                 set_wear(otmp);

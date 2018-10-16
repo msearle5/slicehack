@@ -213,7 +213,7 @@ Boots_off(VOID_ARGS)
     /* For levitation, float_down() returns if Levitation, so we
      * must do a setworn() _before_ the levitation case.
      */
-    setworn((struct obj *) 0, W_ARMF);
+    setworn((struct obj *) 0, W_ARMF, FALSE);
     switch (otyp) {
     case SPEED_BOOTS:
         if (!Very_fast && !context.takeoff.cancelled_don) {
@@ -336,7 +336,7 @@ Cloak_off(VOID_ARGS)
 
     context.takeoff.mask &= ~W_ARMC;
     /* For mummy wrapping, taking it off first resets `Invisible'. */
-    setworn((struct obj *) 0, W_ARMC);
+    setworn((struct obj *) 0, W_ARMC, FALSE);
     switch (otyp) {
     case ORCISH_CLOAK:
     case DWARVISH_CLOAK:
@@ -475,7 +475,7 @@ Helmet_off(VOID_ARGS)
         break;
     case HELM_OF_TELEPATHY:
         /* need to update ability before calling see_monsters() */
-        setworn((struct obj *) 0, W_ARMH);
+        setworn((struct obj *) 0, W_ARMH, FALSE);
         see_monsters();
         return 0;
     case HELM_OF_BRILLIANCE:
@@ -491,7 +491,7 @@ Helmet_off(VOID_ARGS)
     default:
         impossible(unknown_type, c_helmet, uarmh->otyp);
     }
-    setworn((struct obj *) 0, W_ARMH);
+    setworn((struct obj *) 0, W_ARMH, FALSE);
     context.takeoff.cancelled_don = FALSE;
     return 0;
 }
@@ -578,7 +578,7 @@ Gloves_off(VOID_ARGS)
     default:
         impossible(unknown_type, c_gloves, uarmg->otyp);
     }
-    setworn((struct obj *) 0, W_ARMG);
+    setworn((struct obj *) 0, W_ARMG, FALSE);
     context.takeoff.cancelled_don = FALSE;
     (void) encumber_msg(); /* immediate feedback for GoP */
 
@@ -642,7 +642,7 @@ Shield_off(VOID_ARGS)
         impossible(unknown_type, c_shield, uarms->otyp);
     }
 
-    setworn((struct obj *) 0, W_ARMS);
+    setworn((struct obj *) 0, W_ARMS, FALSE);
     return 0;
 }
 
@@ -681,7 +681,7 @@ Shirt_off(VOID_ARGS)
         impossible(unknown_type, c_shirt, uarmu->otyp);
     }
 
-    setworn((struct obj *) 0, W_ARMU);
+    setworn((struct obj *) 0, W_ARMU, FALSE);
     return 0;
 }
 
@@ -700,7 +700,7 @@ int
 Armor_off(VOID_ARGS)
 {
     context.takeoff.mask &= ~W_ARM;
-    setworn((struct obj *) 0, W_ARM);
+    setworn((struct obj *) 0, W_ARM, FALSE);
     context.takeoff.cancelled_don = FALSE;
     return 0;
 }
@@ -812,7 +812,7 @@ Amulet_off()
     switch (uamul->otyp) {
     case AMULET_OF_ESP:
         /* need to update ability before calling see_monsters() */
-        setworn((struct obj *) 0, W_AMUL);
+        setworn((struct obj *) 0, W_AMUL, FALSE);
         see_monsters();
         return;
     case AMULET_OF_LIFE_SAVING:
@@ -828,7 +828,7 @@ Amulet_off()
         if (Underwater) {
             /* HMagical_breathing must be set off
                 before calling drown() */
-            setworn((struct obj *) 0, W_AMUL);
+            setworn((struct obj *) 0, W_AMUL, FALSE);
             if (!breathless(youmonst.data) && !amphibious(youmonst.data)
                 && !Swimming) {
                 You("suddenly inhale an unhealthy amount of %s!",
@@ -849,7 +849,7 @@ Amulet_off()
         }
         break;
     case AMULET_OF_RESTFUL_SLEEP:
-        setworn((struct obj *) 0, W_AMUL);
+        setworn((struct obj *) 0, W_AMUL, FALSE);
         /* HSleepy = 0L; -- avoid clobbering FROMOUTSIDE bit */
         if (!ESleepy && !(HSleepy & ~TIMEOUT))
             HSleepy &= ~TIMEOUT; /* clear timeout bits */
@@ -860,7 +860,7 @@ Amulet_off()
     case AMULET_OF_YENDOR:
         break;
     }
-    setworn((struct obj *) 0, W_AMUL);
+    setworn((struct obj *) 0, W_AMUL, FALSE);
     return;
 }
 
@@ -1031,7 +1031,7 @@ boolean gone;
     if (gone)
         setnotworn(obj);
     else
-        setworn((struct obj *) 0, obj->owornmask);
+        setworn((struct obj *) 0, obj->owornmask, FALSE);
 
     switch (obj->otyp) {
     case RIN_TELEPORTATION:
@@ -1155,7 +1155,7 @@ register struct obj *otmp;
     if (otmp->owornmask & W_WEAPON)
         remove_worn_item(otmp, FALSE);
 
-    setworn(otmp, W_TOOL);
+    setworn(otmp, W_TOOL, FALSE);
     on_msg(otmp);
 
     if (Blind && !already_blind) {
@@ -1201,7 +1201,7 @@ register struct obj *otmp;
         return;
     }
     context.takeoff.mask &= ~W_TOOL;
-    setworn((struct obj *) 0, otmp->owornmask);
+    setworn((struct obj *) 0, otmp->owornmask, FALSE);
     off_msg(otmp);
 
     if (Blind) {
@@ -1660,7 +1660,7 @@ register struct obj *otmp;
         else if (is_shield(otmp))
             (void) Shield_off();
         else
-            setworn((struct obj *) 0, otmp->owornmask & W_ARMOR);
+            setworn((struct obj *) 0, otmp->owornmask & W_ARMOR, FALSE);
         off_msg(otmp);
     }
     context.takeoff.mask = context.takeoff.what = 0L;
@@ -2003,7 +2003,7 @@ struct obj *obj;
         /* if the armor is wielded, release it for wearing */
         if (obj->owornmask & W_WEAPON)
             remove_worn_item(obj, FALSE);
-        setworn(obj, mask);
+        setworn(obj, mask, FALSE);
         delay = -objects[obj->otyp].oc_delay;
         if (delay) {
             nomul(delay);
@@ -2032,11 +2032,11 @@ struct obj *obj;
 
         /* [releasing wielded accessory handled in Xxx_on()] */
         if (ring) {
-            setworn(obj, mask);
+            setworn(obj, mask, FALSE);
             Ring_on(obj);
             give_feedback = TRUE;
         } else if (obj->oclass == AMULET_CLASS) {
-            setworn(obj, W_AMUL);
+            setworn(obj, W_AMUL, FALSE);
             Amulet_on();
             /* no feedback here if amulet of change got used up */
             give_feedback = (uamul != 0);
