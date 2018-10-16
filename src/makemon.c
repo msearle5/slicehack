@@ -2252,6 +2252,14 @@ int otyp;
                 otmp->spe = 0;
         }
 
+        /* it is silly for merfolk to drop a trident on death which
+         * immediately rusts when it hits the water.
+         */
+        if ((mtmp->data->mflags1 & M1_AMPHIBIOUS) && (otmp->material == IRON)) {
+            otmp->oeroded = otmp->oeroded2 = 0;
+            otmp->oerodeproof = TRUE;
+        }
+
         spe = otmp->spe;
         (void) mpickobj(mtmp, otmp); /* might free otmp */
         return spe;
