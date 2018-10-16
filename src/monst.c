@@ -2256,7 +2256,7 @@ struct permonst _mons2[] = {
          0, HI_LORD),
     MON("Failure Eidolon", S_QUANTMECH, LVL(20, 5, -3, 40, 0),
         (G_UNIQ | G_NOGEN | G_NOCORPSE),
-        A(ATTK(AT_NONE, AD_COLD, 3, 4), ATTK(AT_CLAW, AD_TLPT, 3, 4),
+        A(ATTK(AT_NONE, AD_COLD, 3, 4), ATTK(AT_CLAW, AD_CURS, 0, 0),
           ATTK(AT_CLAW, AD_PHYS, 3, 4), ATTK(AT_TUCH, AD_COLD, 2, 4),
           NO_ATTK, NO_ATTK),
         SIZ(3000, 2500, MS_SILENT, MZ_GIGANTIC), MR_POISON | MR_COLD, MR_COLD,
