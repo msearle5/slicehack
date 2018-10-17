@@ -3489,8 +3489,11 @@ int threat;
     case STONED:
         return (boolean) (mndx >= LOW_PM
                           && (mndx == PM_LIZARD || acidic(&mons[mndx])));
-    /* no tins can cure these (yet?) */
+    /* polymorph into a fiery monster */
     case SLIMED:
+        return (boolean) (mndx >= LOW_PM
+                          && (mndx == PM_CHAMELEON));
+    /* no tins can cure these (yet?) */
     case SICK:
     case VOMITING:
         break;
