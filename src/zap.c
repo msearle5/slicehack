@@ -2113,7 +2113,11 @@ int
 zappable(wand)
 register struct obj *wand;
 {
-    if (wand->spe < 0 || (wand->spe == 0 && rn2(50)))
+    /* Chance of wresting the charge is 1/250 for the first attempt,
+     * 2/250 for the second etc. - giving cumulative probabilities of
+     * 1, 3, 6, 10 etc. and an average time of ~15 attempts.
+     */
+    if (wand->spe < 0 || (wand->spe == 0 && (rn2(250) > wand->ovar1++)))
         return 0;
     if (wand->spe == 0)
         You("wrest one last charge from the worn-out wand.");
