@@ -766,6 +766,7 @@ register int amount;
              multiple ? "fuse, and become" : "is");
         uwep->otyp = CRYSKNIFE;
         uwep->oerodeproof = 0;
+        uwep->material = MINERAL;
         if (multiple) {
             uwep->quan = 1L;
             uwep->owt = weight(uwep);
@@ -788,6 +789,7 @@ register int amount;
         costly_alteration(uwep, COST_DEGRD); /* DECHNT? other? */
         uwep->otyp = WORM_TOOTH;
         uwep->oerodeproof = 0;
+        uwep->material = BONE;
         if (multiple) {
             uwep->quan = 1L;
             uwep->owt = weight(uwep);
