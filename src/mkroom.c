@@ -276,11 +276,32 @@ int x,y;
     struct monst *mon = makemon(&mons[pm], x, y, NO_MM_FLAGS);
 
     if (mon) {
+        struct obj *obj;
+        int mat;
         mon->msleeping = 1;
         mon->mpeaceful = 0;
         set_malign(mon);
         /* Give him a sceptre to pound in judgment */
-        (void) mongets(mon, MACE);
+        switch(rn2(15)) {
+            case 0:
+            mat = PLATINUM;
+            break;
+            case 1:
+            mat = MITHRIL;
+            break;
+            case 2:
+            case 3:
+            case 4:
+            mat = GOLD;
+            break;
+            default:
+            mat = SILVER;
+        }
+        obj = mksobj(rn2(2) ? MACE : ORNATE_MACE, TRUE, FALSE);
+        if (obj) {
+            set_material(obj, mat);
+            (void) mpickobj(mon, obj);
+        }
     }
 }
 
