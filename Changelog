@@ -3,6 +3,140 @@
 This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
+********************************************************************************
+*	Release 0.2.0 'Hill Giant'
+
+	The big stuff:
+*	Literally. You can now play as a giant.
+	Giants have lots of HP, and their maximum strength and constitution is
+	25. They have increased carrying capacity. (+100 to capacity, with the
+	cap increased to 1400 - that can only be reached with strength and
+	constitution maximized, though.) They can also wield a two-handed
+	weapon as if it were one-handed. They are not intended as "easy mode",
+	though - set against these advantages they are slow (10, vs. normal
+	12), have poor dexterity, intelligence and charisma and no shirt,
+	armor or cloak slot. This limits AC and makes it difficult to get MR
+	and reflection - especially for the Barbarian whose quest artifact
+	doesn't provide MR. They also have intrinsic hunger and aggravate
+	monster, and can't gain stealth from leveling up. (Other sources do
+	work.)
+
+	They can be Neutral or Chaotic, and play as Barbarian, Caveman, Monk
+	or Tourist.
+
+	Giants know something about gems - they can all distinguish glass from
+	valuable gems and use an uncursed touchstone as if blessed. Most can
+	also recognize a few types of gem. Barbarians may also have brought a
+	treasure with them, Cavemen might have found a pretty rock and
+	Tourists bring no cash but a larger pile of gems. (Monks are above
+	such baubles.)
+
+	They can lug boulders around and throw them, and are more effective
+	with their favourite weapon - a club - or in unarmed combat, in which
+	they have an increased chance to stun their opponent. They are more
+	likely to shatter their opponent's weapon with a lucky strike. They
+	can't however become very effective with bows, crossbows or slings
+	(there is no multishot bonus from skill).
+
+	Kicking down doors, digging, tearing through webs and general feats
+	of strength are easier for a giant. Because much of the strength
+	gain in a typical game is through eating giant corpses which is now
+	taboo - and because it would be silly if a giant typically had less
+	strength than a human at the same stage of the game - giants gain
+	more from the other sources of strength gain.
+
+
+* Praying for food has now been made smarter.
+	The previous behaviour was to treat any prayer while Weak or worse
+	as a serious trouble. It will now first check your inventory for
+	food (and your bags, if they are accessible to you) and if there is
+	a significant amount you will be expected to eat that first.
+
+	Many exceptions are made - for tins (because of the delay), tripe
+	(which might make you sick), eggs (which might be cockatrice), and
+	items which are not intended as food (catnip, garlic, wolfsbane,
+	eucalyptus, lizards). Corpses and globs are only considered if they
+	won't do anything too nasty (stone, slime, poison, acid if low HP,
+	domestic animal, cannibalism, or tainted).
+
+	Minor features:
+*	Failure Eidolon is scarier. Failure Eidolon had a teleporting attack, which was
+		useless as the level was no teleport. Replaced it with a gremlin style
+		intrinsic stealing attack.
+*	Potions of hallucination may grant enlightenment (1/2 if blessed, 1/5 uncursed).
+*	Throne room kings' sceptres are of precious metal, annd may be ornate.
+*	Store rooms: a special room with a few boxes and random items, and some rats.
+*	You can get Sting by killing a spider in melee with an elven dagger.
+*	Wrest wish chances have been tweaked - it starts low but increases. (the idea
+		being to both reduce tediosity and reduce the chance of accidental wresting)
+*	Add a case to Popeye for chameleon meat vs. sliming (because it is reasonable to
+		eat a tin of deep fried chameleon to stop sliming, intending to turn into
+		a fiery monster. Even without poly control - it would be a slim chance but
+		might be the only possibility.)
+*	Lords as well as princes get quality arms - though to a lesser extent.
+*	Merfolk equipment is rustproof. Merfolk were dropping tridents which rusted when
+		they hit the water. This looks silly, so they have been made rustproof.
+*	Long worms taste spicy.
+*	Cursed landmines can randomly explode.
+*	Hallucinatory monsters, randomized names, etc.
+*	Artifact generation chance now depends on Luck, and Pirates get more.
+
+	Bug fixes:
+*	Weights for items with changed materials fixed (e.g. wood golems producing
+		things that were wooden, but had the weight of a different material
+		because they were first generated in that material and then changed to
+		be wood without changing the weight). This fixes corrosion also.
+*	When enchanting a worm tooth or reverting a crysknife, the material should change.
+*	Fix artifact messages (such as you get when wielding War's Sword) being seen
+		twice on restore - they now don't show up at all when restoring.
+*	There are no glass or plastic mattocks (previously this applied only to pickaxes).
+*	Fix "wooden shield of reflection" (shiny_materials had less than 100%).
+*	Zombies created by a zombiemaker's attack now become hostile.
+*	Magic chests are not described as being empty (their contents is unknown)
+*	Compile warning fixes, typos, etc.
+
+********************************************************************************
+*	Release 0.1.1 'Horseshoe Amulet'
+
+	Major changes:
+*	Reading a scroll of enchant armor while not wearing any armor has
+		these effects:
+
+		Blessed             As the spell "protection" cast d3 times as expert
+		Uncursed            As the spell "protection" cast once at low skill
+		Cursed              Nothing
+		Blessed confused    As a blessed potion of restore ability
+		Uncursed confused   As an uncursed potion of restore ability
+		Cursed confused     Lose 1 point of a random stat
+
+		The existing abuse (cursed) or exercise (otherwise) of CON and STR
+		remains.
+
+*	Add a new amulet, the gorget. A gorget is a piece of armor worn in the amulet
+		slot. It has 2 base AC, is made of iron (or alternate metal material),
+		and can be enchanted like other armor. Like other metal armor, it
+		hurts spellcasting.
+
+	Small changes:
+*	Some random items may be generated rusty, eroded or erodeproof
+*	Baby purple worm vs shrieker: fight!
+*	Throwing a fuming potion of acid up goes boom
+*	Pet behaviour has been tweaked to be less predictable and less likely to kill
+		themselves - they don't take on such high level opponents when they are injured.
+*	Enchantment/charge (rne()) has been replaced by a function which models the chance
+		of getting it by scrolls. The upshot is that your chances are biased by Luck,
+		not level - and you always have some chance of getting a high +, but it's rare.
+
+	Bug fixes:
+*	Fix smashing glass objects in a kicked box.
+*	Fix an assert failure in alchemy.
+*	Add code to prevent an alchemical potion recipe being produced which is
+		impossible to make because every route to it first produces a different potion.
+*	Statues, containers and random objects placed in rooms will now only
+		be placed on ACCESSIBLE grids, so not on a tree.
+*	Zombie appearance fixed.
+
+********************************************************************************
 *	Release 0.1.0 'Tripe Ration'
 
 	It's now playable enough that it's my standard Nethack fix, rather
