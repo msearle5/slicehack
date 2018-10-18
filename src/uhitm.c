@@ -1412,6 +1412,23 @@ int dieroll;
     } else if (destroyed) {
         if (!already_killed)
             killed(mon); /* takes care of most messages */
+    
+        /* If you have killed a spider with an elven dagger in melee and
+         * Sting doesn't exist, create it.
+         */
+        if ((!thrown) && obj && (obj->quan == 1L) && (obj->otyp == ELVEN_DAGGER) &&
+            (!exist_artifact(ELVEN_DAGGER, artiname(ART_STING))) &&
+            (strstr(mon->data->mname, "spider"))) {
+            obj = oname(obj, artiname(ART_STING));
+            discover_artifact(ART_STING);
+            You("take a closer look at the dagger that slew %s...", x_monnam(mon, ARTICLE_THE,
+                             (char *) 0,
+                             SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
+                                 | SUPPRESS_INVISIBLE | SUPPRESS_IT,
+                             FALSE));
+            livelog_printf(LL_ARTIFACT, "obtained Sting by killing a spider");
+        }
+
     } else if (u.umconf && hand_to_hand) {
         nohandglow(mon);
         if (!mon->mconf && !resist(mon, SPBOOK_CLASS, 0, NOTELL)) {
