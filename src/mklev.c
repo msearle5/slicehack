@@ -876,6 +876,8 @@ makelevel()
         else if (u_depth > 16 && !rn2(8)
                  && !(mvitals[PM_COCKATRICE].mvflags & G_GONE))
             mkroom(COCKNEST);
+        else if (u_depth > 1 && !rn2(6))
+            mkroom(STOREROOM);
     }
 
 skip0:

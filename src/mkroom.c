@@ -25,6 +25,7 @@ STATIC_DCL void NDECL(mkshop), FDECL(mkzoo, (int)), NDECL(mkswamp);
 STATIC_DCL void NDECL(mktemple);
 STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
+STATIC_DCL struct permonst *NDECL(storemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
 STATIC_DCL void FDECL(save_room, (int, struct mkroom *));
 STATIC_DCL void FDECL(rest_room, (int, struct mkroom *));
@@ -81,6 +82,9 @@ int roomtype;
             break;
         case LEPREHALL:
             mkzoo(LEPREHALL);
+            break;
+        case STOREROOM:
+            mkzoo(STOREROOM);
             break;
         case COCKNEST:
             mkzoo(COCKNEST);
@@ -139,6 +143,10 @@ mkshop()
             }
             if (*ep == 'c' || *ep == 'C') {
                 mkzoo(COCKNEST);
+                return;
+            }
+            if (*ep == 'r' || *ep == 'R') {
+                mkzoo(STOREROOM);
                 return;
             }
             if (*ep == 'l' || *ep == 'L') {
@@ -280,7 +288,7 @@ void
 fill_zoo(sroom)
 struct mkroom *sroom;
 {
-    struct monst *mon;
+    struct monst *mon = NULL;
     register int sx, sy, i;
     int sh, tx = 0, ty = 0, goldlim = 0, type = sroom->rtype;
     int rmno = (int) ((sroom - rooms) + ROOMOFFSET);
@@ -341,30 +349,32 @@ struct mkroom *sroom;
             /* don't place monster on explicitly placed throne */
             if (type == COURT && IS_THRONE(levl[sx][sy].typ))
                 continue;
-            mon = makemon((type == COURT)
-                           ? courtmon()
-                           : (type == BARRACKS)
-                              ? squadmon()
-                              : (type == MORGUE)
-                                 ? morguemon()
-                                 : (type == BEEHIVE)
-                                     ? (sx == tx && sy == ty
-                                         ? &mons[PM_QUEEN_BEE]
-                                         : &mons[PM_KILLER_BEE])
-                                     : (type == LAB)
+            if (type != STOREROOM) {
+                mon = makemon((type == COURT)
+                               ? courtmon()
+                               : (type == BARRACKS)
+                                  ? squadmon()
+                                  : (type == MORGUE)
+                                     ? morguemon()
+                                     : (type == BEEHIVE)
                                          ? (sx == tx && sy == ty
-                                             ? &mons[PM_BAD_CLONE]
-                                             : &mons[PM_AMALGAMATION])
-                                       : (type == LEPREHALL)
-                                           ? &mons[PM_LEPRECHAUN]
-                                           : (type == COCKNEST)
-                                               ? &mons[PM_COCKATRICE]
-                                               : (type == DEN)
-                                                   ? denmon()
-                                                   : (type == ANTHOLE)
-                                                       ? antholemon()
-                                                       : (struct permonst *) 0,
-                                sx, sy, NO_MM_FLAGS);
+                                             ? &mons[PM_QUEEN_BEE]
+                                             : &mons[PM_KILLER_BEE])
+                                         : (type == LAB)
+                                             ? (sx == tx && sy == ty
+                                                 ? &mons[PM_BAD_CLONE]
+                                                 : &mons[PM_AMALGAMATION])
+                                           : (type == LEPREHALL)
+                                               ? &mons[PM_LEPRECHAUN]
+                                               : (type == COCKNEST)
+                                                   ? &mons[PM_COCKATRICE]
+                                                   : (type == DEN)
+                                                       ? denmon()
+                                                       : (type == ANTHOLE)
+                                                           ? antholemon()
+                                                           : (struct permonst *) 0,
+                                    sx, sy, NO_MM_FLAGS);
+            }
             if (mon) {
                 mon->msleeping = 1;
                 if (type == COURT && mon->mpeaceful) {
@@ -399,6 +409,26 @@ struct mkroom *sroom;
                     (void) mksobj_at(LUMP_OF_ROYAL_JELLY, sx, sy, TRUE,
                                      FALSE);
                 break;
+            case STOREROOM:
+                 switch (rn2(20)) {
+                     case 0:
+                     case 1:
+                     case 2:
+                        mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, sx, sy,
+                                     TRUE, FALSE);
+                        break;
+                     case 3:
+                        mksobj_at((rn2(10)) ? LARGE_BOX : ICE_BOX, sx, sy,
+                                     TRUE, FALSE);
+                        break;
+                     case 4:
+                        mkobj_at(RANDOM_CLASS, sx, sy, FALSE);
+                        break;
+                     case 5:
+                        mon = makemon(storemon(), sx, sy, NO_MM_FLAGS);
+                        if (mon) mon->msleeping = 1;
+                 }
+                 break;
             case BARRACKS:
                 if (!rn2(20)) /* the payroll and some loot */
                     (void) mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, sx, sy,
@@ -780,6 +810,35 @@ schar type;
             || croom->rtype == type)
             return croom;
     return (struct mkroom *) 0;
+}
+
+struct permonst *
+storemon()
+{
+    int wererat = 0;
+    int rabidrat = 0;
+    int giantrat = 0;
+    int prob = rn2(100);
+    int diff = level_difficulty();
+
+    if (diff >= 5) wererat = diff;
+    if (wererat > 10) wererat = 10;
+
+    if (diff >= 3) rabidrat = 5 + (diff * 2);
+    if (rabidrat > 25) rabidrat = 25;
+
+    if (diff >= 2) giantrat = 10 + (diff * 3);
+    if (giantrat > 70) giantrat = 70;
+
+    if ((prob < wererat) && (!(mvitals[PM_WERERAT].mvflags & G_GONE)))
+        return &mons[PM_WERERAT];
+    if ((prob < wererat+rabidrat) && (!(mvitals[PM_RABID_RAT].mvflags & G_GONE)))
+        return &mons[PM_RABID_RAT];
+    if ((prob < wererat+rabidrat+giantrat) && (!(mvitals[PM_GIANT_RAT].mvflags & G_GONE)))
+        return &mons[PM_GIANT_RAT];
+    if (!(mvitals[PM_SEWER_RAT].mvflags & G_GONE))
+        return &mons[PM_SEWER_RAT];
+    return mkclass(S_RODENT, 0);
 }
 
 struct permonst *
