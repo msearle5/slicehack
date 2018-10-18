@@ -241,7 +241,7 @@ register boolean special;
                 weapon = KATANA;
             break;
         case PM_TOURIST:
-            /* Defaults are just fine */
+            (void) mongets(mtmp, EXPENSIVE_CAMERA);
             break;
         case PM_VALKYRIE:
             if (rn2(2))
@@ -396,7 +396,8 @@ register struct monst *mtmp;
     }
 
     pline("Talk? -- %s", (mtmp->data == &mons[urole.malenum]
-                          || mtmp->data == &mons[urole.femalenum])
+                          || mtmp->data == &mons[urole.femalenum]
+                          || mtmp->data == &mons[urole.nbnum])
                              ? same_class_msg[rn2(3)]
                              : other_class_msg[rn2(3)]);
 }

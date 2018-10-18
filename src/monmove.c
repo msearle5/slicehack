@@ -15,8 +15,10 @@ STATIC_DCL int FDECL(disturb, (struct monst *));
 STATIC_DCL void FDECL(release_hero, (struct monst *));
 STATIC_DCL void FDECL(distfleeck, (struct monst *, int *, int *, int *));
 STATIC_DCL int FDECL(m_arrival, (struct monst *));
+STATIC_DCL int FDECL(count_webbing_walls, (XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(stuff_prevents_passage, (struct monst *));
-STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *, BOOLEAN_P));
+STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *,
+                                  BOOLEAN_P));
 
 #define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
 
@@ -34,7 +36,8 @@ struct monst *mtmp;
     wake_nearto(mtmp->mx, mtmp->my, 7 * 7);
     mtmp->mstun = 1;
     mtmp->mhp -= rnd(15);
-    if (mtmp->mhp <= 0) {
+
+    if (DEADMONSTER(mtmp)) {
         mondied(mtmp, mtmp);
         if (mtmp->mhp > 0) /* lifesaved */
             return FALSE;
@@ -447,11 +450,11 @@ register struct monst *mtmp;
     if (mdat->msound == MS_SHRIEK && !um_dist(mtmp->mx, mtmp->my, 1))
         m_respond(mtmp);
     if (mdat->msound == MS_ROAR && !um_dist(mtmp->mx, mtmp->my, 10) &&
-        !rn2(30))
+        !rn2(30) && couldsee(mtmp->mx, mtmp->my))
         m_respond(mtmp);
     if (mdat == &mons[PM_MEDUSA] && couldsee(mtmp->mx, mtmp->my))
         m_respond(mtmp);
-    if (mtmp->mhp <= 0)
+    if (DEADMONSTER(mtmp))
         return 1; /* m_respond gaze can kill medusa */
 
     /* fleeing monsters might regain courage */
@@ -479,7 +482,13 @@ register struct monst *mtmp;
     /* check distance and scariness of attacks */
     distfleeck(mtmp, &inrange, &nearby, &scared);
 
-    if (find_defensive(mtmp)) {
+    /* Dramatic entrance messages if it's a boss */
+    if (canseemon(mtmp)) {
+        boss_entrance(mtmp);
+        mtmp->mstrategy &= ~STRAT_APPEARMSG;
+    }
+
+    if (find_defensive(mtmp, FALSE)) {
         if (use_defensive(mtmp) != 0)
             return 1;
     } else if (find_misc(mtmp)) {
@@ -558,7 +567,8 @@ register struct monst *mtmp;
                 if (cansee(m2->mx, m2->my))
                     pline("It locks on to %s.", mon_nam(m2));
                 m2->mhp -= rnd(15);
-                if (m2->mhp <= 0)
+
+                if (DEADMONSTER(m2))
                     monkilled(m2, mtmp, "", AD_DRIN);
                 else
                     m2->msleeping = 0;
@@ -592,6 +602,36 @@ toofar:
         }
     }
 
+    /*      Look for other monsters to fight (at a distance) */
+    if (( attacktype(mtmp->data, AT_BREA) ||
+          attacktype(mtmp->data, AT_GAZE) ||
+          attacktype(mtmp->data, AT_SPIT) ||
+         (attacktype(mtmp->data, AT_MAGC) &&
+          (((attacktype_fordmg(mtmp->data, AT_MAGC, AD_ANY))->adtyp
+             <= AD_PSYC))
+          ) ||
+         (attacktype(mtmp->data, AT_WEAP) &&
+          select_rwep(mtmp) != 0) ||
+          find_offensive(mtmp)) &&
+        mtmp->mlstmv != monstermoves)
+    {
+        register struct monst *mtmp2 = mfind_target(mtmp);
+        if (mtmp2 &&
+            (mtmp2 != &youmonst ||
+    	 dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) > 2) &&
+    	 (mtmp2 != mtmp))
+        {
+            int res;
+          	res = (mtmp2 == &youmonst) ? mattacku(mtmp)
+          	                           : mattackm(mtmp, mtmp2);
+            if (res & MM_AGR_DIED)
+    	          return 1; /* Oops. */
+
+    	      return 0; /* that was our move for the round */
+        }
+    }
+
+
     /*  Now the actual movement phase
      */
 
@@ -621,11 +661,20 @@ toofar:
                 }
             }
         }
+
         if (mtmp->monmount != 1)
             tmp = m_move(mtmp, 0);
         else
             tmp = 0;
         update_monsteed(mtmp);
+
+        if (mtmp->data == &mons[PM_UMBRAL_HULK] &&
+                 !mtmp->mcan && !mtmp->mspec_used &&
+                 levl[mtmp->mx][mtmp->my].lit) {
+            litroom_mon(0, 0, mtmp->mx, mtmp->my);
+            mtmp->mspec_used = 5 + rn2(11);
+        }
+
         if (tmp != 2)
             distfleeck(mtmp, &inrange, &nearby, &scared); /* recalc */
 
@@ -633,7 +682,7 @@ toofar:
         case 0: /* no movement, but it can still attack you */
         case 3: /* absolutely no movement */
             /* vault guard might have vanished */
-            if (mtmp->isgd && (mtmp->mhp < 1 || mtmp->mx == 0))
+            if (mtmp->isgd && (DEADMONSTER(mtmp) || mtmp->mx == 0))
                 return 1; /* behave as if it died */
             /* During hallucination, monster appearance should
              * still change - even if it doesn't move.
@@ -759,30 +808,48 @@ struct monst *mtmp;
 xchar nix,niy;
 {
     boolean can_tunnel = 0;
-    struct obj *mw_tmp;
+    struct obj *mw_tmp = MON_WEP(mtmp);
 
     if (!Is_rogue_level(&u.uz))
         can_tunnel = tunnels(mtmp->data);
 
-    if (can_tunnel && needspick(mtmp->data)
-        && mtmp->weapon_check != NO_WEAPON_WANTED
-        && ((IS_ROCK(levl[nix][niy].typ) && may_dig(nix, niy))
-            || closed_door(nix, niy))) {
+    if (can_tunnel && needspick(mtmp->data) && !mwelded(mw_tmp)
+        && (may_dig(nix, niy) || closed_door(nix, niy))) {
+        /* may_dig() is either IS_STWALL or IS_TREE */
         if (closed_door(nix, niy)) {
-            if (!(mw_tmp = MON_WEP(mtmp))
+            if (!mw_tmp
                 || !is_pick(mw_tmp)
                 || !is_axe(mw_tmp))
                 mtmp->weapon_check = NEED_PICK_OR_AXE;
         } else if (IS_TREE(levl[nix][niy].typ)) {
             if (!(mw_tmp = MON_WEP(mtmp)) || !is_axe(mw_tmp))
                 mtmp->weapon_check = NEED_AXE;
-        } else if (!(mw_tmp = MON_WEP(mtmp)) || !is_pick(mw_tmp)) {
-            mtmp->weapon_check = NEED_PICK_AXE;
+        } else if (IS_STWALL(levl[nix][niy].typ)) {
+            if (!(mw_tmp = MON_WEP(mtmp)) || !is_pick(mw_tmp))
+                mtmp->weapon_check = NEED_PICK_AXE;
         }
         if (mtmp->weapon_check >= NEED_PICK_AXE && mon_wield_item(mtmp))
             return TRUE;
     }
     return FALSE;
+}
+
+/* returns the number of walls in the four cardinal directions that could
+   hold up a web */
+STATIC_OVL int
+count_webbing_walls(x, y)
+xchar x, y;
+{
+#define holds_up_web(X, Y) ((!isok((X), (Y))                              \
+                             || IS_ROCK(levl[X][Y].typ)                   \
+                             || (levl[X][Y].typ == STAIRS                 \
+                                 && (X) == xupstair && (Y) == yupstair)   \
+                             || (levl[X][Y].typ == LADDER                 \
+                                 && (X) == xupladder && (Y) == yupladder) \
+                             || levl[X][Y].typ == IRONBARS) ? 1 : 0)
+    return (holds_up_web(x, y - 1) + holds_up_web(x + 1, y)
+            + holds_up_web(x, y + 1) + holds_up_web(x - 1, y));
+#undef holds_up_web
 }
 
 /* Return values:
@@ -1155,7 +1222,8 @@ not_special:
     if (is_minion(ptr) || is_rider(ptr))
         flag |= ALLOW_SANCT;
     /* unicorn may not be able to avoid hero on a noteleport level */
-    if (is_unicorn(ptr) && !level.flags.noteleport)
+    if ((is_unicorn(ptr) || ptr == &mons[PM_MAD_ALCHEMIST])
+          && !level.flags.noteleport)
         flag |= NOTONL;
     if (passes_walls(ptr))
         flag |= (ALLOW_WALL | ALLOW_ROCK);
@@ -1191,7 +1259,8 @@ not_special:
         if (!mtmp->mpeaceful && level.flags.shortsighted
             && nidist > (couldsee(nix, niy) ? 144 : 36) && appr == 1)
             appr = 0;
-        if (is_unicorn(ptr) && level.flags.noteleport) {
+        if ((is_unicorn(ptr) || ptr == &mons[PM_MAD_ALCHEMIST])
+              && level.flags.noteleport) {
             /* on noteleport levels, perhaps we cannot avoid hero */
             for (i = 0; i < cnt; i++)
                 if (!(info[i] & NOTONL))
@@ -1503,6 +1572,14 @@ postmov:
                     return 2; /* it died */
             }
 
+            if (ptr == &mons[PM_GHOUL] || ptr == &mons[PM_GHAST]) meatcorpse(mtmp);
+
+            if (ptr == &mons[PM_BROWN_MOLD_WARRIOR] ||
+                ptr == &mons[PM_GREEN_MOLD_WARRIOR] ||
+                ptr == &mons[PM_YELLOW_MOLD_WARRIOR] ||
+                ptr == &mons[PM_RED_MOLD_WARRIOR])
+                minfestcorpse(mtmp);
+
             if (!*in_rooms(mtmp->mx, mtmp->my, SHOPBASE) || !rn2(25)) {
                 boolean picked = FALSE;
 
@@ -1524,6 +1601,27 @@ postmov:
                 newsym(mtmp->mx, mtmp->my);
                 if (mtmp->wormno)
                     see_wsegs(mtmp);
+            }
+        }
+
+        /* maybe spin a web -- this needs work; if the spider is far away,
+           it might spin a lot of webs before hero encounters it */
+        if (webmaker(ptr) && !mtmp->mspec_used && !t_at(mtmp->mx, mtmp->my)) {
+            struct trap *trap;
+            int prob = ((ptr == &mons[PM_GIANT_SPIDER]) ? 15 : 5)
+                      * (count_webbing_walls(mtmp->mx, mtmp->my) + 1);
+
+            if (rn2(1000) < prob
+                && (trap = maketrap(mtmp->mx, mtmp->my, WEB)) != 0) {
+                mtmp->mspec_used = d(4, 4); /* 4..16 */
+                if (cansee(mtmp->mx, mtmp->my)) {
+                    char mbuf[BUFSZ];
+
+                    Strcpy(mbuf,
+                           canspotmon(mtmp) ? y_monnam(mtmp) : something);
+                    pline("%s spins a web.", upstart(mbuf));
+                    trap->tseen = 1;
+                }
             }
         }
 
@@ -1703,7 +1801,7 @@ struct monst *mtmp;
             && typ != BAG_OF_HOLDING && typ != BAG_OF_TRICKS && typ != MAGIC_BAG
             && !Is_candle(obj) && typ != OILSKIN_SACK && typ != LEASH
             && typ != STETHOSCOPE && typ != BLINDFOLD && typ != TOWEL
-            && typ != TIN_WHISTLE && typ != MAGIC_WHISTLE
+            && typ != PEA_WHISTLE && typ != MAGIC_WHISTLE
             && typ != MAGIC_MARKER && typ != TIN_OPENER && typ != SKELETON_KEY
             && typ != LOCK_PICK)
             return TRUE;

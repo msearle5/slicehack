@@ -111,7 +111,8 @@ enum cost_alteration_types {
     COST_BRKLCK,   /* break box/chest's lock */
     COST_RUST,     /* rust damage */
     COST_ROT,      /* rotting attack */
-    COST_CORRODE   /* acid damage */
+    COST_CORRODE,   /* acid damage */
+    COST_CHMAT     /* change material */
 };
 
 /* bitmask flags for corpse_xname();
@@ -519,6 +520,9 @@ enum bodypart_types {
 #else
 #define STATIC_PTR static
 #endif
+
+/* For those tough guys who get carried away... */
+extern int repeat_hit;
 
 /* The function argument to qsort() requires a particular
  * calling convention under WINCE which is not the default

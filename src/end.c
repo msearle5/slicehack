@@ -752,7 +752,8 @@ time_t when; /* date+time at end of game */
             aligns[1 - u.ualign.type].adj,
             genders[flags.female].adj,
             urace.adj,
-            (flags.female && urole.name.f) ? urole.name.f : urole.name.m);
+            (flags.female == 1 && urole.name.f) ? urole.name.f
+              : (flags.female == 2) ? urole.name.n : urole.name.m);
     putstr(0, 0, pbuf);
     putstr(0, 0, "");
 
@@ -764,7 +765,7 @@ time_t when; /* date+time at end of game */
     dump_plines();
     putstr(0, 0, "");
     putstr(0, 0, "Inventory:");
-    display_inventory((char *) 0, TRUE);
+    (void) display_inventory((char *) 0, TRUE);
     container_contents(invent, TRUE, TRUE, FALSE);
     enlightenment((BASICENLIGHTENMENT | MAGICENLIGHTENMENT),
                   (how >= PANICKED) ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD);
@@ -1343,9 +1344,11 @@ int how;
 
     Sprintf(pbuf, "%s %s the %s...", Goodbye(), plname,
             (how != ASCENDED)
-                ? (const char *) ((flags.female && urole.name.f)
+                ? (const char *) ((flags.female == 1 && urole.name.f)
                     ? urole.name.f
-                    : urole.name.m)
+                    : (flags.female == 2)
+                      ? urole.name.n
+                      : urole.name.m)
                 : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
     dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
     dump_forward_putstr(endwin, 0, "", done_stopprint);

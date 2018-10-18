@@ -184,6 +184,19 @@ boolean resuming;
                             if (rn2(3) == 0)
                                 moveamt += NORMAL_SPEED;
                         }
+                        if (tech_inuse(T_BLINK)) { /* TECH: Blinking! */
+                  			    /* Case    Average  Variance
+                  			     * -------------------------
+                  			     * Normal    12         0
+                  			     * Fast      16        12
+                  			     * V fast    20        12
+                  			     * Blinking  24        12
+                  			     * F & B     28        18
+                  			     * V F & B   30        18
+                  			     */
+                  			    moveamt += NORMAL_SPEED * 2 / 3;
+                  			    if (rn2(3) == 0) moveamt += NORMAL_SPEED / 2;
+                  			}
                     }
 
                     switch (wtcap) {
@@ -726,7 +739,7 @@ boolean new_game; /* false => restoring an old game */
     char buf[BUFSZ];
     char tipbuf[BUFSZ];
     char ebuf[BUFSZ];
-    boolean currentgend = Upolyd ? u.mfemale : flags.female;
+    int currentgend = Upolyd ? u.mfemale : flags.female;
 
     /* skip "welcome back" if restoring a doomed character */
     if (!new_game && Upolyd && ugenocided()) {
@@ -761,10 +774,14 @@ boolean new_game; /* false => restoring an old game */
                 : currentgend != flags.initgend))
         Sprintf(eos(buf), " %s", genders[currentgend].adj);
 
-    pline(new_game ? "%s %s, welcome to SliceHack!  You are a%s %s %s."
-                   : "%s %s, the%s %s %s, welcome back to SliceHack!",
-          Hello((struct monst *) 0), plname, buf, urace.adj,
-          (currentgend && urole.name.f) ? urole.name.f : urole.name.m);
+    pline(new_game ? "%s %s, welcome to SliceHack!  You are a%s %s %s %s."
+                   : "%s %s, the%s %s %s %s, welcome back to SpliceHack!",
+          Hello((struct monst *) 0), plname, buf, genders[currentgend].adj, urace.adj,
+              (currentgend == 1 && urole.name.f)
+                ? urole.name.f
+                : (currentgend == 2 && urole.name.n)
+                ? urole.name.n
+                : urole.name.m);
     if (flags.tips) {
         get_rnd_text(SLICETIPSFILE, tipbuf);
         pline("Slicehack Tip of the Day: %s", tipbuf);

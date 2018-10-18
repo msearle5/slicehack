@@ -89,8 +89,9 @@ cartsay(orig)
 const char *orig;
 {
 		orig = replace(orig,"read the scroll","play the spell card");
+    orig = replace(orig," reads a"," plays a");
     orig = replace(orig,"scroll","spell card");
-    orig = replace(orig,"zorkmid","victory chips");
+    orig = replace(orig,"zorkmid","victory chip");
 		orig = replace(orig,"Zorkmid","Victory chip");
     orig = replace(orig,"gold coins","victory tokens");
 		orig = replace(orig,"Gold coins","Victory tokens");
@@ -118,6 +119,10 @@ const char *line;
     unsigned indx = saved_pline_index; /* next slot to use */
     char *oldest = saved_plines[indx]; /* current content of that slot */
 
+    
+
+    if (!strncmp(line, "Unknown command", 15))
+        return;
     if (oldest && strlen(oldest) >= strlen(line)) {
         /* this buffer will gradually shrink until the 'else' is needed;
            there's no pressing need to track allocation size instead */

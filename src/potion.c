@@ -123,8 +123,26 @@ int type;
         talk = FALSE;
 #endif
     if (xtime > 0L) {
+        int copperarmor = 0;
+        struct obj* otmp;
         if (Sick_resistance)
             return;
+
+        /* Copper's anti-microbial properties make it effective in warding off
+         * sickness. */
+        for (otmp = invent; otmp; otmp = otmp->nobj) {
+            if ((otmp->owornmask & W_ARMOR) && otmp->material == COPPER) {
+                copperarmor++;
+            }
+        }
+        if (rn2(5) < copperarmor) {
+            /* practially, someone could have copper helm, boots, body armor,
+             * shield, gloves. If they're *all* copper, you're immune to
+             * sickness. */
+            You_feel("briefly ill.");
+            return;
+        }
+
         if (!old) {
             /* newly sick */
             You_feel("deathly sick.");
@@ -156,6 +174,23 @@ int type;
         delayed_killer(SICK, KILLED_BY_AN, cause);
     } else
         dealloc_killer(find_delayed_killer(SICK));
+}
+
+void
+make_carrier(xtime, talk)
+long xtime;
+boolean talk;
+{
+    long old = Vomiting;
+
+    if (Unaware)
+        talk = FALSE;
+
+    set_itimeout(&LarvaCarrier, xtime);
+    context.botl = TRUE;
+    if (!xtime && old)
+        if (talk)
+            You_feel("much more yourself.");
 }
 
 void
@@ -430,6 +465,419 @@ self_invis_message()
     }
 }
 
+/* KMH, balance patch -- idea by Dylan O'Donnell <dylanw@demon.net>
+ * The poor hacker's polypile.  This includes weapons, armor, and tools.
+ * To maintain balance, magical categories (amulets, scrolls, spellbooks,
+ * potions, rings, and wands) should NOT be supported.
+ * Polearms are not currently implemented.
+ */
+int
+upgrade_obj(obj)
+register struct obj *obj;
+/* returns 1 if something happened (potion should be used up)
+ * returns 0 if nothing happened
+ * returns -1 if object exploded (potion should be used up)
+ */
+{
+	int chg, otyp = obj->otyp;
+  short otyp2;
+	xchar ox, oy;
+	long owornmask;
+	struct obj *otmp;
+	boolean explodes;
+
+	/* Check to see if object is valid */
+	if (!obj)
+		return 0;
+	/* (void)snuff_lit(obj);*/
+	if (obj->oartifact)
+		/* WAC -- Could have some funky fx */
+		return 0;
+	switch (obj->otyp)
+	{
+		/* weapons */
+		case ORCISH_DAGGER:
+    case ELVEN_DAGGER:
+			obj->otyp = DAGGER;
+			break;
+		case DAGGER:
+			obj->otyp = ELVEN_DAGGER;
+			break;
+		case KNIFE:
+			obj->otyp = STILETTO;
+			break;
+		case STILETTO:
+			obj->otyp = KNIFE;
+			break;
+		case AXE:
+			obj->otyp = BATTLE_AXE;
+			break;
+		case BATTLE_AXE:
+			obj->otyp = AXE;
+			break;
+		case PICK_AXE:
+			obj->otyp = DWARVISH_MATTOCK;
+			break;
+		case DWARVISH_MATTOCK:
+			obj->otyp = PICK_AXE;
+			break;
+		case ORCISH_SHORT_SWORD:
+			obj->otyp = SHORT_SWORD;
+			break;
+		case ELVEN_SHORT_SWORD:
+		case SHORT_SWORD:
+			obj->otyp = DWARVISH_SHORT_SWORD;
+			break;
+		case DWARVISH_SHORT_SWORD:
+			obj->otyp = ELVEN_SHORT_SWORD;
+			break;
+		case BROADSWORD:
+			obj->otyp = ELVEN_BROADSWORD;
+			break;
+		case ELVEN_BROADSWORD:
+			obj->otyp = BROADSWORD;
+			break;
+		case CLUB:
+			obj->otyp = AKLYS;
+			break;
+		case AKLYS:
+			obj->otyp = CLUB;
+			break;
+		case ELVEN_BOW:
+		case YUMI:
+		case ORCISH_BOW:
+			obj->otyp = BOW;
+			break;
+		case BOW:
+			switch (rn2(2)) {
+				case 0: obj->otyp = ELVEN_BOW; break;
+				case 2: obj->otyp = YUMI; break;
+			}
+			break;
+		case ELVEN_ARROW:
+		case YA:
+		case ORCISH_ARROW:
+			obj->otyp = ARROW;
+			break;
+		case ARROW:
+			switch (rn2(2)) {
+				case 0: obj->otyp = ELVEN_ARROW; break;
+				case 1: obj->otyp = YA; break;
+			}
+			break;
+		/* armour */
+		case ORCISH_RING_MAIL:
+			obj->otyp = RING_MAIL;
+			break;
+		case CHAIN_MAIL:
+			obj->otyp = ORCISH_RING_MAIL;
+			break;
+		case STUDDED_ARMOR:
+		case JACKET:
+			obj->otyp = LIGHT_ARMOR;
+			break;
+		case LIGHT_ARMOR:
+			obj->otyp = STUDDED_ARMOR;
+			break;
+		/* robes */
+		/* cloaks */
+		case CLOAK_OF_PROTECTION:
+		case CLOAK_OF_INVISIBILITY:
+		case CLOAK_OF_MAGIC_RESISTANCE:
+		case CLOAK_OF_DISPLACEMENT:
+		case DWARVISH_CLOAK:
+		case ORCISH_CLOAK:
+			if (!rn2(2)) obj->otyp = OILSKIN_CLOAK;
+			else obj->otyp = ELVEN_CLOAK;
+			break;
+		case OILSKIN_CLOAK:
+		case ELVEN_CLOAK:
+			switch (rn2(4)) {
+				case 0: obj->otyp = CLOAK_OF_PROTECTION; break;
+				case 1: obj->otyp = CLOAK_OF_INVISIBILITY; break;
+				case 2: obj->otyp = CLOAK_OF_MAGIC_RESISTANCE; break;
+				case 3: obj->otyp = CLOAK_OF_DISPLACEMENT; break;
+			}
+			break;
+		/* helms */
+		case FEDORA:
+			obj->otyp = ELVEN_HELM;
+			break;
+		case ELVEN_HELM:
+			obj->otyp = FEDORA;
+			break;
+		case DENTED_POT:
+			obj->otyp = ORCISH_HELM;
+			break;
+		case ORCISH_HELM:
+		case HELM_OF_BRILLIANCE:
+		case HELM_OF_TELEPATHY:
+			obj->otyp = DWARVISH_HELM;
+			break;
+		case DWARVISH_HELM:
+			if (!rn2(2)) obj->otyp = HELM_OF_BRILLIANCE;
+			else obj->otyp = HELM_OF_TELEPATHY;
+			break;
+		case CORNUTHAUM:
+			obj->otyp = DUNCE_CAP;
+			break;
+		case DUNCE_CAP:
+			obj->otyp = CORNUTHAUM;
+			break;
+		/* gloves */
+		case GLOVES:
+			obj->otyp = GAUNTLETS_OF_DEXTERITY;
+			break;
+		case GAUNTLETS_OF_DEXTERITY:
+			obj->otyp = GLOVES;
+			break;
+		/* shields */
+		case ELVEN_SHIELD:
+			if (!rn2(2)) obj->otyp = URUK_HAI_SHIELD;
+			else obj->otyp = ORCISH_SHIELD;
+			break;
+		case URUK_HAI_SHIELD:
+		case ORCISH_SHIELD:
+			obj->otyp = ELVEN_SHIELD;
+			break;
+		case DWARVISH_ROUNDSHIELD:
+			obj->otyp = LARGE_SHIELD;
+			break;
+		case LARGE_SHIELD:
+			obj->otyp = DWARVISH_ROUNDSHIELD;
+			break;
+		/* boots */
+		case LOW_BOOTS:
+			obj->otyp = HIGH_BOOTS;
+			break;
+		case HIGH_BOOTS:
+			obj->otyp = LOW_BOOTS;
+			break;
+		/* NOTE:  Supposedly,  HIGH_BOOTS should upgrade to any of the
+			other magic leather boots (except for fumble).  IRON_SHOES
+			should upgrade to the iron magic boots,  unless
+			the iron magic boots are fumble */
+		/* rings,  amulets */
+		case LARGE_BOX:
+		case ICE_BOX:
+			obj->otyp = CHEST;
+			break;
+		case CHEST:
+			obj->otyp = ICE_BOX;
+			break;
+		case SACK:
+			obj->otyp = rn2(5) ? OILSKIN_SACK : BAG_OF_HOLDING;
+			break;
+		case OILSKIN_SACK:
+			obj->otyp = BAG_OF_HOLDING;
+			break;
+		case BAG_OF_HOLDING:
+			obj->otyp = OILSKIN_SACK;
+			break;
+		case TOWEL:
+			obj->otyp = BLINDFOLD;
+			break;
+		case BLINDFOLD:
+			obj->otyp = TOWEL;
+			break;
+		case CREDIT_CARD:
+		case LOCK_PICK:
+			obj->otyp = SKELETON_KEY;
+			break;
+		case SKELETON_KEY:
+			obj->otyp = LOCK_PICK;
+			break;
+		case TALLOW_CANDLE:
+			obj->otyp = WAX_CANDLE;
+			break;
+		case WAX_CANDLE:
+			obj->otyp = TALLOW_CANDLE;
+			break;
+		case OIL_LAMP:
+			obj->otyp = LANTERN;
+			break;
+		case LANTERN:
+			obj->otyp = OIL_LAMP;
+			break;
+		case PEA_WHISTLE:
+			obj->otyp = MAGIC_WHISTLE;
+			break;
+		case MAGIC_WHISTLE:
+			obj->otyp = PEA_WHISTLE;
+			break;
+		case FLUTE:
+			obj->otyp = MAGIC_FLUTE;
+			obj->spe = rn1(5,10);
+			break;
+		case MAGIC_FLUTE:
+			obj->otyp = FLUTE;
+			break;
+		case TOOLED_HORN:
+			obj->otyp = rn1(HORN_OF_PLENTY - TOOLED_HORN, FROST_HORN);
+			obj->spe = rn1(5,10);
+			obj->known = 0;
+			break;
+		case HORN_OF_PLENTY:
+		case FIRE_HORN:
+		case FROST_HORN:
+			obj->otyp = TOOLED_HORN;
+			break;
+		case HARP:
+			obj->otyp = MAGIC_HARP;
+			obj->spe = rn1(5,10);
+			obj->known = 0;
+			break;
+		case MAGIC_HARP:
+			obj->otyp = HARP;
+			break;
+		case LEASH:
+			obj->otyp = SADDLE;
+			break;
+		case SADDLE:
+			obj->otyp = LEASH;
+			break;
+		case TIN_OPENER:
+			obj->otyp = TINNING_KIT;
+			obj->spe = rn1(30,70);
+			obj->known = 0;
+			break;
+		case TINNING_KIT:
+			obj->otyp = TIN_OPENER;
+			break;
+		case CRYSTAL_BALL:
+			/* "ball-point pen" */
+			obj->otyp = MAGIC_MARKER;
+			/* Keep the charges (crystal ball usually less than marker) */
+			break;
+		case MAGIC_MARKER:
+			obj->otyp = CRYSTAL_BALL;
+			chg = rn1(10,3);
+			if (obj->spe > chg)
+				obj->spe = chg;
+			obj->known = 0;
+			break;
+		case K_RATION:
+		case C_RATION:
+		case LEMBAS_WAFER:
+			if (!rn2(2)) obj->otyp = CRAM_RATION;
+			else obj->otyp = FOOD_RATION;
+			break;
+		case FOOD_RATION:
+		case CRAM_RATION:
+			obj->otyp = LEMBAS_WAFER;
+			break;
+		case LOADSTONE:
+			obj->otyp = FLINT;
+			break;
+		case FLINT:
+			obj->otyp = LUCKSTONE;
+			break;
+		default:
+			/* This object is not upgradable */
+			return 0;
+	}
+
+	if ((!carried(obj) || obj->unpaid) &&
+		get_obj_location(obj, &ox, &oy, BURIED_TOO|CONTAINED_TOO) &&
+		costly_spot(ox, oy)) {
+	    char objroom = *in_rooms(ox, oy, SHOPBASE);
+	    register struct monst *shkp = shop_keeper(objroom);
+
+	    if ((!obj->no_charge ||
+		 (Has_contents(obj) &&
+		    (contained_cost(obj, shkp, 0L, FALSE, FALSE) != 0L)))
+	       && inhishop(shkp)) {
+		if(shkp->mpeaceful) {
+		    if(*u.ushops && *in_rooms(u.ux, u.uy, 0) ==
+			    *in_rooms(shkp->mx, shkp->my, 0) &&
+			    !costly_spot(u.ux, u.uy))
+			make_angry_shk(shkp, ox, oy);
+		    else {
+			pline("%s gets angry!", Monnam(shkp));
+			hot_pursuit(shkp);
+		    }
+		} else Norep("%s is furious!", Monnam(shkp));
+		otyp2 = obj->otyp;
+		obj->otyp = otyp;
+		/*
+		 * [ALI] When unpaid containers are upgraded, the
+		 * old container is billed as a dummy object, but
+		 * it's contents are unaffected and will remain
+		 * either unpaid or not as appropriate.
+		 */
+		otmp = obj->cobj;
+		obj->cobj = NULL;
+		if (costly_spot(u.ux, u.uy) && objroom == *u.ushops)
+		    bill_dummy_object(obj);
+		else
+		    (void) stolen_value(obj, ox, oy, FALSE, FALSE);
+		obj->otyp = otyp2;
+		obj->cobj = otmp;
+	    }
+	}
+
+	/* The object was transformed */
+	obj->owt = weight(obj);
+	obj->oclass = objects[obj->otyp].oc_class;
+	if (!objects[obj->otyp].oc_uses_known)
+	    obj->known = 1;
+
+	if (carried(obj)) {
+	    if (obj == uskin) rehumanize();
+	    /* Quietly remove worn item if no longer compatible --ALI */
+	    owornmask = obj->owornmask;
+	    if (owornmask & W_ARM && !is_suit(obj))
+		owornmask &= ~W_ARM;
+	    if (owornmask & W_ARMC && !is_cloak(obj))
+		owornmask &= ~W_ARMC;
+	    if (owornmask & W_ARMH && !is_helmet(obj))
+		owornmask &= ~W_ARMH;
+	    if (owornmask & W_ARMS && !is_shield(obj))
+		owornmask &= ~W_ARMS;
+	    if (owornmask & W_ARMG && !is_gloves(obj))
+		owornmask &= ~W_ARMG;
+	    if (owornmask & W_ARMF && !is_boots(obj))
+		owornmask &= ~W_ARMF;
+	    if (owornmask & W_ARMU && !is_shirt(obj))
+		owornmask &= ~W_ARMU;
+	    if (owornmask & W_TOOL && obj->otyp != BLINDFOLD &&
+	      obj->otyp != TOWEL && obj->otyp != LENSES)
+		owornmask &= ~W_TOOL;
+	    otyp2 = obj->otyp;
+	    obj->otyp = otyp;
+	    if (obj->otyp == LEASH && obj->leashmon) o_unleash(obj);
+	    remove_worn_item(obj, TRUE);
+	    obj->otyp = otyp2;
+	    obj->owornmask = owornmask;
+	    setworn(obj, obj->owornmask, FALSE);
+      #if 0 /* I believe this is now handled with update_inventory - agulp */
+	    puton_worn_item(obj);
+      #endif
+	}
+
+	if (obj->otyp == BAG_OF_HOLDING && Has_contents(obj)) {
+	    explodes = FALSE;
+
+	    for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+		if (mbag_explodes(otmp, 0)) {
+		    explodes = TRUE;
+		    break;
+		}
+
+            if (explodes) {
+		pline("As you upgrade your bag, you are blasted by a magical explosion!");
+		delete_contents(obj);
+		if (carried(obj))
+		    useup(obj);
+		else
+		    useupf(obj, obj->quan);
+		losehp(d(6,6), "magical explosion", KILLED_BY_AN);
+		return -1;
+	    }
+	}
+	return 1;
+}
+
 STATIC_OVL void
 ghost_from_bottle()
 {
@@ -702,7 +1150,7 @@ register struct obj *otmp;
             if (otmp->blessed) {
                 pline("This burns like %s!", hliquid("acid"));
                 exercise(A_CON, FALSE);
-                if (u.ulycn >= LOW_PM) {
+                if (u.ulycn >= LOW_PM && !Race_if(PM_HUMAN_WEREWOLF)) {
                     Your("affinity to %s disappears!",
                          makeplural(mons[u.ulycn].mname));
                     if (youmonst.data == &mons[u.ulycn])
@@ -724,7 +1172,7 @@ register struct obj *otmp;
                 make_sick(0L, (char *) 0, TRUE, SICK_ALL);
                 exercise(A_WIS, TRUE);
                 exercise(A_CON, TRUE);
-                if (u.ulycn >= LOW_PM)
+                if (u.ulycn >= LOW_PM  && !Race_if(PM_HUMAN_WEREWOLF))
                     you_unwere(TRUE); /* "Purified" */
                 /* make_confused(0L, TRUE); */
             } else {
@@ -741,6 +1189,7 @@ register struct obj *otmp;
         }
         break;
     case POT_BOOZE:
+        u.uconduct.alcohol++;
         unkn++;
         pline("Ooph!  This tastes like %s%s!",
               otmp->odiluted ? "watered down " : "",
@@ -1220,6 +1669,54 @@ register struct obj *otmp;
         if (!Unchanging)
             polyself(0);
         break;
+    case POT_BLOOD:
+  	case POT_VAMPIRE_BLOOD:
+    		unkn++;
+    		u.uconduct.unvegan++;
+    		if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) {
+    		    violated_vegetarian();
+    		    if (otmp->cursed)
+    			      pline("Yecch!  This %s.", Hallucination ?
+      			"liquid could do with a good stir" : "blood has congealed");
+      		    else pline(Hallucination ?
+      		      "The %s liquid stirs memories of home." :
+      		      "The %s blood tastes delicious.",
+      			  otmp->odiluted ? "watery" : "thick");
+    		    if (!otmp->cursed)
+          			lesshungry((otmp->odiluted ? 1 : 2) *
+          			  (otmp->otyp == POT_VAMPIRE_BLOOD ? 400 :
+          			  otmp->blessed ? 15 : 10));
+    		    if (otmp->otyp == POT_VAMPIRE_BLOOD && otmp->blessed) {
+          			int num = newhp();
+          			if (Upolyd) {
+          			    u.mhmax += num;
+          			    u.mh += num;
+          			} else {
+          			    u.uhpmax += num;
+          			    u.uhp += num;
+          			}
+    		    }
+    		} else if (otmp->otyp == POT_VAMPIRE_BLOOD) {
+    		    /* [CWC] fix conducts for potions of (vampire) blood -
+    		       doesn't use violated_vegetarian() to prevent
+    		       duplicated "you feel guilty" messages */
+    		    u.uconduct.unvegetarian++;
+    		    if (u.ualign.type == A_LAWFUL || Role_if(PM_MONK)) {
+          			You_feel("%sguilty about drinking such a vile liquid.",
+          				Role_if(PM_MONK) ? "especially " : "");
+          			u.ugangr++;
+          			adjalign(-15);
+    		    } else if (u.ualign.type == A_NEUTRAL)
+    			      adjalign(-3);
+    		    exercise(A_CON, FALSE);
+    		    if (!Unchanging && polymon(PM_VAMPIRE))
+    			  u.mtimedone = 0;	/* "Permament" change */
+    		} else {
+    		    violated_vegetarian();
+    		    pline("Ugh.  That was vile.");
+    		    make_vomiting(Vomiting+d(10,8), TRUE);
+    		}
+    		break;
     default:
         impossible("What a funny potion! (%u)", otmp->otyp);
         return 0;
@@ -1461,6 +1958,20 @@ int how;
             if (!Unchanging && !Antimagic)
                 polyself(0);
             break;
+        case POT_BLOOD:
+        case POT_VAMPIRE_BLOOD:
+            if (Blind)
+                You_feel("sticky!");
+            else if (Race_if(PM_INFERNAL)) {
+                pline("Blood drips down your form.");
+                exercise(A_CHA, TRUE);
+            }
+            else {
+                You("are covered in blood! How disgusting!");
+                exercise(A_CHA, FALSE);
+            }
+
+            break;
         case POT_ACID:
             if (!Acid_resistance) {
                 int dmg;
@@ -1573,6 +2084,12 @@ int how;
                 paralyze_monst(mon, rnd(25));
             }
             break;
+        case POT_BLOOD:
+        case POT_VAMPIRE_BLOOD:
+            pline("%s is covered in blood!", Monnam(mon));
+            if (is_vampire(mon->data))
+                pline("%s seems to enjoy the blood bath.", Monnam(mon));
+            break;
         case POT_SPEED:
             angermon = FALSE;
             mon_adjust_speed(mon, 1, obj);
@@ -1597,7 +2114,7 @@ int how;
                         wake_nearto(tx, ty, mon->data->mlevel * 10);
                     mon->mhp -= d(2, 6);
                     /* should only be by you */
-                    if (mon->mhp < 1)
+                    if (DEADMONSTER(mon))
                         killed(mon);
                     else if (is_were(mon->data) && !is_human(mon->data))
                         new_were(mon); /* revert to human */
@@ -1620,7 +2137,7 @@ int how;
                     pline("%s rusts.", Monnam(mon));
                 mon->mhp -= d(1, 6);
                 /* should only be by you */
-                if (mon->mhp < 1)
+                if (DEADMONSTER(mon))
                     killed(mon);
             }
             break;
@@ -1635,7 +2152,7 @@ int how;
                 if (!is_silent(mon->data))
                     wake_nearto(tx, ty, mon->data->mlevel * 10);
                 mon->mhp -= d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
-                if (mon->mhp < 1) {
+                if (DEADMONSTER(mon)) {
                     if (your_fault)
                         killed(mon);
                     else
@@ -1656,7 +2173,7 @@ int how;
         */
         }
         /* target might have been killed */
-        if (mon->mhp > 0) {
+        if (!DEADMONSTER(mon)) {
             if (angermon)
                 wakeup(mon, TRUE);
             else
@@ -1843,6 +2360,15 @@ register struct obj *obj;
     case POT_POLYMORPH:
         exercise(A_CON, FALSE);
         break;
+    case POT_BLOOD:
+  	case POT_VAMPIRE_BLOOD:
+  		if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) {
+  		    exercise(A_WIS, FALSE);
+  		    You_feel("a %ssense of loss.",
+  		      obj->otyp == POT_VAMPIRE_BLOOD ? "terrible " : "");
+  		} else
+  		    exercise(A_CON, FALSE);
+      break;
     /*
     case POT_GAIN_LEVEL:
     case POT_LEVITATION:
@@ -1911,6 +2437,8 @@ register struct obj *o1, *o2;
         case POT_HALLUCINATION:
         case POT_BLINDNESS:
         case POT_CONFUSION:
+        case POT_BLOOD:
+        case POT_VAMPIRE_BLOOD:
             return POT_WATER;
         }
         break;
@@ -1937,6 +2465,10 @@ register struct obj *o1, *o2;
         break;
     case POT_FRUIT_JUICE:
         switch (o2->otyp) {
+        case POT_BLOOD:
+            return POT_BLOOD;
+        case POT_VAMPIRE_BLOOD:
+            return POT_VAMPIRE_BLOOD;
         case POT_SICKNESS:
             return POT_SICKNESS;
         case POT_ENLIGHTENMENT:

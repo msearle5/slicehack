@@ -1199,7 +1199,11 @@ dodown()
     }
     if (on_level(&valley_level, &u.uz) && !u.uevent.gehennom_entered) {
         You("are standing at the gate to Gehennom.");
-        pline("Unspeakable cruelty and harm lurk down there.");
+        if (Role_if(PM_PIRATE)) {
+            pline("There, there be monsters.");
+        } else {
+            pline("Unspeakable cruelty and harm lurk down there.");
+        }
         if (yn("Are you sure you want to enter?") != 'y')
             return 0;
         else
@@ -1213,15 +1217,35 @@ dodown()
     }
 
     if (trap) {
-        You("%s %s.", Flying ? "fly" : (climbable_trap(trap) ? "climb" : is_giant(youmonst.data) ? "squeeze" : locomotion(youmonst.data, "jump")),
-            trap->ttyp == HOLE ? "down the hole" : "through the trap door");
+        const char *actn = Flying ? "fly" : (climbable_trap(trap) ? "climb" : is_giant(youmonst.data) ? "squeeze" : locomotion(youmonst.data, "jump"));
+        const char *down_or_thru = trap->ttyp == HOLE ? "down" : "through";
         if (!Flying && !climbable_trap(trap)) {
-			losehp(Maybe_Half_Phys(rnd(4)+1),
-			trap->ttyp == TRAPDOOR ? "jumped through a trap door" : "jumped down a hole",
-			NO_KILLER_PREFIX);
-		}
-	}
+            losehp(Maybe_Half_Phys(rnd(4)+1),
+            trap->ttyp == TRAPDOOR ? "jumped through a trap door" : "jumped down a hole",
+            NO_KILLER_PREFIX);
+        }
 
+        if ((youmonst.data->msize >= MZ_HUGE) && (!is_giant(youmonst.data))) {
+            char qbuf[QBUFSZ];
+
+            You("don't fit %s easily.", down_or_thru);
+            Sprintf(qbuf, "Try to squeeze %s?", down_or_thru);
+            if (yn(qbuf) == 'y') {
+                if (!rn2(3)) {
+                    actn = "manage to squeeze";
+                    losehp(Maybe_Half_Phys(rnd(4)),
+                           "contusion from a small passage", KILLED_BY);
+                } else {
+                    You("were unable to fit %s.", down_or_thru);
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+        You("%s %s the %s.", actn, down_or_thru,
+            trap->ttyp == HOLE ? "hole" : "trap door");
+    }
     if (trap && Is_stronghold(&u.uz)) {
         goto_hell(FALSE, TRUE);
     } else {
@@ -1386,6 +1410,13 @@ boolean at_stairs, falling, portal;
             livelog_write_string(LL_ACHIEVE, "entered the Planes");
         }
     }
+
+    /* No being cute and trying to skip the ascension run :P - AntiGulp */
+    if (Is_void(newlevel) && u.uhave.amulet) {
+        pline("You glimpse the Void for a moment, but the Amulet of Yendor pulls you back to reality!");
+        return;
+    }
+
     new_ledger = ledger_no(newlevel);
     if (new_ledger <= 0)
         done(ESCAPED); /* in fact < 0 is impossible */

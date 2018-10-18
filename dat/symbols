@@ -458,6 +458,7 @@ start: Blank
         S_ghost: \032
         S_giant: \032
         S_gnome: \032
+	S_gnoll: \032
         S_golem: \032
         S_grave: \032
         S_gremlin: \032

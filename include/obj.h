@@ -268,8 +268,11 @@ struct obj {
 #define Has_contents(o)                                \
     (/* (Is_container(o) || (o)->otyp == STATUE) && */ \
      (o)->cobj != (struct obj *) 0)
-#define Is_container(o) ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS)
+
+#define Is_container(o) ((o)->otyp == MEDICAL_KIT || \
+			 ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS))
 #define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST || otmp->otyp == MAGIC_CHEST)
+
 #define Is_mbag(otmp) \
     (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS || otmp->otyp == MAGIC_BAG)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
@@ -319,13 +322,13 @@ struct obj {
 /* MAGIC_LAMP intentionally excluded below */
 /* age field of this is relative age rather than absolute */
 #define age_is_relative(otmp)                                       \
-    ((otmp)->otyp == BRASS_LANTERN || (otmp)->otyp == OIL_LAMP      \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
      || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)
 /* object can be ignited */
 #define ignitable(otmp)                                             \
-    ((otmp)->otyp == BRASS_LANTERN || (otmp)->otyp == OIL_LAMP      \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
      || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)

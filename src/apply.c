@@ -967,7 +967,7 @@ register xchar x, y;
                        corpse less likely to remain tame after revival */
                     xkilled(mtmp, XKILL_NOMSG);
                     /* life-saving doesn't ordinarily reset this */
-                    if (mtmp->mhp > 0)
+                    if (!DEADMONSTER(mtmp))
                         u.uconduct.killer = save_pacifism;
                 } else {
                     pline("%s is choked by the leash!", Monnam(mtmp));
@@ -1464,7 +1464,7 @@ struct obj *obj;
 
     if (obj->lamplit) {
         if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-            || obj->otyp == BRASS_LANTERN || obj->otyp == POT_OIL) {
+            || obj->otyp == LANTERN || obj->otyp == POT_OIL) {
             (void) get_obj_location(obj, &x, &y, 0);
             if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind)
                 pline("%s %s out!", Yname2(obj), otense(obj, "go"));
@@ -1496,7 +1496,7 @@ struct obj *obj;
         if (obj->otyp == CANDELABRUM_OF_INVOCATION && obj->cursed)
             return FALSE;
         if ((obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-             || obj->otyp == BRASS_LANTERN) && obj->cursed && !rn2(2))
+             || obj->otyp == LANTERN) && obj->cursed && !rn2(2))
             return FALSE;
         if (obj->where == OBJ_MINVENT ? cansee(x, y) : !Blind)
             pline("%s %s light!", Yname2(obj), otense(obj, "catch"));
@@ -1523,7 +1523,7 @@ struct obj *obj;
 
     if (obj->lamplit) {
         if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-            || obj->otyp == BRASS_LANTERN)
+            || obj->otyp == LANTERN)
             pline("%slamp is now off.", Shk_Your(buf, obj));
         else
             You("snuff out %s.", yname(obj));
@@ -1538,7 +1538,7 @@ struct obj *obj;
     /* magic lamps with an spe == 0 (wished for) cannot be lit */
     if ((!Is_candle(obj) && obj->age == 0)
         || (obj->otyp == MAGIC_LAMP && obj->spe == 0)) {
-        if (obj->otyp == BRASS_LANTERN)
+        if (obj->otyp == LANTERN)
             Your("lamp has run out of power.");
         else
             pline("This %s has no oil.", xname(obj));
@@ -1550,7 +1550,7 @@ struct obj *obj;
                   otense(obj, "die"));
     } else {
         if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-            || obj->otyp == BRASS_LANTERN) {
+            || obj->otyp == LANTERN) {
             check_unpaid(obj);
             pline("%slamp is now on.", Shk_Your(buf, obj));
         } else { /* candle(s) */
@@ -1667,7 +1667,7 @@ dorub()
             You("%s smoke.", !Blind ? "see a puff of" : "smell");
         } else
             pline1(nothing_happens);
-    } else if (obj->otyp == BRASS_LANTERN) {
+    } else if (obj->otyp == LANTERN) {
         /* message from Adventure */
         pline("Rubbing the electric lamp is not particularly rewarding.");
         pline("Anyway, nothing exciting happens.");
@@ -2161,6 +2161,8 @@ struct obj *obj;
         && !(u.uswallow
              && attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_BLND)))
         prop_trouble(BLINDED);
+    if (TimedTrouble(LarvaCarrier))
+        prop_trouble(LARVACARRIER);
     if (TimedTrouble(HHallucination))
         prop_trouble(HALLUC);
     if (TimedTrouble(Vomiting))
@@ -2228,6 +2230,10 @@ struct obj *obj;
         switch (idx) {
         case prop2trbl(SICK):
             make_sick(0L, (char *) 0, TRUE, SICK_ALL);
+            did_prop++;
+            break;
+        case prop2trbl(LARVACARRIER):
+            make_carrier(0L, TRUE);
             did_prop++;
             break;
         case prop2trbl(BLINDED):
@@ -2483,16 +2489,19 @@ struct obj **optr;
     /* Passing FALSE arg here will result in messages displayed */
     if (!figurine_location_checks(obj, &cc, FALSE))
         return;
-    You("%s and it transforms.",
+    You("%s and it %stransforms.",
         (u.dx || u.dy) ? "set the figurine beside you"
                        : (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
                           || is_pool(cc.x, cc.y))
                              ? "release the figurine"
                              : (u.dz < 0 ? "toss the figurine into the air"
-                                         : "set the figurine on the ground"));
+                                         : "set the figurine on the ground"),
+        Blind ? "supposedly " : "");
     (void) make_familiar(obj, cc.x, cc.y, FALSE);
     (void) stop_timer(FIG_TRANSFORM, obj_to_any(obj));
     useup(obj);
+    if (Blind)
+        map_invisible(cc.x, cc.y);
     *optr = 0;
 }
 
@@ -3786,6 +3795,7 @@ doapply()
     struct obj *obj;
     register int res = 1;
     char class_list[MAXOCLASSES + 2];
+    register boolean can_use = FALSE;
 
     if (check_capacity((char *) 0))
         return 0;
@@ -3867,7 +3877,7 @@ doapply()
     case MAGIC_WHISTLE:
         use_magic_whistle(obj);
         break;
-    case TIN_WHISTLE:
+    case PEA_WHISTLE:
         use_whistle(obj);
         break;
     case EUCALYPTUS_LEAF:
@@ -3907,7 +3917,7 @@ doapply()
         break;
     case OIL_LAMP:
     case MAGIC_LAMP:
-    case BRASS_LANTERN:
+    case LANTERN:
         use_lamp(obj);
         break;
     case POT_OIL:
@@ -3938,18 +3948,82 @@ doapply()
     case UNICORN_HORN:
         use_unicorn_horn(obj);
         break;
-    case WOODEN_FLUTE:
+    case FLUTE:
     case MAGIC_FLUTE:
     case TOOLED_HORN:
     case FROST_HORN:
     case FIRE_HORN:
-    case WOODEN_HARP:
+    case HARP:
     case MAGIC_HARP:
     case BUGLE:
     case LEATHER_DRUM:
     case DRUM_OF_EARTHQUAKE:
         res = do_play_instrument(obj);
         break;
+    case MEDICAL_KIT:
+    		if (Role_if(PM_HEALER)) can_use = TRUE;
+    		else if ((Role_if(PM_PRIEST) || Role_if(PM_MONK) ||
+          Role_if(PM_SAMURAI)) &&
+    			!rn2(2)) can_use = TRUE;
+    		else if(!rn2(4)) can_use = TRUE;
+
+    		if (obj->cursed && rn2(3)) can_use = FALSE;
+    		if (obj->blessed && rn2(3)) can_use = TRUE;
+
+    		makeknown(MEDICAL_KIT);
+    		if (obj->cobj) {
+    		    struct obj *otmp;
+    		    for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
+    			  if (otmp->otyp == PILL)
+    			      break;
+    		    if (!otmp)
+    			      You_cant("find any more pills in %s.", yname(obj));
+    		    else if (!is_edible(otmp))
+    			      You("find, but cannot eat, a white pill in %s.",
+    			        yname(obj));
+    		    else {
+          			check_unpaid(obj);
+          			if (otmp->quan > 1L) {
+          			    otmp->quan--;
+          			    obj->owt = weight(obj);
+          			} else {
+          			    obj_extract_self(otmp);
+          			    obfree(otmp, (struct obj *)0);
+          			}
+          			/*
+          			 * Note that while white and pink pills share the
+          			 * same otyp value, they are quite different.
+          			 */
+          			You("take a white pill from %s and swallow it.",
+          				  yname(obj));
+          			if (can_use) {
+          			    if (Sick) make_sick(0L, (char *) 0,TRUE ,SICK_ALL);
+          			    else if (Blinded > (long)(u.ucreamed+1))
+          				      make_blinded(u.ucreamed ?
+          					        (long)(u.ucreamed+1) : 0L, TRUE);
+          			    else if (HHallucination)
+          				      make_hallucinated(0L, TRUE, 0L);
+          			    else if (Vomiting) make_vomiting(0L, TRUE);
+          			    else if (HConfusion) make_confused(0L, TRUE);
+          			    else if (HStun) make_stunned(0L, TRUE);
+          			    else if (u.uhp < u.uhpmax) {
+                				u.uhp += rn1(10,10);
+                				if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+                				You_feel("better.");
+                				context.botl = TRUE;
+          			    } else pline1(nothing_happens);
+          			} else if (!rn2(3))
+          			    pline("Nothing seems to happen.");
+          			else if (!Sick)
+          			    make_sick(rn1(10,10), "bad pill", TRUE,
+          			      SICK_VOMITABLE);
+          			else {
+          			    You("seem to have made your condition worse!");
+          			    losehp(rn1(10,10), "a drug overdose", KILLED_BY);
+          			}
+    		    }
+    		} else You("seem to be out of medical supplies.");
+    		break;
     case HORN_OF_PLENTY: /* not a musical instrument */
         (void) hornoplenty(obj, FALSE);
         break;

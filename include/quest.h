@@ -28,8 +28,8 @@ struct q_score {              /* Quest "scorecard" */
 
     /* used by questpgr code when messages want to use pronouns
        (set up at game start instead of waiting until monster creation;
-       1 bit each would suffice--nobody involved is actually neuter) */
-    Bitfield(ldrgend, 2); /* leader's gender: 0=male, 1=female, 2=neuter */
+       1 bit each would suffice--nobody involved is actually nonbinary) */
+    Bitfield(ldrgend, 2); /* leader's gender: 0=male, 1=female, 2=nonbinary */
     Bitfield(nemgend, 2); /* nemesis's gender */
     Bitfield(godgend, 2); /* deity's gender */
 

@@ -50,6 +50,7 @@ E struct dgn_topology { /* special dungeon levels for speed */
     d_level d_rogue_level;
     d_level d_medusa_level;
     d_level d_stronghold_level;
+    d_level d_void_level;
     d_level d_valley_level;
     d_level d_wiz1_level;
     d_level d_wiz2_level;
@@ -82,6 +83,7 @@ E struct dgn_topology { /* special dungeon levels for speed */
 #define rogue_level             (dungeon_topology.d_rogue_level)
 #define medusa_level            (dungeon_topology.d_medusa_level)
 #define stronghold_level        (dungeon_topology.d_stronghold_level)
+#define void_level              (dungeon_topology.d_void_level)
 #define valley_level            (dungeon_topology.d_valley_level)
 #define wiz1_level              (dungeon_topology.d_wiz1_level)
 #define wiz2_level              (dungeon_topology.d_wiz2_level)
@@ -232,6 +234,9 @@ E const int shield_static[];
 
 #include "spell.h"
 E NEARDATA struct spell spl_book[]; /* sized in decl.c */
+
+#include "tech.h"
+E NEARDATA struct tech tech_list[]; /* sized in decl.c */
 
 #include "color.h"
 #ifdef TEXTCOLOR

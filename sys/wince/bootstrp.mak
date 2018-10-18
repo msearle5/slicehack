@@ -248,7 +248,7 @@ $(O)sp_lev.tag:  $(DAT)\bigroom.des  $(DAT)\castle.des \
 	$(DAT)\rogue.des   $(DAT)\samurai.des  $(DAT)\sokoban.des \
 	$(DAT)\tourist.des $(DAT)\valkyrie.des $(DAT)\wizard.des \
 	$(DAT)\cartomancer.des  $(DAT)\void.des $(DAT)\statuary.des \
-	$(DAT)\drag.des 
+	$(DAT)\drag.des
 	cd $(DAT)
 	$(U)lev_comp bigroom.des
 	$(U)lev_comp castle.des

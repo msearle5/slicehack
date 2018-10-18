@@ -692,6 +692,9 @@ xchar x, y;
                       && x == inv_pos.x && y == inv_pos.y);
 }
 
+/* For those tough guys who get carried away... */
+int repeat_hit = 0;
+
 /* return TRUE if (dx,dy) is an OK place to move
  * mode is one of DO_MOVE, TEST_MOVE, TEST_TRAV, or TEST_TRAP
  */
@@ -1739,7 +1742,7 @@ domove()
         * this is such a marginal case that it may not be worth fixing. */
         if (context.nopick) {
             /* moving with 'm' */
-            if (is_pool(x, y) && !known_wwalking) {
+            if (is_pool(x, y) && !known_wwalking && !Swimming) {
                 if (ParanoidSwim && yn("Really enter the water?") != 'y') {
                     context.move = 0;
                     nomul(0);
@@ -1756,7 +1759,7 @@ domove()
         } else {
             /* not moving with 'm'; if not known safe, simply prevent from
              * moving at all */
-            if ((is_pool(x, y) && !known_wwalking)
+            if ((is_pool(x, y) && !known_wwalking && !Swimming)
                 || (is_lava(x, y) && !known_lwalking)) {
                 static boolean first = TRUE;
                 context.move = 0;
@@ -2247,6 +2250,7 @@ boolean pick;
     if ((mtmp = m_at(u.ux, u.uy)) && !u.uswallow) {
         mtmp->mundetected = mtmp->msleeping = 0;
         switch (mtmp->data->mlet) {
+        case S_ZOUTHERN:
         case S_PIERCER:
             pline("%s suddenly drops from the %s!", Amonnam(mtmp),
                   ceiling(u.ux, u.uy));
@@ -2590,16 +2594,14 @@ register boolean newlev;
     return;
 }
 
-/* the ',' command */
+/* returns
+   1 = cannot pickup, time taken
+   0 = cannot pickup, no time taken
+  -1 = do normal pickup
+  -2 = loot the monster */
 int
-dopickup()
+pickup_checks()
 {
-    int count, tmpcount;
-    struct trap *traphere = t_at(u.ux, u.uy);
-
-    /* awful kludge to work around parse()'s pre-decrement */
-    count = (multi || (save_cm && *save_cm == ',')) ? multi + 1 : 0;
-    multi = 0; /* always reset */
     /* uswallow case added by GAN 01/29/87 */
     if (u.uswallow) {
         if (!u.ustuck->minvent) {
@@ -2611,8 +2613,7 @@ dopickup()
                     Blind ? "feel" : "see");
             return 1;
         } else {
-            tmpcount = -count;
-            return loot_mon(u.ustuck, &tmpcount, (boolean *) 0);
+            return -2; /* loot the monster inventory */
         }
     }
     if (is_pool(u.ux, u.uy)) {
@@ -2656,6 +2657,7 @@ dopickup()
         return 0;
     }
     if (!can_reach_floor(TRUE)) {
+        struct trap *traphere = t_at(u.ux, u.uy);
         if (traphere && uteetering_at_seen_pit(traphere))
             You("cannot reach the bottom of the pit.");
         else if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
@@ -2666,6 +2668,25 @@ dopickup()
             You("cannot reach the %s.", surface(u.ux, u.uy));
         return 0;
     }
+    return -1; /* can do normal pickup */
+}
+
+/* the ',' command */
+int
+dopickup(VOID_ARGS)
+{
+    int count, tmpcount, ret;
+
+    /* awful kludge to work around parse()'s pre-decrement */
+    count = (multi || (save_cm && *save_cm == cmd_from_func(dopickup))) ? multi + 1 : 0;
+    multi = 0; /* always reset */
+
+    if ((ret = pickup_checks() >= 0))
+        return ret;
+    else if (ret == -2) {
+        tmpcount = -count;
+        return loot_mon(u.ustuck, &tmpcount, (boolean *) 0);
+    } /* else ret == -1 */
 
     return pickup(-count);
 }

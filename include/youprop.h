@@ -114,6 +114,7 @@
 #define Strangled u.uprops[STRANGLED].intrinsic
 #define Vomiting u.uprops[VOMITING].intrinsic
 #define Glib u.uprops[GLIB].intrinsic
+#define LarvaCarrier u.uprops[LARVACARRIER].intrinsic
 #define Slimed u.uprops[SLIMED].intrinsic /* [Tom] */
 
 /* Hallucination is solely a timeout */
@@ -209,6 +210,10 @@
 #define HAggravate_monster u.uprops[AGGRAVATE_MONSTER].intrinsic
 #define EAggravate_monster u.uprops[AGGRAVATE_MONSTER].extrinsic
 #define Aggravate_monster (HAggravate_monster || EAggravate_monster)
+
+#define BloodMagic u.uprops[BLOODMAGIC].extrinsic
+
+#define GoodMemory u.uprops[GOODMEMORY].extrinsic
 
 #define HConflict u.uprops[CONFLICT].intrinsic
 #define EConflict u.uprops[CONFLICT].extrinsic
@@ -375,10 +380,6 @@
 
 #define Lifesaved u.uprops[LIFESAVED].extrinsic
 
-#define BloodMagic u.uprops[BLOODMAGIC].extrinsic
-
-#define GoodMemory u.uprops[GOODMEMORY].extrinsic
-
 /*
  * Some pseudo-properties.
  */
@@ -387,7 +388,11 @@
    redundant but allows the function calls to be skipped most of the time */
 #define Unaware (multi < 0 && (unconscious() || is_fainted()))
 
-#define Hate_silver (u.ulycn >= LOW_PM || hates_silver(youmonst.data) || \
-                     Race_if(PM_INFERNAL))
+/* Whether the hero is in a form that dislikes a certain material */
+#define Hate_material(material) \
+    (hates_material(youmonst.data, material) \
+     || (material == SILVER && u.ulycn >= LOW_PM) \
+     || (material == SILVER && !Upolyd && Race_if(PM_INFERNAL)) \
+     || (material == IRON && !Upolyd && Race_if(PM_ELF)))
 
 #endif /* YOUPROP_H */

@@ -195,6 +195,8 @@ const int shield_static[SHIELD_COUNT] = {
 
 NEARDATA struct spell spl_book[MAXSPELL + 1] = { DUMMY };
 
+NEARDATA struct tech tech_list[MAXTECH + 1] = {DUMMY};
+
 NEARDATA long moves = 1L, monstermoves = 1L;
 /* These diverge when player is Fast */
 NEARDATA long wailmsg = 0L;

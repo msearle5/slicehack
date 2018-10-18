@@ -39,24 +39,23 @@ ink_cost(short otyp)
         return 12;
     case SCR_IDENTIFY:
     case SCR_WARDING_WORDS:
-    case SCR_KNOWLEDGE:
         return 14;
     case SCR_ENCHANT_ARMOR:
+    case SCR_WARP_ARMOR:
     case SCR_REMOVE_CURSE:
     case SCR_ENCHANT_WEAPON:
+    case SCR_WARP_WEAPON:
     case SCR_CHARGING:
-    case SCR_TIME:
         return 16;
     case SCR_SCARE_MONSTER:
     case SCR_STINKING_CLOUD:
     case SCR_TAMING:
     case SCR_CLONING:
+    case SCR_AIR:
     case SCR_TELEPORTATION:
         return 20;
+    case SCR_TIME:
     case SCR_GENOCIDE:
-    case SCR_PURE_LAW:
-    case SCR_TRUE_NEUTRALITY:
-    case SCR_RAW_CHAOS:
         return 30;
     case SCR_BLANK_PAPER:
     default:
@@ -243,6 +242,10 @@ found:
 
     /* see if there's enough ink */
     basecost = ink_cost(new_obj->otyp);
+    if (new_obj->otyp == SCR_KNOWLEDGE) {
+        You("cannot write something you do not know!");
+        return 1;
+    }
     if (pen->spe < basecost / 2) {
         Your("marker is too dry to write that!");
         obfree(new_obj, (struct obj *) 0);

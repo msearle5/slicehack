@@ -9,7 +9,8 @@
 
 #define Your_Own_Role(mndx)  \
     ((mndx) == urole.malenum \
-     || (urole.femalenum != NON_PM && (mndx) == urole.femalenum))
+     || (urole.femalenum != NON_PM && (mndx) == urole.femalenum) \
+     || (urole.nbnum != NON_PM && (mndx) == urole.nbnum))
 #define Your_Own_Race(mndx)  \
     ((mndx) == urace.malenum \
      || (urace.femalenum != NON_PM && (mndx) == urace.femalenum))
@@ -27,6 +28,7 @@ STATIC_DCL void FDECL(stripspe, (struct obj *));
 STATIC_DCL void FDECL(p_glow1, (struct obj *));
 STATIC_DCL void FDECL(p_glow2, (struct obj *, const char *));
 STATIC_DCL void FDECL(forget_single_object, (int));
+STATIC_PTR void FDECL(set_dark, (int,int,genericptr_t));
 #if 0 /* not used */
 STATIC_DCL void FDECL(forget_objclass, (int));
 #endif
@@ -166,7 +168,9 @@ char *buf;
         "#NerfTheLoTF",
         "Got ASCII?",
         "Don't @ me!",
-        "I <3 Sokoban"
+        "I <3 Sokoban",
+        "No Artifacts. Valkyrie Only. Astral Plane.",
+        "Livelog THIS!"
     };
 
     Strcpy(buf, shirt_msgs[tshirt->o_id % SIZE(shirt_msgs)]);
@@ -467,6 +471,17 @@ doread()
             }
         }
     }
+    /* */
+    if (Role_if(PM_CARTOMANCER)) {
+        struct monst *mtmp, *mtmp2;
+        for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+            mtmp2 = mtmp->nmon;
+            if (mtmp->mpeaceful || mtmp->mtame
+                || distu(mtmp->mx, mtmp->my) > 16)
+                continue;
+            card_response(mtmp);
+        }
+    }
     return 1;
 }
 
@@ -481,7 +496,7 @@ register struct obj *obj;
         pline("%s briefly.", Yobjnam2(obj, "vibrate"));
         costly_alteration(obj, COST_UNCHRG);
         obj->spe = 0;
-        if (obj->otyp == OIL_LAMP || obj->otyp == BRASS_LANTERN)
+        if (obj->otyp == OIL_LAMP || obj->otyp == LANTERN)
             obj->age = 0;
     }
 }
@@ -692,7 +707,7 @@ int curse_bless;
             }
             break;
         case OIL_LAMP:
-        case BRASS_LANTERN:
+        case LANTERN:
             if (is_cursed) {
                 stripspe(obj);
                 if (obj->lamplit) {
@@ -791,6 +806,45 @@ int obj_id;
     undiscover_object(obj_id); /* after clearing oc_name_known */
 
     /* clear & free object names from matching inventory items too? */
+}
+
+STATIC_PTR void
+set_dark(x,y,val)
+int x, y;
+genericptr_t val;
+/* *val comes in as 0 if blind, -1, 1, or 2 otherwise
+ *val leaves as 0 if blind
+               -1 if darkness hit you at sometime
+                2 if you saw darkness, but it hasn't
+                1 if you haven't seen darkness yet
+                     yet hit you */
+{
+    char * nblind = (char *) val;
+    register struct obj *otmp;
+    if (u.ux == x && u.uy == y) {
+        if (* nblind) {
+            *nblind = -1;
+            if (uwep && artifact_light(uwep) && uwep->lamplit)
+                pline("Suddenly, the only light left comes from %s!",
+                    the(xname(uwep)));
+        else
+            You("are surrounded by darkness!");
+        }
+        /* the magic douses lamps, et al, too */
+        for(otmp = invent; otmp; otmp = otmp->nobj)
+            if (otmp->lamplit)
+                (void) snuff_lit(otmp);
+    } else {
+        struct monst * mlit = m_at(x,y);
+        if (*nblind == 1 && levl[x][y].lit && cansee(x,y))
+            *nblind = 2;
+        if (mlit)
+            for(otmp = mlit->minvent; otmp; otmp = otmp->nobj)
+                if (otmp->lamplit)
+                    (void) snuff_lit(otmp);
+    }
+    levl[x][y].lit = 0;
+    snuff_light_source(x, y);
 }
 
 #if 0 /* here if anyone wants it.... */
@@ -1651,7 +1705,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 pline1(Never_mind);
                 break;
             }
-            if (!is_valid_stinking_cloud_pos(cc.x, cc.y, TRUE))
+            if (!is_valid_stinking_cloud_pos(cc.x, cc.y, FALSE))
                 break;
             trtmp = maketrap(cc.x, cc.y, WEB);
             if (sblessed && trtmp) {
@@ -1689,6 +1743,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             if (sblessed)
                 specified_id();
         }
+        You("feel more knowledgeable.");
         if (!already_known)
             (void) learnscrolltyp(SCR_KNOWLEDGE);
         break;
@@ -1724,31 +1779,76 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             pline("You're not carrying anything to be identified.");
         }
         break;
-    case SCR_PURE_LAW:
-        if (u.ualign.type == A_LAWFUL) {
-            You_feel("very devout!");
-            known = TRUE;
-            scrollpray();
-        } else {
-            summon_minion(A_LAWFUL, TRUE);
+    case SCR_AIR: {
+        int i;
+        struct monst *mtmp, *mtmp2;
+        if (scursed) {
+            if (!breathless(youmonst.data)) {
+                known = TRUE;
+                The("air is sucked from your lungs!");
+                losehp(d(3, 4), "scroll of air", KILLED_BY_AN);
+            } else {
+                strange_feeling(sobj, "You feel oddly breathless.");
+            }
+            break;
+        } else if (sblessed)
+            i = 4;
+        else
+            i = 2;
+        /* Ideally this should remove poison gas as well. */
+        pline("A tornado whips up around you!");
+        known = TRUE;
+        for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+            mtmp2 = mtmp->nmon;
+            if (distu(mtmp->mx, mtmp->my) <= 2)
+                mhurtle(mtmp, mtmp->mx - u.ux, mtmp->my - u.uy, i + rn2(4));
+                setmangry(mtmp, TRUE);
         }
         break;
-    case SCR_TRUE_NEUTRALITY:
-        if (u.ualign.type == A_NEUTRAL) {
-            You_feel("very devout!");
-            known = TRUE;
-            scrollpray();
+    }
+    case SCR_WARP_WEAPON:
+        if (!uwep)
+            sobj = 0; /* nothing enchanted: strange_feeling -> useup */
+        else if (confused || scursed) {
+            pline("%s with a sickly green light!", Yobjnam2(uwep, "glow"));
+            curse(uwep);
+            uwep->oerodeproof = 0;
+            if (valid_obj_material(uwep, PLASTIC)) {
+                uwep->material = PLASTIC;
+                costly_alteration(uwep, COST_DRAIN);
+            } else
+                warp_material(uwep, TRUE);
         } else {
-            summon_minion(A_NEUTRAL, TRUE);
+            if (sblessed)
+                bless(uwep);
+            pline("%s with a strange yellow light!", Yobjnam2(uwep, "glow"));
+            warp_material(uwep, TRUE);
         }
         break;
-    case SCR_RAW_CHAOS:
-        if (u.ualign.type == A_CHAOTIC) {
-            You_feel("very devout!");
-            known = TRUE;
-            scrollpray();
+    case SCR_WARP_ARMOR:
+        otmp = some_armor(&youmonst);
+        if (!otmp) {
+            strange_feeling(sobj, "Your skin scrawls for a moment.");
+            sobj = 0; /* useup() in strange_feeling() */
+            exercise(A_CON, !scursed);
+            exercise(A_STR, !scursed);
+            break;
+        }
+        if (confused || scursed) {
+            pline("%s with a sickly green light!", Yobjnam2(otmp, "glow"));
+            curse(otmp);
+            otmp->oerodeproof = 0;
+            if (valid_obj_material(otmp, PLASTIC)) {
+                otmp->material = PLASTIC;
+                costly_alteration(otmp, COST_DRAIN);
+            } else
+                warp_material(otmp, TRUE);
+            break;
         } else {
-            summon_minion(A_CHAOTIC, TRUE);
+            if (sblessed)
+                bless(otmp);
+            pline("%s with a strange yellow light!", Yobjnam2(otmp, "glow"));
+            warp_material(otmp, TRUE);
         }
         break;
     case SCR_CHARGING:
@@ -2006,14 +2106,15 @@ specified_id()
     static char buf[BUFSZ] = DUMMY;
     char promptbuf[BUFSZ];
     char bufcpy[BUFSZ];
+    char answerbuf[BUFSZ];
     short otyp;
     int tries = 0;
 
     promptbuf[0] = '\0';
     if (flags.verbose)
-        You("may identify any object.");
+        You("may learn about any object.");
   retry:
-    Strcpy(promptbuf, "What type of non-artifact object do you wish to learn the history of");
+    Strcpy(promptbuf, "What non-artifact do you want to learn the appearance of");
     Strcat(promptbuf, "?");
     getlin(promptbuf, buf);
     (void) mungspaces(buf);
@@ -2023,15 +2124,25 @@ specified_id()
     strcpy(bufcpy, buf);
     otyp = name_to_otyp(buf);
     if (otyp == STRANGE_OBJECT) {
-            pline("No specific object of that name exists.");
+        pline("No specific object of that name exists.");
         if (++tries < 5)
             goto retry;
         pline1(thats_enough_tries);
         if (!otyp)
             return; /* for safety; should never happen */
     }
+    if (objects[otyp].oc_name_known) {
+        pline("You already know what that object looks like.");
+        if (++tries < 5)
+            goto retry;
+        pline1(thats_enough_tries);
+        if (!otyp)
+            return;
+    }
+    Sprintf(answerbuf, "%s -", obj_typename(otyp));
     (void) makeknown(otyp);
-    You("feel more knowledgeable.");
+    Sprintf(eos(answerbuf), " %s.", simple_typename(otyp));
+    pline("%s", answerbuf);
     update_inventory();
 }
 
@@ -2127,7 +2238,7 @@ boolean confused, byu;
             }
         }
         mtmp->mhp -= mdmg;
-        if (mtmp->mhp <= 0) {
+        if (DEADMONSTER(mtmp)) {
             if (byu) {
                 killed(mtmp);
             } else {
@@ -2342,6 +2453,53 @@ struct obj *obj;
             free((genericptr_t) gremlin);
         } while (gremlins);
     }
+}
+
+/* can be used even if no mon is at xx, yy */
+void
+litroom_mon(on,obj, xx, yy)
+register boolean on;
+struct obj *obj;
+int xx, yy;
+{
+    struct monst * mlit = m_at(xx,yy);
+    char u_see_effects = !Blind;
+
+    /*
+     *  If we are darkening the room and the hero is punished but not
+     *  blind, then we have to pick up and replace the ball and chain so
+     *  that we don't remember them if they are out of sight.
+     */
+    if (Punished && !on && !Blind)
+        move_bc(1, 0, uball->ox, uball->oy, uchain->ox, uchain->oy);
+
+
+    do_clear_area(xx,yy,
+        (obj && obj->oclass==SCROLL_CLASS && obj->blessed) ? 5 : 3,
+        (on)?set_lit:set_dark, (genericptr_t)&u_see_effects );
+
+    /*
+     *  If we are not blind, then force a redraw on all positions in sight
+     *  by temporarily blinding the hero.  The vision recalculation will
+     *  correctly update all previously seen positions *and* correctly
+     *  set the waslit bit [could be messed up from above].
+     */
+    if (!Blind) {
+        vision_recalc(2);
+
+      /* replace ball&chain */
+      if (Punished && !on)
+          move_bc(0, 0, uball->ox, uball->oy, uchain->ox, uchain->oy);
+    }
+    if (on && canseemon(mlit)){
+        pline("A lit field surrounds %s!", mon_nam(mlit));
+    }
+    if (!on && u_see_effects==2){
+        pline("A shroud of darkness settles %s!",
+            (distu(xx,yy) > 15)?"in the distance":"nearby");
+    }
+
+    vision_full_recalc = 1;	/* delayed vision recalculation */
 }
 
 STATIC_OVL void
@@ -2613,6 +2771,8 @@ int how;
                 mvitals[urole.femalenum].mvflags |= (G_GENOD | G_NOCORPSE);
             if (urole.femalenum != NON_PM && mndx == urole.femalenum)
                 mvitals[urole.malenum].mvflags |= (G_GENOD | G_NOCORPSE);
+            if (urole.femalenum != NON_PM && mndx == urole.nbnum)
+                mvitals[urole.nbnum].mvflags |= (G_GENOD | G_NOCORPSE);
             if (urace.femalenum != NON_PM && mndx == urace.malenum)
                 mvitals[urace.femalenum].mvflags |= (G_GENOD | G_NOCORPSE);
             if (urace.femalenum != NON_PM && mndx == urace.femalenum)
@@ -2755,6 +2915,146 @@ struct obj *from_obj;
     return FALSE;
 }
 
+struct _create_particular_data {
+    int which;
+    int fem;
+    char monclass;
+    boolean randmonst;
+    boolean maketame, makepeaceful, makehostile;
+    boolean sleeping, saddled, invisible;
+};
+
+boolean
+create_particular_parse(str, d)
+char *str;
+struct _create_particular_data *d;
+{
+    char *bufp = str;
+    char *tmpp;
+
+    d->monclass = MAXMCLASSES;
+    d->which = urole.malenum; /* an arbitrary index into mons[] */
+    d->fem = -1; /* gender not specified */
+    d->randmonst = FALSE;
+    d->maketame = d->makepeaceful = d->makehostile = FALSE;
+    d->sleeping = d->saddled = d->invisible = FALSE;
+
+    if ((tmpp = strstri(bufp, "saddled ")) != 0) {
+        d->saddled = TRUE;
+        (void) memset(tmpp, ' ', sizeof "saddled " - 1);
+    }
+    if ((tmpp = strstri(bufp, "sleeping ")) != 0) {
+        d->sleeping = TRUE;
+        (void) memset(tmpp, ' ', sizeof "sleeping " - 1);
+    }
+    if ((tmpp = strstri(bufp, "invisible ")) != 0) {
+        d->invisible = TRUE;
+        (void) memset(tmpp, ' ', sizeof "invisible " - 1);
+    }
+    /* check "female" before "male" to avoid false hit mid-word */
+    if ((tmpp = strstri(bufp, "female ")) != 0) {
+        d->fem = 1;
+        (void) memset(tmpp, ' ', sizeof "female " - 1);
+    }
+    if ((tmpp = strstri(bufp, "male ")) != 0) {
+        d->fem = 0;
+        (void) memset(tmpp, ' ', sizeof "male " - 1);
+    }
+    bufp = mungspaces(bufp); /* after potential memset(' ') */
+    /* allow the initial disposition to be specified */
+    if (!strncmpi(bufp, "tame ", 5)) {
+        bufp += 5;
+        d->maketame = TRUE;
+    } else if (!strncmpi(bufp, "peaceful ", 9)) {
+        bufp += 9;
+        d->makepeaceful = TRUE;
+    } else if (!strncmpi(bufp, "hostile ", 8)) {
+        bufp += 8;
+        d->makehostile = TRUE;
+    }
+    /* decide whether a valid monster was chosen */
+    if (wizard && (!strcmp(bufp, "*") || !strcmp(bufp, "random"))) {
+        d->randmonst = TRUE;
+        return TRUE;
+    }
+    d->which = name_to_mon(bufp);
+    if (d->which >= LOW_PM)
+        return TRUE; /* got one */
+    d->monclass = name_to_monclass(bufp, &d->which);
+    if (d->which >= LOW_PM) {
+        d->monclass = MAXMCLASSES; /* matters below */
+        return TRUE;
+    } else if (d->monclass > 0) {
+        d->which = urole.malenum; /* reset from NON_PM */
+        return TRUE;
+    }
+    return FALSE;
+}
+
+boolean
+create_particular_creation(d)
+struct _create_particular_data *d;
+{
+    struct permonst *whichpm = NULL;
+    int i, firstchoice = NON_PM;
+    struct monst *mtmp;
+    boolean madeany = FALSE;
+
+    if (!d->randmonst) {
+        firstchoice = d->which;
+        if (cant_revive(&d->which, FALSE, (struct obj *) 0)) {
+            /* wizard mode can override handling of special monsters */
+            char buf[BUFSZ];
+
+            Sprintf(buf, "Creating %s instead; force %s?",
+                    mons[d->which].mname, mons[firstchoice].mname);
+            if (yn(buf) == 'y')
+                d->which = firstchoice;
+        }
+        whichpm = &mons[d->which];
+    }
+    for (i = 0; i <= multi; i++) {
+        if (d->monclass != MAXMCLASSES)
+            whichpm = mkclass(d->monclass, 0);
+        else if (d->randmonst)
+            whichpm = rndmonst();
+        mtmp = makemon(whichpm, u.ux, u.uy, NO_MM_FLAGS);
+        if (!mtmp) {
+            /* quit trying if creation failed and is going to repeat */
+            if (d->monclass == MAXMCLASSES && !d->randmonst)
+                break;
+            /* otherwise try again */
+            continue;
+        }
+        /* 'is_FOO()' ought to be called 'always_FOO()' */
+        if (d->fem != -1 && !is_male(mtmp->data) && !is_female(mtmp->data))
+            mtmp->female = d->fem; /* ignored for is_neuter() */
+        if (d->maketame) {
+            (void) tamedog(mtmp, (struct obj *) 0);
+        } else if (d->makepeaceful || d->makehostile) {
+            mtmp->mtame = 0; /* sanity precaution */
+            mtmp->mpeaceful = d->makepeaceful ? 1 : 0;
+            set_malign(mtmp);
+        }
+        if (d->saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
+            struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
+
+            put_saddle_on_mon(otmp, mtmp);
+        }
+        if (d->invisible)
+            mon_set_minvis(mtmp);
+        if (d->sleeping)
+            mtmp->msleeping = 1;
+        madeany = TRUE;
+        /* in case we got a doppelganger instead of what was asked
+           for, make it start out looking like what was asked for */
+        if (mtmp->cham != NON_PM && firstchoice != NON_PM
+            && mtmp->cham != firstchoice)
+            (void) newcham(mtmp, &mons[firstchoice], FALSE, FALSE);
+    }
+    return madeany;
+}
+
 /*
  * Make a new monster with the type controlled by the user.
  *
@@ -2770,135 +3070,29 @@ struct obj *from_obj;
 boolean
 create_particular()
 {
-    char buf[BUFSZ] = DUMMY, *bufp, monclass;
-    char *tmpp;
-    int which, tryct, i, firstchoice = NON_PM;
-    struct permonst *whichpm = NULL;
-    struct monst *mtmp;
-    boolean madeany = FALSE, randmonst = FALSE,
-        maketame, makepeaceful, makehostile, saddled, invisible,
-        sleeping;
-    int fem;
+    char buf[BUFSZ] = DUMMY, *bufp;
+    int  tryct = 5;
+    struct _create_particular_data d;
 
-    tryct = 5;
     do {
-        monclass = MAXMCLASSES;
-        which = urole.malenum; /* an arbitrary index into mons[] */
-        maketame = makepeaceful = makehostile = FALSE;
-        sleeping = saddled = invisible = FALSE;
-        fem = -1; /* gender not specified */
         getlin("Create what kind of monster? [type the name or symbol]", buf);
         bufp = mungspaces(buf);
         if (*bufp == '\033')
             return FALSE;
-        if ((tmpp = strstri(bufp, "saddled ")) != 0) {
-            saddled = TRUE;
-            (void) memset(tmpp, ' ', sizeof "saddled " - 1);
-        }
-        if ((tmpp = strstri(bufp, "sleeping ")) != 0) {
-            sleeping = TRUE;
-            (void) memset(tmpp, ' ', sizeof "sleeping " - 1);
-        }
-        if ((tmpp = strstri(bufp, "invisible ")) != 0) {
-            invisible = TRUE;
-            (void) memset(tmpp, ' ', sizeof "invisible " - 1);
-        }
-        /* check "female" before "male" to avoid false hit mid-word */
-        if ((tmpp = strstri(bufp, "female ")) != 0) {
-            fem = 1;
-            (void) memset(tmpp, ' ', sizeof "female " - 1);
-        }
-        if ((tmpp = strstri(bufp, "male ")) != 0) {
-            fem = 0;
-            (void) memset(tmpp, ' ', sizeof "male " - 1);
-        }
-        bufp = mungspaces(bufp); /* after potential memset(' ') */
-        /* allow the initial disposition to be specified */
-        if (!strncmpi(bufp, "tame ", 5)) {
-            bufp += 5;
-            maketame = TRUE;
-        } else if (!strncmpi(bufp, "peaceful ", 9)) {
-            bufp += 9;
-            makepeaceful = TRUE;
-        } else if (!strncmpi(bufp, "hostile ", 8)) {
-            bufp += 8;
-            makehostile = TRUE;
-        }
-        /* decide whether a valid monster was chosen */
-        if (wizard && (!strcmp(bufp, "*") || !strcmp(bufp, "random"))) {
-            randmonst = TRUE;
+
+        if (create_particular_parse(bufp, &d))
             break;
-        }
-        which = name_to_mon(bufp);
-        if (which >= LOW_PM)
-            break; /* got one */
-        monclass = name_to_monclass(bufp, &which);
-        if (which >= LOW_PM) {
-            monclass = MAXMCLASSES; /* matters below */
-            break;
-        } else if (monclass > 0) {
-            which = urole.malenum; /* reset from NON_PM */
-            break;
-        }
+
         /* no good; try again... */
         pline("I've never heard of such monsters.");
     } while (--tryct > 0);
 
-    if (!tryct) {
+    if (!tryct)
         pline1(thats_enough_tries);
-    } else {
-        if (!randmonst) {
-            firstchoice = which;
-            if (cant_revive(&which, FALSE, (struct obj *) 0)) {
-                /* wizard mode can override handling of special monsters */
-                Sprintf(buf, "Creating %s instead; force %s?",
-                        mons[which].mname, mons[firstchoice].mname);
-                if (yn(buf) == 'y')
-                    which = firstchoice;
-            }
-            whichpm = &mons[which];
-        }
-        for (i = 0; i <= multi; i++) {
-            if (monclass != MAXMCLASSES)
-                whichpm = mkclass(monclass, 0);
-            else if (randmonst)
-                whichpm = rndmonst();
-            mtmp = makemon(whichpm, u.ux, u.uy, NO_MM_FLAGS);
-            if (!mtmp) {
-                /* quit trying if creation failed and is going to repeat */
-                if (monclass == MAXMCLASSES && !randmonst)
-                    break;
-                /* otherwise try again */
-                continue;
-            }
-            /* 'is_FOO()' ought to be called 'always_FOO()' */
-            if (fem != -1 && !is_male(mtmp->data) && !is_female(mtmp->data))
-                mtmp->female = fem; /* ignored for is_neuter() */
-            if (maketame) {
-                (void) tamedog(mtmp, (struct obj *) 0);
-            } else if (makepeaceful || makehostile) {
-                mtmp->mtame = 0; /* sanity precaution */
-                mtmp->mpeaceful = makepeaceful ? 1 : 0;
-                set_malign(mtmp);
-            }
-            if (saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
-                struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
+    else
+        return create_particular_creation(&d);
 
-                put_saddle_on_mon(otmp, mtmp);
-            }
-            if (invisible)
-                mon_set_minvis(mtmp);
-            if (sleeping)
-                mtmp->msleeping = 1;
-            madeany = TRUE;
-            /* in case we got a doppelganger instead of what was asked
-               for, make it start out looking like what was asked for */
-            if (mtmp->cham != NON_PM && firstchoice != NON_PM
-                && mtmp->cham != firstchoice)
-                (void) newcham(mtmp, &mons[firstchoice], FALSE, FALSE);
-        }
-    }
-    return madeany;
+    return FALSE;
 }
 
 /*read.c*/

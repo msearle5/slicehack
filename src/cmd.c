@@ -9,6 +9,22 @@
 #include "lev.h"
 #include "func_tab.h"
 
+/* Macros for meta and ctrl modifiers:
+ *   M and C return the meta/ctrl code for the given character;
+ *     e.g., (C('c') is ctrl-c
+ */
+#ifndef M
+#ifndef NHSTDC
+#define M(c) (0x80 | (c))
+#else
+#define M(c) ((c) - 128)
+#endif /* NHSTDC */
+#endif
+
+#ifndef C
+#define C(c) (0x1f & (c))
+#endif
+
 #ifdef ALTMETA
 STATIC_VAR boolean alt_esc = FALSE;
 #endif
@@ -91,6 +107,7 @@ extern int NDECL(dodip);              /**/
 extern int NDECL(dosacrifice);        /**/
 extern int NDECL(dopray);             /**/
 extern int NDECL(dotip);              /**/
+extern int NDECL(dotech);             /**/
 extern int NDECL(doturn);             /**/
 extern int NDECL(doredraw);           /**/
 extern int NDECL(doread);             /**/
@@ -594,6 +611,8 @@ domonability(VOID_ARGS)
                 dryup(u.ux, u.uy, TRUE);
         } else
             There("is no fountain here.");
+    } else if (u.umonnum == PM_CREEPING_KUDZU) {
+        split_mon(&youmonst, (struct monst *) 0);
     } else if (is_unicorn(youmonst.data)) {
         use_unicorn_horn((struct obj *) 0);
         return 1;
@@ -605,6 +624,9 @@ domonability(VOID_ARGS)
             aggravate();
     } else if (youmonst.data->mlet == S_VAMPIRE)
         return dopoly();
+      else if (attacktype(youmonst.data, AT_MAGC))
+ 	       return castum((struct monst *) 0,
+ 	                  &youmonst.data->mattk[attacktype(youmonst.data, AT_MAGC)]);
     else if (Upolyd)
         pline("Any special ability you may have is purely reflexive.");
     else
@@ -667,7 +689,16 @@ wiz_identify(VOID_ARGS)
 {
     if (wizard) {
         iflags.override_ID = (int) cmd_from_func(wiz_identify);
-        if (display_inventory((char *) 0, TRUE) == -1)
+        /* command remapping might leave #wizidentify as the only way
+           to invoke us, in which case cmd_from_func() will yield NUL;
+           it won't matter to display_inventory()/display_pickinv()
+           if ^I invokes some other command--what matters is that it
+           is never an inventory letter */
+        if (!iflags.override_ID)
+            iflags.override_ID = C('I');
+        /* C('I') == ^I == default keystroke for wiz_identify;
+           it doesn't matter whether the command has been remapped */
+        if (display_inventory((char *) 0, TRUE) == C('I'))
             identify_pack(0, FALSE);
         iflags.override_ID = 0;
     } else
@@ -2490,8 +2521,12 @@ int final;
     }
     if (Unchanging && Upolyd) /* !Upolyd handled above */
         you_can("not change from your current form", from_what(UNCHANGING));
-    if (Hate_silver)
-        you_are("harmed by silver", "");
+    for (ltmp = 1; ltmp < NUM_MATERIAL_TYPES; ++ltmp) {
+        if (Hate_material(ltmp)) {
+            Sprintf(buf, "harmed by %s", materialnm[ltmp]);
+            you_are(buf, "");
+        }
+    }
     /* movement and non-armor-based protection */
     if (Fast)
         you_are(Very_fast ? "very fast" : "fast", from_what(FAST));
@@ -2525,7 +2560,7 @@ int final;
     else if (u.moreluck < 0)
         you_have("reduced luck", "");
     if (carrying(LUCKSTONE) || stone_luck(TRUE)) {
-        ltmp = stone_luck(0);
+        ltmp = stone_luck(FALSE);
         if (ltmp <= 0)
             enl_msg("Bad luck ", "does", "did", " not time out for you", "");
         if (ltmp >= 0)
@@ -2853,6 +2888,9 @@ int final;
     else if (!u.uconduct.unvegetarian)
         you_have_been("vegetarian");
 
+    if (!u.uconduct.alcohol)
+        you_have_been("a teetotaler");
+
     if (!u.uconduct.gnostic)
         you_have_been("an atheist");
 
@@ -2944,22 +2982,6 @@ int final;
     destroy_nhwindow(en_win);
     en_win = WIN_ERR;
 }
-
-/* Macros for meta and ctrl modifiers:
- *   M and C return the meta/ctrl code for the given character;
- *     e.g., (C('c') is ctrl-c
- */
-#ifndef M
-#ifndef NHSTDC
-#define M(c) (0x80 | (c))
-#else
-#define M(c) ((c) - 128)
-#endif /* NHSTDC */
-#endif
-
-#ifndef C
-#define C(c) (0x1f & (c))
-#endif
 
 /* ordered by command name */
 struct ext_func_tab extcmdlist[] = {
@@ -3094,10 +3116,13 @@ struct ext_func_tab extcmdlist[] = {
     { C('z'), "suspend", "suspend the game",
             dosuspend_core, IFBURIED | GENERALCMD, NULL },
 #endif /* SUSPEND */
-    { 'x', "swap", "swap wielded and secondary weapons", doswapweapon, 0, NULL },
-    { 'T', "takeoff", "take off one piece of armor", dotakeoff, 0, NULL },
-    { 'A', "takeoffall", "remove all armor", doddoremarm, 0, NULL },
-    { C('t'), "teleport", "teleport around the level", dotele, IFBURIED, NULL },
+
+    { 'x', "swap", "swap wielded and secondary weapons", doswapweapon },
+    { 'T', "takeoff", "take off one piece of armor", dotakeoff },
+    { 'A', "takeoffall", "remove all armor", doddoremarm },
+    { C('t'), "teleport", "teleport around the level", dotele, IFBURIED },
+    { M('x'), "technique", "use special techniques", dotech, AUTOCOMPLETE },
+
     { '\0', "terrain", "show map without obstructions",
             doterrain, IFBURIED | AUTOCOMPLETE, NULL },
     { '\0', "therecmdmenu",
@@ -5255,12 +5280,28 @@ parse()
     static char in_line[COLNO];
 #endif
     register int foo;
+    static char repeat_char;
     boolean prezero = FALSE;
 
     iflags.in_parse = TRUE;
     multi = 0;
     context.move = 1;
     flush_screen(1); /* Flush screen buffer. Put the cursor on the hero. */
+
+    /* [Tom] for those who occasionally go insane... */
+  	if (repeat_hit) {
+    		/* Sanity checks for repeat_hit */
+    		if (repeat_hit < 0) repeat_hit = 0;
+    		else {
+      			/* Don't want things to get too out of hand */
+      			if (repeat_hit > 10) repeat_hit = 10;
+
+      			repeat_hit--;
+      			in_line[0] = repeat_char;
+      			in_line[1] = 0;
+      			return (in_line);
+    		}
+  	}
 
 #ifdef ALTMETA
     alt_esc = iflags.altmeta; /* readchar() hack */
@@ -5326,6 +5367,7 @@ parse()
         in_line[0] = Cmd.spkeys[NHKF_ESC];
 
     iflags.in_parse = FALSE;
+    repeat_char = in_line[0];
     return in_line;
 }
 

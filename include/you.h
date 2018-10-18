@@ -21,6 +21,7 @@
 struct RoleName {
     const char *m; /* name when character is male */
     const char *f; /* when female; null if same as male */
+    const char *n; /* when nonbinary; null if same as male */
 };
 
 struct RoleAdvance {
@@ -90,6 +91,7 @@ struct u_conduct {     /* number of times... */
     long unvegetarian; /* eaten any animal */
     long unvegan;      /* ... or any animal byproduct */
     long food;         /* ... or any comestible */
+    long alcohol;      /* drank alcohol */
     long gnostic;      /* used prayer, priest, or altar */
     long weaphit;      /* hit a monster with a weapon */
     long killer;       /* killed a monster yourself */
@@ -127,6 +129,7 @@ struct Role {
     /*** Indices of important monsters and objects ***/
     short malenum, /* index (PM_) as a male (botl.c) */
         femalenum, /* ...or as a female (NON_PM == same) */
+        nbnum,     /* ...or as a nonbinary person */
         petnum,    /* PM_ of preferred pet (NON_PM == random) */
         ldrnum,    /* PM_ of quest leader (questpgr.c) */
         guardnum,  /* PM_ of quest guardians (questpgr.c) */
@@ -268,20 +271,20 @@ extern struct Race urace;
 
 /*** Unified structure specifying gender information ***/
 struct Gender {
-    const char *adj;      /* male/female/neuter */
+    const char *adj;      /* male/female/nonbinary */
     const char *he;       /* he/she/it */
     const char *him;      /* him/her/it */
     const char *his;      /* his/her/its */
     const char *filecode; /* file code */
     short allow;          /* equivalent ROLE_ mask */
 };
-#define ROLE_GENDERS 2    /* number of permitted player genders
+#define ROLE_GENDERS 3    /* number of permitted player genders
                              increment to 3 if you allow neuter roles */
 
 extern const struct Gender genders[]; /* table of available genders */
-#define uhe()      (genders[flags.female ? 1 : 0].he)
-#define uhim()     (genders[flags.female ? 1 : 0].him)
-#define uhis()     (genders[flags.female ? 1 : 0].his)
+#define uhe()      (genders[flags.female].he)
+#define uhim()     (genders[flags.female].him)
+#define uhis()     (genders[flags.female].his)
 #define mhe(mtmp)  (genders[pronoun_gender(mtmp)].he)
 #define mhim(mtmp) (genders[pronoun_gender(mtmp)].him)
 #define mhis(mtmp) (genders[pronoun_gender(mtmp)].his)

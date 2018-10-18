@@ -78,6 +78,7 @@ static struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { STETHOSCOPE, 0, TOOL_CLASS, 1, 0 },
+    { MEDICAL_KIT, 0, TOOL_CLASS, 1, 0 },
     { POT_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
     { WAN_SLEEP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
@@ -232,7 +233,7 @@ static struct trobj Scroll[] = { { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, 0 },
                                { 0, 0, 0, 0, 0 } };
 static struct trobj Blindfold[] = { { BLINDFOLD, 0, TOOL_CLASS, 1, 0 },
                                     { 0, 0, 0, 0, 0 } };
-static struct trobj Instrument[] = { { WOODEN_FLUTE, 0, TOOL_CLASS, 1, 0 },
+static struct trobj Instrument[] = { { FLUTE, 0, TOOL_CLASS, 1, 0 },
                                      { 0, 0, 0, 0, 0 } };
 static struct trobj Xtra_food[] = { { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 2, 0 },
                                     { 0, 0, 0, 0, 0 } };
@@ -1040,9 +1041,14 @@ u_init()
 {
     register int i;
     struct u_roleplay tmpuroleplay = u.uroleplay; /* set by rcfile options */
+    struct permonst* shambler = &mons[PM_SHAMBLING_HORROR];
+    struct attack* attkptr;
 
     flags.female = flags.initgend;
     flags.beginner = 1;
+
+    /* WAC -- Clear Tech List since adjabil will init the 1st level techs*/
+  	for (i = 0; i <= MAXTECH; i++) tech_list[i].t_id = NO_TECH;
 
     /* zero u, including pointer values --
      * necessary when aborting from a failed restore */
@@ -1085,9 +1091,12 @@ u_init()
     u.ukinghill = 0;
     u.protean = 0;
 
-    u.umonnum = u.umonster = (flags.female && urole.femalenum != NON_PM)
+    u.umonnum = u.umonster = (flags.female == 1 && urole.femalenum != NON_PM)
                                  ? urole.femalenum
-                                 : urole.malenum;
+                                 : (flags.female == 2 && urole.nbnum != NON_PM)
+                                    ? urole.nbnum
+                                    : urole.malenum;
+    pline("%d", u.umonnum);
     u.ulycn = NON_PM;
     set_uasmon();
 
@@ -1176,7 +1185,6 @@ u_init()
     case PM_CARTOMANCER:
         ini_inv(Cartomancer);
         skill_init(Skill_Car);
-        knows_object(SCR_GENOCIDE);
         break;
     case PM_DRAGONMASTER:
         ini_inv(Dragonmaster);
@@ -1357,7 +1365,7 @@ u_init()
          */
         if (Role_if(PM_PRIEST) || Role_if(PM_CARTOMANCER)
             || Role_if(PM_WIZARD)) {
-            static int trotyp[] = { WOODEN_FLUTE, TOOLED_HORN, WOODEN_HARP,
+            static int trotyp[] = { FLUTE,  TOOLED_HORN,       HARP,
                                     BELL,         BUGLE,       LEATHER_DRUM };
             Instrument[0].trotyp = trotyp[rn2(SIZE(trotyp))];
             ini_inv(Instrument);
@@ -1461,6 +1469,68 @@ u_init()
         /* only get here when didn't boost strength or constitution */
         break;
     }
+
+    /* what a horrible night to have a curse */
+  	shambler->mlevel += rnd(12)-3;				/* shuffle level */
+  	shambler->mmove = rn2(10)+9;				/* slow to very fast */
+  	shambler->ac = rn2(21)-10;				/* any AC */
+  	shambler->mr = rn2(5)*25;				/* varying amounts of MR */
+  	shambler->maligntyp = rn2(21)-10;			/* any alignment */
+  	/* attacks...?  */
+  	for (i = 0; i < rnd(4); i++) {
+  		attkptr = &shambler->mattk[i];
+  		/* restrict it to certain types of attacks */
+  		attkptr->aatyp = 0;
+  		while (attkptr->aatyp == 0 || attkptr->aatyp == AT_ENGL || attkptr->aatyp == AT_SPIT ||
+  					attkptr->aatyp == AT_BREA || attkptr->aatyp == AT_EXPL ||
+  					attkptr->aatyp == AT_BOOM || attkptr->aatyp == AT_GAZE ||
+            attkptr->aatyp == AT_HUGS) {
+  			attkptr->aatyp = rn2(AT_TENT);
+  		}
+  		attkptr->adtyp = 0;
+  		while (attkptr->adtyp == 0 || attkptr->adtyp == AD_DETH || attkptr->adtyp == AD_TLPT ||
+  					attkptr->adtyp == AD_SLIM || attkptr->adtyp == AD_VOID ||
+  					attkptr->adtyp == AD_ENCH || attkptr->adtyp == AD_DISN ||
+  					attkptr->adtyp == AD_PEST || attkptr->adtyp == AD_FAMN ||
+            attkptr->adtyp == AD_HYDR || attkptr->adtyp == AD_QUIL ||
+            attkptr->adtyp == AD_LUCK) {
+  			attkptr->adtyp = rn2(AD_HNGY);
+  		}
+  		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
+  		attkptr->damd = 10;				/* either too high or too low */
+  	}
+  	shambler->msize = rn2(MZ_GIGANTIC+1);			/* any size */
+  	shambler->cwt = 20;					/* fortunately moot as it's flagged NOCORPSE */
+  	shambler->cnutrit = 20;					/* see above */
+  	shambler->msound = rn2(MS_HUMANOID);			/* any but the specials */
+  	shambler->mresists = 0;
+  	for (i = 0; i < rnd(6); i++) {
+  		shambler->mresists |= (1 << rn2(8));		/* physical resistances... */
+  	}
+  	for (i = 0; i < rnd(5); i++) {
+  		shambler->mresists |= (0x100 << rn2(7));	/* 'different' resistances, even clumsy */
+  	}
+  	shambler->mconveys = 0;					/* flagged NOCORPSE */
+  	/*
+  	 * now time for the random flags.  this will likely produce
+  	 * a number of complete trainwreck monsters at first, but
+  	 * every so often something will dial up nasty stuff
+  	 */
+  	shambler->mflags1 = 0;
+  	for (i = 0; i < rnd(17); i++) {
+  		shambler->mflags1 |= (1 << rn2(33));		/* trainwreck this way :D */
+  	}
+  	shambler->mflags1 &= ~M1_UNSOLID;			/* no ghosts */
+  	shambler->mflags1 &= ~M1_WALLWALK;			/* no wall-walkers */
+
+  	shambler->mflags2 = M2_NOPOLY | M2_HOSTILE;		/* Don't let the player be one of these yet. */
+  	for (i = 0; i < rnd(17); i++) {
+  		shambler->mflags2 |= (1 << rn2(31));
+  	}
+  	shambler->mflags2 &= ~M2_MERC;				/* no guards */
+  	shambler->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
+  	shambler->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+  	shambler->mflags2 &= ~M2_PNAME;				/* not a proper name */
 
     return;
 }
@@ -1584,7 +1654,7 @@ register struct trobj *trop;
             obj->material = objects[obj->otyp].oc_material;
             /* Don't allow weapons to roll high enchantment and get an oname
              * when they'll then have their enchantment set after this */
-            if (Hate_silver && obj->material == SILVER)
+            if (Hate_material(SILVER) && obj->material == SILVER)
                 obj->material = IRON;
             free_oname(obj);
 

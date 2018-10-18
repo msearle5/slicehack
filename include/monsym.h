@@ -45,6 +45,7 @@ enum mon_class_types {
     S_ELEMENTAL,
     S_FUNGUS,
     S_GNOME,
+    S_GNOLL,
     S_GIANT,
     S_invisible,    /* non-class present in def_monsyms[] */
     S_JABBERWOCK,
@@ -53,6 +54,7 @@ enum mon_class_types {
     S_MUMMY,
     S_NAGA,
     S_OGRE,
+    S_PLANT,
     S_PUDDING,
     S_QUANTMECH,
     S_RUSTMONST,
@@ -115,6 +117,7 @@ enum mon_class_types {
 #define DEF_ELEMENTAL   'E'
 #define DEF_FUNGUS      'F'
 #define DEF_GNOME       'G'
+#define DEF_GNOLL_DEF   '9'
 #define DEF_GIANT       'H'
 #define DEF_JABBERWOCK  'J'
 #define DEF_KOP         'K'
@@ -122,6 +125,7 @@ enum mon_class_types {
 #define DEF_MUMMY       'M'
 #define DEF_NAGA        'N'
 #define DEF_OGRE        'O'
+#define DEF_PLANT       '#'
 #define DEF_PUDDING     'P'
 #define DEF_QUANTMECH   'Q'
 #define DEF_RUSTMONST   'R'

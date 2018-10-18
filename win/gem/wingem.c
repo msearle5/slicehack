@@ -472,7 +472,9 @@ Gem_player_selection()
                         races[flags.initrace].adj,
                         (flags.initgend && roles[flags.initrole].name.f)
                             ? roles[flags.initrole].name.f
-                            : roles[flags.initrole].name.m);
+                            : (flags.initgend && roles[flags.initrole].name.n)
+                              ? roles[flags.initrole].name.n
+                              : roles[flags.initrole].name.m);
                 end_menu(win, pbuf);
                 n = select_menu(win, PICK_ONE, &selected);
                 destroy_nhwindow(win);

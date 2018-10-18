@@ -1231,6 +1231,9 @@
           #force
                Force a lock. Autocompletes. Default key is 'M-f'.
 
+          #give
+              Give an item to a monster. Autcompletes. Default key is 'M-g'.
+
           #glance
                Show what type of thing a map symbol corresponds to. Default
                key is ';'.
@@ -1483,6 +1486,11 @@
           #sit
                Sit down. Autocompletes. Default key is 'M-s'.
 
+         #technique
+              Perform a role or race specific technique.  A  menu  showing
+              the  techniques  available  to  your  character will be dis-
+              played. Autcompletes. Default key is 'M-x'.
+
           #stats
                Show memory statistics. Autocompletes. Wizard-mode only.
 
@@ -1700,6 +1708,8 @@
 
           M-f  #force
 
+          M-g  #give
+
           M-i  #invoke
 
           M-j  #jump
@@ -1745,6 +1755,8 @@
           M-v  #version
 
           M-w  #wipe
+
+          M-x  #technique
 
 
 
@@ -5803,6 +5815,3 @@
 
 
           NetHack 3.6                                          May 27, 2018
-
-
-

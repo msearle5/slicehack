@@ -1315,6 +1315,7 @@ $(O)sp_lev.o: sp_lev.c $(HACK_H) $(INCL)/dlb.h $(INCL)/sp_lev.h
 $(O)spell.o: spell.c $(HACK_H)
 $(O)steal.o: steal.c $(HACK_H)
 $(O)steed.o: steed.c $(HACK_H)
+$(O)tech.o: tech.c $(HACK_H) $(INCL)/tech.h
 $(O)sys.o: sys.c $(HACK_H)
 $(O)teleport.o: teleport.c $(HACK_H)
 $(O)timeout.o: timeout.c $(HACK_H) $(INCL)/lev.h

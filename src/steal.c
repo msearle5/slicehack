@@ -7,6 +7,9 @@
 
 #include "hack.h"
 
+extern boolean FDECL(would_prefer_hwep,(struct monst *,struct obj *));
+extern boolean FDECL(would_prefer_rwep,(struct monst *,struct obj *));
+
 STATIC_PTR int NDECL(stealarm);
 
 STATIC_DCL const char *FDECL(equipname, (struct obj *));
@@ -665,7 +668,7 @@ boolean verbosely;
 
     if (obj->owornmask) {
         /* perform worn item handling if the monster is still alive */
-        if (mon->mhp > 0) {
+        if (!DEADMONSTER(mon)) {
             mon->misc_worn_check &= ~obj->owornmask;
             update_mon = TRUE;
 

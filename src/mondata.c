@@ -3,8 +3,6 @@
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
 
-/* Edited on 4/22/18 by NullCGT */
-
 #include "hack.h"
 /*
  *      These routines provide basic data for any type of monster.
@@ -296,22 +294,64 @@ struct permonst *ptr;
     return FALSE;
 }
 
-/* True if specific monster is especially affected by silver weapons */
+/* True if specific monster is especially affected by weapons of the given
+ * material type */
 boolean
-mon_hates_silver(mon)
-struct monst *mon;
+mon_hates_material(mon, material)
+struct monst * mon;
+int material;
 {
-    return (boolean) (is_vampshifter(mon) || hates_silver(mon->data));
+    if (hates_material(mon->data, material))
+        return TRUE;
+    /* extra case: shapeshifted vampires still hate silver */
+    if (material == SILVER && is_vampshifter(mon))
+        return TRUE;
+    return FALSE;
 }
 
-/* True if monster-type is especially affected by silver weapons */
+/* True if monster-type is especially affected by weapons of the given material
+ * type */
 boolean
-hates_silver(ptr)
+hates_material(ptr, material)
 register struct permonst *ptr;
+int material;
 {
-    return (boolean) (is_were(ptr) || ptr->mlet == S_VAMPIRE || is_demon(ptr)
-                      || ptr == &mons[PM_SHADE]
-                      || (ptr->mlet == S_IMP && ptr != &mons[PM_TENGU]));
+    if (material == SILVER) {
+        if (ptr->mlet == S_IMP) {
+            /* impish creatures that aren't actually demonic */
+            if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_LEPRECHAUN])
+                return FALSE;
+        }
+        return (is_were(ptr) || ptr->mlet == S_VAMPIRE
+                || is_demon(ptr) || ptr == &mons[PM_SHADE]
+                || (ptr->mlet == S_IMP));
+    }
+    else if (material == IRON) {
+        /* cold iron: fairy/fae creatures hate it */
+        return (is_elf(ptr) || ptr->mlet == S_NYMPH
+                || ptr->mlet == S_IMP);
+    }
+    else if (material == COPPER) {
+        /* copper has antibacterial and antifungal properties,
+         * very good versus sickness, mold and decay */
+        return (ptr->mlet == S_FUNGUS || dmgtype(ptr, AD_DISE)
+                || dmgtype(ptr, AD_DCAY) || dmgtype(ptr, AD_PEST));
+    }
+    return FALSE;
+}
+/* Return amount of damage a monster will take from coming into contact with a
+* material it hates. */
+int
+sear_damage(material)
+int material;
+{
+    switch (material) {
+    case SILVER:
+        return 20;
+    case IRON:
+    default:
+        return 6;
+    }
 }
 
 /* True iff the type of monster pass through iron bars */
@@ -1006,6 +1046,10 @@ static const short grownups[][2] = {
     { PM_KEYSTONE_KOP, PM_KOP_SERGEANT },
     { PM_KOP_SERGEANT, PM_KOP_LIEUTENANT },
     { PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN },
+    {PM_DEEP_ONE, PM_DEEPER_ONE},
+    {PM_DEEPER_ONE, PM_DEEPEST_ONE},
+    {PM_BABY_BROOD_WASP, PM_BROOD_WASP},
+    {PM_WANDERING_CACTUS, PM_CRAZY_CACTUS},
     { NON_PM, NON_PM }
 };
 

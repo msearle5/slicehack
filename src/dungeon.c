@@ -700,6 +700,7 @@ struct level_map {
                   { "rogue", &rogue_level },
                   { "sanctum", &sanctum_level },
                   { "valley", &valley_level },
+                  { "void",   &void_level },
                   { "water", &water_level },
                   { "wizard1", &wiz1_level },
                   { "wizard2", &wiz2_level },
@@ -2868,8 +2869,8 @@ int rtype;
     case ARCHERYSHOP:
         str = "archery emporium";
         break;
-    case JUNKSHOP:
-        str = "junk shop";
+    case MASKSHOP:
+        str = "mask shop";
         break;
     case FODDERSHOP:
         str = "health food store";

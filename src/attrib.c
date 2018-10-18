@@ -131,6 +131,11 @@ static const struct innate {
                                             "less resilient" },
                  { 0, 0, 0, 0 } },
 
+  lyc_abil[] = { {   1, &(HPoison_resistance), "", "" },
+		             /* {   1, &(HRegeneration), "", "" }, */
+                 /* {   7, &(HStealth), "stealthy", "" },*/
+		             {   0, 0, 0, 0 } },
+
   hum_abil[] = { { 0, 0, 0, 0 } };
 
 STATIC_DCL void NDECL(exerper);
@@ -563,7 +568,7 @@ static NEARDATA const char *const exertext[A_MAX][2] = {
     { "very observant", "paying attention" },                     /* Wis */
     { "working on your reflexes", "working on reflexes lately" }, /* Dex */
     { "leading a healthy life-style", "watching your health" },   /* Con */
-    { 0, 0 },                                                     /* Cha */
+    { "paying attention to others", "ignoring others" },          /* Cha */
 };
 
 void
@@ -807,6 +812,8 @@ long frommask;
             abil = gia_abil;
             break;
         case PM_HUMAN_WEREWOLF:
+            abil = lyc_abil;
+            break;
         case PM_HUMAN:
             abil = hum_abil;
             break;
@@ -1062,6 +1069,9 @@ int oldlevel, newlevel;
         else
             lose_weapon_skill(oldlevel - newlevel);
     }
+
+    /* WAC -- adjust techniques */
+  	adjtech(oldlevel, newlevel);
 }
 
 int

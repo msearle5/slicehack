@@ -24,7 +24,8 @@
 #define MS_MOO 14       /* cow */
 #define MS_CHIMERA 15   /* chimera */
 #define MS_ANT 16       /* ants */
-#define MS_ANIMAL 16    /* up to here are animal noises */
+#define MS_PIG 17          /* boars */
+#define MS_ANIMAL 17    /* up to here are animal noises */
 #define MS_SHRIEK 18    /* wakes up others */
 #define MS_BONES 19     /* rattles bones (skeleton) */
 #define MS_LAUGH 20     /* grins, smiles, giggles, and laughs */
@@ -55,6 +56,7 @@
 #define MS_PIRATE 44    /* pirates */
 #define MS_ONEEYEDSAM 45 /* One-Eyed Sam */
 #define MS_MAD 46       /* cheshire cats */
+#define MS_GNOLL 47     /* gnolls */
 
 #define MR_FIRE 0x00000001L      /* resists fire */
 #define MR_COLD 0x00000002L      /* resists cold */
@@ -127,11 +129,13 @@
 #define M2_ORC 0x00000080L          /* is an orc */
 #define M2_DEMON 0x00000100L        /* is a demon */
 #define M2_GIANT 0x0000200L        /* is a giant */
+#define M2_MERFOLK 0x00000200L       /* is a merfolk */
 #define M2_LORD 0x00000400L         /* is a lord to its kind */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
-#define M2_MERC 0x000002000L         /* is a guard or soldier */
+
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
+#define M2_MERC 0x00008000L         /* is a guard or soldier */
 #define M2_MALE 0x00010000L         /* always male */
 #define M2_FEMALE 0x00020000L       /* always female */
 #define M2_NEUTER 0x00040000L       /* neither male nor female */
@@ -187,6 +191,7 @@
 #define MH_GNOME M2_GNOME
 #define MH_GIANT M2_GIANT
 #define MH_ORC M2_ORC
+#define MH_MERFOLK M2_MERFOLK
 #define MH_WERE M2_WERE
 #define MH_DEMON M2_DEMON
 

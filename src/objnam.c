@@ -1,4 +1,4 @@
-/* NetHack 3.6	objnam.c	$NHDT-Date: 1525012618 2018/04/29 14:36:58 $  $NHDT-Branch: master $:$NHDT-Revision: 1.202 $ */
+/* NetHack 3.6	objnam.c	$NHDT-Date: 1533352036 2018/08/04 03:07:16 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.206 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -59,7 +59,7 @@ STATIC_OVL struct Jitem Japanese_items[] = { { SHORT_SWORD, "wakizashi" },
                                              { FLAIL, "nunchaku" },
                                              { GLAIVE, "naginata" },
                                              { LOCK_PICK, "osaku" },
-                                             { WOODEN_HARP, "koto" },
+                                             { HARP, "koto" },
                                              { KNIFE, "shito" },
                                              { PLATE_MAIL, "tanko" },
                                              { HELMET, "kabuto" },
@@ -72,14 +72,15 @@ STATIC_OVL struct Jitem Cartomancer_items[] = {
   { LARGE_BOX, "deck box" },
   { LOCK_PICK, "worthless card" },
   { SHURIKEN, "razor card" },
-  { SCR_GENOCIDE, "forbidden card" },
   { HAWAIIAN_SHIRT, "graphic tee" },
   { EXPENSIVE_CAMERA, "holographic card" },
   { CREDIT_CARD, "banned card" },
+  { GOLD_PIECE, "victory token" },
   { SACK, "card bag" },
   { 0, "" } };
 
 STATIC_DCL const char *FDECL(Alternate_item_name,(int i, struct Jitem * ));
+STATIC_DCL const char *FDECL(Cartomancer_rarity,(int otyp));
 
 STATIC_OVL char *
 strprepend(s, pref)
@@ -770,9 +771,13 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
         break;
     case SCROLL_CLASS:
-        if (Role_if(PM_CARTOMANCER))
-            Strcpy(buf, "spell card");
-        else
+        if (Role_if(PM_CARTOMANCER)) {
+            if (!nn && dknown) {
+                Strcpy(buf, Cartomancer_rarity(typ));
+                break;
+            } else
+                Strcpy(buf, "spell card");
+        } else
             Strcpy(buf, "scroll");
         if (!dknown)
             break;
@@ -1240,7 +1245,7 @@ unsigned doname_flags;
                     !obj->lamplit ? " attached" : ", lit");
             break;
         } else if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
-                   || obj->otyp == BRASS_LANTERN || Is_candle(obj)) {
+                   || obj->otyp == LANTERN || Is_candle(obj)) {
             if (Is_candle(obj)
                 && obj->age < 20L * (long) objects[obj->otyp].oc_cost)
                 Strcat(prefix, "partly used ");
@@ -2836,7 +2841,7 @@ struct o_range {
 
 /* wishable subranges of objects */
 STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
-    { "bag", TOOL_CLASS, SACK, BAG_OF_TRICKS },
+    { "bag", TOOL_CLASS, SACK, MEDICAL_KIT },
     { "lamp", TOOL_CLASS, OIL_LAMP, MAGIC_LAMP },
     { "candle", TOOL_CLASS, TALLOW_CANDLE, WAX_CANDLE },
     { "horn", TOOL_CLASS, TOOLED_HORN, HORN_OF_PLENTY },
@@ -2874,7 +2879,7 @@ struct alt_spellings {
     { "grey dragon scale mail", GRAY_DRAGON_SCALE_MAIL },
     { "grey dragon scales", GRAY_DRAGON_SCALES },
     { "iron ball", HEAVY_IRON_BALL },
-    { "lantern", BRASS_LANTERN },
+    { "lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
     { "potion of sleep", POT_SLEEPING },
@@ -4003,7 +4008,7 @@ typfnd:
     otmp = typ ? mksobj(typ, TRUE, FALSE) : mkobj(oclass, FALSE);
     typ = otmp->otyp, oclass = otmp->oclass; /* what we actually got */
 
-    if (islit && (typ == OIL_LAMP || typ == MAGIC_LAMP || typ == BRASS_LANTERN
+    if (islit && (typ == OIL_LAMP || typ == MAGIC_LAMP || typ == LANTERN
                   || Is_candle(otmp) || typ == POT_OIL)) {
         place_object(otmp, u.ux, u.uy); /* make it viable light source */
         begin_burn(otmp, FALSE);
@@ -4325,6 +4330,22 @@ int first, last;
     return 0;
 }
 
+STATIC_OVL const char*
+Cartomancer_rarity(otyp) {
+    int price = objects[otyp].oc_cost;
+    if (price < 60) {
+        return "common spell card";
+    } else if (price < 100) {
+        return "uncommon spell card";
+    } else if (price < 200) {
+        return "rare spell card";
+    } else if (price < 300) {
+        return "super rare spell card";
+    } else {
+        return "legendary spell card";
+    }
+}
+
 STATIC_OVL const char *
 Alternate_item_name(i,alternate_items)
 int i;
@@ -4344,15 +4365,19 @@ struct obj *suit;
 {
     const char *suitnm, *esuitp;
 
-    if (Is_dragon_mail(suit))
-        return "dragon mail"; /* <color> dragon scale mail */
-    else if (Is_dragon_scales(suit))
-        return "dragon scales";
-    suitnm = OBJ_NAME(objects[suit->otyp]);
-    esuitp = eos((char *) suitnm);
-    if (strlen(suitnm) > 5 && !strcmp(esuitp - 5, " mail"))
-        return "mail"; /* most suits fall into this category */
-    /* suit is lame but armor is ambiguous and body armor is absurd */
+    if (suit) {
+        if (Is_dragon_mail(suit))
+            return "dragon mail"; /* <color> dragon scale mail */
+        else if (Is_dragon_scales(suit))
+            return "dragon scales";
+        suitnm = OBJ_NAME(objects[suit->otyp]);
+        esuitp = eos((char *) suitnm);
+        if (strlen(suitnm) > 5 && !strcmp(esuitp - 5, " mail"))
+            return "mail"; /* most suits fall into this category */
+        else if (strlen(suitnm) > 7 && !strcmp(esuitp - 7, " jacket"))
+            return "jacket"; /* leather jacket */
+    }
+    /* "suit" is lame but "armor" is ambiguous and "body armor" is absurd */
     return "suit";
 }
 

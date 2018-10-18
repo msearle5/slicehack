@@ -1,4 +1,4 @@
-/* NetHack 3.6	objects.c	$NHDT-Date: 1447313395 2015/11/12 07:29:55 $  $NHDT-Branch: master $:$NHDT-Revision: 1.49 $ */
+/* NetHack 3.6	objects.c	$NHDT-Date: 1535422421 2018/08/28 02:13:41 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.51 $ */
 /* Copyright (c) Mike Threepoint, 1989.                           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -161,7 +161,7 @@ WEAPON("sacrificial knife", None,
 WEAPON("orcish dagger", "crude dagger",
        0, 1, 0, 12,  10,   4,  3,  3, 2, P,   P_DAGGER, IRON, CLR_BLACK),
 WEAPON("athame", None,
-       1, 1, 0,  0,  10,   4,  4,  3, 2, S,   P_DAGGER, IRON, HI_METAL),
+       1, 1, 0,  0,  10,   4,  4,  3, 2, S,   P_DAGGER, METAL, HI_METAL),
 WEAPON("scalpel", None,
        1, 1, 0,  0,   5,   6,  3,  3, 2, S,   P_KNIFE, METAL, HI_METAL),
 WEAPON("knife", None,
@@ -415,8 +415,8 @@ DRGN_ARMR("purple dragon scales",      0, SONIC_RES,   700, 7, CLR_BRIGHT_MAGENT
 DRGN_ARMR("black dragon scales",       0, DISINT_RES,  700, 7, CLR_BLACK),
 DRGN_ARMR("blue dragon scales",        0, SHOCK_RES,   500, 7, CLR_BLUE),
 DRGN_ARMR("green dragon scales",       0, POISON_RES,  500, 7, CLR_GREEN),
-DRGN_ARMR("razor dragon scales",       0, FAST,        700, 7, CLR_CYAN),
 DRGN_ARMR("ooze dragon scales",        0, POISON_RES,  700, 7, CLR_BRIGHT_GREEN),
+DRGN_ARMR("razor dragon scales",       0, FAST,        700, 7, CLR_CYAN),
 DRGN_ARMR("filth dragon scales",       0, SICK_RES,    700, 7, CLR_BROWN),
 DRGN_ARMR("hex dragon scales",         0, ANTIMAGIC,   700, 7, CLR_BRIGHT_BLUE),
 DRGN_ARMR("void dragon scales",        0, DISINT_RES,  700, 7, CLR_MAGENTA),
@@ -652,7 +652,7 @@ RING("protection from shape changers", "shiny",
 /* amulets ... - THE Amulet comes last because it is special */
 #define AMULET(name,desc,power,prob) \
     OBJECT(OBJ(name, desc),                                            \
-           BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, IRON),        \
+           BITS(0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, P_NONE, METAL),        \
            power, AMULET_CLASS, prob, 0, 20, 150, 0, 0, 0, 0, 20, HI_METAL)
 AMULET("amulet of ESP",                "circular", TELEPAT, 100),
 AMULET("amulet of drain resistance",     "convex", DRAIN_RES, 75),
@@ -711,6 +711,8 @@ CONTAINER("oilskin sack",   "bag", 0, 0, 0,  5,  15, 100, CLOTH, HI_CLOTH),
 CONTAINER("bag of holding", "bag", 0, 1, 0, 20,  15, 100, CLOTH, HI_CLOTH),
 CONTAINER("magic bag",  	"bag", 0, 1, 0,  5,  15, 100, CLOTH, HI_CLOTH),
 CONTAINER("bag of tricks",  "bag", 0, 1, 1, 20,  15, 100, CLOTH, HI_CLOTH),
+CONTAINER("medical kit",    "leather bag",
+				0, 0, 0, 10, 25, 500, LEATHER, HI_LEATHER),
 #undef CONTAINER
 
 /* lock opening tools */
@@ -720,7 +722,7 @@ TOOL("credit card",         None, 1, 0, 0, 0, 15,  1, 10, PLASTIC, CLR_WHITE),
 /* light sources */
 TOOL("tallow candle",   "candle", 0, 1, 0, 0, 20,  2, 10, WAX, CLR_WHITE),
 TOOL("wax candle",      "candle", 0, 1, 0, 0,  5,  2, 20, WAX, CLR_WHITE),
-TOOL("brass lantern",       None, 1, 0, 0, 0, 30, 30, 12, COPPER, CLR_YELLOW),
+TOOL("lantern",       None, 1, 0, 0, 0, 30, 30, 12, COPPER, CLR_YELLOW),
 TOOL("oil lamp",          "lamp", 0, 0, 0, 0, 45, 20, 10, COPPER, CLR_YELLOW),
 TOOL("magic lamp",        "lamp", 0, 0, 1, 0, 15, 20, 50, COPPER, CLR_YELLOW),
 /* other tools */
@@ -740,7 +742,7 @@ TOOL("saddle",              None, 1, 0, 0, 0,  5,200,150, LEATHER, HI_LEATHER),
 TOOL("leash",               None, 1, 0, 0, 0, 35, 12, 20, LEATHER, HI_LEATHER),
 TOOL("stethoscope",         None, 1, 0, 0, 0, 25,  4, 75, IRON, HI_METAL),
 TOOL("tinning kit",         None, 1, 0, 0, 1, 15,100, 30, IRON, HI_METAL),
-TOOL("tin opener",          None, 1, 0, 0, 0, 35,  4, 30, IRON, HI_METAL),
+TOOL("tin opener",          None, 1, 0, 0, 0, 25,  4, 30, IRON, HI_METAL),
 TOOL("can of grease",       None, 1, 0, 0, 1, 15, 15, 20, IRON, HI_METAL),
 TOOL("figurine",            None, 1, 0, 1, 0, 15, 50, 80, MINERAL, HI_MINERAL),
         /* monster type specified by obj->corpsenm */
@@ -751,11 +753,9 @@ TOOL("magic marker",        None, 1, 0, 1, 1, 15,  2, 50, PLASTIC, CLR_RED),
 /* made beartraps and land mines generate randomly to add some variety */
 TOOL("land mine",           None, 1, 0, 0, 0, 3, 300,180, IRON, CLR_RED),
 TOOL("beartrap",            None, 1, 0, 0, 0, 2, 200, 60, IRON, HI_METAL),
-/* instruments;
-   "If tin whistles are made out of tin, what do they make foghorns out of?" */
-TOOL("tin whistle",    "whistle", 0, 0, 0, 0,100, 3, 10, METAL, HI_METAL),
+TOOL("pea whistle",    "whistle", 0, 0, 0, 0,100, 3, 10, METAL, HI_METAL),
 TOOL("magic whistle",  "whistle", 0, 0, 1, 0, 30, 3, 10, METAL, HI_METAL),
-TOOL("wooden flute",     "flute", 0, 0, 0, 0,  4, 5, 12, WOOD, HI_WOOD),
+TOOL("flute",               None, 0, 0, 0, 0,  4, 5, 12, WOOD, HI_WOOD),
 TOOL("magic flute",      "flute", 0, 0, 1, 1,  2, 5, 36, WOOD, HI_WOOD),
 /* these must remain in order - alchemy */
 TOOL("tooled horn",       "horn", 0, 0, 0, 0,  5, 18, 15, BONE, CLR_WHITE),
@@ -763,7 +763,7 @@ TOOL("frost horn",        "horn", 0, 0, 1, 1,  2, 18, 50, BONE, CLR_WHITE),
 TOOL("fire horn",         "horn", 0, 0, 1, 1,  2, 18, 50, BONE, CLR_WHITE),
 TOOL("horn of plenty",    "horn", 0, 0, 1, 1,  2, 18, 50, BONE, CLR_WHITE),
         /* horn, but not an instrument */
-TOOL("wooden harp",       "harp", 0, 0, 0, 0,  4, 30, 50, WOOD, HI_WOOD),
+TOOL("harp",                None, 0, 0, 0, 0,  4, 30, 50, WOOD, HI_WOOD),
 TOOL("magic harp",        "harp", 0, 0, 1, 1,  2, 30, 50, WOOD, HI_WOOD),
 TOOL("bell",                None, 1, 0, 0, 0,  2, 30, 50, COPPER, HI_COPPER),
 TOOL("bugle",               None, 1, 0, 0, 0,  4, 10, 15, COPPER, HI_COPPER),
@@ -777,6 +777,15 @@ WEPTOOL("grappling hook", "hook",
 WEPTOOL("unicorn horn", None,
         1, 1, 1,  0,  20, 100, 12, 12, PIERCE, P_UNICORN_HORN,
                                                            BONE, CLR_WHITE),
+
+/* Two pseudo tools. These can never exist outside of medical kits. */
+OBJECT(OBJ("bandage", (char *)0),
+		BITS(1,1,0,0,0,0,0,1,0,0,0,P_NONE,CLOTH), 0,
+		TOOL_CLASS, 0, 0, 1, 1, 0, 0, 0, 0, 0, CLR_WHITE),
+OBJECT(OBJ("phial", (char *)0),
+		BITS(1,1,0,0,0,0,0,1,0,0,0,P_NONE,GLASS), 0,
+		TOOL_CLASS, 0, 0, 2, 1, 0, 0, 0, 0, 1, HI_GLASS),
+
         /* 3.4.1: unicorn horn left classified as "magic" */
 /* two unique tools;
  * not artifacts, despite the comment which used to be here
@@ -784,7 +793,7 @@ WEPTOOL("unicorn horn", None,
 OBJECT(OBJ("Candelabrum of Invocation", "candelabrum"),
        BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, P_NONE, GOLD),
        0, TOOL_CLASS, 0, 0, 10, 5000, 0, 0, 0, 0, 200, HI_GOLD),
-OBJECT(OBJ("Bell of Opening", "platinum bell"),
+OBJECT(OBJ("Bell of Opening", "engraved platinum bell"),
        BITS(0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, P_NONE, PLATINUM),
        0, TOOL_CLASS, 0, 0, 10, 5000, 0, 0, 0, 0, 50, HI_METAL),
 #undef TOOL
@@ -843,8 +852,9 @@ FOOD("slime mold",           75,  1,  5, 0, VEGGY, 250, HI_ORGANIC),
 FOOD("lump of royal jelly",   0,  1,  2, 0, VEGGY, 200, CLR_YELLOW),
 FOOD("cream pie",            25,  1, 10, 0, VEGGY, 100, CLR_WHITE),
 FOOD("candy bar",            13,  1,  2, 0, VEGGY, 100, CLR_BROWN),
+FOOD("pill",                  1,  1,  1, 0, VEGGY,   0, CLR_BRIGHT_MAGENTA),
 FOOD("fortune cookie",       55,  1,  1, 0, VEGGY,  40, CLR_YELLOW),
-FOOD("pancake",              25,  2,  2, 0, VEGGY, 200, CLR_YELLOW),
+FOOD("pancake",              24,  2,  2, 0, VEGGY, 200, CLR_YELLOW),
 FOOD("lembas wafer",         20,  2,  5, 0, VEGGY, 800, CLR_WHITE),
 FOOD("cram ration",          20,  3, 15, 0, VEGGY, 600, HI_ORGANIC),
 FOOD("food ration",         380,  5, 20, 0, VEGGY, 800, HI_ORGANIC),
@@ -895,6 +905,8 @@ POTION(None,                    "slimy", 0, 0,  0, 100, CLR_BRIGHT_GREEN),
 /* fixed description
  */
 POTION("water",                 "clear",  0, 0, 92, 100, CLR_CYAN),
+POTION("blood",             "blood-red",  0, 0, 0,   50, CLR_RED),
+POTION("vampire blood",     "blood-red",  1, 0, 0,  350, CLR_RED),
 #undef POTION
 
 /* scrolls ... */
@@ -920,9 +932,9 @@ SCROLL("gold detection",                 "THARR",  1,  33, 100),
 SCROLL("food detection",               "YUM YUM",  1,  25, 100),
 SCROLL("knowledge",                   "POTESTAS",  1,  20,  20), /* power */
 SCROLL("identify",                  "KERNOD WEL",  1, 160,  20),
-SCROLL("pure law",                   "TRATS ARL",  1,   5, 200), /* LRA START */
-SCROLL("true neutrality",         "TWAS BRILLIG",  1,   5, 200), /* Jabberwocky */
-SCROLL("raw chaos",                 "TLON UQBAR",  1,   5, 200), /* Tlon Uqbar */
+SCROLL("air",                        "TRATS ARL",  1,   5, 200), /* LRA START */
+SCROLL("warp armor",              "TWAS BRILLIG",  1,   5, 200), /* Jabberwocky */
+SCROLL("warp weapon",               "TLON UQBAR",  1,   5, 200), /* Tlon Uqbar */
 SCROLL("magic mapping",              "ELAM EBOW",  1,  45, 100),
 SCROLL("amnesia",                   "DUAM XNAHT",  1,  30, 200),
 SCROLL("fire",                  "ANDOVA BEGARIN",  1,  25, 100),
@@ -976,18 +988,35 @@ SCROLL("blank paper", "unlabeled",  0,  28,  60),
 #undef SCROLL
 
 /* spellbooks ... */
-/* expanding beyond 52 spells would require changes in spellcasting
-   or imposition of a limit on number of spells hero can know because
-   they are currently assigned successive letters, a-zA-Z, when learned */
+    /* Expanding beyond 52 spells would require changes in spellcasting
+     * or imposition of a limit on number of spells hero can know because
+     * they are currently assigned successive letters, a-zA-Z, when learned.
+     * [The existing spell sorting capability could conceivably be extended
+     * to enable moving spells from beyond Z to within it, bumping others
+     * out in the process, allowing more than 52 spells be known but keeping
+     * only 52 be castable at any given time.]
+     */
 #define SPELL(name,desc,sub,prob,delay,level,mgc,dir,color)  \
     OBJECT(OBJ(name, desc),                                             \
            BITS(0, 0, 0, 0, mgc, 0, 0, 0, 0, 0, dir, sub, PAPER),       \
            0, SPBOOK_CLASS, prob, delay, 50, level * 100,               \
            0, 0, 0, level, 20, color)
+/* Spellbook description normally refers to book covers (primarily color).
+   Parchment and vellum would never be used for such, but rather than
+   eliminate those, finagle their definitions to refer to the pages
+   rather than the cover.  They are made from animal skin (typically of
+   a goat or sheep) and books using them for pages generally need heavy
+   covers with straps or clamps to tightly close the book in order to
+   keep the pages flat.  (However, a wooden cover might itself be covered
+   by a sheet of parchment, making this become less of an exception.  Also,
+   changing the internal composition from paper to leather makes eating a
+   parchment or vellum spellbook break vegetarian conduct, as it should.) */
+#define PAPER LEATHER /* override enum for use in SPELL() expansion */
 SPELL("dig",             "parchment",
-      P_MATTER_SPELL,      20,  6, 5, 1, RAY, HI_PAPER),
+      P_MATTER_SPELL,      20,  6, 5, 1, RAY, HI_LEATHER),
 SPELL("magic missile",   "vellum",
-      P_ATTACK_SPELL,      45,  2, 2, 1, RAY, HI_PAPER),
+      P_ATTACK_SPELL,      45,  2, 2, 1, RAY, HI_LEATHER),
+#undef PAPER /* revert to normal material */
 SPELL("fireball",        "ragged",
       P_ATTACK_SPELL,      10,  4, 4, 1, RAY, HI_PAPER),
 SPELL("cone of cold",    "dog eared",
@@ -1241,6 +1270,7 @@ OBJECT(OBJ("acid venom", "splash of sizzling venom"),
        BITS(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, LIQUID), 0,
        VENOM_CLASS, 500, 0, 1, 0, 6, 6, 0, 0, 0, CLR_YELLOW),
         /* +d6 small or large */
+#if 0
 /* other colors of venom to be shuffled in. */
 OBJECT(OBJ(None, "splash of smelly venom"),
       BITS(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, LIQUID), 0,
@@ -1254,6 +1284,7 @@ OBJECT(OBJ(None, "splash of clear venom"),
 OBJECT(OBJ(None, "splash of steaming venom"),
       BITS(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, LIQUID), 0,
       VENOM_CLASS, 0, 0, 1, 0, 0, 0, 0, 0, 0, CLR_ORANGE),
+#endif
 /* manticore quills */
 OBJECT(OBJ("quill", "bony quill"),
       BITS(0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, P_NONE, BONE), 0,

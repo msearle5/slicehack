@@ -38,11 +38,13 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
+/* This definitely needs to become a flag, once reflagging takes place. */
 #define is_jumper(ptr) ((ptr) == &mons[PM_JUMPING_SPIDER] || \
                         (ptr) == &mons[PM_EARTHSHARK] || \
                         (ptr) == &mons[PM_WALLABY] || \
                         (ptr) == &mons[PM_WALLAROO] || \
-                        (ptr) == &mons[PM_KANGAROO])
+                        (ptr) == &mons[PM_KANGAROO] || \
+                        (ptr) == &mons[PM_ANUBITE])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
@@ -77,14 +79,15 @@
       (ptr) == &mons[PM_TASMANIAN_DEVIL])
 #define flaming(ptr)                                                     \
     ((ptr) == &mons[PM_FIRE_VORTEX] || (ptr) == &mons[PM_FLAMING_SPHERE] \
-     || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER])
+     || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER] \
+     || (ptr) == &mons[PM_HELLBEAR])
 #define is_silent(ptr) ((ptr)->msound == MS_SILENT)
 #define unsolid(ptr) (((ptr)->mflags1 & M1_UNSOLID) != 0L)
 #define mindless(ptr) (((ptr)->mflags1 & M1_MINDLESS) != 0L)
 #define humanoid(ptr) (((ptr)->mflags1 & M1_HUMANOID) != 0L)
 #define is_animal(ptr) (((ptr)->mflags1 & M1_ANIMAL) != 0L)
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
-#define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM])
+#define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr->mlet) == S_PLANT)
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
 #define slimeproof(ptr) \
     ((ptr) == &mons[PM_GREEN_SLIME] || flaming(ptr) || noncorporeal(ptr))
@@ -201,7 +204,8 @@
 #define emits_light(ptr)                                          \
     (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
       || (ptr) == &mons[PM_SHOCKING_SPHERE]                       \
-      || (ptr) == &mons[PM_FIRE_VORTEX])                          \
+      || (ptr) == &mons[PM_FIRE_VORTEX]                          \
+      || (ptr) == &mons[PM_WAX_GOLEM])                           \
          ? 1                                                      \
          : ((ptr) == &mons[PM_FIRE_ELEMENTAL]) ? 1 : 0)
 /*	[note: the light ranges above were reduced to 1 for performance...] */
@@ -209,7 +213,8 @@
     (ptr == &mons[PM_FIRE_ELEMENTAL] || ptr == &mons[PM_SALAMANDER] \
           || ptr == &mons[PM_MAGMA_ELEMENTAL])
 #define pm_invisible(ptr) \
-    ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT])
+    ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT] \
+      || (ptr) == &mons[PM_HELLCAT])
 
 /* could probably add more */
 #define likes_fire(ptr)                                                  \
@@ -228,6 +233,10 @@
       || (ptr) == &mons[PM_ANCIENT_BRAIN])
 
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
+#define is_pirate(ptr) \
+    ((ptr) == &mons[PM_PIRATE] || (ptr) == &mons[PM_SKELETAL_PIRATE] \
+      || (ptr) == &mons[PM_DAMNED_PIRATE] || (ptr) == &mons[PM_PLANAR_PIRATE] \
+      || (ptr) == &mons[PM_MAYOR_CUMMERBUND] || (ptr) == &mons[PM_PIRATE_BROTHER])
 
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)
@@ -236,7 +245,8 @@
 
 /* no corpse (ie, blank scrolls) if killed by fire */
 #define completelyburns(ptr) \
-    ((ptr) == &mons[PM_PAPER_GOLEM] || (ptr) == &mons[PM_STRAW_GOLEM])
+    ((ptr) == &mons[PM_PAPER_GOLEM] || (ptr) == &mons[PM_STRAW_GOLEM] \
+      || (ptr) == &mons[PM_WAX_GOLEM])
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */

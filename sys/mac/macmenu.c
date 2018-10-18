@@ -1,3 +1,4 @@
+
 /* NetHack 3.6	macmenu.c	$NHDT-Date: 1432512797 2015/05/25 00:13:17 $  $NHDT-Branch: master $:$NHDT-Revision: 1.13 $ */
 /*      Copyright (c) Macintosh NetHack Port Team, 1993.          */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -675,8 +676,11 @@ mac_askname()
 
         /* Adjust the role popup menu */
         for (i = 0; roles[i].name.m; i++) {
-            ask_restring((currgend && roles[i].name.f) ? roles[i].name.f
-                                                       : roles[i].name.m,
+            ask_restring((currgend && roles[i].name.f)
+              ? roles[i].name.f
+              : (currgend && roles[i].name.n)
+                ? roles[i].name.n
+                : roles[i].name.m,
                          str);
             SetMenuItemText(askmenu[RSRC_ASK_ROLE], i + 1, str);
             CheckMenuItem(askmenu[RSRC_ASK_ROLE], i + 1, currrole == i);

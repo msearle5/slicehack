@@ -579,10 +579,14 @@ plselAdjustLists(HWND hWnd, int changed_sel)
         SendMessage(control_role, CB_RESETCONTENT, 0, 0);
         for (i = 0; roles[i].name.m; i++) {
             if (ok_role(i, initrace, initgend, initalign)) {
-                if (initgend >= 0 && flags.female && roles[i].name.f)
+                if (initgend >= 0 && flags.female == 1 && roles[i].name.f)
                     ind = SendMessage(
                         control_role, CB_ADDSTRING, (WPARAM) 0,
                         (LPARAM) NH_A2W(roles[i].name.f, wbuf, sizeof(wbuf)));
+                else if (initgend >= 0 && flags.female == 2 && roles[i].name.n)
+                    ind = SendMessage(
+                        control_role, CB_ADDSTRING, (WPARAM) 0,
+                        (LPARAM) NH_A2W(roles[i].name.n, wbuf, sizeof(wbuf)));
                 else
                     ind = SendMessage(
                         control_role, CB_ADDSTRING, (WPARAM) 0,

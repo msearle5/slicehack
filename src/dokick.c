@@ -96,15 +96,22 @@ register boolean clumsy;
         dmg += rnd(4);
     if (uarmf) {
         dmg += uarmf->spe;
-        if (uarmf->material == SILVER && mon_hates_silver(mon)) {
-            pline_The("silver sears %s's flesh!", mon_nam(mon));
-            dmg += rnd(20);
+        if (mon_hates_material(mon, uarmf->material)) {
+            if (uarmf->material == SILVER) {
+                pline_The("silver sears %s's flesh!", mon_nam(mon));
+                dmg += rnd(20);
+            }
+            else {
+                pline("%s flinches at the touch of %s!", Monnam(mon),
+                      materialnm[uarmf->material]);
+                dmg += rnd(6);
+            }
         }
     }
     dmg += u.udaminc; /* add ring(s) of increase damage */
     if (dmg > 0)
         mon->mhp -= dmg;
-    if (mon->mhp > 0 && martial() && !bigmonst(mon->data) && !rn2(3)
+    if (!DEADMONSTER(mon) && martial() && !bigmonst(mon->data) && !rn2(3)
         && mon->mcanmove && mon != u.ustuck && !mon->mtrapped) {
         /* see if the monster has a place to move into */
         mdx = mon->mx + u.dx;
@@ -123,8 +130,8 @@ register boolean clumsy;
         }
     }
 
-    (void) passive(mon, uarmf, TRUE, mon->mhp > 0, AT_KICK, FALSE);
-    if (mon->mhp <= 0 && !trapkilled)
+    (void) passive(mon, uarmf, TRUE, !DEADMONSTER(mon), AT_KICK, FALSE);
+    if (DEADMONSTER(mon) && !trapkilled)
         killed(mon);
 
     /* may bring up a dialog, so put this after all messages */
@@ -923,7 +930,7 @@ dokick()
         kick_monster(mtmp, x, y);
         glyph = glyph_at(x, y);
         /* see comment in attack_checks() */
-        if (mtmp->mhp <= 0) { /* DEADMONSTER() */
+        if (DEADMONSTER(mtmp)) { /* DEADMONSTER() */
             /* if we mapped an invisible monster and immediately
                killed it, we don't want to forget what we thought
                was there before the kick */

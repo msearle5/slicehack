@@ -12,6 +12,7 @@ STATIC_DCL void NDECL(stoned_dialogue);
 STATIC_DCL void NDECL(vomiting_dialogue);
 STATIC_DCL void NDECL(choke_dialogue);
 STATIC_DCL void NDECL(levitation_dialogue);
+STATIC_DCL void NDECL(larva_dialogue);
 STATIC_DCL void NDECL(slime_dialogue);
 STATIC_DCL void NDECL(slip_or_trip);
 STATIC_DCL void FDECL(see_lamp_flicker, (struct obj *, const char *));
@@ -26,6 +27,7 @@ const struct propname {
 } propertynames[] = {
     { INVULNERABLE, "invulnerable" },
     { STONED, "petrifying" },
+    { LARVACARRIER, "hosting monster eggs" },
     { SLIMED, "becoming slime" },
     { STRANGLED, "strangling" },
     { SICK, "fatally sick" },
@@ -295,6 +297,34 @@ levitation_dialogue()
     }
 }
 
+static NEARDATA const char *const larva_texts[] = {
+    "You are feeling a little strange.",
+    "Your skin is crawling.",
+    "You can feel something moving inside your body!",
+    "%s burst from your body!"
+};
+
+STATIC_OVL void
+larva_dialogue()
+{
+    register long i = (LarvaCarrier & TIMEOUT) / 2L;
+
+    if (((LarvaCarrier & TIMEOUT) % 2L) && i >= 0L && i < SIZE(larva_texts)) {
+        char buf[BUFSZ];
+
+        Strcpy(buf, larva_texts[SIZE(larva_texts) - i - 1L]);
+        if (index(buf, '%')) {
+            pline(buf,
+                  makeplural(Hallucination ? rndmonnam(NULL) : "Insect"));
+        } else
+            pline1(buf);
+    }
+    if (i <= 4L) {
+        stop_occupation();
+    }
+    exercise(A_CON, FALSE);
+}
+
 static NEARDATA const char *const slime_texts[] = {
     "You are turning a little %s.",   /* 5 */
     "Your limbs are getting oozy.",   /* 4 */
@@ -396,10 +426,16 @@ nh_timeout()
         else if (u.uluck < baseluck && (nostone || time_luck > 0))
             u.uluck++;
     }
+
+    /* WAC -- check for timeout of specials */
+  	tech_timeout();
+
     if (u.uinvulnerable)
         return; /* things past this point could kill you */
     if (Stoned)
         stoned_dialogue();
+    if (LarvaCarrier)
+        larva_dialogue();
     if (Slimed)
         slime_dialogue();
     if (Vomiting)
@@ -454,6 +490,11 @@ nh_timeout()
                 dealloc_killer(kptr);
                 /* (unlike sliming, you aren't changing form here) */
                 done(STONING);
+                break;
+            case LARVACARRIER:
+                /* must be in this order for bones files. */
+                create_critters(2 + rn2(3), &mons[PM_BABY_BROOD_WASP], TRUE);
+                losehp(d(10, 4), "being eaten from the inside by insects", KILLED_BY);
                 break;
             case SLIMED:
                 if (kptr && kptr->name[0]) {
@@ -1109,14 +1150,14 @@ long timeout;
         obj = (struct obj *) 0;
         break;
 
-    case BRASS_LANTERN:
+    case LANTERN:
     case OIL_LAMP:
         switch ((int) obj->age) {
         case 150:
         case 100:
         case 50:
             if (canseeit) {
-                if (obj->otyp == BRASS_LANTERN)
+                if (obj->otyp == LANTERN)
                     lantern_message(obj);
                 else
                     see_lamp_flicker(obj,
@@ -1126,7 +1167,7 @@ long timeout;
 
         case 25:
             if (canseeit) {
-                if (obj->otyp == BRASS_LANTERN)
+                if (obj->otyp == LANTERN)
                     lantern_message(obj);
                 else {
                     switch (obj->where) {
@@ -1150,13 +1191,13 @@ long timeout;
                     need_invupdate = TRUE;
                     /*FALLTHRU*/
                 case OBJ_MINVENT:
-                    if (obj->otyp == BRASS_LANTERN)
+                    if (obj->otyp == LANTERN)
                         pline("%slantern has run out of power.", whose);
                     else
                         pline("%s has gone out.", Yname2(obj));
                     break;
                 case OBJ_FLOOR:
-                    if (obj->otyp == BRASS_LANTERN)
+                    if (obj->otyp == LANTERN)
                         You_see("a lantern run out of power.");
                     else
                         You_see("%s go out.", an(xname(obj)));
@@ -1360,7 +1401,7 @@ boolean already_lit;
         radius = 1; /* very dim light */
         break;
 
-    case BRASS_LANTERN:
+    case LANTERN:
     case OIL_LAMP:
         /* magic times are 150, 100, 50, 25, and 0 */
         if (obj->age > 150L)

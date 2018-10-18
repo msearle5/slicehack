@@ -23,19 +23,23 @@ register struct monst *mon;
                 const char *howler;
 
                 switch (monsndx(mon->data)) {
+                case PM_WEREBEAR:
+                    howler = "bear roaring";
+                    break;
                 case PM_ALPHA_WEREWOLF:
-                    howler = "pack of wolves";
+                    howler = "pack of wolves howling";
                     break;
                 case PM_WEREWOLF:
-                    howler = "wolf";
+                    howler = "wolf howling";
                     break;
                 case PM_WEREJACKAL:
-                    howler = "jackal";
+                    howler = "jackal howling";
                     break;
                 default:
                     howler = (char *) 0;
                     break;
                 }
+
                 if (howler) {
                     if (Hallucination)
                         You_hear("the moon howling like a %s", howler);
@@ -64,6 +68,10 @@ int pm;
         return PM_HUMAN_WEREWOLF;
     case PM_HUMAN_WEREWOLF:
         return PM_WEREWOLF;
+    case PM_WEREBEAR:
+        return PM_HUMAN_WEREBEAR;
+    case PM_HUMAN_WEREBEAR:
+        return PM_WEREBEAR;
     case PM_WEREJACKAL:
         return PM_HUMAN_WEREJACKAL;
     case PM_HUMAN_WEREJACKAL:
@@ -83,6 +91,11 @@ were_beastie(pm)
 int pm;
 {
     switch (pm) {
+    case PM_WEREBEAR:
+    case PM_OWLBEAR:
+    case PM_BEAR:
+    case PM_DROP_BEAR:
+        return PM_WEREBEAR;
     case PM_PACKRAT:
     case PM_WERERAT:
     case PM_SEWER_RAT:
@@ -155,6 +168,7 @@ char *genbuf;
         switch (pm) {
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
+        case PM_NOSFERATU: /* the rats _should_ appear around the Nosferatu*/
             typ = rn2(3) ? PM_SEWER_RAT
                          : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
             cap = near_capacity();
@@ -169,6 +183,11 @@ char *genbuf;
             typ = rn2(7) ? PM_JACKAL : rn2(3) ? PM_COYOTE : PM_FOX;
             if (genbuf)
                 Strcpy(genbuf, "jackal");
+            break;
+        case PM_WEREBEAR:
+            typ = rn2(15) ? PM_BEAR : PM_HELLBEAR;
+            if (genbuf)
+                Strcpy(genbuf, "bear");
             break;
         case PM_WEREWOLF:
         case PM_HUMAN_WEREWOLF:
@@ -223,8 +242,28 @@ void
 you_unwere(purify)
 boolean purify;
 {
+
+    boolean in_wereform = (u.umonnum == u.ulycn);
     boolean controllable_poly = Polymorph_control && !(Stunned || Unaware);
-    if (purify && !Race_if(PM_HUMAN_WEREWOLF)) {
+    if (purify) {
+        if (Race_if(PM_HUMAN_WEREWOLF)) {
+            /* An attempt to purify you has been made! */
+            if (in_wereform && Unchanging) {
+                killer.format = NO_KILLER_PREFIX;
+                Sprintf(killer.name, "purified while stuck in creature form");
+                pline_The("purification was deadly...");
+                done(DIED);
+            } else {
+                You_feel("very bad!");
+                if (in_wereform)
+              rehumanize();
+                (void) adjattrib(A_STR, -rn1(3,3), 2);
+                (void) adjattrib(A_CON, -rn1(3,3), 1);
+                losehp(u.uhp - (u.uhp > 10 ? rnd(5) : 1), "purification",
+                  KILLED_BY);
+            }
+            return;
+        }
         You_feel("purified.");
         set_ulycn(NON_PM); /* cure lycanthropy */
     }

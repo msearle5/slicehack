@@ -341,6 +341,10 @@
 /* #define REPRODUCIBLE_BUILD */ /* use getenv("SOURCE_DATE_EPOCH") instead
                                     of current time when creating date.h */
 
+/* #define TAME_SUMMONING */  /* tame spellcasters can summon tame monsters */
+                              /* (including you) */
+
+
 /*
  *      Defining INSURANCE slows down level changes, but allows games that
  *      died due to program or system crashes to be resumed from the point

@@ -116,7 +116,7 @@ struct monst {
     Bitfield(iswiz, 1);     /* is the Wizard of Yendor */
     Bitfield(wormno, 5);    /* at most 31 worms on any level */
     Bitfield(monmount, 1);  /* whether this monster is a mount of another */
-    /* 1 free bit */
+    /* 1 free bits */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 
@@ -168,7 +168,8 @@ struct monst {
 #define is_starting_pet(mon) ((mon)->m_id == context.startingpet_mid)
 #define is_vampshifter(mon)                                      \
     ((mon)->cham == PM_VAMPIRE || (mon)->cham == PM_VAMPIRE_LORD \
-     || (mon)->cham == PM_VLAD_THE_IMPALER)
+     || (mon)->cham == PM_VLAD_THE_IMPALER || (mon)->cham == PM_ALUCARD \
+     || (mon)->cham == PM_VAMPIRE_MAGE)
 
 /* mimic appearances that block vision/light */
 #define is_lightblocker_mappear(mon)                       \

@@ -428,31 +428,63 @@ register struct monst *mtmp;
         break;
 
     case S_ANGEL:
-        if (humanoid(ptr)) {
-            /* create minion stuff; can't use mongets */
-            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
-
-            /* maybe make it special */
-            if (!rn2(20) || is_lord(ptr)) {
-                const int arti[3] = { ART_DEMONBANE, ART_SUNSWORD, ART_UNLIMITED_MOON };
-                otmp = oname(otmp, artiname(arti[rn2(3)]));
-            }
+        switch(mm) {
+        case PM_AVENGER_ARCHON:
+            otmp = mksobj(YUMI, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = TRUE;
-            spe2 = rn2(4);
+            spe2 = rn2(5);
             otmp->spe = max(otmp->spe, spe2);
             (void) mpickobj(mtmp, otmp);
 
-            otmp = mksobj(!rn2(4) || is_lord(ptr) ? (rn2(2) ? SHIELD_OF_REFLECTION : SHIELD_OF_RESONANCE)
-                                                  : LARGE_SHIELD,
-                          FALSE, FALSE);
+            m_initthrow(mtmp, YA, 50);
+            (void) mongets(mtmp, rnd_defensive_item(mtmp));
+            (void) mongets(mtmp, rnd_misc_item(mtmp));
+            break;
+        case PM_HERALD_ARCHON:
+            (void) mongets(mtmp, BUGLE);
+
+            otmp = mksobj(FLAIL, FALSE, FALSE);
+            bless(otmp);
+            otmp->oerodeproof = TRUE;
+            spe2 = rn2(5);
+            otmp->spe = max(otmp->spe, spe2);
+            (void) mpickobj(mtmp, otmp);
+
+            otmp = mksobj(SMALL_SHIELD, FALSE, FALSE);
             otmp->cursed = FALSE;
             otmp->oerodeproof = TRUE;
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
+            break;
+        default:
+            if (humanoid(ptr)) {
+                /* create minion stuff; can't use mongets */
+                otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+
+                /* maybe make it special */
+                if (!rn2(20) || is_lord(ptr)) {
+                    const int arti[3] = { ART_DEMONBANE, ART_SUNSWORD, ART_UNLIMITED_MOON };
+                    otmp = oname(otmp, artiname(arti[rn2(3)]));
+                }
+                bless(otmp);
+                otmp->oerodeproof = TRUE;
+                spe2 = rn2(4);
+                otmp->spe = max(otmp->spe, spe2);
+                (void) mpickobj(mtmp, otmp);
+
+                otmp = mksobj(!rn2(4) || is_lord(ptr) ? (rn2(2) ? SHIELD_OF_REFLECTION : SHIELD_OF_RESONANCE)
+                                                  : LARGE_SHIELD,
+                          FALSE, FALSE);
+                otmp->cursed = FALSE;
+                otmp->oerodeproof = TRUE;
+                otmp->spe = 0;
+                (void) mpickobj(mtmp, otmp);
+            }
+            break;
         }
         break;
-    case S_GNOME:
+    case S_GNOLL:
         switch (mm) {
             case PM_GNOLL:
                 if(!rn2(3)) (void) mongets(mtmp, ORCISH_HELM);
@@ -605,6 +637,10 @@ register struct monst *mtmp;
                                          ? ORCISH_DAGGER
                                          : SCIMITAR);
         }
+        break;
+    case S_VAMPIRE:
+        if (ptr == &mons[PM_ALUCARD])
+            (void) mongets(mtmp, KATANA);
         break;
     case S_OGRE:
         if (!rn2(mm == PM_OGRE_KING ? 3 : mm == PM_OGRE_LORD ? 6 : 12))
@@ -867,12 +903,12 @@ register struct monst *mtmp;
                 ; /* better weapon rather than extra gear here */
             } else if (ptr == &mons[PM_WATCHMAN]) {
                 if (rn2(3)) /* most watchmen carry a whistle */
-                    (void) mongets(mtmp, TIN_WHISTLE);
+                    (void) mongets(mtmp, PEA_WHISTLE);
             } else if (ptr == &mons[PM_GUARD]) {
                 /* if hero teleports out of a vault while being confronted
                    by the vault's guard, there is a shrill whistling sound,
                    so guard evidently carries a cursed whistle */
-                otmp = mksobj(TIN_WHISTLE, TRUE, FALSE);
+                otmp = mksobj(PEA_WHISTLE, TRUE, FALSE);
                 curse(otmp);
                 (void) mpickobj(mtmp, otmp);
             } else { /* soldiers and their officers */
@@ -937,6 +973,20 @@ register struct monst *mtmp;
             (void) mongets(mtmp, EXPENSIVE_CAMERA);
         }
         break;
+    case S_VAMPIRE:
+        if (ptr == &mons[PM_ALUCARD]) {
+            for (cnt = rn2(2); cnt < 4; cnt++) {
+                (void) mongets(mtmp, POT_VAMPIRE_BLOOD);
+            }
+            break;
+        }
+        if (rn2(2)) {
+            if ((int) mtmp->m_lev > rn2(30))
+                (void) mongets(mtmp, POT_VAMPIRE_BLOOD);
+            else
+                (void) mongets(mtmp, POT_BLOOD);
+        }
+        break;
     case S_NYMPH:
         if (!rn2(2))
             (void) mongets(mtmp, MIRROR);
@@ -991,6 +1041,15 @@ register struct monst *mtmp;
             otmp->spe = 1; /* flag for special box */
             otmp->owt = weight(otmp);
             (void) mpickobj(mtmp, otmp);
+        }
+        if (ptr == &mons[PM_MAD_ALCHEMIST]) {
+            for (cnt = 1 + rn2(2); cnt; cnt--) {
+                otmp = mksobj(rnd_class(POT_REFLECTION, POT_OIL),
+                              FALSE, FALSE);
+                (void) mpickobj(mtmp, otmp);
+            }
+            (void) mongets(mtmp, POT_ACID);
+            (void) mongets(mtmp, POT_ACID);
         }
         break;
     case S_LEPRECHAUN:
@@ -1474,6 +1533,9 @@ int mmflags;
     /* mounting */
     if (!(mmflags & MM_REVIVE)) {
         switch (mndx) {
+            case PM_KNIGHT:
+                mount_monster(mtmp, PM_PONY);
+                break;
             case PM_HEADLESS_HORSEMAN:
                 mount_monster(mtmp, PM_NIGHTMARE);
                 break;
@@ -1502,9 +1564,15 @@ int mmflags;
         break;
     case S_LIGHT:
     case S_ELEMENTAL:
-        if (mndx == PM_STALKER || mndx == PM_BLACK_LIGHT) {
+        if (mndx == PM_STALKER || mndx == PM_BLACK_LIGHT
+              || mndx == PM_HELLCAT) {
             mtmp->perminvis = TRUE;
             mtmp->minvis = TRUE;
+        }
+        break;
+    case S_HUMAN:
+        if (mndx == PM_SLIPSCALE_THE_BETRAYER) {
+            mount_monster(mtmp, PM_VOANAIRRUTH);
         }
         break;
     case S_DEMON:
@@ -2091,7 +2159,7 @@ struct monst *mtmp, *victim;
 
     /* monster died after killing enemy but before calling this function */
     /* currently possible if killing a gas spore */
-    if (mtmp->mhp <= 0)
+    if (DEADMONSTER(mtmp))
         return (struct permonst *) 0;
 
     /* note:  none of the monsters with special hit point calculations
@@ -2281,6 +2349,8 @@ int type;
     case PM_LEATHER_GOLEM:
         return 40;
     case PM_GOLD_GOLEM:
+        return 40;
+    case PM_WAX_GOLEM:
         return 40;
     case PM_WOOD_GOLEM:
         return 50;

@@ -336,7 +336,7 @@ static struct Comp_Opt {
     { "font_text", "the font to use in text windows", 40,
       DISP_IN_GAME }, /*WC*/
     { "fruit", "the name of a fruit you enjoy eating", PL_FSIZ, SET_IN_GAME },
-    { "gender", "your starting gender (male or female)", 8, DISP_IN_GAME },
+    { "gender", "your starting gender (male, female, or nonbinary)", 8, DISP_IN_GAME },
     { "horsename", "the name of your (first) horse (e.g., horsename:Silver)",
       PL_PSIZ, DISP_IN_GAME },
     { "map_mode", "map display mode under Windows", 20, DISP_IN_GAME }, /*WC*/
@@ -819,6 +819,15 @@ initoptions_init()
 #endif
 #endif /* UNIX || VMS */
 
+#if defined(MSDOS) || defined(WIN32)
+    /* Use IBM defaults. Can be overridden via config file */
+    if (!symset[PRIMARY].name) {
+        load_symset("IBMGraphics_2", PRIMARY);
+    }
+    if (!symset[ROGUESET].name) {
+        load_symset("RogueEpyx", ROGUESET);
+    }
+#endif
 #ifdef MAC_GRAPHICS_ENV
     if (!symset[PRIMARY].name)
         load_symset("MACGraphics", PRIMARY);
@@ -3630,7 +3639,7 @@ boolean tinitial, tfrom_file;
             /* non-curses windowports will not use this flag anyway
              * but the above will not compile if we don't have curses.
              * Just set it to a sensible default: */
-            iflags.wc2_petattr = ATR_INVERSE
+            iflags.wc2_petattr = ATR_INVERSE;
 #endif
         } else if (negated) bad_negation(fullname, TRUE);
         return retval;

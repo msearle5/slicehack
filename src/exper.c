@@ -6,12 +6,10 @@
 #include "hack.h"
 #include <limits.h>
 
-STATIC_DCL long FDECL(newuexp, (int));
 STATIC_DCL int FDECL(enermod, (int));
 
-STATIC_OVL long
-newuexp(lev)
-int lev;
+long
+newuexp(int lev)
 {
     static const int max[MAXULEV] = {
         20,		40,		80,		160,	320,

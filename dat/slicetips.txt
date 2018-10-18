@@ -9,14 +9,12 @@ Throwing Gae Bulg can potentially kill anything, but can also result in the loss
 The mysterious force has left the dungeon.
 Performing the invocation ritual will draw notice from the remaining royalty of Gehennom.
 Luckless Folly becomes more powerful the more unlucky you are.
-The Amulet of Yendor now blocks teleportation.
-Wind attacks can push you into water, or even stun you by pushing you into walls.
+The Amulet of Yendor now blocks all forms of teleportation.
+Wind attacks can push you into dangerous areas.
 Sonic attacks will not harm you if you are deaf.
 Sonic attacks can shatter anything made of glass or gemstones.
 Psionic attacks will not harm something without a mind.
 Psionic beams cannot be reflected.
-Psionic attacks might confuse you.
-The Void is a dangerous branch that contains a void dragon. Enter at your peril.
 Void dragons can disintegrate you with a melee attack.
 Unlimited Moon's power is dependent on the moon phase.
 Nymphs and other dungeon denizens might introduce themselves to you.
@@ -86,6 +84,7 @@ SliceHack supports curses! Try editing your config file.
 The Master of Cats must be killed nine times before truly dying.
 Extra wishes? Try wishing for Vladsbane.
 Extra wishes and itching for YASD? Try wishing for the King in Yellow.
+Extra wishes and feeling lucky? Try wishing for Luckless Folly.
 Silver golems are especially deadly to infernal players.
 Tips of the day sometimes are not very helpful.
 Stairs hidden under some items? Try using #terrain.
@@ -116,3 +115,25 @@ SliceHack inherits many monsters from SLASH'EM.
 A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
 Zouthern monsters are slightly less tough in SliceHack than in other variants.
 Your choice of sub-role? Mine's a BLT!
+A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
+Zouthern monsters are slightly less tough in SpliceHack than in other variants.
+Anubites are capable of jumping.
+The main dungeon in SpliceHack is longer than one might expect.
+Gehennom has been compacted. It's quite a rush!
+SpliceHack is fully compatible with tiles, and comes with a tileset!
+Substance warpers can change the material of your items.
+Rings of blood magic allow you to convert hit points to power.
+Merfolk have poor abilities, but begin the game with one of the most powerful techniques.
+You can encounter the big room up to three times.
+Vlad's castle has a large courtyard.
+Vlad is accompanied by his son Alucard, a powerful vampire in his own right.
+Luckless Folly grows more powerful the more unlucky you are.
+Monsters can counter the cards played by cartomancers with their own cards.
+One-Eyed Sam does not take kindly to attempts to steal from her.
+You can bring your pet into the black market, but not back out!
+SpliceHack incorporates features from a variety of variants, most notably XNetHack and SLASH'EM.
+Phoenixes will explode upon death, so be careful.
+Packrats will pick up just about anything.
+Keep your pets far away from porcupines.
+A helm of opaque thoughts will make your head flayer-proof!
+Use #technique to use special role and race-specific powers.

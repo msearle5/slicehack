@@ -346,6 +346,8 @@ register int fd, mode;
     bwrite(fd, (genericptr_t) &quest_status, sizeof(struct q_score));
     bwrite(fd, (genericptr_t) spl_book,
            sizeof(struct spell) * (MAXSPELL + 1));
+    bwrite(fd, (genericptr_t) tech_list,
+ 			     sizeof(struct tech) * (MAXTECH + 1));
     save_artifacts(fd);
     save_oracles(fd, mode);
     if (ustuck_id)

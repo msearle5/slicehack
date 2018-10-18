@@ -82,7 +82,7 @@ enum roomtype_types {
     TOOLSHOP,
     BOOKSHOP,
     ARCHERYSHOP,
-    JUNKSHOP,
+    MASKSHOP,
     FODDERSHOP, /* health food store */
     CANDLESHOP,
     BLACKSHOP

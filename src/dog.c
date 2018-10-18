@@ -815,7 +815,7 @@ register struct obj *obj;
         /* ghouls prefer old corpses and unhatchable eggs, yum!
            they'll eat fresh non-veggy corpses and hatchable eggs
            when starving; they never eat stone-to-flesh'd meat */
-        if (mptr == &mons[PM_GHOUL]) {
+        if (mptr == &mons[PM_GHOUL] || mptr == &mons[PM_GHAST]) {
             if (obj->otyp == CORPSE)
                 return (peek_at_iced_corpse_age(obj) + 50L <= monstermoves
                         && fptr != &mons[PM_LIZARD]
@@ -844,11 +844,15 @@ register struct obj *obj;
                  && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
                  && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
-                || (poisonous(fptr) && !resists_poison(mon)))
+                || (poisonous(fptr) && !resists_poison(mon))
+                || (touch_petrifies(&mons[obj->corpsenm]) &&
+                    !resists_ston(mon)))
                 return POISON;
             /* turning into slime is preferable to starvation */
             else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mon->data))
                 return starving ? ACCFOOD : POISON;
+            else if (fptr == &mons[PM_CHAMELEON])
+                return starving ? ACCFOOD : MANFOOD;
             else if (vegan(fptr))
                 return herbi ? CADAVER : MANFOOD;
             /* most humanoids will avoid cannibalism unless starving;
@@ -879,6 +883,17 @@ register struct obj *obj;
                       : (herbi || starving)
                          ? ACCFOOD
                          : MANFOOD;
+         case K_RATION:
+         case C_RATION:
+         case CRAM_RATION:
+         case LEMBAS_WAFER:
+         case FOOD_RATION:
+            if (is_human(mon->data) ||
+          		  is_elf(mon->data) ||
+          			is_dwarf(mon->data) ||
+          			is_gnome(mon->data) ||
+          			is_orc(mon->data))
+          	return ACCFOOD;
         default:
             if (starving)
                 return ACCFOOD;
@@ -889,7 +904,7 @@ register struct obj *obj;
         if (obj->otyp == AMULET_OF_STRANGULATION
             || obj->otyp == RIN_SLOW_DIGESTION)
             return TABU;
-        if (mon_hates_silver(mon) && obj->material == SILVER)
+        if (mon_hates_material(mon, obj->material))
             return TABU;
         if ((mptr == &mons[PM_GELATINOUS_CUBE] ||
              mptr == &mons[PM_TASMANIAN_DEVIL]) && is_organic(obj))

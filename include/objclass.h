@@ -166,6 +166,7 @@ enum obj_class_types {
 #define ALLOW_COUNT (MAXOCLASSES + 1) /* Can be used in the object class    */
 #define ALL_CLASSES (MAXOCLASSES + 2) /* input to getobj().                 */
 #define ALLOW_NONE  (MAXOCLASSES + 3)
+#define ALLOW_FLOOROBJ	(MAXOCLASSES+4)
 
 #define BURNING_OIL (MAXOCLASSES + 1) /* Can be used as input to explode.   */
 #define MON_EXPLODE (MAXOCLASSES + 2) /* Exploding monster (e.g. gas spore) */

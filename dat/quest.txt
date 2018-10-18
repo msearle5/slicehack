@@ -1149,7 +1149,9 @@ Go forth, and return when you have thought hard on what you must do."
 %E ["You have wandered from the path of the %a.  Come back when you are ready."]
 %Cc Dra 00021
 "You have probably already guessed what has happened, %p.
-Our old nemesis %n attacked our nests and destroyed our eggs.
+Your once companion %n appeared, leading a flock of chimeras toward us. %nh was
+mounted on his draconic companion, Voanairruth. The group attacked our nests and
+destroyed our eggs, then escaped.
 The fiend also had the gall to steal the greatest treasure of our horde,
 the mighty %o.
 
@@ -1159,10 +1161,10 @@ the mighty %o.
 "Go forth, %p, and be our champion."
 %E ["Find %n, defeat %ni, and return %o to us."]
 %Cp Dra 00025
-"%nC was raised as you were, and knows all of the secret arts you do."
+"%nC was raised as you were, and knows as much about dragons as you."
 %E
 %Cp Dra 00026
-"%nC will no doubt be accompanied by their draconic companion."
+"%nC will no doubt be accompanied by Voanairruth, a white dragon."
 %E
 %Cp Dra 00027
 "You must take revenge for the loss of our children."
@@ -1184,7 +1186,7 @@ the mighty %o.
 %E
 %Cp Dra 00033
 "Do not lose yourself in vengance. We value you more than we do the
-death of %n."
+death of %n and Voanairruth."
 %E
 %Cp Dra 00034
 "I am sure you will do great things one day, %p."
@@ -1198,8 +1200,9 @@ You have returned again to %i.
 %E
 %Cc Dra 00040
 Sweat prickles across your body, although the air grows even colder. You have
-reached the deepest part of %i.  This is where %n must be hiding.
-%E [You have found the hiding place of %n.]
+reached the deepest part of %i.  This is where %n and Voanairruth must be
+hiding.
+%E [You have found the hiding place of %n and %nj dragon.]
 %Cp Dra 00041
 You feel a chill again.
 %E
@@ -1207,7 +1210,7 @@ You feel a chill again.
 "So, this is who %l sent to fight me. It seems that the dragons
 are not merely content with losing their eggs, but their %R
 as well.
-I am glad that unlike you, I saw the benefits to leaving them.
+I am glad that unlike you I saw the benefits to leaving them, old friend.
 
 "Let us duel, %p."
 %E [%nC challenges you."]
@@ -1215,7 +1218,7 @@ I am glad that unlike you, I saw the benefits to leaving them.
 "I was raised by the dragons just as you were, %p. Yet I am far stronger"
 %E
 %Cp Dra 00052
-"Once I defeat you, I will allow my dragon to feed on your body!"
+"Once Voanairruth I defeat you, I will allow my dragon to feed on your body!"
 %E
 %Cp Dra 00053
 "You call yourself %ca, yet this is all you can muster?"
@@ -1242,7 +1245,7 @@ I am glad that unlike you, I saw the benefits to leaving them.
 "This boneyard shall be your grave as well."
 %E
 %Cp Dra 00067
-"Pathetic, pathetic, pathetic!"
+"Voanairruth! Tear out their heart!"
 %E
 %Cp Dra 00068
 "Are you afraid, %p?"
@@ -1257,7 +1260,7 @@ You feel that if you asked it to, it would fight at your side.
 %Cc Dra 00080
 %nC collapses, their body spent. Your vengance over the loss
 of your siblings is complete. You cannot help but feel slightly sad, however.
-In different circumstances, %n could have been your friend,
+In different circumstances, %n could have remained your friend,
 and you could have grown up together under the watchful eye of %l.
 %E [%nC has been slain.]
 %Cc Dra 00081
@@ -2510,7 +2513,7 @@ a minion of %d.  %d commands that you retain
 of Yendor.
 
 "Go forth, and let %d guide your steps."
-%E [Congraulations, %p.  Keep %o; go and recover the Amulet.]
+%E [Congratulations, %p.  Keep %o; go and recover the Amulet.]
 %Cc Pri 00082
 %lC reiterates that %o is yours now.
 
@@ -3629,7 +3632,7 @@ But it is now likely that you can defeat %n, and recover
 "A short time ago, %n and his minions attacked this place.  They
 opened the huge volcanic vents you %x about the hill, and attacked.  I knew
 that this was to come to pass, and had asked %d for a group of %gP
-to help defend this place.  The few you %x here are the  mightiest of
+to help defend this place.  The few you %x here are the mightiest of
 Valhalla's own, and are all that are left of one hundred %d sent.
 
 "Despite the great and glorious battle we fought, %n managed at
@@ -4174,7 +4177,7 @@ essential in locating the Amulet of Yendor."
 #
 #	Banishment message (for converted hero)
 #
-%Cc - 00060
+%Cc - 00080
 "You have betrayed all those who hold allegiance to %d, as you once did.
 My allegiance to %d holds fast and I cannot condone or accept what you
 have done.
@@ -4186,6 +4189,142 @@ resides.
 
 Go now!  You are banished from this place.
 %E [You are banished from %H for betraying your allegiance to %d.]
+#
+# Demon lord appearance messages
+#
+%Cc - 00070
+A massive pillar of slime towers above you, larger than you would believe to
+be possible. It hisses, spits, and bubbles, filling the air around it with
+noxious vapours. Most striking of all is the burning hatred that emanates from
+it, so intense that it feels almost like a physical force and you have to
+struggle not to let it push you back.
+
+Juiblex, the Faceless Lord, has arrived.
+%E [Juiblex appears!]
+%Cc - 00071
+Before you is a bizarre creature. Most of its body is the head of an enormous
+lion, from which five limbs radiate like the arms of some sort of bizarre
+starfish. Its eyes blaze with crimson light, and saliva drips from its
+serrated teeth.
+
+Buer has come out to hunt.
+%E [Buer appears!]
+%Cc - 00072
+The hulking humanoid that stands before you is covered nearly three meters tall
+and has the head of a hyena. In one hand it grips a  flail, and the other hand
+crackles with magical energy. When it opens its mouth, the unholy din that
+emerges could charitably be called a laugh.
+
+Yeenoghu has come to call.
+%E [Yeenoghu appears!]
+%Cc - 00073
+Blackness cloaks the being in front of you. All you can see of them is a
+muscular form, two burning yellow eyes, and a pair of claws. One of the claws
+clutches a skull-topped wand, about which a miasma of dark magic gathers.
+
+"I am Orcus, Lord of the Dead. Goodbye."
+%E [Orcus appears!]
+%Cc - 00074
+The monster you now face is nothing short of horrifying. The upper body seems to
+be a combination of three separate humanoids that have been forcibly merged.
+The lower body is serpentine and distended, tapering off into an enormous
+stinger. The hands of the monster end in wicked claws.
+
+"Greetings, Mortal. I am Geryon."
+%E [Geryon appears!]
+%Cc - 00075
+The being in front of you sniffs in disdain and tosses his ram's horns. He is
+dressed in fine clothing, and his skin is covered in bony protrusions. A
+flickering gray aura surrounds him, which occasionally curls into a bestial
+shape.
+
+"Is this the one who seeks the Amulet of Yendor? How utterly pathetic. I,
+Dispater, shall dispatch you."
+%E [Dispater appears!]
+%Cc - 00076
+A soft voice whispers in your ear.
+
+"Think you could take some time off from your search for the amulet, mortal?
+I could use some exercise."
+
+A humanoid shimmers into existence in front of you. Their form constantly shifts
+from female, to male, to neither. The only constant is their breathtaking beauty
+and the cloud of writhing tendrils protruding from their back.
+
+Malcanthet is here.
+%E [Malcanthet appears!]
+%Cc - 00077
+A maddening buzz fills your ears. Thousands of flies appear from everywhere,
+swarming through the air to coalesce into a horrible, pulsating mass, which
+continually spews torrents of insects as it expands.
+
+Baalzebub, Lord of the Flies approaches.
+%E [Baalzebub appears!]
+%Cc - 00078
+The area in front of you is suddenly consumed in a roaring wave of hellfire.
+Out of the flames steps a demon, power radiating off him. You recognize him on
+sight. Mephisto.
+
+"So, you are the latest pawn sent forth by %d. I hope you prove more
+entertaining than the previous guests I have entertained."
+%E [Mephisto appears!]
+%Cc - 00079
+The air around you is filled with a momentary hissing, before a figure appears
+in a flash of frost. He grins at you, displaying a mouth full of fangs.
+
+"I am Asmodeus. Come to me, %r."
+%E [Asmodeus appears!]
+%CC - 00080
+A great beast drags itself from the earth in a shower of stone, roaring loudly
+enough that the world shakes around it. You cannot wrap your mind around the
+entirety of its form, and instead must process bits and pieces of it at a time.
+
+Four lashing tentacles, thick with rot.
+Thick, scaly legs ending in knifelike claws.
+The cloying smell of mildew mixed with blood.
+A pair of rabid mandrill heads, their eyes trained on you.
+Prince of Demons.
+
+Demogorgon.
+%E [Demogorgon appears!]
+#
+#       Appearance messages for other high-level uniques
+#
+%Cc - 00090
+Blocking the way in front of you stands a huge horse, pale as the moon.
+Its rider is cloaked in a black robe, taller than a man, and holding a
+gleaming scythe. He turns to face you, revealing his head to be a grinning
+skull. Instead of eyes, two icy blue pinpoints of light shine as brightly
+as stars.
+%E [You encounter Death.]
+%Cc - 00091
+A disgusting stench assaults your nose as a blinding white horse thunders
+to a stop ahead. Its rider wears a sickly green cloak covered in splotches
+of mildew and circled by several flies. A glittering crown, looking
+rather out of place, rests on his head. With a ghastly leer he extends a
+diseased finger toward you.
+%E [You encounter Pestilence.]
+%Cc - 00092
+A horse, dark as midnight, rears up before you, with a hunched figure
+seated on its back. He is wearing a thin gray cowl and clutching a set of
+black iron balance scales. He lowers his hood and glares at you, revealing
+a badly emaciated face. Under his fevered gaze, a pang of hunger goes
+through your stomach.
+%E [You encounter Famine.]
+%Cc - 00093
+A man stands before you. He wears an elaborate robe trimmed with gold, and
+he regards you with a fiendish gaze. The very air around him pulsates with
+a fell power, and sparks fly from his fingers.
+"Not since the fall of Yendor has a puny mortal dared to cross my path.
+Thou art a fool to challenge me. Prepare to die!"
+%E [You encounter the Wizard of Yendor!]
+%Cc - 00094
+In a swirl of dark vapor, a tall figure appears, garbed in a high-collared black
+velvet cloak. His skin is very pale, except for some disturbing red stains
+around his mouth.  His lips curl into a sneer, revealing long white fangs.
+"I am Vlad Dracula, the Impaler. Tonight I will feast on thy blood."
+%E [You encounter Vlad The Impaler!]
+#
 #
 #	TEST PATTERN
 #

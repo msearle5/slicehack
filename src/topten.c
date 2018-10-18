@@ -132,7 +132,9 @@ boolean incl_helpless;
      */
     while (--siz > 0) {
         c = *kname++;
-        if (c == ',')
+        if (!c)
+            break;
+        else if (c == ',')
             c = ';';
         /* 'xlogfile' doesn't really need protection for '=', but
            fixrecord.awk for corrupted 3.6.0 'record' does (only
@@ -427,6 +429,8 @@ encodeconduct()
         e |= 1L << 11;
     if (!u.uconduct.elbereth)
         e |= 1L << 12;
+    if (!u.uconduct.alcohol)
+        e |= 1L << 13;
 
     return e;
 }
@@ -1182,6 +1186,8 @@ boolean fem;
                 return roles[i].femalenum;
             else if (roles[i].malenum != NON_PM)
                 return roles[i].malenum;
+            else if (roles[i].nbnum != NON_PM)
+                return roles[i].nbnum;
             else
                 return PM_HUMAN;
         }
@@ -1232,6 +1238,18 @@ pickentry:
     return tt;
 }
 
+/* get a random high score name */
+const char*
+tt_name()
+{
+    struct toptenentry *tt;
+    tt = get_rnd_toptenentry();
+    if (!tt)
+        return (const char *) plname;
+    else
+        return tt->name;
+
+}
 
 /*
  * Attach random player name and class from high score list

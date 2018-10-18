@@ -626,6 +626,10 @@ register struct monst *priest;
                     u.ublessed = rn1(3, 2);
             } else
                 u.ublessed++;
+        } else if (!tech_known(T_BLESSING) && offer > (u.ulevel * 900)) {
+            verbalize("Thou art a true devotee! I shall teach thee a holy art.");
+            pline("%s teaches you how to perform a blessing.", mon_nam(priest));
+            learntech(T_BLESSING, FROMOUTSIDE, 1);
         } else {
             verbalize("Thy selfless generosity is deeply appreciated.");
             if (money_cnt(invent) < (offer * 2L) && coaligned) {

@@ -1310,17 +1310,10 @@ struct obj * wpn;
         "Orphan Maker",   "Monster Slayer",
         "Astral Caller",
     };
-    const char* bane_wpn_names[] = {
-        "%s slayer", "%s eater", "%s destroyer", "%sbane"
-    };
-    /* Only happen rarely or during hallucination due to being very silly. */
-    if (Hallucination || !rn2(10)) {
-        char rnamecode;
-        const char* name = bane_wpn_names[rn2(SIZE(bane_wpn_names))];
-        char rname[BUFSZ];
-        Strcpy(rname, rndmonnam(&rnamecode));
+    if (!rn2(20)) {
+        const char* name = tt_name();
         char buf[BUFSZ];
-        Sprintf(buf, name, upstart(rname));
+        Sprintf(buf, "%s of %s", upstart(basename), name);
         return oname(wpn, buf);
     }
     const char* name = wpn_names[rn2(SIZE(wpn_names))];
@@ -1380,13 +1373,15 @@ const char *name;
         }
         /* set up specific materials for the artifact */
         switch(obj->oartifact) {
+        case ART_SHARUR:
         case ART_SUNSWORD:
             set_material(obj, GOLD);
             break;
         case ART_WEREBANE:
         case ART_DEMONBANE:
         case ART_GRAYSWANDIR:
-            set_material(obj, SILVER);
+        case ART_MITRE_OF_HOLINESS:
+            obj->material = SILVER;
             break;
         case ART_YENDORIAN_EXPRESS_CARD:
             set_material(obj, PLATINUM);
@@ -1875,6 +1870,10 @@ boolean called;
         else
             Sprintf(eos(buf), "merged %s%s",
               EAMA(mtmp)->m1->mname, EAMA(mtmp)->m2->mname);
+        name_at_start = FALSE;
+    } else if (mdat == &mons[PM_HYDRA] && mtmp->m_lev - mtmp->data->mlevel > -1) {
+        Sprintf(eos(buf), "%d-headed hydra",
+            mtmp->m_lev - mtmp->data->mlevel + 2);
         name_at_start = FALSE;
     } else if (is_mplayer(mdat) && !In_endgame(&u.uz)) {
         char pbuf[BUFSZ];

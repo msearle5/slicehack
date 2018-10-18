@@ -42,7 +42,8 @@ STATIC_DCL boolean FDECL(maybe_cannibal, (int, BOOLEAN_P));
 char msgbuf[BUFSZ];
 
 /* also used to see if you're allowed to eat cats and dogs */
-#define CANNIBAL_ALLOWED() (Role_if(PM_CAVEMAN) || Race_if(PM_ORC))
+#define CANNIBAL_ALLOWED() (Role_if(PM_CAVEMAN) || Race_if(PM_ORC) \
+    || Race_if(PM_HUMAN_WEREWOLF) || Race_if(PM_MINOR_ANGEL))
 
 /* non-rotting non-corpses; unlike lizard corpses, these items will behave
    as if rotten if they are cursed (fortune cookies handled elsewhere) */
@@ -86,8 +87,8 @@ register struct obj *obj;
         && (youmonst.data != &mons[PM_RUST_MONSTER] || is_rustprone(obj)))
         return TRUE;
 
-    /* Ghouls only eat non-veggy corpses or eggs (see dogfood()) */
-    if (u.umonnum == PM_GHOUL)
+    /* Ghouls and ghasts only eat non-veggy corpses or eggs (see dogfood()) */
+    if (u.umonnum == PM_GHOUL || u.umonnum == PM_GHAST)
         return (boolean)((obj->otyp == CORPSE
                           && !vegan(&mons[obj->corpsenm]))
                          || (obj->otyp == EGG));
@@ -527,7 +528,7 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             if (visflag && canseemon(magr))
                 pline("%s turns to stone!", Monnam(magr));
             monstone(magr);
-            if (magr->mhp > 0) {
+            if (!DEADMONSTER(magr)) {
                 /* life-saved; don't continue eating the brains */
                 return MM_MISS;
             } else {
@@ -613,8 +614,9 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
                 pline("%s doesn't notice.", Monnam(mdef));
             return MM_MISS;
         } else if (is_rider(pd)) {
+
             mondied(magr, mdef);
-            if (magr->mhp <= 0)
+            if (DEADMONSTER(magr))
                 result = MM_AGR_DIED;
             /* Rider takes extra damage regardless of whether attacker dies */
             *dmg_p += xtra_dmg;
@@ -893,7 +895,10 @@ register struct permonst *ptr;
         chance = 10;
         break;
     case TELEPORT_CONTROL:
-        chance = 12;
+        if (ptr == &mons[PM_BLINKING_EYE])
+            chance = 80;
+        else
+            chance = 12;
         break;
     case TELEPAT:
         chance = 1;
@@ -1046,6 +1051,9 @@ register int pm;
     case PM_ALPHA_WEREWOLF:
         catch_lycanthropy = PM_WEREWOLF;
         break;
+    case PM_HUMAN_WEREBEAR:
+        catch_lycanthropy = PM_WEREBEAR;
+        break;
     case PM_NURSE:
         if (Upolyd)
             u.mh = u.mhmax;
@@ -1138,6 +1146,12 @@ register int pm;
             polyself(0);
         }
         break;
+    case PM_GENETIC_ENGINEER: /* Robin Johnson -- special msg */
+        if (!Unchanging) {
+            You("undergo a freakish metamorphosis!");
+            polyself(0);
+        }
+        break;
     case PM_DISENCHANTER:
         /* picks an intrinsic at random and removes it; there's
            no feedback if hero already lacks the chosen ability */
@@ -1174,7 +1188,7 @@ register int pm;
         int i, count;
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
-            || pm == PM_VIOLET_FUNGUS) {
+            || pm == PM_VIOLET_FUNGUS || pm == PM_BLOODSHOT_EYE) {
             pline("Oh wow!  Great stuff!");
             (void) make_hallucinated((HHallucination & TIMEOUT) + 200L, FALSE,
                                      0L);
@@ -1700,31 +1714,42 @@ struct obj *otmp;
     if (mnum != PM_ACID_BLOB && !stoneable && !slimeable && rotted > 5L) {
         boolean cannibal = maybe_cannibal(mnum, FALSE);
 
-        pline("Ulch - that %s was tainted%s!",
-              (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
-                  : glob ? "glob"
-                      : vegetarian(&mons[mnum]) ? "protoplasm"
-                          : "meat",
-              cannibal ? ", you cannibal" : "");
-        if (Sick_resistance) {
-            pline("It doesn't seem at all sickening, though...");
-        } else {
-            long sick_time;
+        if (u.umonnum == PM_GHOUL || u.umonnum == PM_GHAST) {
+    	    	pline("Yum - that %s was well aged%s!",
+    		      mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
+    		      !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
+    		      cannibal ? ", cannibal" : "");
+  	    } else {
+            pline("Ulch - that %s was tainted%s!",
+                  (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
+                      : glob ? "glob"
+                          : vegetarian(&mons[mnum]) ? "protoplasm"
+                              : "meat",
+                  cannibal ? ", you cannibal" : "");
+            if (Sick_resistance) {
+                pline("It doesn't seem at all sickening, though...");
+            } else {
+                long sick_time;
 
-            sick_time = (long) rn1(10, 10);
-            /* make sure new ill doesn't result in improvement */
-            if (Sick && (sick_time > Sick))
-                sick_time = (Sick > 1L) ? Sick - 1L : 1L;
-            make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
-                      TRUE, SICK_VOMITABLE);
+                sick_time = (long) rn1(10, 10);
+                /* make sure new ill doesn't result in improvement */
+                if (Sick && (sick_time > Sick))
+                    sick_time = (Sick > 1L) ? Sick - 1L : 1L;
+                make_sick(sick_time, corpse_xname(otmp, "rotted", CXN_NORMAL),
+                          TRUE, SICK_VOMITABLE);
 
-            pline("(It must have died too long ago to be safe to eat.)");
+                pline("(It must have died too long ago to be safe to eat.)");
+            }
+            if (carried(otmp))
+                useup(otmp);
+            else
+                useupf(otmp, 1L);
+            return 2;
         }
-        if (carried(otmp))
-            useup(otmp);
-        else
-            useupf(otmp, 1L);
-        return 2;
+    } else if (youmonst.data == &mons[PM_GHOUL] ||
+  		   youmonst.data == &mons[PM_GHAST]) {
+    		pline ("This corpse is too fresh!");
+    		return 3;
     } else if (acidic(&mons[mnum]) && !Acid_resistance) {
         tp++;
         You("have a very bad case of stomach acid.");   /* not body_part() */
@@ -1904,6 +1929,46 @@ struct obj *otmp;
                for deciding whether to be sickened by this meal */
             if (rn2(2) && !CANNIBAL_ALLOWED())
                 make_vomiting((long) rn1(context.victual.reqtime, 14), FALSE);
+        }
+        break;
+    case PILL:
+        You("swallow the little pink pill.");
+        switch(rn2(6))
+        {
+        case 0:
+            if(!Poison_resistance) {
+                You("feel your stomach twinge.");
+                losestr(rnd(4));
+                losehp(rnd(15), "poisonous pill", KILLED_BY_AN);
+            } else  You("seem unaffected by the poison.");
+            break;
+        case 1:
+            pline ("Everything begins to get blurry.");
+            make_stunned(HStun + 30,FALSE);
+            break;
+        case 2:
+            pline ("Oh wow!  Look at the lights!");
+            make_hallucinated(HHallucination + 150,FALSE,0L);
+            break;
+        case 3:
+            pline("That tasted like vitamins...");
+            lesshungry(600);
+            break;
+        case 4:
+            if(Sleep_resistance) {
+                pline("Hmm. Nothing happens.");
+            } else {
+              pline("You feel drowsy...");
+              nomul(-rn2(50));
+              u.usleep = 1;
+              nomovemsg = "You wake up.";
+            }
+            break;
+        case 5:
+            pline("Wow... everything is moving in slow motion...");
+            /* KMH, balance patch -- Use incr_itimeout() instead of += */
+            incr_itimeout(&HFast, rn1(10,200));
+            break;
         }
         break;
     case LEMBAS_WAFER:

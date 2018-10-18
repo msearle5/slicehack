@@ -227,7 +227,7 @@ VOBJ19 = trap.o     u_init.o   uhitm.o    vault.o    vision.o
 VOBJ20 = vis_tab.o  weapon.o   were.o	  wield.o    windows.o
 VOBJ21 = wintty.o   wizard.o   worm.o	  worn.o     write.o
 VOBJ22 = zap.o	    light.o    dlb.o      dig.o      teleport.o
-VOBJ23 = random.o   region.o   sys.o
+VOBJ23 = random.o   region.o   sys.o      tech.o
 
 SOBJ   = msdos.o    sound.o    pcsys.o	  tty.o	     unix.o    video.o \
 	vidtxt.o    pckeys.o
@@ -1225,6 +1225,7 @@ spell.o: spell.c $(HACK_H)
 steal.o: steal.c $(HACK_H)
 steed.o: steed.c $(HACK_H)
 sys.o: sys.c $(HACK_H)
+tech.o: tech.c $(HACK_H)
 teleport.o: teleport.c $(HACK_H)
 timeout.o: timeout.c $(HACK_H) $(INCL)\lev.h
 topten.o: topten.c $(HACK_H) $(INCL)\dlb.h $(INCL)\patchlev.h

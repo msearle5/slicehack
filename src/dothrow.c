@@ -195,6 +195,16 @@ int shotlimit;
                 break; /* No bonus */
             }
 
+        /* Tech: Flurry */
+  	    if (objects[obj->otyp].oc_skill == -P_BOW && tech_inuse(T_FLURRY)) {
+  		      multishot += 1; /* Let'em rip! */
+
+            /* more than usual == volley */
+        		if (((shotlimit <= 0) || (shotlimit >= multishot)) &&
+        			(obj->quan >= multishot))
+        		    You("let fly a volley of %s!", xname(obj));
+    	  }
+
         /* crossbows are slow to load and probably shouldn't allow multiple
            shots at all, but that would result in players never using them;
            instead, high strength is necessary to load and shoot quickly */
@@ -637,6 +647,7 @@ int x, y;
             dmg = rnd(2 + *range);
             losehp(Maybe_Half_Phys(dmg), s, KILLED_BY);
             wake_nearto(x,y, 10);
+            unmul((char *) 0);
             return FALSE;
         }
         if (levl[x][y].typ == IRONBARS) {
@@ -645,6 +656,7 @@ int x, y;
             losehp(Maybe_Half_Phys(dmg), "crashing into iron bars",
                    KILLED_BY);
             wake_nearto(x,y, 20);
+            unmul((char *) 0);
             return FALSE;
         }
         if ((obj = sobj_at(BOULDER, x, y)) != 0) {
@@ -652,6 +664,7 @@ int x, y;
             dmg = rnd(2 + *range);
             losehp(Maybe_Half_Phys(dmg), "bumping into a boulder", KILLED_BY);
             wake_nearto(x,y, 10);
+            unmul((char *) 0);
             return FALSE;
         }
         if (!may_pass) {
@@ -661,6 +674,7 @@ int x, y;
             losehp(Maybe_Half_Phys(dmg), "touching the edge of the universe",
                    KILLED_BY);
             wake_nearto(x,y, 10);
+            unmul((char *) 0);
             return FALSE;
         }
         if ((u.ux - x) && (u.uy - y) && bad_rock(youmonst.data, u.ux, y)
@@ -675,6 +689,7 @@ int x, y;
                 losehp(Maybe_Half_Phys(dmg), "wedging into a narrow crevice",
                        KILLED_BY);
                 wake_nearto(x,y, 10);
+                unmul((char *) 0);
                 return FALSE;
             }
         }
@@ -712,6 +727,7 @@ int x, y;
             map_invisible(mon->mx, mon->my);
         setmangry(mon, FALSE);
         wake_nearto(x, y, 10);
+        unmul((char *) 0);
         return FALSE;
     }
 
@@ -721,6 +737,7 @@ int x, y;
         /* Move at a diagonal. */
         if (Sokoban) {
             You("come to an abrupt halt!");
+            unmul((char *) 0);
             return FALSE;
         }
     }
@@ -1634,7 +1651,24 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
 
     dieroll = rnd(20);
 
-    if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
+   if (mon->mtame && mon->mcanmove &&
+           (!is_animal(mon->data)) && (!mindless(mon->data)) &&
+           could_use_item(mon, obj, FALSE)) {
+      if (could_use_item(mon, obj, TRUE)) {
+          pline("%s catches %s.", Monnam(mon), the(xname(obj)));
+          obj_extract_self(obj);
+          (void) mpickobj(mon,obj);
+          if (attacktype(mon->data, AT_WEAP) &&
+              mon->weapon_check == NEED_WEAPON) {
+              mon->weapon_check = NEED_HTH_WEAPON;
+              (void) mon_wield_item(mon);
+          }
+          m_dowear(mon, FALSE);
+          newsym(mon->mx, mon->my);
+          return 1;
+      }
+      miss(xname(obj), mon);
+  } else if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
         || obj->oclass == GEM_CLASS) {
         if (hmode == HMON_KICKED) {
             /* throwing adjustments and weapon skill bonus don't apply */
@@ -1995,6 +2029,30 @@ boolean from_invent;
         obj->in_use = 1; /* in case it's fatal */
         if (obj->otyp == POT_OIL && obj->lamplit) {
             explode_oil(obj, x, y);
+        } else if ((obj->otyp == POT_VAMPIRE_BLOOD ||
+ 				   obj->otyp == POT_BLOOD) &&
+ 				   levl[x][y].altarmask != AM_CHAOTIC &&
+ 				   levl[x][y].altarmask != AM_NONE) {
+   			    /* ALI: If blood is spilt on a lawful or
+   			     * neutral altar the effect is similar to
+   			     * human sacrifice. There's no effect on
+   			     * chaotic or unaligned altars since it is
+   			     * not sufficient to summon a demon.
+   			     */
+   			    if (hero_caused) {
+         				/* Regardless of your race/alignment etc.
+         				 * Lawful and neutral gods really _dont_
+         				 * like vampire or (presumed) human blood
+         				 * on their altars.
+         				 */
+         				pline("You'll regret this infamous offense!");
+         				exercise(A_WIS, FALSE);
+   			    }
+   			    /* curse the lawful/neutral altar */
+   			    pline_The("altar is stained with blood.");
+   			    if (!Is_astralevel(&u.uz))
+   				  levl[x][y].altarmask = AM_CHAOTIC;
+   			    angry_priest();
         } else if (distu(x, y) <= 2) {
             if (!breathless(youmonst.data) || haseyes(youmonst.data)) {
                 if (obj->otyp != POT_WATER) {

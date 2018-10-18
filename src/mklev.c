@@ -645,7 +645,7 @@ STATIC_OVL void
 mkrivers()
 {
     int nriv = rn2(3) + 1;
-    boolean lava = rn2(100) < depth(&u.uz);
+    boolean lava = (rn2(100) < depth(&u.uz)) && !Race_if(PM_MERFOLK);
     while (nriv--) {
       	if (rn2(2)) makeriver(0, rn2(ROWNO), COLNO-1, rn2(ROWNO), lava);
       	else makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO-1, lava);
@@ -840,6 +840,9 @@ makelevel()
 
     {
         register int u_depth = depth(&u.uz);
+        if (Race_if(PM_MERFOLK) && !rn2(3)) {
+            mkrivers();
+        }
         if (wizard && nh_getenv("SHOPTYPE"))
             mkroom(SHOPBASE);
         else if (u_depth > 1 && u_depth < depth(&medusa_level)
@@ -1781,12 +1784,23 @@ struct mkroom *croom;
             return;
     } while (occupied(m.x, m.y) || bydoor(m.x, m.y));
 
-    /* Put a grave at m.x, m.y */
+    /* Put a grave at <m.x,m.y> */
     make_grave(m.x, m.y, dobell ? "Saved by the bell!" : (char *) 0);
 
     /* Possibly fill it with objects */
-    if (!rn2(3))
-        (void) mkgold(0L, m.x, m.y);
+    if (!rn2(3)) {
+        /* this used to use mkgold(), which puts a stack of gold on
+           the ground (or merges it with an existing one there if
+           present), and didn't bother burying it; now we create a
+           loose, easily buriable, stack but we make no attempt to
+           replicate mkgold()'s level-based formula for the amount */
+        struct obj *gold = mksobj(GOLD_PIECE, TRUE, FALSE);
+
+        gold->quan = (long) (rnd(20) + level_difficulty() * rnd(5));
+        gold->owt = weight(gold);
+        gold->ox = m.x, gold->oy = m.y;
+        add_to_buried(gold);
+    }
     for (tryct = rn2(5); tryct; tryct--) {
         otmp = mkobj(RANDOM_CLASS, TRUE);
         if (!otmp)

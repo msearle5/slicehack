@@ -48,9 +48,10 @@ monst.h         monsym.h        ntconf.h        obj.h           objclass.h
 os2conf.h       patchlevel.h    pcconf.h        permonst.h      prop.h
 qtext.h         quest.h         rect.h          region.h        rm.h
 skills.h        sp_lev.h        spell.h         sys.h           system.h
-tcap.h          timeout.h       tosconf.h       tradstdc.h      trampoli.h
-trap.h          unixconf.h      vision.h        vmsconf.h       wceconf.h
-winami.h        winprocs.h      wintype.h       you.h           youprop.h
+tcap.h          tech.h          timeout.h       tosconf.h       tradstdc.h
+trampoli.h      trap.h          unixconf.h      vision.h        vmsconf.h
+wceconf.h       winami.h        winprocs.h      wintype.h       you.h
+youprop.h
 (file for tty versions)
 wintty.h
 (files for X versions)
@@ -84,11 +85,11 @@ potion.c        pray.c          priest.c        quest.c         questpgr.c
 read.c          rect.c          region.c        restore.c       rip.c
 rnd.c           role.c          rumors.c        save.c          shk.c
 shknam.c        sit.c           sounds.c        sp_lev.c        spell.c
-steal.c         steed.c         sys.c           teleport.c      timeout.c
-topten.c        track.c         trap.c          u_init.c        uhitm.c
-vault.c         version.c       vision.c        weapon.c        were.c
-wield.c         windows.c       wizard.c        worm.c          worn.c
-write.c         zap.c
+steal.c         steed.c         sys.c           tech.c          teleport.c
+timeout.c       topten.c        track.c         trap.c          u_init.c
+uhitm.c         vault.c         version.c       vision.c        weapon.c
+were.c          wield.c         windows.c       wizard.c        worm.c
+worn.c          write.c         zap.c
 
 sys/amiga:
 (files for Amiga versions - untested for 3.6.2)

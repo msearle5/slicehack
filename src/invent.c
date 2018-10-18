@@ -7,6 +7,10 @@
 
 #include "hack.h"
 
+#ifndef C /* same as cmd.c */
+#define C(c) (0x1f & (c))
+#endif
+
 #define NOINVSYM '#'
 #define CONTAINED_SYM '>' /* designator for inside a container */
 #define HANDS_SYM '-'
@@ -125,12 +129,12 @@ struct obj *obj;
             k = 1; /* regular container or unknown bag of tricks */
         else
             switch (otyp) {
-            case WOODEN_FLUTE:
+            case FLUTE:
             case MAGIC_FLUTE:
             case TOOLED_HORN:
             case FROST_HORN:
             case FIRE_HORN:
-            case WOODEN_HARP:
+            case HARP:
             case MAGIC_HARP:
             case BUGLE:
             case LEATHER_DRUM:
@@ -1515,7 +1519,7 @@ register const char *let, *word;
                  && (otyp != CORPSE || !tinnable(otmp)))
              || (!strcmp(word, "rub")
                  && ((otmp->oclass == TOOL_CLASS && otyp != OIL_LAMP
-                      && otyp != MAGIC_LAMP && otyp != BRASS_LANTERN)
+                      && otyp != MAGIC_LAMP && otyp != LANTERN)
                      || (otmp->oclass == GEM_CLASS && !is_graystone(otmp))))
              || (!strcmp(word, "use or apply")
                  /* Picks, axes, pole-weapons, bullwhips */
@@ -1549,6 +1553,9 @@ register const char *let, *word;
                             be offered as a choice when already discovered */
                          && (otyp != POT_OIL || !otmp->dknown
                              || !objects[POT_OIL].oc_name_known))))
+             || ((!strcmp(word, "draw blood with") ||
+         			!strcmp(word, "bandage your wounds with")) &&
+         		    (otmp->oclass == TOOL_CLASS && otyp != MEDICAL_KIT))
              || (!strcmp(word, "tip") && !Is_container(otmp)
                  /* include horn of plenty if sufficiently discovered */
                  && (otmp->otyp != HORN_OF_PLENTY || !otmp->dknown
@@ -2300,6 +2307,19 @@ int id_limit;
         }
     }
 }
+/* count the unidentified items */
+int
+count_unidentified(objchn)
+struct obj *objchn;
+{
+    int unid_cnt = 0;
+    struct obj *obj;
+
+    for (obj = objchn; obj; obj = obj->nobj)
+        if (not_fully_identified(obj))
+            ++unid_cnt;
+    return unid_cnt;
+}
 
 /* dialog with user to identify a given number of items; 0 means all */
 void
@@ -2307,28 +2327,21 @@ identify_pack(id_limit, learning_id)
 int id_limit;
 boolean learning_id; /* true if we just read unknown identify scroll */
 {
-    struct obj *obj, *the_obj;
-    int n, unid_cnt;
-
-    unid_cnt = 0;
-    the_obj = 0; /* if unid_cnt ends up 1, this will be it */
-    for (obj = invent; obj; obj = obj->nobj)
-        if (not_fully_identified(obj))
-            ++unid_cnt, the_obj = obj;
+    struct obj *obj;
+    int n, unid_cnt = count_unidentified(invent);
 
     if (!unid_cnt) {
         You("have already identified all %sof your possessions.",
             learning_id ? "the rest " : "");
     } else if (!id_limit || id_limit >= unid_cnt) {
         /* identify everything */
-        if (unid_cnt == 1) {
-            (void) identify(the_obj);
-        } else {
-            /* TODO:  use fully_identify_obj and cornline/menu/whatever here
-             */
-            for (obj = invent; obj; obj = obj->nobj)
-                if (not_fully_identified(obj))
-                    (void) identify(obj);
+        /* TODO:  use fully_identify_obj and cornline/menu/whatever here */
+        for (obj = invent; obj; obj = obj->nobj) {
+            if (not_fully_identified(obj)) {
+                (void) identify(obj);
+                if (unid_cnt == 1)
+                    break;
+            }
         }
     } else {
         /* identify up to `id_limit' items */
@@ -2512,7 +2525,7 @@ boolean want_reply;
 long *out_cnt;
 {
     static const char not_carrying_anything[] = "Not carrying anything";
-    struct obj *otmp;
+    struct obj *otmp, wizid_fakeobj;
     char ilet, ret;
     char *invlet = flags.inv_order;
     int n, classcount;
@@ -2521,6 +2534,7 @@ long *out_cnt;
     menu_item *selected;
     unsigned sortflags;
     Loot *sortedinvent, *srtinv;
+    boolean wizid = FALSE;
 
     if (lets && !*lets)
         lets = 0; /* simplify tests: (lets) instead of (lets && *lets) */
@@ -2603,16 +2617,33 @@ long *out_cnt;
     start_menu(win);
     any = zeroany;
     if (wizard && iflags.override_ID) {
+        int unid_cnt;
         char prompt[QBUFSZ];
 
-        any.a_char = -1;
-        /* wiz_identify stuffed the wiz_identify command character (^I)
-           into iflags.override_ID for our use as an accelerator */
-        Sprintf(prompt, "Debug Identify (%s to permanently identify)",
-                visctrl(iflags.override_ID));
-        add_menu(win, NO_GLYPH, &any, '_', iflags.override_ID, ATR_NONE,
-                 prompt, MENU_UNSELECTED);
-    } else if (xtra_choice) {
+        unid_cnt = count_unidentified(invent);
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                     "Debug Identify",
+                     MENU_UNSELECTED);
+        if (!unid_cnt) {
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                     "(all items are permanently identified already)",
+                     MENU_UNSELECTED);
+        } else {
+            any.a_obj = &wizid_fakeobj;
+            /* wiz_identify stuffed the wiz_identify command character (^I)
+               into iflags.override_ID for our use as an accelerator;
+               it could be ambiguous as a selector but the only time it
+               is wanted is in case where no item is being selected */
+            Sprintf(prompt,
+          "Select %sthe %d bolded item%s to permanently identify (%s for all)",
+                    (unid_cnt == 1) ? "": "any of ", unid_cnt,
+                    (unid_cnt > 1) ? "s" : "",
+                    visctrl(iflags.override_ID));
+            add_menu(win, NO_GLYPH, &any, '_', iflags.override_ID, ATR_NONE,
+                     prompt, MENU_UNSELECTED);
+            wizid = TRUE;
+        }
+   } else if (xtra_choice) {
         /* wizard override ID and xtra_choice are mutually exclusive */
         if (flags.sortpack)
             add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
@@ -2636,9 +2667,14 @@ nextclass:
                          MENU_UNSELECTED);
                 classcount++;
             }
-            any.a_char = ilet;
-            add_menu(win, obj_to_glyph(otmp), &any, ilet, 0, ATR_NONE,
-                     doname_inv(otmp), MENU_UNSELECTED);
+            if (wizid)
+                any.a_obj = otmp;
+            else
+                any.a_char = ilet;
+            add_menu(win, obj_to_glyph(otmp), &any, ilet, 0,
+                     (wizid && not_fully_identified(otmp)) ?
+                        ATR_BOLD : ATR_NONE,
+                     doname(otmp), MENU_UNSELECTED);
         }
     }
     if (flags.sortpack) {
@@ -2670,11 +2706,31 @@ nextclass:
     }
     end_menu(win, query && *query ? query : (char *) 0);
 
-    n = select_menu(win, want_reply ? PICK_ONE : PICK_NONE, &selected);
+    n = select_menu(win, wizid ? PICK_ANY :
+                    want_reply ? PICK_ONE : PICK_NONE, &selected);
     if (n > 0) {
-        ret = selected[0].item.a_char;
-        if (out_cnt)
-            *out_cnt = selected[0].count;
+        if (wizid) {
+            int i = n;
+
+            ret = '\0';
+            while (--i >= 0) {
+                otmp = selected[i].item.a_obj;
+                if (otmp == &wizid_fakeobj) {
+                    /* C('I') == ^I == default keystroke for wiz_identify;
+                       it is guaranteed not to be in use as an inventory letter
+                       (wiz_identify might be remapped to an ordinary letter,
+                       making iflags.override_ID ambiguous as a return value) */
+                       ret = C('I');
+                } else {
+                    if (not_fully_identified(otmp))
+                        (void) identify(otmp);
+                }
+            }
+        } else {
+            ret = selected[0].item.a_char;
+            if (out_cnt)
+                *out_cnt = selected[0].count;
+        }
         free((genericptr_t) selected);
     } else
         ret = !n ? '\0' : '\033'; /* cancelled */
@@ -3785,6 +3841,12 @@ STATIC_VAR NEARDATA const char *names[] = {
     "Comestibles", "Potions", "Scrolls", "Spellbooks", "Wands", "Coins",
     "Gems/Stones", "Boulders/Statues", "Iron balls", "Chains", "Venoms"
 };
+STATIC_VAR NEARDATA const char *carnames[] = {
+    0, "Illegal objects", "Weapons", "Armor", "Rings", "Amulets", "Tools",
+    "Comestibles", "Potions", "Spell Cards", "Spellbooks", "Wands",
+    "Victory Tokens", "Gems/Stones", "Boulders/Statues", "Iron balls", "Chains",
+    "Venoms"
+};
 STATIC_VAR NEARDATA const char oth_symbols[] = { CONTAINED_SYM, '\0' };
 STATIC_VAR NEARDATA const char *oth_names[] = { "Bagged/Boxed items" };
 
@@ -3803,9 +3865,12 @@ boolean unpaid, showsym;
     int oclass = (let >= 1 && let < MAXOCLASSES) ? let : 0;
     unsigned len;
 
-    if (oclass)
-        class_name = names[oclass];
-    else if ((pos = index(oth_symbols, let)) != 0)
+    if (oclass) {
+        if (Role_if(PM_CARTOMANCER))
+            class_name = carnames[oclass];
+        else
+            class_name = names[oclass];
+    } else if ((pos = index(oth_symbols, let)) != 0)
         class_name = oth_names[pos - oth_symbols];
     else
         class_name = names[0];

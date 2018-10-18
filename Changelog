@@ -293,8 +293,180 @@ changelog for SpliceHack.
 
                         SpliceHack -- Changelog
 
-A full list of differences in SpliceHack from vanilla NetHack can be found on
-the wiki. This file documents the changes in each version of SpliceHack.
+                    Version 0.6.0 - Diversity and Danger
+
+Tiles
+- SpliceHack is now 100% tiles-compatible, and tested as such! Rejoice!
+
+Nonbinary Characters
+- Characters can now be nonbinary! For now, this is largely cosmetic, as the
+  game treats them like female characters. This will change in the future once
+  there is feedback on what differences should exist.
+- As a side-effect, many roles are renamed for nonbinary characters, such as
+  "Caveperson" and "Magister."
+
+Patches Introduced
+- SLASH'EM techniques have been implemented.
+- Updated XNetHack object materials patch.
+- Livelogging of players killing their own pet (XNetHack).
+- SGrunt's intelligent pets patch has been implemented and updated for 3.6.
+  - This means that casting monster spells when polymorphed is possible.
+  - Monsters will use ranged weapons, attacks, and spells to attack one another.
+
+Balance Changes
+- Scroll writing costs have been adjusted in order to cut down on abuse of
+  scrolls of knowledge and time. Previous strategies with a magic marker
+  involved writing a half-dozen scrolls of knowledge, identifying everything
+  one would need for the rest of the game, and then writing a ton of time
+  scrolls to breeze through Astral. Scrolls of time are as expensive to write
+  as genocide, while scrolls of knowledge cannot be written at all.
+- Ported FIQHack's XP Curve, which mean leveling up happens more often in the
+  endgame.
+- Monster application of figurines now functions more similarly to how the
+  player applies figurines, meaning that the monsters generated are not always
+  aggressive.
+- Helms of Opaque Thoughts now block mind flayer attacks to the head.
+- Rings of Memory prevent forgetting spells over time.
+- Will-o'-wisps nerfed again.
+- Gnolls use '9' instead of 'G' to avoid minesflayer-like incidents.
+- Barghests have a luck-stealing gaze.
+- Amalgamations and Bad Clones much less common.
+- Ancient Brain is now more useful to eat.
+- Spectres only generate when the player is level 15 or above now.
+- Reflective monsters do not chug potions of reflection.
+- Hurtling into a wall no longer paralyzes you for the duration of your would-be
+  hurtle. This prevents wind monsters from being able to stunlock enemies
+  against walls.
+
+Role and Race Changes
+- Cartomancers play completely differently now. They can identify the rarity of
+  various cards, and when they play a card in range of the monster that monster
+  has a chance to respond with a card of their own. Cartomancers also have
+  access to several new techniques. Hopefully, all of this should combine to
+  make them a more interesting role to play.
+- Dragonmasters have access to completely new techniques. Their quest has been
+  modified, with the nemesis actually riding the dragon. They also actually have
+  a decent selection of skills now.
+- Master Kaen can block the pummel technique of a monk.
+- Merfolk are a much stronger race than before, since they get access to one of
+  the most powerful techniques in the game. As a tradeoff, levels often generate
+  with rivers in them.
+- The role selection for infernals and merfolk has changed.
+- The lycanthrope race functions very similarly to SLASH'EM's werewolf race now.
+
+Dungeon Changes
+- Gehennom is now extremely compact, and the second fake wizard's tower has
+  been removed.
+- The main branch of the dungeon is ten levels longer, and you can encounter a
+  big room up to three times.
+- The first level of Vlad's tower includes a massive courtyard and is guarded by
+  Alucard.
+- The void has been reinstated and completely reworked. It still contains a void
+  dragon and dangerous monsters, but now holds portals to many different points
+  across the dungeon. You cannot use this in order to bypass the ascension run,
+  so don't even think about it.
+
+New Monsters
+- Ported shambling horrors from Unnethack. Given the numerous damage types in
+  SpliceHack, they can end up being absolutely ridiculous.
+- Various Fantastical Plants (characterized by high magic resistance, low speed,
+  and vulnerability to drain):
+  - Walking Oak
+  - Walking Birch
+  - Walking Willow
+  - Creeping Kudzu
+  - Giant Sundew
+  - Wander Cactus
+  - Crazy Cactus
+- Lots of Bears:
+  - Bear
+  - Drop Bear
+  - Hellbear
+  - Werebear
+- Ported a large number of monsters from SLASH'EM:
+  - Assassin Bug
+  - Spitting Beetle
+  - Glowing Eye
+  - Bloodshot Eye
+  - Blinking Eye
+  - Deep One
+  - Deeper One
+  - Deepest One
+  - Acid Worm
+  - Ogre Mage
+  - Wax Golem
+  - Quickling
+  - Genetic Engineer
+  - Hellbat
+  - Hellrat
+  - Hellcat
+- Ported some monsters from the biodiversity patch:
+  - Umbral Hulk
+  - Hunger Hulk
+  - Nosferatu
+- Many all-new miscellaneous monsters
+  - Yuki-Onna
+  - Substance Warper
+  - Alucard
+  - Anubite
+  - Mad Alchemist
+  - Herald Archon
+  - Avenger Archon
+  - Brood Wasp
+  - Baby Brood Wasp
+  - Korrupt Kop
+  - Boar
+  - Brown Mold Warrior
+  - Yellow Mold Warrior
+  - Green Mold Warrior
+  - Red Mold Warrior
+  - Nonbinary player monsters (various)
+
+New Objects
+- Aligned scrolls have been replaced with scrolls of air, warp weapon, and warp
+  material, all of which are infinitely more interesting and more useful.
+- Medical Kits and associated items from SLASH'EM. Pills cannot grant wishes, so
+  don't even think about it.
+- Potions of blood and vampire blood from SLASH'EM. Non-vampires can chuck blood
+  at you, if they somehow manage to get ahold of it.
+
+Miscellaneous Changes
+- Powerful unique monsters now get fullscreen entrance messages.
+- Refactored demon glyph colors so they are easier to tell apart.
+- Additional tips, t-shirts, epitaphs, and the like.
+- Monsters use many more items, such as potions of blood, booze, and expensive
+  cameras.
+- Weapons can be named after players on the high score list.
+- Several YAFMs.
+- Scrolls of knowledge yield much more intelligible messages.
+- Farlook now gives better information about amalgamations and bad clones.
+- Monsters that eat objects can now gain intrinsics. This makes Tasmanian devils
+  potentially very dangerous, if they get their hands on the right corpses.
+- Added various monster sounds.
+- Tourist player monsters spawn with expensive cameras, and knights are
+  automatically mounted on ponies.
+- Drinking alcohol is tracked throughout the game.
+- Pets avoid eating chameleons.
+- Pets avoid attacking porcupines.
+
+Bug Fixes
+- Quilled monsters actually work. Apparently they have been bugged since the
+  initial release of SpliceHack.
+- Monster roaring works as intended.
+- Sphere spells function when unskilled.
+- Fixed many crashes related to monsters riding monsters.
+- Various fixes to cartomancer language.
+- Dragonmasters no longer get crashes when their steeds attempt to free them
+  from a monster's stomach.
+- Black Market guards no longer swarm the player infinitely.
+- Refactored One-Eyed Sam's equipment so she is actually as dangerous as
+  intended.
+- Fixed many improper weapon damage bonuses.
+- Fixed segfault when attacked by a leprechaun.
+- Fixed ooze dragons and razor dragons dropping the wrong scales.
+- Malcanthet no longer spontaneously renames herself.
+- Too many others to count.
+
 
                     Version 0.5.0 - Balance and the Bizarre
 

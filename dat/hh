@@ -100,6 +100,7 @@ M-C     conduct view optional challanges
 M-d     dip     dip an object into something
 M-e     enhance advance or check weapon and spell skills
 M-f     force   force a lock
+M-g     give    give a monster an item
 M-i     invoke  invoke an object's special powers
 M-j     jump    jump to another location
 M-l     loot    loot a box on the floor
@@ -118,6 +119,7 @@ M-T     tip     upend a container to dump out its contents
 M-u     untrap  untrap something
 M-v     version print compile time options for this version
 M-w     wipe    wipe off your face
+M-x     technique use a technique
 
 If the "number_pad" option is on, these additional variants are available:
 

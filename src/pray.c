@@ -71,12 +71,13 @@ static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
  * order to have the values be meaningful.
  */
 
-#define TROUBLE_STONED 16
-#define TROUBLE_SLIMED 15
-#define TROUBLE_STRANGLED 14
-#define TROUBLE_LAVA 13
-#define TROUBLE_SICK 12
-#define TROUBLE_STARVING 11
+#define TROUBLE_STONED 17
+#define TROUBLE_SLIMED 16
+#define TROUBLE_STRANGLED 15
+#define TROUBLE_LAVA 14
+#define TROUBLE_SICK 13
+#define TROUBLE_STARVING 12
+#define TROUBLE_CARRIER 11
 #define TROUBLE_REGION 10 /* stinking cloud */
 #define TROUBLE_SURROUNDED 9
 #define TROUBLE_HIT_CRITICAL 8
@@ -101,6 +102,7 @@ static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
 #define TROUBLE_STUNNED (-11)
 #define TROUBLE_CONFUSED (-12)
 #define TROUBLE_HALLUCINATION (-13)
+
 
 
 #define ugod_is_angry() (u.ualign.record < 0)
@@ -388,13 +390,15 @@ in_trouble()
         return TROUBLE_SICK;
     if (starving())
         return TROUBLE_STARVING;
+    if (LarvaCarrier)
+        return TROUBLE_CARRIER;
     if (region_danger())
         return TROUBLE_REGION;
     if (surrounded())
         return TROUBLE_SURROUNDED;
     if (critically_low_hp(FALSE, 2))
         return TROUBLE_HIT_CRITICAL;
-    if (u.ulycn >= LOW_PM)
+    if ((u.ulycn >= LOW_PM) && !Race_if(PM_HUMAN_WEREWOLF))
         return TROUBLE_LYCANTHROPE;
     if (near_capacity() >= EXT_ENCUMBER && AMAX(A_STR) - ABASE(A_STR) > 3)
         return TROUBLE_COLLAPSING;
@@ -564,6 +568,10 @@ int trouble;
     case TROUBLE_SICK:
         You_feel("better.");
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
+        break;
+    case TROUBLE_CARRIER:
+        You_feel("the things infesting you vanish.");
+        make_carrier(0L, TRUE);
         break;
     case TROUBLE_REGION:
         /* stinking cloud, with hero vulnerable to HP loss */
@@ -1672,7 +1680,7 @@ dosacrifice()
 
         if (your_race(ptr) || (uwep &&
             uwep->otyp == SACRIFICIAL_KNIFE && uwep->cursed)) {
-            if (is_demon(youmonst.data)) {
+            if (is_demon(youmonst.data) || Race_if(PM_HUMAN_WEREWOLF)) {
                 You("find the idea very satisfying.");
                 exercise(A_WIS, TRUE);
             } else if (u.ualign.type != A_CHAOTIC) {
@@ -1712,14 +1720,8 @@ dosacrifice()
                 if ((pm = dlord(altaralign)) != NON_PM
                     && (dmon = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS))
                            != 0) {
-                    char dbuf[BUFSZ];
-
-                    Strcpy(dbuf, a_monnam(dmon));
-                    if (!strcmpi(dbuf, "it"))
-                        Strcpy(dbuf, "something dreadful");
-                    else
-                        dmon->mstrategy &= ~STRAT_APPEARMSG;
-                    You("have summoned %s!", dbuf);
+                    pline("Something's being summoned!");
+                    boss_entrance(dmon);
                     if (sgn(u.ualign.type) == sgn(dmon->data->maligntyp))
                         dmon->mpeaceful = TRUE;
                     You("are terrified, and unable to move.");
@@ -2147,28 +2149,6 @@ boolean praying; /* false means no messages should be given */
     return !praying ? (boolean) (p_type == 3 && !Inhell) : TRUE;
 }
 
-/* scroll prayer, based on dopray */
-int
-scrollpray()
-{
-    u.uconduct.gnostic++;
-    /* set up p_type and p_alignment */
-    if (!can_pray(TRUE))
-        return 0;
-    p_type = 3;
-    nomul(-3);
-    multi_reason = "praying";
-    nomovemsg = "You finish your prayer.";
-    afternmv = prayer_done;
-    if (!Inhell) {
-        /* if you've been true to your god you can't die while you pray */
-        if (!Blind)
-            You("are surrounded by a shimmering light.");
-        u.uinvulnerable = TRUE;
-    }
-    return 1;
-}
-
 /* #pray commmand */
 int
 dopray()
@@ -2276,11 +2256,9 @@ prayer_done() /* M. Stephenson (1.0.3b) */
 int
 doturn()
 {
-    /* Knights & Priest(esse)s only please */
-    struct monst *mtmp, *mtmp2;
-    int once, range, xlev;
-
-    if (!Role_if(PM_PRIEST) && !Role_if(PM_KNIGHT)) {
+    /* WAC doturn is now a technique */
+  	/* Try to use turn undead spell if you don't know the tech. */
+    if (!tech_known(T_TURN_UNDEAD)) {
         /* Try to use the "turn undead" spell.
          *
          * This used to be based on whether hero knows the name of the
@@ -2299,6 +2277,14 @@ doturn()
         You("don't know how to turn undead!");
         return 0;
     }
+    return turn_undead();
+}
+
+int
+turn_undead() {
+struct monst *mtmp, *mtmp2;
+int once, range, xlev;
+
     if(!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 
@@ -2308,12 +2294,12 @@ doturn()
         pline("For some reason, %s seems to ignore you.", u_gname());
         aggravate();
         exercise(A_WIS, FALSE);
-        return 0;
+        return 1;
     }
     if (Inhell) {
         pline("Since you are in Gehennom, %s won't help you.", u_gname());
         aggravate();
-        return 0;
+        return 1;
     }
     pline("Calling upon %s, you chant an arcane formula.", u_gname());
     exercise(A_WIS, TRUE);

@@ -61,8 +61,13 @@
  * since otherwise comparisons with signed quantities are done incorrectly
  */
 typedef schar xchar;
+#if defined(__GNUC__) && defined(WIN32) && defined(__cplusplus)
+/* Resolve conflict with Qt 5 and MinGW-w32 */
+typedef uchar boolean; /* 0 or 1 */
+#else
 #ifndef SKIP_BOOLEAN
 typedef xchar boolean; /* 0 or 1 */
+#endif
 #endif
 
 #ifndef TRUE /* defined in some systems' native include files */
@@ -332,7 +337,7 @@ struct savefile_info {
 #define PL_PSIZ 63 /* player-given names for pets, other monsters, objects */
 
 #define MAXDUNGEON 16 /* current maximum number of dungeons */
-#define MAXLEVEL 32   /* max number of levels in one dungeon */
+#define MAXLEVEL 35   /* max number of levels in one dungeon */
 #define MAXSTAIRS 1   /* max # of special stairways in a dungeon */
 #define ALIGNWEIGHT 4 /* generation weight of alignment */
 
@@ -372,19 +377,7 @@ struct savefile_info {
 #define LL_GENOCIDE   0x0080 /* Logging of genocides */
 #define LL_DUMP_ASC   0x0100 /* Log URL for dumplog if ascended */
 #define LL_DUMP_ALL   0x0200 /* Log dumplog url for all games */
-#define LL_DEBUG      0x8000 /* For debugging messages and other spam */
-
-/* LIVELOG message type flags */
-#define LL_WISH       0x0001 /* Report stuff people type at the wish prompt. */
-#define LL_ACHIEVE    0x0002 /* Achievements bitfield + invocation, planes */
-#define LL_UMONST     0x0004 /* Kill, Bribe or otherwise dispatch unique monsters */
-#define LL_DIVINEGIFT 0x0008 /* Sacrifice gifts, crowning */
-#define LL_LIFESAVE   0x0010 /* Use up amulet of lifesaving */
-#define LL_CONDUCT    0x0020 /* Break conduct - not reported early-game */
-#define LL_ARTIFACT   0x0040 /* Excalibur, Sting, Orcrist, plus sac gifts and artwishes */
-#define LL_GENOCIDE   0x0080 /* Logging of genocides */
-#define LL_DUMP_ASC   0x0100 /* Log URL for dumplog if ascended */
-#define LL_DUMP_ALL   0x0200 /* Log dumplog url for all games */
+#define LL_KILLEDPET  0x0100 /* Killed a tame monster */
 #define LL_DEBUG      0x8000 /* For debugging messages and other spam */
 /* Supply nethack_enter macro if not supplied by port */
 #ifndef nethack_enter

@@ -87,14 +87,22 @@
 #define AD_DSRM 48  /* disarm the player */
 #define AD_WIND 49  /* cause the defender to hurtle */
 #define AD_CALM 50  /* calms down the defender (koala) */
+#define AD_LUCK 51  /* damage the luck of the player (barghest) */
+#define AD_HYDR 52  /* regrow heads (hydra) */
+#define AD_MTRL 53  /* change material (substance warper) */
+#define AD_LOST 54  /* get lost (yuki-onna) */
+#define AD_TCKL 55	/* Tickle (Nightgaunts) */
+#define AD_POLY 56  /* Polymorph (Genetic Engineer) */
+#define AD_LARV 57  /* Inject Larvae (Brood Wasp) */
+#define AD_HNGY 58 /* a mini version of FAMN, should fake a higher
+                           hunger rating instead  */
+#define AD_CLRC 59 /* random clerical spell */
+#define AD_SPEL 60 /* random magic spell */
+#define AD_RBRE 61 /* random breath weapon */
+#define AD_SAMU 62 /* hits, may steal Amulet (Wizard) */
+#define AD_CURS 63 /* random curse (ex. gremlin) */
+#define AD_ZOMB	64 /* temp int drain/confusion (Zombie) */
 
-#define AD_CLRC 51 /* random clerical spell */
-#define AD_SPEL 52 /* random magic spell */
-#define AD_RBRE 53 /* random breath weapon */
-
-#define AD_SAMU 54 /* hits, may steal Amulet (Wizard) */
-#define AD_CURS 55 /* random curse (ex. gremlin) */
-#define AD_ZOMB	56 /* temp int drain/confusion (Zombie) */
 #define LAST_AD AD_ZOMB
 
 /*

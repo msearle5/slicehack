@@ -166,11 +166,12 @@ char oclass;
     if (obj->oclass == oclass)
         return obj;
 
-    if (Has_contents(obj)) {
+    if (Has_contents(obj) && obj->otyp != MEDICAL_KIT) {
         for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
             if (otmp->oclass == oclass)
                 return otmp;
-            else if (Has_contents(otmp) && (temp = o_in(otmp, oclass)) != 0)
+            else if (Has_contents(otmp) && obj->otyp != MEDICAL_KIT 
+                && (temp = o_in(otmp, oclass)) != 0)
                 return temp;
     }
     return (struct obj *) 0;

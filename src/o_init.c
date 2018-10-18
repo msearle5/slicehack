@@ -227,10 +227,6 @@ int *lo_p, *hi_p; /* output: range that item belongs among */
             continue;
         *hi_p = i - 1;
         break;
-    case VENOM_CLASS:
-        /* don't shuffle quills */
-        if (otyp >= BLINDING_VENOM && otyp <= ACID_VENOM)
-            *lo_p = BLINDING_VENOM, *hi_p = ACID_VENOM;
     }
 
     /* artifact checking might ask about item which isn't part of any range

@@ -144,21 +144,21 @@ nhrgb orig_hiwhite;
 " \\__,_||_| \\_| \\___| \\__||_|  |_| \\__,_| \\___||_|\\_\\"
 
 #define SPLICEHACK_SPLASH_A \
-"_____       _ _          _    _            _"
+" _____       __           __   __           __"
 #define SPLICEHACK_SPLASH_B \
-"/ ____|     | (_)        | |  | |          | |"
+"/ ____|      | (_)        | |  | |          | |"
 #define SPLICEHACK_SPLASH_C \
 "| (___  _ __ | |_  ___ ___| |__| | __ _  ___| | __"
 #define SPLICEHACK_SPLASH_D \
-"\\___ \\| `_ \\| | |/ __/ _ \\  __  |/ _` |/ __| |/ /"
+" \\___ \\| `_ \\| | |/ __/ _ \\  __  |/ _` |/ __| |/ /"
 #define SPLICEHACK_SPLASH_E \
-"____) | |_) | | | (_|  __/ |  | | (_| | (__|   <"
+" ____) | |_) | | | (_|  __/ |  | | (_| | (__|   <"
 #define SPLICEHACK_SPLASH_F \
 "|_____/| .__/|_|_|\\___\\___|_|  |_|\\__,_|\\___|_|\\_\\"
 #define SPLICEHACK_SPLASH_G \
-"     | |"
+"       | |"
 #define SPLICEHACK_SPLASH_H \
-"     |_|"
+"       |_|"
 
 #define SLICEHACK_SPLASH_A \
   "_____ _ _          _    _            _"
@@ -669,8 +669,10 @@ curses_choose_character()
         for (;;) {
             for (n = 0, i = 0; roles[i].name.m; i++) {
                 if (ok_role(flags.initsubrole, i, flags.initrace, flags.initgend, flags.initalign)) {
-                    if (flags.initgend >= 0 && flags.female && roles[i].name.f)
+                    if (flags.initgend >= 0 && flags.female == 1 && roles[i].name.f)
                         choices[n] = roles[i].name.f;
+                    else if (flags.initgend >= 0 && flags.female == 2 && roles[i].name.n)
+                        choices[n] = roles[i].name.n;
                     else
                         choices[n] = roles[i].name.m;
                     pickmap[n++] = i;

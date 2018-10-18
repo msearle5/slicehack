@@ -468,7 +468,8 @@ int psflags;
             } else if (!polyok(&mons[mntmp])
                        && !(mntmp == PM_HUMAN || your_race(&mons[mntmp])
                             || mntmp == urole.malenum
-                            || mntmp == urole.femalenum)) {
+                            || mntmp == urole.femalenum
+                            || mntmp == urole.nbnum)) {
                 const char *pm_name;
 
                 /* mkclass_poly() can pick a !polyok()
@@ -794,6 +795,8 @@ int mntmp;
             pline(use_thec, monsterc, "spin a web");
         if (u.umonnum == PM_GREMLIN)
             pline(use_thec, monsterc, "multiply in a fountain");
+        if (u.umonnum == PM_CREEPING_KUDZU)
+            pline(use_thec, monsterc, "propagate");
         if (is_unicorn(youmonst.data))
             pline(use_thec, monsterc, "use your horn");
         if (is_mind_flayer(youmonst.data))
@@ -804,7 +807,8 @@ int mntmp;
             pline(use_thec, monsterc, "shriek");
         if (is_vampire(youmonst.data))
             pline(use_thec, monsterc, "change shape");
-
+        if (attacktype(youmonst.data, AT_MAGC))
+         		pline(use_thec, monsterc,"cast monster spells");
         if (lays_eggs(youmonst.data) && flags.female)
             pline(use_thec, "sit", "lay an egg");
     }
@@ -889,21 +893,34 @@ STATIC_OVL void
 break_armor()
 {
     register struct obj *otmp;
+    boolean controlled_change = (Race_if(PM_DOPPELGANGER) ||
+    		(Race_if(PM_HUMAN_WEREWOLF) && u.umonnum == PM_WEREWOLF));
 
     if (breakarm(youmonst.data)) {
         if ((otmp = uarm) != 0) {
             if (donning(otmp))
                 cancel_don();
-            You("break out of your armor!");
-            exercise(A_STR, FALSE);
-            (void) Armor_gone();
-            useup(otmp);
+            if (controlled_change && !otmp->cursed) {
+                You("quickly remove your armor as you start to change.");
+                (void) Armor_gone();
+                dropx(otmp); /*WAC Drop instead of destroy*/
+            } else {
+                You("break out of your armor!");
+                exercise(A_STR, FALSE);
+                (void) Armor_gone();
+                useup(otmp);
+            }
         }
         if ((otmp = uarmc) != 0) {
             if (otmp->oartifact) {
                 Your("%s falls off!", cloak_simple_name(otmp));
                 (void) Cloak_off();
                 dropx(otmp);
+            } else if (controlled_change && !otmp->cursed) {
+            		You("remove your %s before you transform.",
+            		    cloak_simple_name(otmp));
+            		(void) Cloak_off();
+            		dropx(otmp);
             } else {
                 Your("%s tears apart!", cloak_simple_name(otmp));
                 (void) Cloak_off();
@@ -1330,6 +1347,8 @@ dogaze()
             break;
         }
     }
+    if (adtyp == AD_HNGY || adtyp == AD_LUCK) adtyp = AD_CONF;
+
     if (adtyp != AD_CONF && adtyp != AD_FIRE) {
         impossible("gaze attack %d?", adtyp);
         return 0;
@@ -1404,7 +1423,7 @@ dogaze()
                         (void) destroy_mitem(mtmp, SPBOOK_CLASS, AD_FIRE);
                     if (dmg)
                         mtmp->mhp -= dmg;
-                    if (mtmp->mhp <= 0)
+                    if (DEADMONSTER(mtmp))
                         killed(mtmp);
                 }
                 /* For consistency with passive() in uhitm.c, this only
@@ -1566,7 +1585,7 @@ domindblast()
                 u_sen ? "telepathy"
                       : telepathic(mtmp->data) ? "latent telepathy" : "mind");
             mtmp->mhp -= rnd(15);
-            if (mtmp->mhp <= 0)
+            if (DEADMONSTER(mtmp))
                 killed(mtmp);
         }
     }
@@ -1672,7 +1691,7 @@ int part;
        such attacks should still reference hands rather than claws */
     static const char not_claws[] = {
         S_HUMAN,     S_MUMMY,   S_ZOMBIE, S_ANGEL, S_NYMPH, S_LEPRECHAUN,
-        S_QUANTMECH, S_VAMPIRE, S_ORC,    S_GIANT, /* quest nemeses */
+        S_QUANTMECH, S_ORC,    S_GIANT, /* quest nemeses */
         '\0' /* string terminator; assert( S_xxx != 0 ); */
     };
     struct permonst *mptr = mon->data;

@@ -1,0 +1,86 @@
+# This file lists the origin of various changes in SpliceHack. In many cases,
+# the code copied had to be manually updated to be compatible with 3.6, or small
+# changes had to be made to fit with SpliceHack's balance.
+
+####################
+# Code and Patches #
+####################
+
+#XNetHack
+- Object Materials Patch
+- Colored Altars and Stairs Patch
+- Paranoid Water and Lava
+- Peaceful Displacement
+- Monster Lookup
+- Other Minor QOL Changes
+
+#Biodiversity Patch
+- Umbral Hulk
+- Hunger Hulk
+- Nosferatu
+
+#SLASH'EM
+- Techniques Code
+- Tiles for Various Monsters
+- Zouthern Animals
+- Gnolls
+- Hydra (heavily modified)
+- Spitting Beetle
+- Glowing Eye
+- Bloodshot Eye
+- Blinking Eye
+- Deep One
+- Deeper One
+- Deepest One
+- Acid Worm
+- Ogre Mage
+- Wax Golem
+- Quickling
+- Genetic Engineer
+- Hellbat
+- Hellrat
+- Hellcat
+- Various tiles
+- Medical Kit and associated items
+- Potions of blood and vampire blood
+
+#DNetHack
+- Inspiration for Creeping Kudzu
+
+#UnNetHack
+- Black Market Code
+- Shambling Horror
+
+#FIQHack
+- XP Curve Code
+
+#GruntHack
+- Intelligent Pets Patch
+
+#Chris
+- Pirate Patch
+
+#Nephi
+- Grudge Patch
+- Colored Walls and Floors Patch
+
+#RPresser
+- Epitaph Patch
+
+#NAO 3.4.1
+- Highlight Hidden Stairs Patch
+
+################
+# Other Thanks #
+################
+
+#Jonadab
+- Tiletool.pl
+
+#Hardfought.org
+- Hosting
+- Constant feedback and encouragement
+- Being a source for YANIs
+
+#You
+- Thanks for playing.
