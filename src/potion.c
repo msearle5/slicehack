@@ -681,6 +681,13 @@ register struct obj *otmp;
         (void) make_hallucinated(
             itimeout_incr(HHallucination, rn1(200, 600 - 300 * bcsign(otmp))),
             TRUE, 0L);
+        if ((otmp->blessed && !rn2(2)) || (!otmp->cursed && !rn2(5))) {
+            You("see a vision...");
+            display_nhwindow(WIN_MESSAGE, FALSE);
+            enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
+            pline_The("vision fades.");
+            exercise(A_WIS, TRUE);
+        }
         break;
     case POT_WATER:
         if (!otmp->blessed && !otmp->cursed) {
