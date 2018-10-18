@@ -3212,6 +3212,25 @@ struct obj* obj;
     }
 }
 
+/* Change the object's material, and any properties derived from it. 
+ * This includes weight, and erosion/erodeproofing (materials which
+ * can't corrode will not be generated corroded or corrode-proofed)
+ **/
+void
+set_material(otmp, material)
+struct obj* otmp;
+int material;
+{
+    otmp->material = material;
+    otmp->owt = weight(otmp);
+    if ((otmp->oeroded) && !is_rustprone(otmp) && !is_flammable(otmp) && !is_rottable(otmp))
+        otmp->oeroded = 0;
+    if ((otmp->oeroded2) && !is_corrodeable(otmp))
+        otmp->oeroded2 = 0;
+    if (otmp->oerodeproof && !is_damageable(otmp) && (otmp->material != GLASS))
+        otmp->oerodeproof = FALSE;
+}
+
 /* Return TRUE if mat is a valid material for a given object of obj's type
  * (whether a random object of this type could generate as that material). */
 boolean

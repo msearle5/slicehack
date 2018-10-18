@@ -1638,7 +1638,7 @@ register struct trobj *trop;
                 otyp = obj->otyp;
             }
             /* Don't allow materials to be start scummed for */
-            obj->material = objects[obj->otyp].oc_material;
+            set_material(obj, objects[obj->otyp].oc_material);
             /* Don't start with +0 or negative rings */
             if (objects[otyp].oc_charged && obj->spe <= 0)
                 obj->spe = rnew(0, FALSE, TRUE);

@@ -1724,8 +1724,7 @@ struct obj *obj;
                 if (obj->otyp != FIGURINE) {
                     /* hedge against other stone tools being added */
                     pline("%s to flesh!", Tobjnam(obj, "turn"));
-                    obj->material = FLESH;
-                    obj->owt = weight(obj);
+                    set_material(obj, FLESH);
                     break;
                 }
                 if (vegetarian(&mons[obj->corpsenm])) {
@@ -1795,8 +1794,7 @@ struct obj *obj;
     default:
         if (valid_obj_material(obj, FLESH)) {
             pline("%s to flesh!", Tobjnam(obj, "turn"));
-            obj->material = FLESH;
-            obj->owt = weight(obj);
+            set_material(obj, FLESH);
         }
         else {
             res = 0;
