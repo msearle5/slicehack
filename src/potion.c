@@ -2764,11 +2764,15 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                             break;
                         case POT_GAIN_LEVEL:
                         case POT_REFLECTION:
+                        case POT_VAMPIRE_BLOOD:
                             v = 170;
                             break;
                         case POT_FULL_HEALING:
                         case POT_GAIN_ENERGY:
                             v = 160;
+                            break;
+                        case POT_BLOOD:
+                            v = 120;
                             break;
                         case POT_POLYMORPH:
                         case POT_SPEED:
