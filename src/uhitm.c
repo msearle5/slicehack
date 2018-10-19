@@ -1413,7 +1413,7 @@ int dieroll;
         if ((rnd(Race_if(PM_GIANT) ? 40 : 100) < P_SKILL(P_BARE_HANDED_COMBAT) ||
             (rnd(50) < P_SKILL(P_BARE_HANDED_COMBAT) &&
               uarmg->otyp == BOXING_GLOVES))
-            && !bigmonst(mdat) && !thick_skinned(mdat)) {
+            && !biggermonst(mdat) && !thick_skinned(mdat)) {
             if (canspotmon(mon))
                 pline("%s %s from your powerful strike!", Monnam(mon),
                       makeplural(stagger(mon->data, "stagger")));
