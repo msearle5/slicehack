@@ -1867,7 +1867,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
     case SCR_WARP_ARMOR:
         otmp = some_armor(&youmonst);
         if (!otmp) {
-            strange_feeling(sobj, "Your skin scrawls for a moment.");
+            strange_feeling(sobj, "Your skin crawls for a moment.");
             sobj = 0; /* useup() in strange_feeling() */
             exercise(A_CON, !scursed);
             exercise(A_STR, !scursed);
