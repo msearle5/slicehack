@@ -892,7 +892,9 @@ register struct monst *mtmp;
                 mac += 1 + mongets(mtmp, LOW_BOOTS);
             else if (mac < 10 && rn2(2))
                 mac += 2 + mongets(mtmp, HIGH_BOOTS);
-            if (mac < 10 && rn2(3))
+            if (mac < 9 && rn2(5))
+				mac += 2 + mongets(mtmp, GAUNTLETS);
+            else if (mac < 10 && rn2(3))
                 mac += 1 + mongets(mtmp, GLOVES);
             else if (mac < 10 && rn2(2))
                 mac += 1 + mongets(mtmp, PLAIN_CLOAK);

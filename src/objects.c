@@ -528,7 +528,9 @@ SHIELD("shield of reflection", "polished shield",
  * HI_METAL or CLR_BLACK.  All have shuffled descriptions.
  */
 GLOVES("gloves", "old gloves",
-       0, 0,        0, 16, 1, 10,  8, 9, 0,  LEATHER, HI_LEATHER),
+       0, 0,        0, 12, 1, 10,  8, 9, 0,  LEATHER, HI_LEATHER),
+GLOVES("gauntlets", "long gloves",
+       0, 0,        0,  4, 1, 30, 20, 8, 0,  IRON, CLR_BROWN),
 GLOVES("gauntlets of fumbling", "padded gloves",
        0, 1, FUMBLING,  8, 1, 10, 50, 9, 0,  LEATHER, HI_LEATHER),
 GLOVES("gauntlets of power", "riding gloves",

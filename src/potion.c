@@ -625,6 +625,7 @@ register struct obj *obj;
 			obj->otyp = CORNUTHAUM;
 			break;
 		/* gloves */
+		case GAUNTLETS:
 		case GLOVES:
 			obj->otyp = GAUNTLETS_OF_DEXTERITY;
 			break;

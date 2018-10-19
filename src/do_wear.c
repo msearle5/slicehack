@@ -506,6 +506,7 @@ Gloves_on(VOID_ARGS)
 
     switch (uarmg->otyp) {
     case GLOVES:
+    case GAUNTLETS:
     case BOXING_GLOVES:
     case ROGUES_GLOVES:
         break;
@@ -561,6 +562,7 @@ Gloves_off(VOID_ARGS)
 
     switch (uarmg->otyp) {
     case GLOVES:
+    case GAUNTLETS:
     case BOXING_GLOVES:
     case ROGUES_GLOVES:
         break;

@@ -93,11 +93,18 @@ static struct trobj Knight[] = {
     { LONG_SWORD, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { LANCE, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { RING_MAIL, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { APPLE, 0, FOOD_CLASS, 10, 0 },
     { CARROT, 0, FOOD_CLASS, 10, 0 },
+    { 0, 0, 0, 0, 0 }
+};
+static struct trobj Knight1[] = {
+    { HELMET, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { GLOVES, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { 0, 0, 0, 0, 0 }
+};
+static struct trobj Knight2[] = {
+    { GAUNTLETS, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Monk[] = {
@@ -1202,6 +1209,10 @@ u_init()
         break;
     case PM_KNIGHT:
         ini_inv(Knight);
+        if(rn2(2))
+            ini_inv(Knight1);
+        else
+            ini_inv(Knight2);
         knows_class(WEAPON_CLASS);
         knows_class(ARMOR_CLASS);
         /* give knights chess-like mobility--idea from wooledge@..cwru.edu */
