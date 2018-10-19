@@ -851,7 +851,7 @@ register struct obj *obj;
             /* turning into slime is preferable to starvation */
             else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mon->data))
                 return starving ? ACCFOOD : POISON;
-            else if (fptr == &mons[PM_CHAMELEON])
+            else if ((fptr == &mons[PM_CHAMELEON]) && !obj->invlet)
                 return starving ? ACCFOOD : MANFOOD;
             else if (vegan(fptr))
                 return herbi ? CADAVER : MANFOOD;
