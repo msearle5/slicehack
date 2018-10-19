@@ -2674,7 +2674,7 @@ nextclass:
             add_menu(win, obj_to_glyph(otmp), &any, ilet, 0,
                      (wizid && not_fully_identified(otmp)) ?
                         ATR_BOLD : ATR_NONE,
-                     doname(otmp), MENU_UNSELECTED);
+                     doname_inv(otmp), MENU_UNSELECTED);
         }
     }
     if (flags.sortpack) {
