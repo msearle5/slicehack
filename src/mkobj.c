@@ -2343,6 +2343,21 @@ struct obj *obj;
     free((genericptr_t) obj);
 }
 
+/* find the object index for smoky potion */
+STATIC_OVL int
+find_smoky()
+{
+    register int i;
+    register const char *s;
+
+    for (i = POT_GAIN_ABILITY; i <= POT_WATER; i++)
+        if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "smoky"))
+            return i;
+
+    impossible("smoky potion not found?");
+    return -1; /* not 0, or caller would try again each move */
+}
+
 /* create an object from a horn of plenty; mirrors bagotricks(makemon.c) */
 int
 hornoplenty(horn, tipping)
@@ -2350,6 +2365,10 @@ struct obj *horn;
 boolean tipping; /* caller emptying entire contents; affects shop handling */
 {
     int objcount = 0;
+    static int smoky = 0;
+
+    if (!smoky)
+        smoky = find_smoky();
 
     if (!horn || horn->otyp != HORN_OF_PLENTY) {
         impossible("bad horn o' plenty");
@@ -2366,6 +2385,8 @@ boolean tipping; /* caller emptying entire contents; affects shop handling */
                 do {
                     obj->otyp = rnd_class(POT_BOOZE, POT_WATER);
                 } while (obj->otyp == POT_SICKNESS);
+            if (smoky == obj->otyp)
+                obj->otyp = POT_WATER;
             what = (obj->quan > 1L) ? "Some potions" : "A potion";
         } else {
             obj = mkobj(FOOD_CLASS, FALSE);
