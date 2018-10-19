@@ -185,6 +185,10 @@ static const struct innate_tech
 	elf_tech[] = { /* Put Tech here */
 		       {   0, 0, 0} },
 	#endif
+
+	gia_tech[] = { {   12, T_G_SLAM, 1},
+		       {   0, 0, 0} },
+
 	gno_tech[] = { {   1, T_VANISH, 1},
 		       {   7, T_TINKER, 1},
 		       {   0, 0, 0} },
@@ -1814,6 +1818,7 @@ race_tech()
     #endif
 		case PM_MERFOLK:	return (mer_tech);
 		case PM_GNOME:		return (gno_tech);
+		case PM_GIANT:		return (gia_tech);
 		case PM_HUMAN_WEREWOLF:	return (lyc_tech);
 		default: 		return ((struct innate_tech *) 0);
 	}
