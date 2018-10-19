@@ -1445,6 +1445,23 @@ u_init()
         ini_inv(Money);
     u.umoney0 += hidden_gold(); /* in case sack has gold in it */
 
+    /* Ensure that Monks don't start with meat. (Tripe is OK, as it's
+     * meant as pet food.)
+     **/
+    if (Role_if(PM_MONK)) {
+        struct obj *otmp;
+        for(otmp = invent; otmp; otmp = otmp->nobj) {
+            if ((otmp->otyp == TIN) && (!vegetarian(&mons[otmp->corpsenm]))) {
+                if (rn2(2)) {
+                    otmp->spe = 1;
+                    otmp->corpsenm = NON_PM;
+                } else {
+                    otmp->corpsenm = PM_LICHEN;
+                }
+            }
+        }
+    }
+
     find_ac();     /* get initial ac value */
     init_attr(75); /* init attribute values */
     max_rank_sz(); /* set max str size for class ranks */
