@@ -952,6 +952,26 @@ struct obj *obj;
     }
 }
 
+/* Try to add an item to the inventory, or drop it if not */
+struct obj *try_hold_another_object(otmp)
+struct obj *otmp;
+{
+    const char
+        *verb = ((Is_airlevel(&u.uz) || u.uinwater) ? "slip" : "drop"),
+        *oops_msg = (u.uswallow
+                     ? "Oops!  %s out of your reach!"
+                     : (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
+                        || levl[u.ux][u.uy].typ < IRONBARS
+                        || levl[u.ux][u.uy].typ >= ICE)
+                        ? "Oops!  %s away from you!"
+                        : "Oops!  %s to the floor!");
+
+    /* The(aobjnam()) is safe since otmp is unidentified -dlc */
+    return hold_another_object(otmp, oops_msg,
+                               The(aobjnam(otmp, verb)),
+                               (const char *) 0);
+}
+
 /* Add an item to the inventory unless we're fumbling or it refuses to be
  * held (via touch_artifact), and give a message.
  * If there aren't any free inventory slots, we'll drop it instead.

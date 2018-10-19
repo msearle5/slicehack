@@ -1779,6 +1779,45 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             pline("You're not carrying anything to be identified.");
         }
         break;
+    /* The scroll of divinity replaces the scrolls of law/neutrality/chaos,
+     * because the main problem with them was that 2/3 of them were junk.
+     * It allows you to pray - anywhere, no matter what reasons there are not
+     * to - including (unlike previous scrolls) when the problem was only the
+     * timeout.
+     *
+     * If blessed, and if the gods are not angry, it also reduces your
+     * prayer timeout after.
+     * Cursed scrolls instead do Bad Things, and if confused then it probably
+     * doesn't do what you intended...
+     */
+    case SCR_DIVINITY:
+        known = TRUE;
+        if (confused) {
+            struct obj *candy;
+            int bars = sblessed + (!scursed) + 2;
+            You("read the recipe and cook up a batch of %sfudge.", sblessed ? "delicious " : "");
+            bars += rn2(bars);
+            candy = mksobj(CANDY_BAR, FALSE, FALSE);
+            candy->blessed = sblessed;
+            candy->cursed = scursed;
+            candy->quan = bars;
+            candy->owt = weight(candy);
+            try_hold_another_object(candy);
+        } else {
+            if (scursed) {
+                exercise(A_WIS, FALSE);
+                adjalign(-1);
+                scrollpray(FALSE);
+            } else {
+                You_feel("very devout!");
+                scrollpray(TRUE);
+                exercise(A_WIS, TRUE);
+                adjalign(1);
+            }
+            if (sblessed && !u.ugangr)
+                u.ublesscnt = (u.ublesscnt / 2) + rnl(u.ublesscnt / 2);
+        }
+        break;
     case SCR_AIR: {
         int i;
         struct monst *mtmp, *mtmp2;

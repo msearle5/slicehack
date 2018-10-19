@@ -986,6 +986,7 @@ E int FDECL(ckunpaid, (struct obj *));
 E void FDECL(addinv_core1, (struct obj *));
 E void FDECL(addinv_core2, (struct obj *));
 E struct obj *FDECL(addinv, (struct obj *));
+E struct obj *FDECL(try_hold_another_object, (struct obj *));
 E struct obj *FDECL(hold_another_object,
                     (struct obj *, const char *, const char *, const char *));
 E void FDECL(useupall, (struct obj *));
@@ -2024,6 +2025,7 @@ E int NDECL(prayer_done);
 #endif
 E int NDECL(dosacrifice);
 E boolean FDECL(can_pray, (BOOLEAN_P));
+E int FDECL(scrollpray, (boolean));
 E int NDECL(dopray);
 E boolean FDECL(moffer, (struct monst *));
 E const char *NDECL(u_gname);

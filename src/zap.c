@@ -5619,20 +5619,7 @@ retry:
                        "wished for \"%s\"", bufcpy);
 
     if (otmp != &zeroobj) {
-        const char
-            *verb = ((Is_airlevel(&u.uz) || u.uinwater) ? "slip" : "drop"),
-            *oops_msg = (u.uswallow
-                         ? "Oops!  %s out of your reach!"
-                         : (Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
-                            || levl[u.ux][u.uy].typ < IRONBARS
-                            || levl[u.ux][u.uy].typ >= ICE)
-                            ? "Oops!  %s away from you!"
-                            : "Oops!  %s to the floor!");
-
-        /* The(aobjnam()) is safe since otmp is unidentified -dlc */
-        (void) hold_another_object(otmp, oops_msg,
-                                   The(aobjnam(otmp, verb)),
-                                   (const char *) 0);
+        (void) try_hold_another_object(otmp);
         u.ublesscnt += rn1(100, 50); /* the gods take notice */
     }
 }
