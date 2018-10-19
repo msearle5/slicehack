@@ -128,12 +128,12 @@
 #define M2_GNOME 0x00000040L        /* is a gnome */
 #define M2_ORC 0x00000080L          /* is an orc */
 #define M2_DEMON 0x00000100L        /* is a demon */
-#define M2_GIANT 0x0000200L        /* is a giant */
-#define M2_MERFOLK 0x00000200L       /* is a merfolk */
-#define M2_LORD 0x00000400L         /* is a lord to its kind */
+#define M2_GIANT 0x0000200L         /* is a giant */
+#define M2_MERFOLK 0x00000400L      /* is a merfolk */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
 
+#define M2_LORD 0x00002000L         /* is a lord to its kind */
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
 #define M2_MERC 0x00008000L         /* is a guard or soldier */
 #define M2_MALE 0x00010000L         /* always male */
