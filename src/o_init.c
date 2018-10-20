@@ -57,7 +57,7 @@ d_level *dlev;
     first = bases[GEM_CLASS];
 
     for (j = 0; j < 9 - lev / 3; j++)
-        objects[first + j].oc_prob = 0;
+        objects[first + j].oc_prob = OC_PROB(0);
     first += j;
     if (first > LAST_GEM || objects[first].oc_class != GEM_CLASS
         || OBJ_NAME(objects[first]) == (char *) 0) {
@@ -66,7 +66,7 @@ d_level *dlev;
         wait_synch();
     }
     for (j = first; j <= LAST_GEM; j++)
-        objects[j].oc_prob = (171 + j - first) / (LAST_GEM + 1 - first);
+        objects[j].oc_prob = OC_PROB((171 + j - first) / (LAST_GEM + 1 - first));
 }
 
 /* shuffle descriptions on objects o_low to o_high */
@@ -166,10 +166,10 @@ init_objects()
     check:
         sum = 0;
         for (i = first; i < last; i++)
-            sum += objects[i].oc_prob;
+            sum += get_oc_prob(i);
         if (sum == 0) {
             for (i = first; i < last; i++)
-                objects[i].oc_prob = (1000 + i - first) / (last - first);
+                objects[i].oc_prob = OC_PROB((1000 + i - first) / (last - first));
             goto check;
         }
         first = last;

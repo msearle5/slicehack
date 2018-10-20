@@ -2879,7 +2879,7 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                 
                 /* Wands' rarity is a better model of usefulness to you than their cash value */
                 case WAND_CLASS:
-                    v = 1250 / objects[otyp].oc_prob;
+                    v = 1250 / get_oc_prob(otyp);
                     break;
                 
                 /* Stones' rarity can't also be used as it is reset by setgemprobs per level.

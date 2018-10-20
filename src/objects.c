@@ -69,7 +69,7 @@ NEARDATA struct objdescr obj_descr[] =
 #define BITS(nmkn,mrg,uskn,ctnr,mgc,chrg,uniq,nwsh,big,tuf,dir,sub,mtrl) \
   nmkn,mrg,uskn,0,mgc,chrg,uniq,nwsh,big,tuf,dir,mtrl,sub /*SCO cpp fodder*/
 #define OBJECT(obj,bits,prp,sym,prob,dly,wt,cost,sdam,ldam,oc1,oc2,nut,color) \
-  { 0, 0, (char *) 0, bits, prp, sym, dly, COLOR_FIELD(color) prob, wt, \
+  { 0, 0, (char *) 0, bits, prp, sym, dly, COLOR_FIELD(color) OC_PROB(prob), wt, \
     cost, sdam, ldam, oc1, oc2, nut }
 #ifndef lint
 #define HARDGEM(n) (n >= 8)

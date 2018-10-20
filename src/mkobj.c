@@ -252,19 +252,19 @@ boolean artif;
     /* Determine the total probability */
     if (first)
     {
-		struct objclass *oc = objects;
-		int i;
-		first = 0;
-		for(i = 0; i < NUM_OBJECTS; i++)
-		{
-			maxprob[(int)oc->oc_class] += oc->oc_prob;
-			oc++;
-		}
-	}
+        struct objclass *oc = objects;
+        int i;
+        first = 0;
+        for(i = 0; i < NUM_OBJECTS; i++)
+        {
+            maxprob[(int)oc->oc_class] += get_oc_prob(i);
+            oc++;
+        }
+    }
     prob = rnd(maxprob[(int) oclass]);
 
     i = bases[(int) oclass];
-    while ((prob -= objects[i].oc_prob) > 0)
+    while ((prob -= get_oc_prob(i)) > 0)
         i++;
 
     if (objects[i].oc_class != oclass || !OBJ_NAME(objects[i]))

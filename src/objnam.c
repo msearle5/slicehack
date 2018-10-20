@@ -2963,7 +2963,7 @@ char oclass;
             || ((zn = objects[i].oc_uname) != 0
                 && wishymatch(name, zn, FALSE))) {
             validobjs[n++] = (short) i;
-            maxprob += (objects[i].oc_prob + 1);
+            maxprob += (get_oc_prob(i) + 1);
         }
     }
 
@@ -2972,7 +2972,7 @@ char oclass;
 
         i = 0;
         while (i < n - 1
-               && (prob -= (objects[validobjs[i]].oc_prob + 1)) >= 0)
+               && (prob -= (get_oc_prob(validobjs[i]) + 1)) >= 0)
             i++;
         return validobjs[i];
     }
@@ -4323,12 +4323,12 @@ int first, last;
     if (first == last)
         return first;
     for (i = first; i <= last; i++)
-        sum += objects[i].oc_prob;
+        sum += get_oc_prob(i);
     if (!sum) /* all zero */
         return first + rn2(last - first + 1);
     x = rnd(sum);
     for (i = first; i <= last; i++)
-        if (objects[i].oc_prob && (x -= objects[i].oc_prob) <= 0)
+        if (get_oc_prob(i) && (x -= get_oc_prob(i)) <= 0)
             return i;
     return 0;
 }

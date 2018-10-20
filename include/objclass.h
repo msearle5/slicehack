@@ -118,6 +118,9 @@ struct objclass {
     unsigned short oc_nutrition; /* food value */
 };
 
+#define OC_PROB(X) (X)
+#define get_oc_prob(X) (objects[(X)].oc_prob)
+
 struct class_sym {
     char sym;
     const char *name;

@@ -452,7 +452,7 @@ shkveg()
 
         if (veggy_item((struct obj *) 0, i)) {
             ok[j++] = i;
-            maxprob += objects[i].oc_prob;
+            maxprob += get_oc_prob(i);
         }
     }
     if (maxprob < 1)
@@ -461,7 +461,7 @@ shkveg()
 
     j = 0;
     i = ok[0];
-    while ((prob -= objects[i].oc_prob) > 0) {
+    while ((prob -= get_oc_prob(i)) > 0) {
         j++;
         i = ok[j];
     }
