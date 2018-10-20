@@ -213,6 +213,7 @@
 #define LOGFILE  "logfile"  /* larger file for debugging purposes */
 #define XLOGFILE "xlogfile" /* even larger logfile */
 #define LIVELOGFILE "livelog" /* in-game events recorded live */
+#define STATSFILE "stats" /* object generation etc. stats */
 #ifdef LIVELOGFILE
 /* LL_flags defined in global.h. Value below is ignored if SYSCF is enabled */
 /* #define LIVELOG_DETAIL (LL_WISH|LL_ACHIEVE|LL_UMONST) */

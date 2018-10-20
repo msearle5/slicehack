@@ -161,6 +161,7 @@ STATIC_PTR int NDECL(wiz_mon_polycontrol);
 STATIC_PTR int NDECL(wiz_show_wmodes);
 STATIC_DCL void NDECL(wiz_map_levltyp);
 STATIC_DCL void NDECL(wiz_levltyp_legend);
+STATIC_PTR int NDECL(wiz_object_stats);
 #if defined(__BORLANDC__) && !defined(_WIN32)
 extern void FDECL(show_borlandc_stats, (winid));
 #endif
@@ -3182,6 +3183,8 @@ struct ext_func_tab extcmdlist[] = {
             wiz_where, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { C('w'), "wizwish", "wish for something",
             wiz_wish, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+    { C('k'), "wizstats", "object generation stats",
+            wiz_object_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0', "wmode", "show wall modes",
             wiz_show_wmodes, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { 'z', "zap", "zap a wand", dozap, 0, NULL },
@@ -3734,6 +3737,84 @@ long *total_size;
         Sprintf(buf, template, hdrbuf, count, size);
         putstr(win, 0, buf);
     }
+}
+
+static int
+compar_otyp(v1, v2)
+void *v1;
+void *v2;
+{
+    return (*((long *)v2)) - (*((long *)v1));
+}
+
+/*
+ * Generate random stuff for the current level to get object generation stats
+ */
+static int
+wiz_object_stats()
+{
+    const long reps = 1e7;
+    long objects = 0;
+    long failed = 0;
+    long i;
+    struct obj *otmp;
+    char buf[BUFSZ];
+    char buf2[BUFSZ];
+    long otyp[NUM_OBJECTS] = { 0 };
+    struct {
+        long value;
+        long id;
+    } sorted[NUM_OBJECTS];
+    FILE *outfile;
+
+    pline("Object generation statistics - please wait");
+    flush_screen(1);
+
+    for(i=0;i<reps;i++) {
+        otmp = mkobj(RANDOM_CLASS, TRUE);
+        if (!otmp) failed++;
+        else {
+            otyp[otmp->otyp]++;
+            delobj(otmp);
+        }
+    }
+
+    for(i=0;i<NUM_OBJECTS;i++) {
+        sorted[i].id = i;
+        sorted[i].value = otyp[i];
+    }
+    qsort(sorted, NUM_OBJECTS, sizeof(sorted[0]), compar_otyp);
+
+    if(!(outfile = fopen_datafile(STATSFILE, "w", BONESPREFIX))) {
+        pline("Cannot open output file!");
+        abort();
+    } else {
+        fprintf(outfile, "Object generation statistics\n%ld objects, %ld failed\n", reps,
+            failed);
+        for(i=0;i<NUM_OBJECTS;i++) {
+            long perc = (otyp[i] * 100) / reps;
+            long rem = otyp[i] - (perc * (reps / 100));
+            long perc2 = (sorted[i].value * 100) / reps;
+            long rem2 = sorted[i].value - (perc2 * (reps / 100));
+            if (actual_name(i))
+                strcpy(buf, actual_name(i));
+            else
+                sprintf(buf, "[%ld]", i);
+            buf[29] = 0;
+            if (actual_name(sorted[i].id))
+                strcpy(buf2, actual_name(sorted[i].id));
+            else
+                sprintf(buf2, "[%ld]", sorted[i].id);
+            buf2[29] = 0;
+            fprintf(outfile, "%30s:%ld.%05ld%% - %30s:%ld.%05ld%%\n",
+                buf, perc, rem,
+                buf2, perc2, rem2);
+        }
+        (void) fclose(outfile);
+    }
+
+    pline("Complete.");
+    return 0;
 }
 
 /*
