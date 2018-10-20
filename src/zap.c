@@ -3188,8 +3188,14 @@ void
 zapwrapup()
 {
     /* if do_osshock() set obj_zapped while polying, give a message now */
-    if (obj_zapped)
-        You_feel("shuddering vibrations.");
+    if (obj_zapped) {
+        if (Hallucination) {
+            You_see("a strange vibration beneath %s %s.",
+                          s_suffix(mon_nam(&youmonst)),
+                          makeplural(mbodypart(&youmonst, FOOT)));
+        } else
+            You_feel("shuddering vibrations.");
+    }
     obj_zapped = FALSE;
 }
 
