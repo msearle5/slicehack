@@ -51,7 +51,8 @@ static const char *godvoices[] = {
 
 static const char *hgodvoices[] = {
     "ka-BOOMs out", "belches", "ring-a-lings out", "squeaks",
-    "squeals", "screeches", "drones", "buzzes", "pipes"
+    "squeals", "screeches", "drones", "buzzes", "pipes",
+    "tinkles", "rumbulates", "moos", "brays", "barks", "screeeeeeeeams"
 };
 
 /* values calculated when prayer starts, and used when completed */

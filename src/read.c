@@ -923,7 +923,7 @@ int howmuch;
     for (zx = 0; zx < COLNO; zx++)
         for (zy = 0; zy < ROWNO; zy++)
             if (howmuch & ALL_MAP || rn2(7)) {
-                /* Zonk all memory of this location. a candle*/
+                /* Zonk all memory of this location.*/
                 levl[zx][zy].seenv = 0;
                 levl[zx][zy].waslit = 0;
                 levl[zx][zy].glyph = cmap_to_glyph(S_stone);
@@ -1097,7 +1097,7 @@ scrollname(void)
 {
     static const char *hscrollnames[] = {
         "postcard", "letter", "envelope", "booklet", "flyer", "ticket",
-        "poster", "newspaper"
+        "poster", "newspaper", "magazine",
     };
 
     if (Hallucination)
