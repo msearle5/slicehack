@@ -734,12 +734,29 @@ doengrave()
                             surface(u.ux, u.uy));
                 }
                 break;
-            /* can't tell sleep from death - Eric Backus */
+            /* can't tell sleep from death - Eric Backus
+             * ...usually (MS)
+             **/
             case WAN_SLEEP:
+                if (!Blind) {
+                    if (Hallucination) {
+                        Sprintf(post_engr_text, "The bugs on the %s start snoring!",
+                                surface(u.ux, u.uy));
+                    } else {
+                        Sprintf(post_engr_text, "The bugs on the %s stop moving!",
+                            surface(u.ux, u.uy));
+                    }
+                }
+                break;
             case WAN_DEATH:
                 if (!Blind) {
-                    Sprintf(post_engr_text, "The bugs on the %s stop moving!",
+                    if (Hallucination) {
+                        Sprintf(post_engr_text, "The bugs on the %s flip over!",
+                                surface(u.ux, u.uy));
+                    } else {
+                        Sprintf(post_engr_text, "The bugs on the %s stop moving!",
                             surface(u.ux, u.uy));
+                    }
                 }
                 break;
             case WAN_POISON_GAS:
