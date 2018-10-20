@@ -102,7 +102,7 @@ struct objclass {
     schar oc_delay; /* delay when using such an object */
     uchar oc_color; /* color of the object */
 
-    short oc_prob;            /* probability, used in mkobj() */
+    unsigned short oc_prob;   /* probability, used in mkobj() */
     unsigned short oc_weight; /* encumbrance (1 cn = 0.1 lb.) */
     short oc_cost;            /* base cost in shops */
     /* Check the AD&D rules!  The FIRST is small monster damage. */
@@ -119,7 +119,7 @@ struct objclass {
 };
 
 #define OC_PROB(X) (X)
-#define get_oc_prob(X) (objects[(X)].oc_prob)
+#define OC_PROB2(X,Y) (((X)*1000)+(Y))
 
 struct class_sym {
     char sym;

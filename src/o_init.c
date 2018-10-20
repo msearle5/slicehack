@@ -43,6 +43,22 @@ shuffle_tiles()
 }
 #endif /* USE_TILES */
 
+int
+get_oc_prob(otyp)
+int otyp;
+{
+    int p = objects[otyp].oc_prob;
+    int minlev, dlev;
+
+    if (p <= 1000) return p * 10;
+    minlev = p / 1000;
+
+    dlev = depth(&u.uz);
+    if ((dlev <= 0) || (dlev >= minlev))
+        return p - (minlev * 1000);
+    return 0;
+}
+
 STATIC_OVL void
 setgemprobs(dlev)
 d_level *dlev;

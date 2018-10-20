@@ -1708,6 +1708,7 @@ E void FDECL(savenames, (int, int));
 E void FDECL(restnames, (int));
 E void FDECL(discover_object, (int, BOOLEAN_P, BOOLEAN_P));
 E void FDECL(undiscover_object, (int));
+E int FDECL(get_oc_prob, (int));
 E int NDECL(dodiscovered);
 E int NDECL(doclassdisco);
 E void NDECL(rename_disco);
