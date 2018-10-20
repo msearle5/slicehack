@@ -712,6 +712,7 @@ int dieroll;
 	static int tigereye = 0;
     int tmp;
     struct permonst *mdat = mon->data;
+    int barehand_tigereye_rings = 0;
     /* The basic reason we need all these booleans is that we don't want
      * a "hit" message when a monster dies, so we have to know how much
      * damage it did _before_ outputting a hit message, but any messages
@@ -722,6 +723,7 @@ int dieroll;
     boolean get_dmg_bonus = TRUE;
     boolean ispoisoned = FALSE, needpoismsg = FALSE, poiskilled = FALSE,
             unpoisonmsg = FALSE;
+    boolean tigermsg = FALSE;
     boolean harm_obj = FALSE;
     int harm_material = 0;
 
@@ -780,6 +782,17 @@ int dieroll;
                 harm_material = ring->material;
                 Strcpy(saved_oname, "ring");
                 tmp += rnd(sear_damage(ring->material));
+            }
+            if (mdat == &mons[PM_TIGER]) {
+                if ((uleft) && (uleft->otyp == tigereye))
+                    barehand_tigereye_rings++;
+                if ((uright) && (uright->otyp == tigereye))
+                    barehand_tigereye_rings++;
+                if ((barehand_tigereye_rings == 2) ||
+                    ((barehand_tigereye_rings == 1) && rn2(2))) {
+                    tmp += d(4, 10);
+                    tigermsg = TRUE;
+                }
             }
         }
 
@@ -1532,6 +1545,22 @@ int dieroll;
                 *whom = highc(*whom); /* "it" -> "It" */
                 fmt = "%s flinches!";
             }
+        }
+        pline(fmt, whom);
+    }
+
+    if (tigermsg) {
+        const char *fmt;
+        char *whom = mon_nam(mon);
+
+        if (canspotmon(mon)) {
+            if (barehand_tigereye_rings == 1)
+                fmt = "Your ring burns %s!";
+            else if (barehand_tigereye_rings == 2)
+                fmt = "Your rings burn %s!";
+        } else {
+            *whom = highc(*whom); /* "it" -> "It" */
+            fmt = "%s is burned!";
         }
         pline(fmt, whom);
     }
