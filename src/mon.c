@@ -3223,9 +3223,13 @@ struct monst *mtmp;
             pline("%s shrieks.", Monnam(mtmp));
             stop_occupation();
         }
-        if (!rn2(10)) {
-            if (!rn2(13))
-                (void) makemon(&mons[PM_PURPLE_WORM], 0, 0, NO_MM_FLAGS);
+        if (rn2(16-Luck) <= 1) {
+            if (rn2(16-Luck) <= 1) {
+                if ((mons[PM_PURPLE_WORM].mlevel <= mons[PM_PURPLE_WORM].mlevel) && (rn2(16-Luck)))
+                    (void) makemon(&mons[PM_BABY_PURPLE_WORM], 0, 0, NO_MM_FLAGS);
+                else
+                    (void) makemon(&mons[PM_PURPLE_WORM], 0, 0, NO_MM_FLAGS);
+            }
             else
                 (void) makemon((struct permonst *) 0, 0, 0, NO_MM_FLAGS);
         }
