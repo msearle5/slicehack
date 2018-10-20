@@ -1382,6 +1382,8 @@ register struct attack *mattk;
         }
         /* adjattrib gives dunce cap message when appropriate */
         (void) adjattrib(A_INT, -rnd(2), FALSE);
+        forget_levels(rnl(20)+10);  /* lose memory of 10-30% of levels */
+        forget_objects(rnl(20)+10); /* lose memory of 10-30% of objects */
         break;
     case AD_ZOMB:
         /* A zombie has attacked you, probably by clawing at you.
