@@ -181,6 +181,7 @@ boolean restore;
             } else if (otmp->otyp == BELL_OF_OPENING) {
                 otmp->otyp = BELL;
                 otmp->material = COPPER;
+                otmp->owt = weight(otmp);
                 curse(otmp);
             } else if (otmp->otyp == SPE_BOOK_OF_THE_DEAD) {
                 otmp->otyp = SPE_BLANK_PAPER;

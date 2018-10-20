@@ -615,6 +615,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, materialnm[obj->material]);
             Strcat(buf, " ");
         }
+        if ((obj->material == objects[obj->otyp].oc_material) && (typ == LANTERN) && known) {
+            Strcat(buf, "brass ");
+        }
 
         if (!dknown)
             Strcat(buf, dn);
@@ -2879,7 +2882,7 @@ struct alt_spellings {
     { "grey dragon scale mail", GRAY_DRAGON_SCALE_MAIL },
     { "grey dragon scales", GRAY_DRAGON_SCALES },
     { "iron ball", HEAVY_IRON_BALL },
-    { "lantern", LANTERN },
+    { "brass lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
     { "potion of sleep", POT_SLEEPING },
