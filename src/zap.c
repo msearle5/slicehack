@@ -2527,6 +2527,7 @@ boolean ordinary;
         destroy_item(SCROLL_CLASS, AD_FIRE);
         destroy_item(POTION_CLASS, AD_FIRE);
         destroy_item(SPBOOK_CLASS, AD_FIRE);
+        destroy_item(TOOL_CLASS, AD_FIRE);
         destroy_item(FOOD_CLASS, AD_FIRE); /* only slime for now */
         break;
 
@@ -4012,6 +4013,8 @@ xchar sx, sy;
                 destroy_item(SCROLL_CLASS, AD_FIRE);
             if (!rn2(5))
                 destroy_item(SPBOOK_CLASS, AD_FIRE);
+            if (!rn2(5))
+                destroy_item(TOOL_CLASS, AD_FIRE);
             destroy_item(FOOD_CLASS, AD_FIRE);
         }
         break;
@@ -5089,6 +5092,7 @@ register struct obj *obj;
  *      [7] sonic (potion)
  *      [8] sonic (item)
  *      [9] sonic (wand)
+ *      [10] landmine
  * (books, rings, and wands don't stack so don't need plural form;
  *  crumbling ring doesn't do damage so doesn't need killer reason)
  */
@@ -5104,6 +5108,7 @@ const char *const destroy_strings[][3] = {
     { "resonates and explodes", "resonate and explode", "shattered potion"},
     { "resonates and shatters", "", "shattered item"},
     { "resonates and explodes", "", "exploding wand"},
+    { "explodes", "explode", "exploding landmine" },
 };
 
 void
@@ -5142,7 +5147,7 @@ register int osym, dmgtyp;
             break;
         case AD_FIRE:
             xresist = (Fire_resistance && obj->oclass != POTION_CLASS
-                       && obj->otyp != GLOB_OF_GREEN_SLIME);
+                       && obj->otyp != GLOB_OF_GREEN_SLIME && obj->otyp != LAND_MINE);
 
             if (osym==SCROLL_CLASS && obj->oartifact)
             		skip++;
@@ -5176,13 +5181,20 @@ register int osym, dmgtyp;
                     skip++;
                 }
                 break;
+            case TOOL_CLASS:
+                if (obj->otyp == LAND_MINE) {
+                    dindx = 10;
+                    dmg = d(3,6);
+                    break;
+                }
+                /* fall thru */
             default:
                 skip++;
                 break;
             }
             break;
         case AD_ELEC:
-            xresist = (Shock_resistance && obj->oclass != RING_CLASS);
+            xresist = (Shock_resistance && obj->oclass != RING_CLASS && obj->otyp != LAND_MINE);
             quan = obj->quan;
             switch (osym) {
             case RING_CLASS:
@@ -5204,6 +5216,13 @@ register int osym, dmgtyp;
                 dindx = 6;
                 dmg = rnd(10);
                 break;
+            case TOOL_CLASS:
+                if (obj->otyp == LAND_MINE) {
+                    dindx = 10;
+                    dmg = d(3,6);
+                    break;
+                }
+                /* fall thru */
             default:
                 skip++;
                 break;
@@ -5211,7 +5230,8 @@ register int osym, dmgtyp;
             break;
         case AD_LOUD:
             if (objects[obj->otyp].oc_material == GLASS ||
-                objects[obj->otyp].oc_material == GEMSTONE) {
+                objects[obj->otyp].oc_material == GEMSTONE ||
+                obj->otyp == LAND_MINE) {
                 quan = obj->quan;
                 switch (osym) {
                 case POTION_CLASS:
@@ -5222,6 +5242,10 @@ register int osym, dmgtyp;
                 case TOOL_CLASS:
                     dmg = 1;
                     dindx = 8;
+                    if (obj->otyp == LAND_MINE) {
+                        dindx = 10;
+                        dmg = d(3,6);
+                    }
                     break;
                 case ARMOR_CLASS:
                     dmg = rnd(10);
@@ -5259,6 +5283,7 @@ register int osym, dmgtyp;
                                                  : "All of your"; /* N of N */
             pline("%s %s %s!", mult, xname(obj),
                   destroy_strings[dindx][(cnt > 1L)]);
+            
             if (osym == POTION_CLASS && dmgtyp != AD_COLD) {
                 if (!breathless(youmonst.data) || haseyes(youmonst.data))
                     potionbreathe(obj);
@@ -5274,19 +5299,23 @@ register int osym, dmgtyp;
             for (i = 0; i < cnt; i++)
                 useup(obj);
             if (dmg) {
-                if (xresist)
-                    You("aren't hurt!");
+                if (dindx == 10)
+                    explode(u.ux, u.uy, 11, dmg, TOOL_CLASS, EXPL_FIERY);
                 else {
-                    const char *how = destroy_strings[dindx][2];
-                    boolean one = (cnt == 1L);
+                    if (xresist)
+                        You("aren't hurt!");
+                    else {
+                        const char *how = destroy_strings[dindx][2];
+                        boolean one = (cnt == 1L);
 
-                    if (dmgtyp == AD_FIRE && osym == FOOD_CLASS)
-                        how = "exploding glob of slime";
-                    if (physical_damage)
-                        dmg = Maybe_Half_Phys(dmg);
-                    losehp(dmg, one ? how : (const char *) makeplural(how),
-                           one ? KILLED_BY_AN : KILLED_BY);
-                    exercise(A_STR, FALSE);
+                        if (dmgtyp == AD_FIRE && osym == FOOD_CLASS)
+                            how = "exploding glob of slime";
+                        if (physical_damage)
+                            dmg = Maybe_Half_Phys(dmg);
+                        losehp(dmg, one ? how : (const char *) makeplural(how),
+                               one ? KILLED_BY_AN : KILLED_BY);
+                        exercise(A_STR, FALSE);
+                    }
                 }
             }
         }

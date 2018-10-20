@@ -548,6 +548,7 @@ int expltype;
         destroy_item(POTION_CLASS, (int) adtyp);
         destroy_item(RING_CLASS, (int) adtyp);
         destroy_item(WAND_CLASS, (int) adtyp);
+        destroy_item(TOOL_CLASS, (int) adtyp);
 
         ugolemeffects((int) adtyp, damu);
         if (uhurt == 2) {

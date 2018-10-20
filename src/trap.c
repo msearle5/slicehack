@@ -3308,6 +3308,7 @@ struct obj *box; /* null for floor trap */
         destroy_item(SCROLL_CLASS, AD_FIRE);
         destroy_item(SPBOOK_CLASS, AD_FIRE);
         destroy_item(POTION_CLASS, AD_FIRE);
+        destroy_item(TOOL_CLASS, AD_FIRE);
     }
     if (!box && burn_floor_objects(u.ux, u.uy, see_it, TRUE) && !see_it)
         You("smell paper burning.");
@@ -5455,6 +5456,7 @@ burn_stuff:
     destroy_item(SCROLL_CLASS, AD_FIRE);
     destroy_item(SPBOOK_CLASS, AD_FIRE);
     destroy_item(POTION_CLASS, AD_FIRE);
+    destroy_item(TOOL_CLASS, AD_FIRE);
     return FALSE;
 }
 
