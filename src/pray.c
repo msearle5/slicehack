@@ -923,6 +923,7 @@ aligntyp resp_god;
         break;
     }
     u.ublesscnt = rnz(300);
+    holy_symbol();
     return;
 }
 
@@ -1196,6 +1197,9 @@ aligntyp g_align;
         action = rn1(prayer_luck + (on_altar() ? 3 + on_shrine() : 2), 1);
         if (!on_altar())
             action = min(action, 3);
+        if (uamul && (uamul->otyp == HOLY_SYMBOL) && (prayer_luck >= rn2(18)))
+            action++;
+
         if (u.ualign.record < STRIDENT)
             action = (u.ualign.record > 0 || !rnl(2)) ? 1 : 0;
 
@@ -1436,6 +1440,7 @@ aligntyp g_align;
         kick_on_butt++;
     if (kick_on_butt)
         u.ublesscnt += kick_on_butt * rnz(1000);
+    holy_symbol();
 
     return;
 }
@@ -1677,6 +1682,9 @@ dosacrifice()
             if (uwep && uwep->otyp == SACRIFICIAL_KNIFE) {
                 value += 2;
             }
+            if (uamul && uamul->otyp == HOLY_SYMBOL) {
+                value += 2;
+            }
         }
 
         if (your_race(ptr) || (uwep &&
@@ -1795,6 +1803,24 @@ dosacrifice()
             }
         }
     } /* corpse */
+
+    /* Offering a holy symbol is similar to a unicorn - although the
+     * holy symbol has no alignment, so the only cases are coaligned
+     * and crossaligned altars.
+     */
+    if (otmp->otyp == HOLY_SYMBOL) {
+        if (u.ualign.type == altaralign) {
+            if (u.ualign.record < ALIGNLIM)
+                You_feel("appropriately %s.", align_str(u.ualign.type));
+            else
+                You_feel("you are thoroughly on the right path.");
+            adjalign(5);
+            value = 20;
+        } else {
+            u.ualign.record = -1;
+            value = 1;
+        }
+    } /* holy symbol */
 
     if (otmp->otyp == AMULET_OF_YENDOR) {
         if (!highaltar) {
@@ -1945,6 +1971,7 @@ dosacrifice()
                     if (!Inhell)
                         angrygods(u.ualign.type);
                 }
+                holy_symbol();
                 return 1;
             } else {
                 consume_offering(otmp);
@@ -1985,6 +2012,7 @@ dosacrifice()
                         && rnd(u.ualign.record) > (7 * ALIGNLIM) / 8)
                         summon_minion(altaralign, TRUE);
                 }
+                holy_symbol();
                 return 1;
             }
         }
@@ -2079,6 +2107,7 @@ dosacrifice()
                         makeknown(otmp->otyp);
                         discover_artifact(otmp->oartifact);
                     }
+                    holy_symbol();
                     return 1;
                 }
             }
@@ -2097,6 +2126,7 @@ dosacrifice()
             }
         }
     }
+    holy_symbol();
     return 1;
 }
 
@@ -2148,6 +2178,123 @@ boolean praying; /* false means no messages should be given */
        This case should be uncommon enough to live with... */
 
     return !praying ? (boolean) (p_type == 3 && !Inhell) : TRUE;
+}
+
+/* Invoke a holy symbol.
+ */
+void
+use_holy_symbol(obj)
+struct obj *obj;
+{
+    if (obj != uamul) {
+        You("can't do anything with it unless you wear it.");
+        return;
+    }
+
+    /* It can only be invoked every so often. Having more than one
+     * holy symbol shouldn't help, so this is done by a shared
+     * value, not a standard object age cooldown.
+     **/
+    if (u.uholysymbol > monstermoves) {
+        You_feel("that %s is ignoring you.", u_gname());
+        /* and just got more so; patience is essential... */
+        u.uholysymbol += (long) d(3, 10);
+        return;
+    }
+    u.uholysymbol = monstermoves + rnz(250 << (!!u.uevent.udemigod)+(!!u.uevent.uhand_of_elbereth));
+
+    /* If the amulet is cursed, summon undead */
+    if (obj->cursed) {
+        int i;
+        int monsters = 0;
+        exercise(A_WIS, FALSE);
+        if (p_aligntyp != A_CHAOTIC)
+            adjalign(-3);
+        for(i=0; i<2+rnl(6); i++) {
+            static const int mclasses[] = {
+                S_ZOMBIE,   S_ZOMBIE,   S_ZOMBIE,
+                S_MUMMY,    S_MUMMY,    S_IMP,
+                S_VAMPIRE,  S_VAMPIRE,  S_GHOST,
+                S_DEMON,    S_LICH
+            };
+            int mclass = S_VAMPIRE;
+            int mindex = min(u.ulevel, rn2((i+1)*2));
+            if (mindex < sizeof(mclasses)/sizeof(mclasses[0]))
+                mclass = mclasses[mindex];
+            if (makemon(mkclass(mclass, 0), u.ux, u.uy, NO_MM_FLAGS))
+                monsters++;
+        }
+        if ((monsters) && (!Blind))
+            pline((monsters > 1) ? "Horrible forms rise around you!" : "Something horrible unearths itself!");
+        else
+            pline("You have a creepy feeling...");
+    } else {
+        turn_undead(obj);
+    }
+}
+
+/* Called whenever prayer timeout changes, the symbol is invoked, or
+ * the BUC/BUC knowledge of an object is changed to set the BUC and
+ * BUC knowledge. Also needs to track troubles... which can be caused
+ * by enough things that it is best to just check before every player
+ * action. (Keep the calls after blesscnt changes, though, for message
+ * ordering.)
+ *
+ * It only needs to make a change if you are wearing it. If you can
+ * see it then you will also get a message when it changes, and it will
+ * return true.
+ **/
+boolean
+holy_symbol()
+{
+    boolean bknown;
+    boolean blessed;
+    boolean cursed;
+
+    if (!uamul) return FALSE;
+    if (uamul->otyp != HOLY_SYMBOL) return FALSE;
+
+    /* Previous state */
+    bknown = uamul->bknown;
+    blessed = uamul->blessed;
+    cursed = uamul->cursed;
+
+    /* New state */
+    if (can_pray(FALSE)) {
+        /* If you can pray, the amulet is blessed */
+        uamul->blessed = TRUE;
+        uamul->cursed = FALSE;
+    } else {
+        /* If not, the amulet is uncursed if prayer timeout is the only concern.
+         * This is related to the code in can_pray, although it ignores cross-aligned
+         * altars to avoid spam and assumes that it is always unsafe for a neutral
+         * undead to pray.
+         */
+        uamul->blessed = FALSE;
+        uamul->cursed = ((int) Luck < 0 || u.ugangr || u.ualign.record < 0 || Inhell ||
+            (is_undead(youmonst.data) && (p_aligntyp != A_CHAOTIC)));
+    }
+
+    /* State change? */
+    if (Blind) return FALSE;
+    if ((blessed != uamul->blessed) || (cursed != uamul->cursed)) {
+        const char *msg;
+        if (uamul->blessed)
+            msg = "gleams!";
+        else if (uamul->cursed)
+            msg = "blackens.";
+        else if (blessed)
+            msg = "tarnishes.";
+        else
+            msg = "clears.";
+
+        if (Hallucination)
+            Your("%s turns %s!", xname(uamul), hcolor(NULL));
+        else
+            Your("%s %s", xname(uamul), msg);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /* scroll prayer, based on dopray - if uncursed then force a good result,
@@ -2273,6 +2420,7 @@ prayer_done() /* M. Stephenson (1.0.3b) */
             (void) water_prayer(TRUE);
         pleased(alignment); /* nice */
     }
+    holy_symbol();
     return 1;
 }
 
@@ -2301,11 +2449,11 @@ doturn()
         You("don't know how to turn undead!");
         return 0;
     }
-    return turn_undead();
+    return turn_undead(NULL);
 }
 
 int
-turn_undead() {
+turn_undead(struct obj *focus) {
 struct monst *mtmp, *mtmp2;
 int once, range, xlev;
 
@@ -2325,7 +2473,10 @@ int once, range, xlev;
         aggravate();
         return 1;
     }
-    pline("Calling upon %s, you chant an arcane formula.", u_gname());
+    if (focus)
+        pline("You grasp %s and through it call upon %s.", doname(focus), u_gname());
+    else
+        pline("Calling upon %s, you chant an arcane formula.", u_gname());
     exercise(A_WIS, TRUE);
 
     /* note: does not perform unturn_dead() on victims' inventories */
@@ -2345,8 +2496,12 @@ int once, range, xlev;
                 || (is_demon(mtmp->data) && (u.ulevel > (MAXULEV / 2))))) {
             mtmp->msleeping = 0;
             if (Confusion) {
-                if (!once++)
-                    pline("Unfortunately, your voice falters.");
+                if (!once++) {
+                    if (focus)
+                        pline("Unfortunately, your thoughts wander.");
+                    else
+                        pline("Unfortunately, your voice falters.");
+                }
                 mtmp->mflee = 0;
                 mtmp->mfrozen = 0;
                 mtmp->mcanmove = 1;

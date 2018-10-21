@@ -244,6 +244,13 @@ boolean resuming;
 
                     if (u.ublesscnt)
                         u.ublesscnt--;
+
+                    /* Wearing a noncursed holy symbol increases the prayer timeout rate,
+                     * by 25% - or 50% for Priests.
+                     **/
+                    if (uamul && (uamul->otyp == HOLY_SYMBOL) && (!uamul->cursed) &&
+                        ((Role_if(PM_PRIEST)) ? (moves % 2) : (!(moves % 4))))
+                            u.ublesscnt--;
                     u.ublesstim++;
                     if (flags.time && !context.run)
                         context.botl = 1;
@@ -516,6 +523,8 @@ boolean resuming;
 #ifdef MAIL
             ckmailstatus();
 #endif
+            /* Update the holy symbol - as late as possible to ensure accuracy */
+            holy_symbol();
             rhack((char *) 0);
         }
         if (u.utotype)       /* change dungeon level */

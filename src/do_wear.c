@@ -746,6 +746,9 @@ Amulet_on()
     case AMULET_OF_DRAIN_RESISTANCE:
     case AMULET_OF_DANGER:
         break;
+    case HOLY_SYMBOL:
+        holy_symbol();
+        break;
     case AMULET_VERSUS_STONE:
         amulet_vs_golem();
         if ((Stoned) && (!uamul->cursed)) {

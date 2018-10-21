@@ -430,6 +430,7 @@ struct you {
     int ugifts;              /* number of artifacts bestowed */
     int ublessed, ublesscnt; /* blessing/duration from #pray */
     int ublesstim;           /* turns since prayer */
+    long uholysymbol;         /* time when a holy smbol was last invoked */
     long umoney0;
     long uspare1;
     long uexp, urexp;

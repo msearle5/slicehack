@@ -196,7 +196,7 @@ IF [50%] { \
 	} \
 } \
 IF [25%] { \
-	$i = 1d14 \
+	$i = 1d15 \
 	IF [$i == 1] { \
 		OBJECT:('[',"cloak of reflection"),$place[0] \
 	} \
@@ -238,6 +238,9 @@ IF [25%] { \
 	} \
 	IF [$i == 14] { \
 		OBJECT:('(',"magic marker"),$place[0] \
+	} \
+	IF [$i == 15] { \
+		OBJECT:('"',"holy symbol"),$place[0] \
 	} \
 } \
 ELSE { \

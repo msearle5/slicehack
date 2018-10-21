@@ -998,7 +998,7 @@ boolean artif;
                             || otmp->otyp == AMULET_OF_NAUSEA
                             || otmp->otyp == AMULET_OF_DANGER)) {
                 curse(otmp);
-            } else
+            } else if (otmp->otyp != HOLY_SYMBOL)
                 blessorcurse(otmp, 10);
             if ((otmp->otyp == GORGET) && (!rn2(3))) {
                 otmp->spe = rnew(4, TRUE, FALSE);
@@ -1329,8 +1329,15 @@ register struct obj *otmp;
         return;
     if (otmp->lamplit)
         old_light = arti_light_radius(otmp);
-    otmp->cursed = 0;
-    otmp->blessed = 1;
+    if ((otmp->otyp == HOLY_SYMBOL) && (uamul == otmp) && (otmp->known)) {
+        u.ublesscnt -= 1+rnl(15);
+        if (u.ublesscnt < 0) u.ublesscnt = 0;
+        if ((!holy_symbol()) && (!Blind))
+            pline("Your holy symbol gleams for a moment, then dulls.");
+    } else {
+        otmp->cursed = 0;
+        otmp->blessed = 1;
+    }
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
     else if (otmp->otyp == BAG_OF_HOLDING)
@@ -1350,7 +1357,12 @@ register struct obj *otmp;
 
     if (otmp->lamplit)
         old_light = arti_light_radius(otmp);
-    otmp->blessed = 0;
+    if ((otmp->otyp == HOLY_SYMBOL) && (uamul == otmp) && (otmp->known)) {
+        u.ublesscnt += 40+rnl(100);
+        if ((!holy_symbol()) && (!Blind))
+            pline("Your holy symbol tarnishes briefly, then gleams again.");
+    } else
+        otmp->blessed = 0;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
     else if (otmp->otyp == BAG_OF_HOLDING)
@@ -1371,8 +1383,15 @@ register struct obj *otmp;
     if (otmp->lamplit)
         old_light = arti_light_radius(otmp);
     already_cursed = otmp->cursed;
-    otmp->blessed = 0;
-    otmp->cursed = 1;
+
+    if ((otmp->otyp == HOLY_SYMBOL) && (uamul == otmp) && (otmp->known)) {
+        u.ublesscnt += 40+rnl(100);
+        if ((!holy_symbol()) && (!Blind))
+            pline("Your holy symbol blackens briefly, then clears.");
+    } else {
+        otmp->blessed = 0;
+        otmp->cursed = 1;
+    }
     /* welded two-handed weapon interferes with some armor removal */
     if (otmp == uwep && bimanual(uwep))
         reset_remarm();
@@ -1407,7 +1426,11 @@ register struct obj *otmp;
 
     if (otmp->lamplit)
         old_light = arti_light_radius(otmp);
-    otmp->cursed = 0;
+    if ((otmp->otyp == HOLY_SYMBOL) && (uamul == otmp) && (otmp->known)) {
+        if ((!holy_symbol()) && (!Blind))
+            pline("Your holy symbol clears briefly, then darkens again.");
+    } else
+        otmp->cursed = 0;
     if (carried(otmp) && confers_luck(otmp))
         set_moreluck();
     else if (otmp->otyp == BAG_OF_HOLDING)

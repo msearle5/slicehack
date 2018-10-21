@@ -5656,6 +5656,7 @@ retry:
     if (otmp != &zeroobj) {
         (void) try_hold_another_object(otmp);
         u.ublesscnt += rn1(100, 50); /* the gods take notice */
+        holy_symbol();
     }
 }
 

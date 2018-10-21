@@ -168,8 +168,10 @@ struct monst *mtmp;
     if (x == 0 && y == 0)
         return TRUE;
 
-    /* should this still be true for defiled/molochian altars? */
-    if (IS_ALTAR(levl[x][y].typ)
+    /* should this still be true for defiled/molochian altars?
+       the holy symbol is similar */
+    if ((IS_ALTAR(levl[x][y].typ) ||
+        sobj_at(HOLY_SYMBOL, x, y))
         && (mtmp->data->mlet == S_VAMPIRE || is_vampshifter(mtmp)))
         return TRUE;
 

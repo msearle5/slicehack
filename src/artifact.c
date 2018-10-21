@@ -1654,10 +1654,22 @@ struct obj *obj;
         return 0;
     }
     if (!oart || !oart->inv_prop) {
-        if (obj->otyp == CRYSTAL_BALL)
-            use_crystal_ball(&obj);
-        else
-            pline1(nothing_happens);
+        switch (obj->otyp) {
+            case CRYSTAL_BALL:
+                use_crystal_ball(&obj);
+                break;
+            case HOLY_SYMBOL:
+                /* To avoid making it trivial to identify (by invoking every amulet),
+                 * do nothing special unless it is already identified.
+                 */
+                if (obj->known) {
+                    use_holy_symbol(obj);
+                    break;
+                }
+                /* fall thru */
+            default:
+                pline1(nothing_happens);
+        }
         return 1;
     }
 

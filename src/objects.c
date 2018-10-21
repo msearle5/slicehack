@@ -669,6 +669,7 @@ AMULET("amulet of change",               "square", 0, 130),
 AMULET("amulet of unchanging",          "concave", UNCHANGING, 45),
 AMULET("amulet of reflection",        "hexagonal", REFLECTING, 75),
 AMULET("amulet of magical breathing", "octagonal", MAGICAL_BREATHING, 65),
+AMULET("holy symbol",               "alpha-omega", 0, 45),
 
 OBJECT(OBJ("gorget",
            "neck armor"),

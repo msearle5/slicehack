@@ -960,6 +960,8 @@ register struct monst *mtmp;
                                         : rn2(3) ? CLOAK_OF_PROTECTION
                                                  : CLOAK_OF_MAGIC_RESISTANCE);
             (void) mongets(mtmp, SMALL_SHIELD);
+            if (!rn2((ptr == &mons[PM_ALIGNED_PRIEST]) ? 4 : 20))
+                mongets(mtmp, HOLY_SYMBOL);
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
