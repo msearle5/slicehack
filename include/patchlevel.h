@@ -8,7 +8,7 @@
 
 /* SliceHack 0.2.0 */
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 2
+#define VERSION_MINOR 3
 /*
  * PATCHLEVEL is updated for each release.
  */
@@ -34,7 +34,7 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x00020000L
+#define VERSION_COMPATIBILITY 0x00030000L
 
 /****************************************************************************/
 /* Version 3.6.x */

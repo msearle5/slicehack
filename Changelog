@@ -4,6 +4,84 @@ This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
 ********************************************************************************
+*	Release 0.3.0 'Candy Bar'
+
+	The big stuff:
+*	Merged Splice 0.5.0 => 0.6.0.
+
+	Notable changes from this:
+
+	Mind flayers were nerfed in the merge to not cause amnesia, but not here.
+	(They are a bit less effective than they used to be, especially if you
+	have high Luck, since there are more ways to lose your memory than there
+	used to be. But even with maxed Luck, they are still scary.)
+	
+	Pets will now only avoid chameleon corpses if you haven't touched them.
+	
+	Brass lanterns are called that again (while still allowing lanterns of
+	other materials to exist).
+
+	The merge removed scrolls of pure law, true neutrality and raw chaos. I
+	brought them back, but as a single scroll which doesn't care about your
+	alignment - as such a rare scroll should not be junk.
+
+*	Added a new item - the holy symbol.
+	The holy symbol is an amulet which when worn tells you whether it is
+    safe to pray - it's blessed if safe to pray, uncursed if the timeout
+    prevents prayer, and cursed if there is some other reason. (It also
+    gleams, blackens, etc. when changing BUC.) Because of this, you can't
+    curse or bless it while it is worn. Trying to do so will make a small
+    difference to prayer timeout, though.
+    
+    Wearing it also speeds the prayer timeout by 25% - or 50% if you are
+    a Priest - and if worn while praying successfully you may get a better
+    effect than you otherwise would have. This does depend on Luck.
+    
+    If uncursed, it can also be invoked for turn undead. This has a long
+    timeout, shared between all holy symbols (so that getting lots won't
+    help you). Invoking it when it is cursed instead summons undead!
+    
+    If sacrificed, it is a high value similar to a cross-aligned unicorn.
+    Also like a unicorn, sacrificing it on a cross-aligned altar will
+    convert you. Wearing it while sacrificing a corpse will increase the
+    value similarly to, and cumulative with, using a sacrificial knife.
+    
+    If dropped, it will scare vampires (like an altar). Wearing one is OK
+    for atheists (if fairly useless), but turning undead is not.
+    
+    They are uncommon, but priests and similar monsters may carry one and
+    there is a small chance of finding one as the Sokoban reward.
+
+
+	Minor features:
+*	Added gauntlets (nonmagical, iron, 2 AC, rare but watch and soldiers may
+		have them, and Knights may start with them)
+*	Split the "critically low HP" trouble to allow recovery from higher HP
+		levels - with less priority compared to other troubles, though.
+*	Landmines, if hit by fire, lightning or sonics, can explode.
+*	Shriekers draw more purple worms more if you are unlucky, but they can
+		be baby ones.
+*	Change the object probability encoding. This doesn't do anything in itself
+		but allows future objects to have more precise rarity and level limits.
+*	Add a wizard mode command (Ctrl-K) to dump object generation chances (by
+		creating 1e7 objects and counting how many there are of each type)
+*	Un-defer wishes for objects with a material (because the 0.6.0 Splice merge
+		rebalances material densities)
+*	Horns of plenty will not produce smoky potions (it's a wish engine if you
+		have unlimited charging, and a Tourist with the PYEC does)
+*	Misc hallucinatory messages etc.
+*	Giants can get a staggering strike in unarmed combat against large or huge
+		opponents.
+*	Give Giants the "Ground Slam" technique.
+	
+	Bug fixes:
+*	Re-order DSMs so scales and mail are in sync, and fix a resist.
+*	Monks won't start with meat. (Giants got extra food, which could be a tin
+		of meat. Tripe is still OK, because that's for the pet.)
+*	Fixed invweight displaying incorrectly (caused by the 0.6.0 merge??)
+*	Fixed a flag conflict causing Giants to have the wrong roles allowed
+*	Misc typos, comments, etc.
+********************************************************************************
 *	Release 0.2.0 'Hill Giant'
 
 	The big stuff:
