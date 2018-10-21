@@ -82,6 +82,424 @@ STATIC_OVL struct Jitem Cartomancer_items[] = {
 STATIC_DCL const char *FDECL(Alternate_item_name,(int i, struct Jitem * ));
 STATIC_DCL const char *FDECL(Cartomancer_rarity,(int otyp));
 
+
+static const char * const bogus_items[] = {
+
+	/* Real */
+	"arrow",
+	"elven arrow",
+	"orcish arrow",
+	"runed arrow",
+	"ruined arrow",
+	"crude arrow",
+	"vulgar arrow",
+	"ya",
+	"bamboo arrow",
+	"crossbow bolt",
+	"dart",
+	"gorget",
+	"holy symbol",
+	"holy cymbal",
+	"holey amulet",
+	"shuriken",
+	"shurunken",
+	"boomerang",
+	"elven spear",
+	"orcish spear",
+	"dwarvish spear",
+	"silver spear",
+	"sliver spear",
+	"javelin",
+	"throwing spear",
+	"throwing spar",
+	"trident",
+	"dagger",
+	"elven dagger",
+	"orcish dagger",
+	"silver dagger",
+	"athame",
+	"scalpel",
+	"knife",
+	"stiletto",
+	"worm tooth",
+	"crysknife",
+	"axe",
+	"battle-axe",
+	"short sword",
+	"scimitar",
+	"curved sword",
+	"silver saber",
+	"broadsword",
+	"long sword",
+	"two-handed sword",
+	"katana",
+	"tsurugi",
+	"runesword",
+	"partisan",
+	"spetum",
+	"glaive",
+	"ranseur",
+	"lance",
+	"halberd",
+	"bardiche",
+	"voulge",
+	"dwarvish mattock",
+	"fauchard",
+	"guisarme",
+	"bill-guisarme",
+	"lucern hammer",
+	"bec de corbin",
+	"mace",
+	"morning star",
+	"club",
+	"quarterstaff",
+	"iron bar",
+	"aklys",
+	"thonged club",
+	"flail",
+	"bullwhip",
+	"bow",
+	"elven bow",
+	"orcish bow",
+	"yumi",
+	"sling",
+	"crossbow",
+	"fedora",
+	"conical hat",
+	"comical hat",
+	"plumed helmet",
+	"plumbed helmet",
+	"etched helmet",
+	"itched helmet",
+	"crested helmet",
+	"visored helmet",
+	"plate mail",
+	"late mail",
+	"mithril-coat",
+	"banded mail",
+	"sanded mail",
+	"splint mail",
+	"chain mail",
+	"chain letter",
+	"scale mail",
+	"lizard scale mail",
+	"ring mail",
+	"studded leather armor",
+	"studly leather armor",
+	"shirt",
+	"cloak",
+	"robe",
+	"small shield",
+	"elven shield",
+	"shield of reflection",
+	"silly hat",
+	"waddling boots",
+	"old gloves",
+	"padded gloves",
+	"riding gloves",
+	"fencing gloves",
+	"walking shoes",
+	"seven-league boots",
+	"little-league boots",
+	"hard shoes",
+	"Doc Martens",
+	"jackboots",
+	"combat boots",
+	"jungle boots",
+	"bungle boots",
+	"hiking boots",
+	"mud boots",
+	"muddy boots",
+	"buckled boots",
+	"riding boots",
+
+	/* Modern */
+	"polo mallet",
+	"string vest",
+	"muscle vest",
+	"applied theology textbook",        /* AFutD */
+	"handbag",
+	"onion ring",
+	"tuxedo",
+	"breath mint",
+	"potion of antacid",
+	"traffic cone",
+	"chainsaw",
+	"Klein bottle",
+	"pair of high-heeled stilettos",    /* the *other* stiletto */
+	"intercontinental ballistic missile",
+	"doomsday device",
+	"potion of Wow-Wow sauce",
+	"dyson sphere",
+	"Demon Core",
+	"zeppelin",
+	"Great Attractor",
+	"Sloan Great Wall",
+
+	/* injokes */
+	"YAFM",                             /* rgrn */
+	"YAAP",
+	"YASD",
+	"Puddingbane",
+	"malevolent RNG",
+	"pamphlet titled 'How to Raise the Perfect Pudding'",
+	"blessed greased +5 silly object of hilarity",
+	"The Staff of Misspelling",
+	"greased very rotten partly eaten guardian naga hatchling corpse", /* longest possible object name - see objnam.c, line 7 */
+	"yet another poorly-differentiated polearm",
+
+	/* Silly */
+	"left-handed iron chain",
+	"crystal ball bearing",
+	"rubber Marduk",
+	"holy hand grenade",                /* Monty Python */
+	"decoder ring",
+	"amulet of huge gold chains",       /* Foo' */
+	"unicron horn",                     /* Transformers */
+	"chainmail bikini",
+	"first class one-way ticket to Albuquerque", /* Weird Al */
+	"yellow spandex dragon scale mail", /* X-Men */
+	"Kentucky Fried Basilisk",
+	"magic device",
+	"kinda lame joke",
+
+	/* Musical Instruments */
+	"grand piano",
+	"two slightly sampled electric eels", /* Oldfield */
+	"kick drum",                        /* 303 */
+	"tooled airhorn",
+
+	/* Pop Culture */
+	"flux capacitor",                   /* BTTF */
+	"Walther PPK",                      /* Bond */
+	"hanging chad",                     /* US Election 2000 */
+	"99 red balloons",                  /* 80s */
+	"pincers of peril",                 /* Goonies */
+	"ring of schwartz",                 /* Spaceballs */
+	"signed copy of Diaspora",          /* Greg Egan */
+	"the missing evidence in the Kelner case", /* Naked Gun */
+	"blessed +9 helm of Des Lynam",     /* Bottom */
+
+	/* Culture */
+	"The Book of Sand",                 /* Jorge Luis Borges */
+	"sonic screwdriver",                /* Doctor Who */
+	"lutefisk",
+
+	/* Brithack */
+#ifdef BRITHACK
+	"bum bag",
+	"blessed tin of marmite",
+	"tesco value potion",
+	"ringtone of drawbridge opening",
+	"burberry cap",
+	"potion of bitter",
+	"cursed -2 bargain plane ticket to Ibiza",
+	"black pudding corpse",
+#endif
+
+	/* Roguelikes */
+	"Orb of Zot",                       /* Dungeon Crawl */
+	"head of Morgoth",                  /* Angband, sort of */
+	"hand of Vecna",                    /* SLASH'EM */
+	"eye of the beholder",              /* SLASH'EM */
+	"heavy machine gun",                /* SLASH'EM */
+	"gas grenade",                      /* SLASH'EM */
+	"gauntlets of swimming",            /* SLASH'EM */
+	"amulet versus stone",              /* SLASH'EM */
+	"potion of clairvoyance",           /* SLASH'EM */
+	"potion of invulnerability",        /* SLASH'EM */
+	"spellbook of enchant armor",       /* SLASH'EM */
+	"wand of create horde",             /* SLASH'EM */
+	"map of The Great Adamantine Space Elevator", /*Dwarf Fortress*/
+	"rat blood barrel",                 /* Dwarf Fortress */
+	"fly ichor barrel",                 /* Dwarf Fortress */
+	"cat tallow roast",                 /* Dwarf Fortress */
+	"si",                               /* ADOM, it means "strange item" */
+	"Scroll of omnipotence",            /* ADOM */
+	"Scroll of vermin control",         /* ADOM */
+
+	/* fruit names from NAO - http://alt.org/nethack/petnames.html */
+	"!!+dimple cup stew+!!",            /* fruit name from NAO, inspired by Dwarf Fortress */
+	"!!-lignite rock candy-!!",         /* fruit name from NAO, inspired by Dwarf Fortress */
+	"!!cat biscuit!!",                  /* fruit name from NAO, inspired by Dwarf Fortress */
+	"!!kitten tallow roast!!",          /* fruit name from NAO, inspired by Dwarf Fortress */
+	"plump helmet",                     /* fruit name from NAO, inspired by Dwarf Fortress */
+	"+7 blessed Happy Meal",
+	"ACME Generic Fruit Product",
+	"adventurer corpse",
+	"AIDS medicine",
+	"ambrosia ration",
+	"ascension kit",
+	"bananananananana",
+	"big bowl of sauerkraut",
+	"bonesfile",
+	"brain of mind flayer",
+	"brain",
+	"brown percent sign",
+	"calculus textbook",
+	"chocolate Amulet of Yendor",
+	"corpse of a grid bug",
+	"eldritch pear",
+	"gingerbread Amulet of Yendor",
+	"Hand of Vecna",
+	"Higgs Boson",
+	"human soul",
+	"human skull",
+	"inevitable failure",
+	"lowest unoccupied molecular orbital",
+	"mammoth corpse",
+	"morsel of existential dread",
+	"motor oil",
+	"nanobots",
+	"nuclear waste",
+	"potion of genocide",
+	"potion of mana",
+	"preserved head",
+	"radioactive orb",
+	"Recursive RRF Fruit",
+	"scroll labeled EAT ME",
+	"sentient slime mold",
+	"sinister omen of imminent doom",
+	"syntax error",
+	"thoroughly useless object",
+
+	/* Fantasy */
+	"Necronomicon",                     /* Lovecraft */
+	"pipe weed",                        /* LOTR */
+	"knife missile",                    /* Iain M. Banks */
+	"large gem",                        /* Valhalla */
+	"monster manual",                   /* D&D */
+	"spellbook called Octavo",          /* Discworld */
+	"ring of power",                    /* LOTR */
+	"lightsaber",
+	"no tea",                           /* HGttG game */
+	"pan-galactic gargle blaster",      /* HGttG */
+	"Silmaril",                         /* LOTR */
+	"Slimaril",
+	"Filmaril",
+	"pentagram of protection",          /* Quake */
+	"horcrux",                          /* HP */
+	"Codex of the Infinite Planes",     /* DnD */
+	"dragon's claw",
+
+	/* Geekery */
+	"AAA chipset",                      /* Amiga */
+	"thoroughly used copy of Nethack for Dummies",
+	"named pipe",                       /* UNIX */
+	"kernel trap",
+	"copy of SliceHack 0.3.0",          /* recursion... */
+	"cursed smooth manifold",           /* Topology */
+	"vi clone",
+	"maximally subsentient emacs mode",
+	"bongard diagram",                  /* Intelligence test */
+	"git repository",
+	"directed acyclic graph",
+	"server",
+
+	/* Historical */
+	"dead sea scroll",
+	"cat o'nine tails",
+	"pieces of eight",
+	"codpiece",
+	"straight-jacket",
+	"bayonet",
+	"iron maiden",
+	"oubliette",
+	"pestle and mortar"
+	"plowshare",
+	"The Book of the All-Virtuous Wisdom of Joshua ben Sira",
+	"Holy Grail",                      /* Arthurian legends */
+	"cauldron",
+	"The Five Books of Moses",         /* aka the Torah */
+	"Voynich Manuscript",
+	"scythe",
+
+	/* Mashups */
+	"scale-reinforced banded-splint mail with chain joints",
+	"potion of rebigulation",           /* Simpsons */
+	"potion of score doubling",
+	"potion of gain divinity",
+	"potion of bad breath",
+	"scroll labelled ED AWK YACC",      /* the standard scroll */
+	"scroll labelled RTFM",
+	"scroll labelled KLAATU BARADA NIKTO", /* Evil Dead 3 */
+	"scroll of omniscience",
+	"scroll of mash keyboard",
+	"scroll of plot detection",
+	"scroll of RNG taming",
+	"scroll of fungicide",
+	"scroll of stupidity",
+	"spellbook of detect foot",
+	"spellbook of detect evil",
+	"Spellbook of wishing", /* http://www.alt.org/nethack/addmsgs/viewmsgs.php */
+	"heavily obfuscated spellbook",
+	"helm of telemetry",
+	"blue suede boots of charisma",
+	"cubic zirconium",
+	"amulet of instadeath",
+	"amulet of bad luck",
+	"amulet of refraction",
+	"O-ring",
+	"wand of washing",
+	"wand of vaporization",
+	"wand of disruption",
+	"wand of disintegration",
+	"ring named Frost Band",
+	"expensive exact replica of the Amulet of Yendor",
+	"giant beatle",
+	"lodestone",
+	"rubber chicken",                   /* c corpse */
+	"tin of Player meat",
+	"figurine of a god",
+	"tin of whoop ass",
+	"cursed -3 earring of adornment",
+	"wisdom boots",
+	"ornamental cape",
+	"acid blob skeleton",
+	"Lawyerbane",
+	"RNG corpse",
+	"war hammer",
+	"re-curved sword",
+	"de-curved sword",
+	"circular sword",
+	"evening star",
+	"peace hammer",
+	"heap of wands of wishing", /* Janis Papanagnou on rgrn */
+	"size XXXS gray dragon scale mail", /* http://www.nicolaas.net/dudley/index.php?f=20050819 */
+	"blessed greased fixed erodeproof disenchanterproof demonpossessionproof vacuumofdeepspaceproof proofremovalproof fully insured 100% all-natural materials completely and utterly intact, undamaged and structurally sound freshly washed and free of the stench of congealed human blood totally bereft of ancient unbreakable curses and absolutely NOT stolen from any nearby easily-angered shopkeepers +3 armor enhancement GRAY DRAGON SCALE MAIL", /* http://www.nicolaas.net/dudley/index.php?f=20050819 */
+
+	/* from tvtropes.org */
+	"Sealed Good in a Can",
+	"Sealed Evil in a Can ",
+	"The Home Handyman's Guide to Building Gates to Hell",
+	"The Idiot's Guide to Demonology",
+	"tome of Eldritch Lore ",
+	"airborne aircraft carrier ",
+	"airborne airborne aircraft carrier carrier",
+	"MacGuffin",
+	"plot device",
+	"amulet of dependency",
+	"pirate booty",
+	/* end of tvtropes.org */
+
+	/* via ProgressQuest */
+	"spellbook of animate nightstand",
+	"spellbook of astral miasma",
+	"spellbook of curse family",
+	"spellbook of spectral oyster",
+	"spellbook of innoculate",
+	"jar of gelatinous cube jam",
+	/* end of ProgressQuest */
+	"brand new, all time lowest introductory rate special offer",
+	"dirty rag"
+};
+
+const char *
+get_bogus_item_name()
+{
+	return bogus_items[rn2(SIZE(bogus_items))];
+}
+
 STATIC_OVL char *
 strprepend(s, pref)
 register char *s;

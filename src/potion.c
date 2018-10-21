@@ -1779,8 +1779,10 @@ const char *txt;
 const char *bottlenames[] = { "bottle", "phial", "flagon", "carafe",
                               "flask",  "jar",   "vial" };
 
-const char *hbottlenames[] = { "barrel", "tin", "bag", "box", "glass", "beaker", "tumbler", "vase", "flowerpot", "pan",
-								"thingy", "mug", "teacup", "teapot", "keg", "bucket", "parcel", "bowl" };
+const char *hbottlenames[] = {
+    "jug", "pitcher", "barrel", "tin", "bag", "box", "glass", "beaker", "tumbler", "vase", "flowerpot", "pan",
+    "thingy", "mug", "teacup", "teapot", "keg", "bucket", "thermos", "amphora", "wineskin", "parcel", "bowl", "ampoule"
+};
 
 const char *
 bottlename()

@@ -62,6 +62,9 @@
 
 #define ERR (-1)
 
+/* present in drawing.c, but not used in this utility */
+int rn2(int x) { return 4; } /* produced from a fair die - it's random */
+
 #define NewTab(type, size) (type **) alloc(sizeof(type *) * size)
 #define Free(ptr) \
     if (ptr)      \

@@ -2617,6 +2617,34 @@ static const char *hallu_gods[] = {
     "your Friend the Computer",     /* Paranoia */
     "Big Brother"                   /* 1984 */
     "your Parents"                  /* Just because */
+    "Svetovid",                     /* Slavic deity */
+    "Radegast",                     /* Slavic deity */
+    "Kupala",                       /* Slavic deity */
+    "Dziewanna",                    /* Slavic deity (unclear status, maybe made up by Jan Długosz) */
+    "Weles",                        /* Slavic deity */
+    "Żywie",                        /* Slavic deity */
+    "Zeus",                         /* Greek mythology */
+    "Aphrodite",                    /* Greek mythology */
+    "Ares",                         /* Greek mythology */
+    "Atropos",                      /* Greek mythology */
+    "Eris",                         /* Greek mythology */
+    "Helios",                       /* Greek mythology */
+    "the Invisible Pink Unicorn",
+    "Ulmo",                         /* Silmarilion */
+    "Mandos",                       /* Silmarilion */
+    "Tulkas",                       /* Silmarilion */
+    "Yavanna",                      /* Silmarilion */
+    "Varda",                        /* Silmarilion */
+    "the Doctor",                   /* Doctor Who */
+    "Aslan",                        /* Narnia */
+    "Tash",                         /* Narnia */
+    "Emperor of Mankind",           /* Warhammer 40K */
+    "Nurgle",                       /* Warhammer 40K */
+    "Slaanesh",                     /* Warhammer 40K */
+    "Armok",                        /* Dwarf Fortress */
+    "the Iron General",             /* Jacek Dukaj */
+    "the RNG",
+    "the gnome with the wand of death",
 };
 
 /* hallucination handling for priest/minion names: select a random god

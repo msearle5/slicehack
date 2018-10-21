@@ -56,6 +56,61 @@ const struct class_sym def_oc_syms[MAXOCLASSES] = {
     { VENOM_SYM, "monster parts", "monster projectile" }
 };
 
+static const char * const bogus_classes[] = {
+    /* copy of objexplain from drawing.c */
+    "strange object",
+    "weapon",
+    "suit or piece of armor",
+    "ring",
+    "amulet",
+    "useful item (pick-axe, key, lamp...)",
+    "piece of food",
+    "potion",
+    "scroll",
+    "spellbook",
+    "wand",
+    "pile of coins",
+    "gem or rock",
+    "boulder or statue",
+    "iron ball",
+    "iron chain",
+    "splash of venom",
+    /* bogus classes */
+    "illegal object",
+    "filler",
+    "useless object",
+    "artifact",
+    "ancient artifact",
+    "ascension kit item",
+    "stave",
+    "song",
+    "drink",
+    "grimoire",
+    "gear",
+    "cog",
+    "bug",
+    "easter egg",
+    "tiny monument",
+    "junk",
+    "foo",
+    "spoiler",
+    "explosion",
+    "MacGuffin",
+    "galaxy",
+    "quasar",
+    "black hole",
+    "soul jar",
+    "lame joke",
+    "artifact of doom",
+    "something",
+};
+
+const char *
+get_bogus_class_name()
+{
+    return bogus_classes[rn2(SIZE(bogus_classes))];
+}
+
 /* Default monster class symbols.  See monsym.h. */
 const struct class_sym def_monsyms[MAXMCLASSES] = {
     { '\0', "", "" },

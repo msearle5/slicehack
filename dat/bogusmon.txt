@@ -37,6 +37,166 @@ deep one
 bat from Hell
 shoggoth
 
+# from UnNetHack
+apostroph golem
+# internet memes
+Bob the angry flower
+Boxxy
+lonelygirl15
+Domo-kun
+# Monty Python killer rabbit
+Gerbenok
+# Erkan & Stefan
+# deities
+Bluebear
+Professor Abdullah Nightingale
+
+# Zamonien
+Qwerty Uiop
+troglotroll
+
+# european cryptids
+Nessie
+# /b/
+/b/tard
+# schnippi
+rape golem
+# Radomir Dopieralski
+yeek quylthulg
+# Souljazz
+Vendor of Yizard
+Sigmund
+Ijyb
+# Dungeon Crawl Stone Soup
+Gloorx Vloq
+Blork the orc
+# Ask ASCII Ponies
+dwerga nethackus
+dwerga castrum
+
+# from UnNetHackPlus
+# Polish folklore
+King Krakus
+# Slavic folklore
+Topielec
+# Lord of the Rings + silliness
+pink oliphaunt
+# urban legend
+phantom kangaroo
+# from medieval literature, "enemy of the dragon"
+echinemon
+# Norse mythology
+Ratatoskr
+# Arthurian legends
+Twrch Trwyth
+# Nineteen Eighty-Four
+Unperson
+# Douglas Adams
+Somebody Else's Problem
+# Dwarf Fortress
+Armok
+Dwarf-Eating Carp
+Urist McDwarf
+werecapybara
+werecthulhu
+weresomething
+# Berzerk - via GruntHack
+Evil Otto
+# Weekly World News
+P'lod
+mortgage golem
+dark matter golem
+# Dungeon Crawl Stone Soup
+giant orange brain
+ugly thing
+hellephant
+inept mimic
+hungry ghost
+unborn deep dwarf
+Wandering mushroom
+
+Vlad the Inhaler
+Delaunay tessellation field estimator
+# NAO fruit name
+unnameable horror from beyond
+munchkin
+# SporkHack
+shambling horror
+# SLAS'EM (nickname of arc bugs)
+Grid Bug Mk. 2
+# SLAS'EM
+killer tripe ration
+yet another D&D monster
+kobold mage
+hobbyte
+# ProgressQuest
+will-o'-the-wisp
+ignis fatuus
+triceratops
+sylph
+stegosaurus
+sphinx
+spectre
+lamassu
+# Dungeons & Dragons
+su-monster
+shambling mound
+sand elemental
+rubber golem
+remorhaz
+otyugh
+
+bacon elemental
+roper
+roc
+# Jorge Luis Borges - Book of Imaginary Beings
+peryton
+octopus
+# ProgressQuest
+beer golem
+rice giant
+porn elemental
+demicanadian
+gyrognome
+cheese elemental
+dervish
+dragon turtle
+megalosaurus
+organist
+# Harry Potter
+Lucius Malfoy
+Dumbledore
+Harry Potter
+Crumple-Horned Snorkack
+
+# The Order of the Stick
+Vaarsuvius
+Durkon Thundershield
+Roy Greenhilt
+
+# from UnNetHackPlus, originally http://www.alt.org/nethack/addmsgs/viewmsgs.php
+lurker below
+worthless yellowish-brown glass golem
+# ADOM
+writhing mass of primal chaos
+hallucinatory monster
+jumping brain
+colorless green idea
+floating ear
+floating tongue
+hallucinogen-distorted hallucination
+mountain dwarf
+were(random beast)
+weremindflayer
+Gnome With the Wand of Death
+arch-lichen
+Baba Yaga
+harmless protoplasm
+badger
+giant dwarf
+magically animated Vorpal Blade
+Legendary black beast of Arrrgh
+
 # powergaming and speedrunning
 polypiler
 pudding farmer
@@ -362,6 +522,7 @@ kelpie
 catoblepas
 trow
 chupacabras
+chupachup
 
 # Unusually animate body parts
 bouncing eye
@@ -369,11 +530,26 @@ floating nose
 wandering eye
 
 # Computerese
+infinite loop
+stack overflow
+bluescreen
+kernel panic
+panic elemental
+guru meditation
+NullPointerException
+General Protection Fault
+branch through zero
+bus error
+double fault
 buffer overflow
+bounce buffer
+write cycle
 dangling pointer
 walking disk drive
+bogon
 floating point
 regex engine
+K-line
 netsplit
 wiki
 peer
@@ -381,6 +557,8 @@ COBOL
 segmentation fault
 goto statement
 spaghetti code
+code smell
+anti-pattern
 recursion
 deferred feature
 
