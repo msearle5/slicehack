@@ -583,6 +583,9 @@ int trouble;
 		if (!critically_low_hp(FALSE, 2)) break;
 		/*FALLTHRU*/
     case TROUBLE_HIT_CRITICAL:
+    case TROUBLE_HIT_MAJOR:
+    case TROUBLE_HIT_MID:
+    case TROUBLE_HIT_MINOR:
         /* "fix all troubles" will keep trying if hero has
            5 or less hit points, so make sure they're always
            boosted to be more than that */
