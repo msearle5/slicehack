@@ -2519,6 +2519,16 @@ struct permonst _mons2[] = {
         MR_COLD | MR_ELEC | MR_POISON,
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_ACID | M1_SWIM,
         M2_HOSTILE | M2_NEUTER, 0, HI_LORD),
+    MON("colossal slime", S_PUDDING, LVL(18, 9, 6, 0, 0),
+        (G_HELL | G_GENO | G_NOCORPSE | 1),
+        A(ATTK(AT_TUCH, AD_SLIM, 2, 8), ATTK(AT_NONE, AD_SLIM, 0, 0),
+        ATTK(AT_TUCH, AD_SLIM, 2, 8), ATTK(AT_NONE, AD_SLIM, 0, 0),
+        ATTK(AT_ENGL, AD_SLIM, 2, 10), NO_ATTK),
+        SIZ(4500, 1500, MS_SILENT, MZ_GIGANTIC),
+        MR_COLD | MR_ELEC | MR_POISON | MR_ACID | MR_STONE, 0,
+        M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
+            | M1_MINDLESS | M1_OMNIVORE | M1_ACID | M1_POIS,
+        M2_HOSTILE | M2_NEUTER, 0, CLR_BRIGHT_GREEN),
     /*
      * Strange beings
      */
