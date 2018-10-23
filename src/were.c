@@ -20,31 +20,35 @@ register struct monst *mon;
                             : (flags.moonphase == FULL_MOON ? 10 : 50))) {
             new_were(mon); /* change into animal form */
             if (!Deaf && !canseemon(mon)) {
-                const char *howler;
+                const char *howler, *howl;
 
                 switch (monsndx(mon->data)) {
                 case PM_WEREBEAR:
-                    howler = "bear roaring";
+                    howler = "bear";
+                    howl = "roaring";
                     break;
                 case PM_ALPHA_WEREWOLF:
-                    howler = "pack of wolves howling";
+                    howler = "pack of wolves";
+                    howl = "howling";
                     break;
                 case PM_WEREWOLF:
-                    howler = "wolf howling";
+                    howler = "wolf";
+                    howl = "howling";
                     break;
                 case PM_WEREJACKAL:
-                    howler = "jackal howling";
+                    howler = "jackal";
+                    howl = "howling";
                     break;
                 default:
-                    howler = (char *) 0;
+                    howler = howl = (char *) 0;
                     break;
                 }
 
                 if (howler) {
                     if (Hallucination)
-                        You_hear("the moon howling like a %s", howler);
+                        You_hear("the moon %s like a %s", howl, howler);
                     else
-                        You_hear("a %s howling at the moon.", howler);
+                        You_hear("a %s %s at the moon.", howler, howl);
                 }
             }
         }
