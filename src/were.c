@@ -39,6 +39,12 @@ register struct monst *mon;
                     howler = "jackal";
                     howl = "howling";
                     break;
+                case PM_WERERAT:
+                    if (Hallucination) {
+                        howler = "mouse";
+                        howl = "squeaking";
+                    }
+                    /* fallthru */
                 default:
                     howler = howl = (char *) 0;
                     break;
