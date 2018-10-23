@@ -6,6 +6,7 @@
 /* Edited on 4/9/18 by NullCGT */
 
 #include "hack.h"
+#include <assert.h>
 
 #include "mfndpos.h"
 
@@ -305,10 +306,12 @@ int x, y;
 }
 
 int
-dog_nutrition(mtmp, obj)
+get_dog_nutrition(mtmp, obj, meat)
 struct monst *mtmp;
 struct obj *obj;
+int *meat;
 {
+    int meating = 0;
     int nutrit;
 
     /*
@@ -317,10 +320,10 @@ struct obj *obj;
      */
     if (obj->oclass == FOOD_CLASS) {
         if (obj->otyp == CORPSE) {
-            mtmp->meating = 3 + (mons[obj->corpsenm].cwt >> 6);
+            meating = 3 + (mons[obj->corpsenm].cwt >> 6);
             nutrit = mons[obj->corpsenm].cnutrit;
         } else {
-            mtmp->meating = objects[obj->otyp].oc_delay;
+            meating = objects[obj->otyp].oc_delay;
             nutrit = objects[obj->otyp].oc_nutrition;
         }
         switch (mtmp->data->msize) {
@@ -349,9 +352,9 @@ struct obj *obj;
             nutrit = eaten_stat(nutrit, obj);
         }
     } else if (obj->oclass == COIN_CLASS) {
-        mtmp->meating = (int) (obj->quan / 2000) + 1;
-        if (mtmp->meating < 0)
-            mtmp->meating = 1;
+        meating = (int) (obj->quan / 2000) + 1;
+        if (meating < 0)
+            meating = 1;
         nutrit = (int) (obj->quan / 20);
         if (nutrit < 0)
             nutrit = 0;
@@ -361,9 +364,21 @@ struct obj *obj;
          * nutrit made consistent with polymorphed player nutrit in
          * eat.c.  (This also applies to pets eating gold.)
          */
-        mtmp->meating = obj->owt / 20 + 1;
+        meating = obj->owt / 20 + 1;
         nutrit = 5 * objects[obj->otyp].oc_nutrition;
     }
+    *meat = meating;
+    return nutrit;
+}
+
+int
+dog_nutrition(mtmp, obj)
+struct monst *mtmp;
+struct obj *obj;
+{
+    int meating;
+    int nutrit = get_dog_nutrition(mtmp, obj, &meating);
+    mtmp->meating += meating;
     return nutrit;
 }
 
@@ -612,12 +627,13 @@ struct edog *edog;
   	    int cur_nutrit = -1, best_nutrit = -1;
   	    int cur_food = APPORT, best_food = APPORT;
   	    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj) {
-    	      cur_nutrit = dog_nutrition(mtmp, otmp);
-    		    cur_food = dogfood(mtmp, otmp);
-    	      if (cur_food < best_food && cur_nutrit > best_nutrit) {
-        		    best_nutrit = cur_nutrit;
-        		    best_food = cur_food;
-        		    obest = otmp;
+            int meating;
+            cur_nutrit = get_dog_nutrition(mtmp, otmp, &meating);
+            cur_food = dogfood(mtmp, otmp);
+            if ((cur_food < best_food) && (cur_nutrit > best_nutrit)) {
+                best_nutrit = cur_nutrit;
+                best_food = cur_food;
+                obest = otmp;
             }
     	  }
   	    if (obest != (struct obj *)0) {
