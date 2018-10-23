@@ -33,13 +33,13 @@ enum obj_material_types {
 };
 
 enum obj_armor_types {
-    ARM_SUIT = 0,
-    ARM_SHIELD,        /* needed for special wear function */
-    ARM_HELM,
-    ARM_GLOVES,
-    ARM_BOOTS,
-    ARM_CLOAK,
-    ARM_SHIRT
+    ARM_SUIT    = 1,
+    ARM_SHIELD  = 2,        /* needed for special wear function */
+    ARM_HELM    = 4,
+    ARM_GLOVES  = 8,
+    ARM_BOOTS   = 16,
+    ARM_CLOAK   = 32,
+    ARM_SHIRT   = 64
 };
 
 struct objclass {

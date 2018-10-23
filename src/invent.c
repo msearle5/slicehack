@@ -69,7 +69,6 @@ struct obj *obj;
         SCROLL_CLASS, SPBOOK_CLASS, GEM_CLASS, FOOD_CLASS, TOOL_CLASS,
         WEAPON_CLASS, ARMOR_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS, 0,
     };
-    static char armcat[8];
     const char *classorder;
     char *p;
     int k, otyp = obj->otyp, oclass = obj->oclass;
@@ -92,24 +91,30 @@ struct obj *obj;
        and the non-armor ones we use are fairly arbitrary */
     switch (oclass) {
     case ARMOR_CLASS:
-        if (!armcat[7]) {
-            /* one-time init; we use a different order than the subclass
-               values defined by objclass.h */
-            armcat[ARM_HELM]   = 1; /* [2] */
-            armcat[ARM_GLOVES] = 2; /* [3] */
-            armcat[ARM_BOOTS]  = 3; /* [4] */
-            armcat[ARM_SHIELD] = 4; /* [1] */
-            armcat[ARM_CLOAK]  = 5; /* [5] */
-            armcat[ARM_SHIRT]  = 6; /* [6] */
-            armcat[ARM_SUIT]   = 7; /* [0] */
-            armcat[7]          = 8; /* sanity protection */
+        switch(objects[otyp].oc_armcat) {
+            case ARM_HELM:
+                k = 1;
+                break;
+            case ARM_GLOVES:
+                k = 2;
+                break;
+            case ARM_BOOTS:
+                k = 3;
+                break;
+            case ARM_SHIELD:
+                k = 4;
+                break;
+            case ARM_CLOAK:
+                k = 5;
+                break;
+            case ARM_SHIRT:
+                k = 6;
+                break;
+            case ARM_SUIT:
+            default:
+                k = 7;
+                break;
         }
-        k = objects[otyp].oc_armcat;
-        /* oc_armcat overloads oc_subtyp which is an 'schar' so guard
-           against somebody assigning something unexpected to it */
-        if (k < 0 || k >= 7)
-            k = 7;
-        k = armcat[k];
         break;
     case WEAPON_CLASS:
         /* for weapons, group by ammo (arrows, bolts), launcher (bows),

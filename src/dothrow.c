@@ -1592,7 +1592,10 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         case GAUNTLETS_OF_DEXTERITY:
             break;
         default:
-            impossible("Unknown type of gloves (%d)", uarmg->otyp);
+            if (Is_dragon_armor(uarmg))
+                tmp -= 1;   /* not metal, but less flexible than light leather */
+            else
+                impossible("Unknown type of gloves (%d)", uarmg->otyp);
             break;
         }
     }

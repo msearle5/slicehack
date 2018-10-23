@@ -13,6 +13,7 @@
 #include "hack.h"
 #include "mfndpos.h"
 #include <ctype.h>
+#include <assert.h>
 
 STATIC_VAR boolean vamp_rise_msg, disintegested;
 

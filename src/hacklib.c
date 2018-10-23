@@ -5,12 +5,14 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h" /* for config.h+extern.h */
-/*=
+#include <assert.h>
+/*
     Assorted 'small' utility routines.  They're virtually independent of
     NetHack, except that rounddiv may call panic().  setrandom calls one
     of seed_rng(), srandom(), srand48(), or srand() depending upon configuration.
 
       return type     routine name    argument type(s)
+        int             popcount        (unsigned)
         boolean         digit           (char)
         boolean         letter          (char)
         char            highc           (char)
@@ -76,6 +78,20 @@
 
 static boolean FDECL(pmatch_internal, (const char *, const char *,
                                        BOOLEAN_P, const char *));
+
+/* count the number of set bits */
+unsigned
+popcount(x)
+unsigned x;
+{
+    assert(x == (x & 0xffffffff));
+    x = (x & 0x55555555) + ((x >> 1) & 0x55555555);
+    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+    x = (x & 0x0F0F0F0F) + ((x >> 4) & 0x0F0F0F0F);
+    x = (x & 0x00FF00FF) + ((x >> 8) & 0x00FF00FF);
+    x = (x & 0x0000FFFF) + ((x >> 16)& 0x0000FFFF);
+    return x;
+}
 
 /* is 'c' a digit? */
 boolean

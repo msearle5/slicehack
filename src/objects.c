@@ -376,51 +376,152 @@ HELM("helm of telepathy", "visored helmet",
 /* suits of armor */
 /*
  * There is code in polyself.c that assumes (1) and (2).
- * There is code in obj.h, objnam.c, mon.c, read.c that assumes (2).
- *      (1) The dragon scale mails and the dragon scales are together.
- *      (2) That the order of the dragon scale mail and dragon scales
+ * There is code in obj.h, objnam.c, mon.c, read.c that assumes (1), (2) and (3).
+ *      (1) The dragon scale mails, hats, gloves, boots, shields and scales are together.
+ *      (2) That the order of the dragon armors and dragon scales
  *          is the the same as order of dragons defined in monst.c.
+ *      (3) That hats are the first and scales last.
  */
-#define DRGN_ARMR(name,mgc,power,cost,ac,color)  \
-    ARMOR(name, None, 1, mgc, 1, power, 0, 5, 40,  \
-          cost, ac, 0, ARM_SUIT, DRAGON_HIDE, color)
+#define DRGN_ITEM(name,mgc,power,cost,ac,color,weight,slot,prob,delay)  \
+    ARMOR(name, None, 1, mgc, 1, power, prob, 5, weight,  \
+          cost, ac, 0, slot, DRAGON_HIDE, color)
+#define DRGN_HELM_R(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,1200,7,color,30,ARM_HELM,0,1)
+#define DRGN_HELM_C(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,900,7,color,30,ARM_HELM,0,1)
+#define DRGN_GLOVES_R(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,1200,7,color, 12,ARM_GLOVES,0,2)
+#define DRGN_GLOVES_C(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,900,7,color, 12,ARM_GLOVES,0,2)
+#define DRGN_BOOTS_R(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,1200,7,color,15,ARM_BOOTS,0,2)
+#define DRGN_BOOTS_C(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,900,7,color,15,ARM_BOOTS,0,2)
+#define DRGN_SHIELD_R(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,1200,7,color,25,ARM_SHIELD,0,3)
+#define DRGN_SHIELD_C(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,900,7,color,25,ARM_SHIELD,0,3)
+#define DRGN_ARMR_R(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,1200,1,color,40,ARM_SUIT,0,5)
+#define DRGN_ARMR_C(name,mgc,power,color) \
+	DRGN_ITEM(name,mgc,power,900,1,color,40,ARM_SUIT,0,5)
+#define DRGN_SCALES_N(name,power,color) \
+	DRGN_ITEM(name,1,power,700,9,color,60,ARM_SUIT|ARM_SHIELD|ARM_HELM|ARM_GLOVES|ARM_BOOTS,0,5)
+#define DRGN_SCALES_H(name,power,color) \
+	DRGN_ITEM(name,1,power,700,9,color,60,ARM_SUIT|ARM_SHIELD|ARM_HELM|ARM_GLOVES|ARM_BOOTS,23001,5)
+#define DRGN_SCALES_R(name,power,color) \
+	DRGN_ITEM(name,1,power,700,9,color,60,ARM_SUIT|ARM_SHIELD|ARM_HELM|ARM_GLOVES|ARM_BOOTS,19001,5)
+#define DRGN_SCALES_C(name,power,color) \
+	DRGN_ITEM(name,1,power,500,9,color,60,ARM_SUIT|ARM_SHIELD|ARM_HELM|ARM_GLOVES|ARM_BOOTS,15002,5)
+
+/* Slice: dragon hats */
+DRGN_HELM_R("gray dragon helm",    1, ANTIMAGIC,    CLR_GRAY),
+DRGN_HELM_R("silver dragon helm",  1, REFLECTING,   DRAGON_SILVER),
+DRGN_HELM_R("shimmering dragon helm", 1, DISPLACED, CLR_CYAN),
+DRGN_HELM_C("red dragon helm",     1, FIRE_RES,     CLR_RED),
+DRGN_HELM_C("white dragon helm",   1, COLD_RES,     CLR_WHITE),
+DRGN_HELM_C("orange dragon helm",  1, SLEEP_RES,    CLR_ORANGE),
+DRGN_HELM_R("purple dragon helm",  1, SONIC_RES,    CLR_BRIGHT_MAGENTA),
+DRGN_HELM_R("black dragon helm",   1, DISINT_RES,   CLR_BLACK),
+DRGN_HELM_C("blue dragon helm",    1, SHOCK_RES,    CLR_BLUE),
+DRGN_HELM_C("green dragon helm",   1, POISON_RES,   CLR_GREEN),
+DRGN_HELM_R("razor dragon helm",   1, FAST,         CLR_CYAN),
+DRGN_HELM_R("ooze dragon helm",    1, ACID_RES,     CLR_BRIGHT_GREEN),
+DRGN_HELM_R("filth dragon helm",   1, SICK_RES,     CLR_BROWN),
+DRGN_HELM_R("hex dragon helm",     1, ANTIMAGIC,    CLR_BRIGHT_BLUE),
+DRGN_HELM_R("void dragon helm",    1, DISINT_RES,   CLR_MAGENTA),
+DRGN_HELM_C("yellow dragon helm",  1, ACID_RES,     CLR_YELLOW),
+/* Slice: dragon gloves */
+DRGN_GLOVES_R("gray dragonhide gauntlets",    1, ANTIMAGIC,    CLR_GRAY),
+DRGN_GLOVES_R("silver dragonhide gauntlets",  1, REFLECTING,   DRAGON_SILVER),
+DRGN_GLOVES_R("shimmering dragonhide gauntlets", 1, DISPLACED, CLR_CYAN),
+DRGN_GLOVES_C("red dragonhide gauntlets",     1, FIRE_RES,     CLR_RED),
+DRGN_GLOVES_C("white dragonhide gauntlets",   1, COLD_RES,     CLR_WHITE),
+DRGN_GLOVES_C("orange dragonhide gauntlets",  1, SLEEP_RES,    CLR_ORANGE),
+DRGN_GLOVES_R("purple dragonhide gauntlets",  1, SONIC_RES,    CLR_BRIGHT_MAGENTA),
+DRGN_GLOVES_R("black dragonhide gauntlets",   1, DISINT_RES,   CLR_BLACK),
+DRGN_GLOVES_C("blue dragonhide gauntlets",    1, SHOCK_RES,    CLR_BLUE),
+DRGN_GLOVES_C("green dragonhide gauntlets",   1, POISON_RES,   CLR_GREEN),
+DRGN_GLOVES_R("razor dragonhide gauntlets",   1, FAST,         CLR_CYAN),
+DRGN_GLOVES_R("ooze dragonhide gauntlets",    1, ACID_RES,     CLR_BRIGHT_GREEN),
+DRGN_GLOVES_R("filth dragonhide gauntlets",   1, SICK_RES,     CLR_BROWN),
+DRGN_GLOVES_R("hex dragonhide gauntlets",     1, ANTIMAGIC,    CLR_BRIGHT_BLUE),
+DRGN_GLOVES_R("void dragonhide gauntlets",    1, DISINT_RES,   CLR_MAGENTA),
+DRGN_GLOVES_C("yellow dragonhide gauntlets",  1, ACID_RES,     CLR_YELLOW),
+/* Slice: dragon boots */
+DRGN_BOOTS_R("gray dragonhide boots",    1, ANTIMAGIC,    CLR_GRAY),
+DRGN_BOOTS_R("silver dragonhide boots",  1, REFLECTING,   DRAGON_SILVER),
+DRGN_BOOTS_R("shimmering dragonhide boots", 1, DISPLACED, CLR_CYAN),
+DRGN_BOOTS_C("red dragonhide boots",     1, FIRE_RES,     CLR_RED),
+DRGN_BOOTS_C("white dragonhide boots",   1, COLD_RES,     CLR_WHITE),
+DRGN_BOOTS_C("orange dragonhide boots",  1, SLEEP_RES,    CLR_ORANGE),
+DRGN_BOOTS_R("purple dragonhide boots",  1, SONIC_RES,    CLR_BRIGHT_MAGENTA),
+DRGN_BOOTS_R("black dragonhide boots",   1, DISINT_RES,   CLR_BLACK),
+DRGN_BOOTS_C("blue dragonhide boots",    1, SHOCK_RES,    CLR_BLUE),
+DRGN_BOOTS_C("green dragonhide boots",   1, POISON_RES,   CLR_GREEN),
+DRGN_BOOTS_R("razor dragonhide boots",   1, FAST,         CLR_CYAN),
+DRGN_BOOTS_R("ooze dragonhide boots",    1, ACID_RES,     CLR_BRIGHT_GREEN),
+DRGN_BOOTS_R("filth dragonhide boots",   1, SICK_RES,     CLR_BROWN),
+DRGN_BOOTS_R("hex dragonhide boots",     1, ANTIMAGIC,    CLR_BRIGHT_BLUE),
+DRGN_BOOTS_R("void dragonhide boots",    1, DISINT_RES,   CLR_MAGENTA),
+DRGN_BOOTS_C("yellow dragonhide boots",  1, ACID_RES,     CLR_YELLOW),
+/* Slice: dragon shields */
+DRGN_SHIELD_R("gray dragon shield",    1, ANTIMAGIC,    CLR_GRAY),
+DRGN_SHIELD_R("silver dragon shield",  1, REFLECTING,   DRAGON_SILVER),
+DRGN_SHIELD_R("shimmering dragon shield", 1, DISPLACED, CLR_CYAN),
+DRGN_SHIELD_C("red dragon shield",     1, FIRE_RES,     CLR_RED),
+DRGN_SHIELD_C("white dragon shield",   1, COLD_RES,     CLR_WHITE),
+DRGN_SHIELD_C("orange dragon shield",  1, SLEEP_RES,    CLR_ORANGE),
+DRGN_SHIELD_R("purple dragon shield",  1, SONIC_RES,    CLR_BRIGHT_MAGENTA),
+DRGN_SHIELD_R("black dragon shield",   1, DISINT_RES,   CLR_BLACK),
+DRGN_SHIELD_C("blue dragon shield",    1, SHOCK_RES,    CLR_BLUE),
+DRGN_SHIELD_C("green dragon shield",   1, POISON_RES,   CLR_GREEN),
+DRGN_SHIELD_R("razor dragon shield",   1, FAST,         CLR_CYAN),
+DRGN_SHIELD_R("ooze dragon shield",    1, ACID_RES,     CLR_BRIGHT_GREEN),
+DRGN_SHIELD_R("filth dragon shield",   1, SICK_RES,     CLR_BROWN),
+DRGN_SHIELD_R("hex dragon shield",     1, ANTIMAGIC,    CLR_BRIGHT_BLUE),
+DRGN_SHIELD_R("void dragon shield",    1, DISINT_RES,   CLR_MAGENTA),
+DRGN_SHIELD_C("yellow dragon shield",  1, ACID_RES,     CLR_YELLOW),
 /* 3.4.1: dragon scale mail reclassified as "magic" since magic is
    needed to create them */
-DRGN_ARMR("gray dragon scale mail",    1, ANTIMAGIC,  1200, 1, CLR_GRAY),
-DRGN_ARMR("silver dragon scale mail",  1, REFLECTING, 1200, 1, DRAGON_SILVER),
-DRGN_ARMR("shimmering dragon scale mail", 1, DISPLACED, 1200, 1, CLR_CYAN),
-DRGN_ARMR("red dragon scale mail",     1, FIRE_RES,    900, 1, CLR_RED),
-DRGN_ARMR("white dragon scale mail",   1, COLD_RES,    900, 1, CLR_WHITE),
-DRGN_ARMR("orange dragon scale mail",  1, SLEEP_RES,   900, 1, CLR_ORANGE),
-DRGN_ARMR("purple dragon scale mail",  1, SONIC_RES,  1200, 1, CLR_BRIGHT_MAGENTA),
-DRGN_ARMR("black dragon scale mail",   1, DISINT_RES, 1200, 1, CLR_BLACK),
-DRGN_ARMR("blue dragon scale mail",    1, SHOCK_RES,   900, 1, CLR_BLUE),
-DRGN_ARMR("green dragon scale mail",   1, POISON_RES,  900, 1, CLR_GREEN),
-DRGN_ARMR("razor dragon scale mail",   1, FAST,       1200, 1, CLR_CYAN),
-DRGN_ARMR("ooze dragon scale mail",    1, ACID_RES,   1200, 1, CLR_BRIGHT_GREEN),
-DRGN_ARMR("filth dragon scale mail",   1, SICK_RES,   1200, 1, CLR_BROWN),
-DRGN_ARMR("hex dragon scale mail",     1, ANTIMAGIC,  1200, 1, CLR_BRIGHT_BLUE),
-DRGN_ARMR("void dragon scale mail",    1, DISINT_RES, 1200, 1, CLR_MAGENTA),
-DRGN_ARMR("yellow dragon scale mail",  1, ACID_RES,    900, 1, CLR_YELLOW),
-/* For now, only dragons leave these. */
+DRGN_ARMR_R("gray dragon scale mail",    1, ANTIMAGIC,  CLR_GRAY),
+DRGN_ARMR_R("silver dragon scale mail",  1, REFLECTING, DRAGON_SILVER),
+DRGN_ARMR_R("shimmering dragon scale mail", 1, DISPLACED,   CLR_CYAN),
+DRGN_ARMR_C("red dragon scale mail",     1, FIRE_RES,   CLR_RED),
+DRGN_ARMR_C("white dragon scale mail",   1, COLD_RES,   CLR_WHITE),
+DRGN_ARMR_C("orange dragon scale mail",  1, SLEEP_RES,  CLR_ORANGE),
+DRGN_ARMR_R("purple dragon scale mail",  1, SONIC_RES,  CLR_BRIGHT_MAGENTA),
+DRGN_ARMR_R("black dragon scale mail",   1, DISINT_RES, CLR_BLACK),
+DRGN_ARMR_C("blue dragon scale mail",    1, SHOCK_RES,  CLR_BLUE),
+DRGN_ARMR_C("green dragon scale mail",   1, POISON_RES, CLR_GREEN),
+DRGN_ARMR_R("razor dragon scale mail",   1, FAST,       CLR_CYAN),
+DRGN_ARMR_R("ooze dragon scale mail",    1, ACID_RES,   CLR_BRIGHT_GREEN),
+DRGN_ARMR_R("filth dragon scale mail",   1, SICK_RES,   CLR_BROWN),
+DRGN_ARMR_R("hex dragon scale mail",     1, ANTIMAGIC,  CLR_BRIGHT_BLUE),
+DRGN_ARMR_R("void dragon scale mail",    1, DISINT_RES, CLR_MAGENTA),
+DRGN_ARMR_C("yellow dragon scale mail",  1, ACID_RES,   CLR_YELLOW),
 /* 3.4.1: dragon scales left classified as "non-magic"; they confer
-   magical properties but are produced "naturally" */
-DRGN_ARMR("gray dragon scales",        0, ANTIMAGIC,   700, 7, CLR_GRAY),
-DRGN_ARMR("silver dragon scales",      0, REFLECTING,  700, 7, DRAGON_SILVER),
-DRGN_ARMR("shimmering dragon scales",  0, DISPLACED,   700, 7, CLR_CYAN),
-DRGN_ARMR("red dragon scales",         0, FIRE_RES,    500, 7, CLR_RED),
-DRGN_ARMR("white dragon scales",       0, COLD_RES,    500, 7, CLR_WHITE),
-DRGN_ARMR("orange dragon scales",      0, SLEEP_RES,   500, 7, CLR_ORANGE),
-DRGN_ARMR("purple dragon scales",      0, SONIC_RES,   700, 7, CLR_BRIGHT_MAGENTA),
-DRGN_ARMR("black dragon scales",       0, DISINT_RES,  700, 7, CLR_BLACK),
-DRGN_ARMR("blue dragon scales",        0, SHOCK_RES,   500, 7, CLR_BLUE),
-DRGN_ARMR("green dragon scales",       0, POISON_RES,  500, 7, CLR_GREEN),
-DRGN_ARMR("razor dragon scales",       0, FAST,        700, 7, CLR_CYAN),
-DRGN_ARMR("ooze dragon scales",        0, ACID_RES,  700, 7, CLR_BRIGHT_GREEN),
-DRGN_ARMR("filth dragon scales",       0, SICK_RES,    700, 7, CLR_BROWN),
-DRGN_ARMR("hex dragon scales",         0, ANTIMAGIC,   700, 7, CLR_BRIGHT_BLUE),
-DRGN_ARMR("void dragon scales",        0, DISINT_RES,  700, 7, CLR_MAGENTA),
-DRGN_ARMR("yellow dragon scales",      0, ACID_RES,    700, 7, CLR_YELLOW),
+   magical properties but are produced "naturally"
+   Slice: reclassified as "magic" as they can be produced randomly
+   and so could be polypiled for. (This is also more consistent with
+   unicorn horns.)
+   */
+DRGN_SCALES_R("gray dragon scales",        ANTIMAGIC,    CLR_GRAY),
+DRGN_SCALES_R("silver dragon scales",      REFLECTING,   DRAGON_SILVER),
+DRGN_SCALES_R("shimmering dragon scales",  DISPLACED,    CLR_CYAN),
+DRGN_SCALES_C("red dragon scales",         FIRE_RES,     CLR_RED),
+DRGN_SCALES_C("white dragon scales",       COLD_RES,     CLR_WHITE),
+DRGN_SCALES_C("orange dragon scales",      SLEEP_RES,    CLR_ORANGE),
+DRGN_SCALES_R("purple dragon scales",      SONIC_RES,    CLR_BRIGHT_MAGENTA),
+DRGN_SCALES_R("black dragon scales",       DISINT_RES,   CLR_BLACK),
+DRGN_SCALES_C("blue dragon scales",        SHOCK_RES,    CLR_BLUE),
+DRGN_SCALES_C("green dragon scales",       POISON_RES,   CLR_GREEN),
+DRGN_SCALES_H("razor dragon scales",       FAST,         CLR_CYAN),
+DRGN_SCALES_H("ooze dragon scales",        ACID_RES,     CLR_BRIGHT_GREEN),
+DRGN_SCALES_H("filth dragon scales",       SICK_RES,     CLR_BROWN),
+DRGN_SCALES_H("hex dragon scales",         ANTIMAGIC,    CLR_BRIGHT_BLUE),
+DRGN_SCALES_N("void dragon scales",        DISINT_RES,   CLR_MAGENTA),
+DRGN_SCALES_R("yellow dragon scales",      ACID_RES,     CLR_YELLOW),
 #undef DRGN_ARMR
 /* other suits */
 ARMOR("plate mail", None,

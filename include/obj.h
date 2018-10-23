@@ -215,25 +215,28 @@ struct obj {
 #define any_quest_artifact(o) ((o)->oartifact >= ART_ORB_OF_DETECTION)
 
 /* Armor */
+#define is_multislot(otmp)       \
+    (otmp->oclass == ARMOR_CLASS \
+     && (popcount(objects[otmp->otyp].oc_armcat) > 1))
 #define is_shield(otmp)          \
     (otmp->oclass == ARMOR_CLASS \
-     && objects[otmp->otyp].oc_armcat == ARM_SHIELD)
+     && objects[otmp->otyp].oc_armcat & ARM_SHIELD)
 #define is_helmet(otmp) \
-    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_HELM)
+    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat & ARM_HELM)
 #define is_boots(otmp)           \
     (otmp->oclass == ARMOR_CLASS \
-     && objects[otmp->otyp].oc_armcat == ARM_BOOTS)
+     && objects[otmp->otyp].oc_armcat & ARM_BOOTS)
 #define is_gloves(otmp)          \
     (otmp->oclass == ARMOR_CLASS \
-     && objects[otmp->otyp].oc_armcat == ARM_GLOVES)
+     && objects[otmp->otyp].oc_armcat & ARM_GLOVES)
 #define is_cloak(otmp)           \
     (otmp->oclass == ARMOR_CLASS \
-     && objects[otmp->otyp].oc_armcat == ARM_CLOAK)
+     && objects[otmp->otyp].oc_armcat & ARM_CLOAK)
 #define is_shirt(otmp)           \
     (otmp->oclass == ARMOR_CLASS \
-     && objects[otmp->otyp].oc_armcat == ARM_SHIRT)
+     && objects[otmp->otyp].oc_armcat & ARM_SHIRT)
 #define is_suit(otmp) \
-    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_SUIT)
+    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat & ARM_SUIT)
 #define is_elven_armor(otmp)                                              \
     ((otmp)->otyp == ELVEN_HELM || (otmp)->otyp == ELVEN_CLOAK           \
      || (otmp)->otyp == ELVEN_SHIELD || (otmp)->otyp == ELVEN_BOOTS \
@@ -285,7 +288,8 @@ struct obj {
 #define Is_dragon_mail(obj)                \
     ((obj)->otyp >= GRAY_DRAGON_SCALE_MAIL \
      && (obj)->otyp <= YELLOW_DRAGON_SCALE_MAIL)
-#define Is_dragon_armor(obj) (Is_dragon_scales(obj) || Is_dragon_mail(obj))
+#define Is_dragon_armor(obj) \
+	((obj)->otyp >= GRAY_DRAGON_HELM && (obj)->otyp <= YELLOW_DRAGON_SCALES)
 #define Dragon_scales_to_pm(obj) \
     &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALES]
 #define Dragon_mail_to_pm(obj) \

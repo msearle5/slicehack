@@ -953,18 +953,29 @@ add_obj_info(winid datawin, short otyp)
     if (olet == ARMOR_CLASS) {
         /* Indexes here correspond to ARM_SHIELD, etc; not the W_* masks.
          * Expects ARM_SUIT = 0, all the way up to ARM_SHIRT = 6. */
-        const char* armorslots[] = {
+        const char *slots[] = {
             "torso", "shield", "helm", "gloves", "boots", "cloak", "shirt"
         };
-        Sprintf(buf, "%s, worn in the %s slot.",
-                (oc.oc_bulky ? "Bulky armor" : "Armor"),
-                armorslots[oc.oc_armcat]);
+        int nslots = 0;
+        int i;
+        Sprintf(buf, "%s, worn in the ",
+                (oc.oc_bulky ? "Bulky armor" : "Armor"));
+        for(i=0;i<=6;i++) {
+            if (oc.oc_armcat & 1<<i) {
+                if (nslots)
+                    Strcat(buf, " or");
+                Strcat(buf, slots[i]);
+                nslots++;
+            }
+        }
+        Strcat(buf, " slot.");
 
         OBJPUTSTR(buf);
         Sprintf(buf, "Base AC %d, magic cancellation %d.",
             oc.a_ac, oc.a_can);
         OBJPUTSTR(buf);
-        Sprintf(buf, "Takes %d turn%s to put on or remove.",
+        Sprintf(buf, "Takes %s%d turn%s to put on or remove.",
+            ((nslots > 1) && (oc.oc_delay > 1)) ? "1-" : "",
             oc.oc_delay, (oc.oc_delay == 1 ? "" : "s"));
     }
     if (olet == FOOD_CLASS) {

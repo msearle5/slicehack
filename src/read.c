@@ -1145,6 +1145,83 @@ read_protection(boolean blessed)
     return gain;
 }
 
+STATIC_OVL int
+scale_mail(otmp, msg, reverse, random, blessed)
+struct obj *otmp;
+const char *msg;
+boolean reverse;
+boolean random;
+boolean blessed;
+{
+    int slot, otyp;
+    /* dragon scales get turned into dragon scale mail (or vice versa) */
+    pline("%s %s!", Yname2(otmp), msg);
+    if (random) {
+        otmp->otyp -= GRAY_DRAGON_SCALES;
+        switch(rn2(5)) {
+            case 0: 
+                slot = W_ARM;
+                otmp->otyp += GRAY_DRAGON_SCALE_MAIL;
+                break;
+            case 1:
+                slot = W_ARMF;
+                otmp->otyp += GRAY_DRAGONHIDE_BOOTS;
+                break;
+            case 2:
+                slot = W_ARMS;
+                otmp->otyp += GRAY_DRAGON_SHIELD;
+                break;
+            case 3:
+                slot = W_ARMH;
+                otmp->otyp += GRAY_DRAGON_HELM;
+                break;
+            case 4:
+                slot = W_ARMG;
+                otmp->otyp += GRAY_DRAGONHIDE_GAUNTLETS;
+                break;
+        }
+    } else {
+        if (uarm == otmp) {
+            slot = W_ARM;
+            otyp = GRAY_DRAGON_SCALE_MAIL;
+        } else if (uarmg == otmp) {
+            slot = W_ARMG;
+            otyp = GRAY_DRAGONHIDE_GAUNTLETS;
+        } else if (uarms == otmp) {
+            slot = W_ARMS;
+            otyp = GRAY_DRAGON_SHIELD;
+        } else if (uarmh == otmp) {
+            slot = W_ARMH;
+            otyp = GRAY_DRAGON_HELM;
+        } else if (uarmf == otmp) {
+            slot = W_ARMF;
+            otyp = GRAY_DRAGONHIDE_BOOTS;
+        } else impossible("unknown slot");
+
+        /* assumes same order */
+        if (reverse)
+            otmp->otyp = armor_scales(otmp->otyp);
+        else
+            otmp->otyp += otyp - GRAY_DRAGON_SCALES;
+    }
+    setworn((struct obj *) 0, slot, FALSE);
+    if (blessed) {
+        if (rn2(5) >= otmp->spe)
+            otmp->spe++;
+        if (!otmp->blessed)
+            bless(otmp);
+    } else if (otmp->cursed)
+        uncurse(otmp);
+    otmp->known = 1;
+    if (!random)
+        setworn(otmp, slot, FALSE);
+    otmp->owt = weight(otmp);
+    if (otmp->unpaid)
+        alter_cost(otmp, 0L); /* shop bill */
+    if (reverse)
+        costly_alteration(otmp, COST_DEGRD);
+}
+
 /* scroll effects; return 1 if we use up the scroll and possibly make it
    become discovered, 0 if caller should take care of those side-effects */
 int
@@ -1226,13 +1303,20 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 pline("%s covered by a %s %s %s!", Yobjnam2(otmp, "are"),
                       scursed ? "mottled" : "shimmering",
                       hcolor(scursed ? NH_BLACK : NH_GOLDEN),
-                      scursed ? "glow"
+                      (scursed || Is_dragon_armor(otmp)) ? "glow"
                               : (is_shield(otmp) ? "layer" : "shield"));
             }
-            if (new_erodeproof && (otmp->oeroded || otmp->oeroded2)) {
-                otmp->oeroded = otmp->oeroded2 = 0;
-                pline("%s as good as new!",
-                      Yobjnam2(otmp, Blind ? "feel" : "look"));
+            if (Is_dragon_armor(otmp)) {
+                if (Is_dragon_scales(otmp))
+                    scale_mail(otmp, "merge, twist and slip off you", FALSE, TRUE, sblessed);
+                else
+                    scale_mail(otmp, "softens and separates", TRUE, FALSE, sblessed);
+            } else {
+                if (new_erodeproof && (otmp->oeroded || otmp->oeroded2)) {
+                    otmp->oeroded = otmp->oeroded2 = 0;
+                    pline("%s as good as new!",
+                          Yobjnam2(otmp, Blind ? "feel" : "look"));
+                }
             }
             if (old_erodeproof && !new_erodeproof) {
                 /* restore old_erodeproof before shop charges */
@@ -1246,11 +1330,9 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         special_armor = is_elven_armor(otmp)
                         || (Role_if(PM_WIZARD) && otmp->otyp == CORNUTHAUM);
         if (scursed)
-            same_color = (otmp->otyp == BLACK_DRAGON_SCALE_MAIL
-                          || otmp->otyp == BLACK_DRAGON_SCALES);
+            same_color = (armor_scales(otmp->otyp) == BLACK_DRAGON_SCALES);
         else
-            same_color = (otmp->otyp == SILVER_DRAGON_SCALE_MAIL
-                          || otmp->otyp == SILVER_DRAGON_SCALES
+            same_color = ((armor_scales(otmp->otyp) == SILVER_DRAGON_SCALES)
                           || otmp->otyp == SHIELD_OF_REFLECTION);
         if (Blind)
             same_color = FALSE;
@@ -1276,21 +1358,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                           ? rnd(3 - otmp->spe / 3)
                           : 1;
         if (s >= 0 && Is_dragon_scales(otmp)) {
-            /* dragon scales get turned into dragon scale mail */
-            pline("%s merges and hardens!", Yname2(otmp));
-            setworn((struct obj *) 0, W_ARM, FALSE);
-            /* assumes same order */
-            otmp->otyp += GRAY_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALES;
-            if (sblessed) {
-                otmp->spe++;
-                if (!otmp->blessed)
-                    bless(otmp);
-            } else if (otmp->cursed)
-                uncurse(otmp);
-            otmp->known = 1;
-            setworn(otmp, W_ARM, FALSE);
-            if (otmp->unpaid)
-                alter_cost(otmp, 0L); /* shop bill */
+            scale_mail(otmp, "merges and hardens", FALSE, FALSE, sblessed);
             break;
         }
         pline("%s %s%s%s%s for a %s.", Yname2(otmp),
