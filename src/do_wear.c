@@ -6,6 +6,7 @@
 /* Edited on 5/7/18 by NullCGT */
 
 #include "hack.h"
+#include <assert.h>
 
 static NEARDATA const char see_yourself[] = "see yourself";
 static NEARDATA const char unknown_type[] = "Unknown type of %s (%d)";
@@ -146,6 +147,37 @@ boolean on;
     }
 }
 
+STATIC_OVL void
+speed_item_on(otmp, slot)
+int slot;
+struct obj *otmp;
+{
+    long oldprop =
+        u.uprops[objects[otmp->otyp].oc_oprop].extrinsic & ~slot;
+
+    /* Speed boots are still better than intrinsic speed, */
+    /* though not better than potion speed */
+    if (!oldprop && !(HFast & TIMEOUT)) {
+        makeknown(otmp->otyp);
+        You_feel("yourself speed up%s.",
+                 (oldprop || HFast) ? " a bit more" : "");
+    }
+}
+
+STATIC_OVL void
+speed_item_off(otmp, slot)
+int slot;
+struct obj *otmp;
+{
+    long oldprop =
+        u.uprops[objects[otmp->otyp].oc_oprop].extrinsic & ~slot;
+
+    if (!Very_fast && !context.takeoff.cancelled_don) {
+        makeknown(otmp->otyp);
+        You_feel("yourself slow down%s.", Fast ? " a bit" : "");
+    }
+}
+
 /*
  * The Type_on() functions should be called *after* setworn().
  * The Type_off() functions call setworn() themselves.
@@ -173,13 +205,8 @@ Boots_on(VOID_ARGS)
            put on while feet are stuck) */
         break;
     case SPEED_BOOTS:
-        /* Speed boots are still better than intrinsic speed, */
-        /* though not better than potion speed */
-        if (!oldprop && !(HFast & TIMEOUT)) {
-            makeknown(uarmf->otyp);
-            You_feel("yourself speed up%s.",
-                     (oldprop || HFast) ? " a bit more" : "");
-        }
+    case RAZOR_DRAGONHIDE_BOOTS:
+        speed_item_on(uarmf, WORN_BOOTS);
         break;
     case ELVEN_BOOTS:
         toggle_stealth(uarmf, oldprop, TRUE);
@@ -198,7 +225,8 @@ Boots_on(VOID_ARGS)
         }
         break;
     default:
-        impossible(unknown_type, c_boots, uarmf->otyp);
+        if (!Is_dragon_armor(uarmf))
+            impossible(unknown_type, c_boots, uarmf->otyp);
     }
     return 0;
 }
@@ -217,10 +245,8 @@ Boots_off(VOID_ARGS)
     setworn((struct obj *) 0, W_ARMF, FALSE);
     switch (otyp) {
     case SPEED_BOOTS:
-        if (!Very_fast && !context.takeoff.cancelled_don) {
-            makeknown(otyp);
-            You_feel("yourself slow down%s.", Fast ? " a bit" : "");
-        }
+    case RAZOR_DRAGONHIDE_BOOTS:
+        speed_item_off(uarmf, WORN_BOOTS);
         break;
     case WATER_WALKING_BOOTS:
         /* check for lava since fireproofed boots make it viable */
@@ -258,7 +284,8 @@ Boots_off(VOID_ARGS)
     case CLIMBING_BOOTS:
         break;
     default:
-        impossible(unknown_type, c_boots, otyp);
+        if (!Is_dragon_armor(otmp))
+            impossible(unknown_type, c_boots, otyp);
     }
     context.takeoff.cancelled_don = FALSE;
     return 0;
@@ -399,6 +426,9 @@ Helmet_on(VOID_ARGS)
     case HELM_OF_OPAQUE_THOUGHTS:
     case EARMUFF:
         break;
+    case RAZOR_DRAGON_HELM:
+        speed_item_on(uarmh, WORN_HELMET);
+        break;
     case HELM_OF_BRILLIANCE:
         adj_abon(uarmh, uarmh->spe);
         break;
@@ -445,7 +475,8 @@ Helmet_on(VOID_ARGS)
         }
         break;
     default:
-        impossible(unknown_type, c_helmet, uarmh->otyp);
+        if (!Is_dragon_armor(uarmh))
+            impossible(unknown_type, c_helmet, uarmh->otyp);
     }
     return 0;
 }
@@ -464,6 +495,9 @@ Helmet_off(VOID_ARGS)
     case ORCISH_HELM:
     case EARMUFF:
     case HELM_OF_OPAQUE_THOUGHTS:
+        break;
+    case RAZOR_DRAGON_HELM:
+        speed_item_off(uarmh, WORN_HELMET);
         break;
     case DUNCE_CAP:
         context.botl = 1;
@@ -490,7 +524,8 @@ Helmet_off(VOID_ARGS)
         uchangealign(u.ualignbase[A_CURRENT], 2);
         break;
     default:
-        impossible(unknown_type, c_helmet, uarmh->otyp);
+        if (!Is_dragon_armor(uarmh))
+            impossible(unknown_type, c_helmet, uarmh->otyp);
     }
     setworn((struct obj *) 0, W_ARMH, FALSE);
     context.takeoff.cancelled_don = FALSE;
@@ -510,6 +545,9 @@ Gloves_on(VOID_ARGS)
     case BOXING_GLOVES:
     case ROGUES_GLOVES:
         break;
+    case RAZOR_DRAGONHIDE_GAUNTLETS:
+        speed_item_on(uarmg, WORN_GLOVES);
+        break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
             incr_itimeout(&HFumbling, rnd(20));
@@ -522,7 +560,8 @@ Gloves_on(VOID_ARGS)
         adj_abon(uarmg, uarmg->spe);
         break;
     default:
-        impossible(unknown_type, c_gloves, uarmg->otyp);
+        if (!Is_dragon_armor(uarmg))
+            impossible(unknown_type, c_gloves, uarmg->otyp);
     }
     return 0;
 }
@@ -566,6 +605,9 @@ Gloves_off(VOID_ARGS)
     case BOXING_GLOVES:
     case ROGUES_GLOVES:
         break;
+    case RAZOR_DRAGONHIDE_GAUNTLETS:
+        speed_item_off(uarmg, WORN_GLOVES);
+        break;
     case GAUNTLETS_OF_FUMBLING:
         if (!oldprop && !(HFumbling & ~TIMEOUT))
             HFumbling = EFumbling = 0;
@@ -579,7 +621,8 @@ Gloves_off(VOID_ARGS)
             adj_abon(uarmg, -uarmg->spe);
         break;
     default:
-        impossible(unknown_type, c_gloves, uarmg->otyp);
+        if (!Is_dragon_armor(uarmg))
+            impossible(unknown_type, c_gloves, uarmg->otyp);
     }
     setworn((struct obj *) 0, W_ARMG, FALSE);
     context.takeoff.cancelled_don = FALSE;
@@ -619,8 +662,12 @@ Shield_on(VOID_ARGS)
     case HIDE_SHIELD:
     case TOWER_SHIELD:
         break;
+    case RAZOR_DRAGON_SHIELD:
+        speed_item_on(uarms, WORN_SHIELD);
+        break;
     default:
-        impossible(unknown_type, c_shield, uarms->otyp);
+        if (!Is_dragon_armor(uarms))
+            impossible(unknown_type, c_shield, uarms->otyp);
     }
 
     return 0;
@@ -645,8 +692,12 @@ Shield_off(VOID_ARGS)
     case HIDE_SHIELD:
     case TOWER_SHIELD:
         break;
+    case RAZOR_DRAGON_SHIELD:
+        speed_item_off(uarms, WORN_SHIELD);
+        break;
     default:
-        impossible(unknown_type, c_shield, uarms->otyp);
+        if (!Is_dragon_armor(uarms))
+            impossible(unknown_type, c_shield, uarms->otyp);
     }
 
     setworn((struct obj *) 0, W_ARMS, FALSE);
@@ -700,12 +751,16 @@ STATIC_PTR
 int
 Armor_on(VOID_ARGS)
 {
+    if (uarm->otyp == RAZOR_DRAGON_SHIELD)
+        speed_item_on(uarm, WORN_ARMOR);
     return 0;
 }
 
 int
 Armor_off(VOID_ARGS)
 {
+    if (uarm->otyp == RAZOR_DRAGON_SHIELD)
+        speed_item_off(uarm, WORN_ARMOR);
     context.takeoff.mask &= ~W_ARM;
     setworn((struct obj *) 0, W_ARM, FALSE);
     context.takeoff.cancelled_don = FALSE;
@@ -718,6 +773,8 @@ Armor_off(VOID_ARGS)
 int
 Armor_gone()
 {
+    if (uarm->otyp == RAZOR_DRAGON_SHIELD)
+        speed_item_off(uarm, WORN_ARMOR);
     context.takeoff.mask &= ~W_ARM;
     setnotworn(uarm);
     context.takeoff.cancelled_don = FALSE;
@@ -1620,6 +1677,19 @@ register struct obj *otmp;
     return 0;
 }
 
+/* Multislot items should take different amounts of time depending on
+ * which slot they are worn in
+ */
+STATIC_OVL int
+multislot_delay(otmp)
+struct obj *otmp;
+{
+    if ((uarmg == otmp) || (uarmf == otmp)) return -2;
+    else if (uarms == otmp) return -3;
+    else if (uarm != otmp) return -1;
+    return objects[otmp->otyp].oc_delay;
+}
+
 int
 armoroff(otmp)
 register struct obj *otmp;
@@ -1629,21 +1699,26 @@ register struct obj *otmp;
     if (cursed(otmp))
         return 0;
     if (delay) {
+        if (is_multislot(otmp)) delay = multislot_delay(otmp);
         nomul(delay);
         multi_reason = "disrobing";
-        if (is_helmet(otmp)) {
+        if (uarmh == otmp) {
             /* ick... */
             nomovemsg = !strcmp(helm_simple_name(otmp), "hat")
                             ? "You finish taking off your hat."
                             : "You finish taking off your helmet.";
             afternmv = Helmet_off;
-        } else if (is_gloves(otmp)) {
+        } else if (uarmg == otmp) {
             nomovemsg = "You finish taking off your gloves.";
             afternmv = Gloves_off;
-        } else if (is_boots(otmp)) {
+        } else if (uarmf == otmp) {
             nomovemsg = "You finish taking off your boots.";
             afternmv = Boots_off;
+        } else if (uarms == otmp) {
+            nomovemsg = "You finish taking off your shield.";
+            afternmv = Shield_off;
         } else {
+            assert(uarm == otmp);
             nomovemsg = "You finish taking off your suit.";
             afternmv = Armor_off;
         }
@@ -1691,6 +1766,54 @@ const char *cc1, *cc2;
     You_cant("wear %s because you're wearing %s there already.", cc1, cc2);
 }
 
+/* Returns the dragon scales associated with this piece of dragon armor,
+ * or -1 if it is not dragonware.
+ */
+int
+armor_scales(armor)
+int armor;
+{
+    int scales = -1;
+    int base = -1;
+    if ((armor >= GRAY_DRAGON_SCALES) && (armor <= YELLOW_DRAGON_SCALES))
+        base = GRAY_DRAGON_SCALES;
+    else if ((armor >= GRAY_DRAGON_SCALE_MAIL) && (armor <= YELLOW_DRAGON_SCALE_MAIL))
+        base = GRAY_DRAGON_SCALE_MAIL;
+    else if ((armor >= GRAY_DRAGON_SHIELD) && (armor <= YELLOW_DRAGON_SHIELD))
+        base = GRAY_DRAGON_SHIELD;
+    else if ((armor >= GRAY_DRAGON_HELM) && (armor <= YELLOW_DRAGON_HELM))
+        base = GRAY_DRAGON_HELM;
+    else if ((armor >= GRAY_DRAGONHIDE_BOOTS) && (armor <= YELLOW_DRAGONHIDE_BOOTS))
+        base = GRAY_DRAGONHIDE_BOOTS;
+    else if ((armor >= GRAY_DRAGONHIDE_GAUNTLETS) && (armor <= YELLOW_DRAGONHIDE_GAUNTLETS))
+        base = GRAY_DRAGONHIDE_GAUNTLETS;
+    if (base >= 0)
+        scales = (armor - base) + GRAY_DRAGON_SCALES;
+    return scales;
+}
+
+/* True if the item is "greater" dragon armor */
+boolean
+greater_armor(otmp)
+struct obj *otmp;
+{
+    int armor = armor_scales(otmp->otyp);
+    switch(armor) {
+        case GRAY_DRAGON_SCALES:
+        case SILVER_DRAGON_SCALES:
+        case SHIMMERING_DRAGON_SCALES:
+        case PURPLE_DRAGON_SCALES:
+        case BLACK_DRAGON_SCALES:
+        case RAZOR_DRAGON_SCALES:
+        case OOZE_DRAGON_SCALES:
+        case FILTH_DRAGON_SCALES:
+        case HEX_DRAGON_SCALES:
+        case VOID_DRAGON_SCALES:
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /*
  * canwearobj checks to see whether the player can wear a piece of armor
  *
@@ -1706,6 +1829,13 @@ boolean noisy;
 {
     int err = 0;
     const char *which;
+    boolean cloak = is_cloak(otmp);
+    boolean shirt = is_shirt(otmp);
+    boolean suit = is_suit(otmp);
+    boolean helmet = is_helmet(otmp);
+    boolean shield = is_shield(otmp);
+    boolean boots = is_boots(otmp);
+    boolean gloves = is_gloves(otmp);
 
     /* this is the same check as for 'W' (dowear), but different message,
        in case we get here via 'P' (doputon) */
@@ -1715,11 +1845,38 @@ boolean noisy;
         return 0;
     }
 
-    which = is_cloak(otmp)
+    /* If the armor can be worn in more than one slot, pick one.
+     * The order matters - body armor is first because that's the
+     * original use or dragon scales, cloak and shirt last because
+     * dragon scales can't be used there (though some future armor
+     * might) and shirt last also because you are likely not to be
+     * wearing one and the others are in the order you are most
+     * likely to want them (though this is fairly arbitrary).
+     **/
+    if (is_multislot(otmp)) {
+        if ((!uarm) && (suit))
+            cloak = shirt = helmet = shield = boots = gloves = FALSE;
+        else if ((!uarms) && (shield))
+            cloak = shirt = helmet = suit = boots = gloves = FALSE;
+        else if ((!uarmh) && (helmet))
+            shield = shirt = boots = suit = gloves = cloak = FALSE;
+        else if ((!uarmf) && (boots))
+            shield = shirt = helmet = suit = gloves = cloak = FALSE;
+        else if ((!uarmg) && (gloves))
+            shield = shirt = helmet = suit = boots = cloak = FALSE;
+        else if ((!uarmc) && (cloak))
+            shield = shirt = helmet = suit = boots = gloves = FALSE;
+        else if ((!uarmu) && (shirt))
+            shield = helmet = boots = suit = gloves = cloak = FALSE;
+        else
+            shield = helmet = boots = suit = gloves = cloak = shirt = FALSE;
+    }
+
+    which = cloak
                 ? c_cloak
-                : is_shirt(otmp)
+                : shirt
                     ? c_shirt
-                    : is_suit(otmp)
+                    : suit
                         ? c_suit
                         : 0;
     if (which && cantweararm(youmonst.data)
@@ -1735,14 +1892,14 @@ boolean noisy;
         return 0;
     }
 
-    if (welded(uwep) && bimanual(uwep) && (is_suit(otmp) || is_shirt(otmp))) {
+    if (welded(uwep) && bimanual(uwep) && (suit || shirt)) {
         if (noisy)
             You("cannot do that while holding your %s.",
                 is_sword(uwep) ? c_sword : c_weapon);
         return 0;
     }
 
-    if (is_helmet(otmp)) {
+    if (helmet) {
         if (uarmh) {
             if (noisy)
                 already_wearing(an(helm_simple_name(uarmh)));
@@ -1756,7 +1913,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMH;
-    } else if (is_shield(otmp)) {
+    } else if (shield) {
         if (uarms) {
             if (noisy)
                 already_wearing(an(c_shield));
@@ -1774,7 +1931,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMS;
-    } else if (is_boots(otmp)) {
+    } else if (boots) {
         if (uarmf) {
             if (noisy)
                 already_wearing(c_boots);
@@ -1810,7 +1967,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMF;
-    } else if (is_gloves(otmp)) {
+    } else if (gloves) {
         if (uarmg) {
             if (noisy)
                 already_wearing(c_gloves);
@@ -1822,7 +1979,7 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMG;
-    } else if (is_shirt(otmp)) {
+    } else if (shirt) {
         if (uarm || uarmc || uarmu) {
             if (uarmu) {
                 if (noisy)
@@ -1836,14 +1993,14 @@ boolean noisy;
             err++;
         } else
             *mask = W_ARMU;
-    } else if (is_cloak(otmp)) {
+    } else if (cloak) {
         if (uarmc) {
             if (noisy)
                 already_wearing(an(cloak_simple_name(uarmc)));
             err++;
         } else
             *mask = W_ARMC;
-    } else if (is_suit(otmp)) {
+    } else if (suit) {
         if (uarmc) {
             if (noisy)
                 You("cannot wear armor over a %s.", cloak_simple_name(uarmc));
@@ -1851,11 +2008,6 @@ boolean noisy;
         } else if (uarm) {
             if (noisy)
                 already_wearing("some armor");
-            err++;
-        } else if (Role_if(PM_DRAGONMASTER) &&
-                   (Is_dragon_scales(otmp) || Is_dragon_mail(otmp))) {
-            if (noisy)
-                You("are disgusted by the thought of wearing the skin of those that raised you!");
             err++;
         } else
             *mask = W_ARM;
@@ -1866,6 +2018,47 @@ boolean noisy;
         if (noisy)
             silly_thing("wear", otmp);
         err++;
+    }
+
+    if ((!err) && (Is_dragon_armor(otmp))) {
+        /* Dragon armor rules:
+         * You can wear only one 'rare' color of dragon armor at any time.
+         */
+        if (Role_if(PM_DRAGONMASTER)) {
+            if (noisy)
+                You("are disgusted by the thought of wearing the skin of those that raised you!");
+            err++;
+        } else if (greater_armor(otmp)) {
+            struct obj *arm[7];
+            struct obj *vibarm;
+            int i;
+            boolean ok = TRUE;
+            arm[0] = uarm;
+            arm[1] = uarmc;
+            arm[2] = uarms;
+            arm[3] = uarmf;
+            arm[4] = uarmg;
+            arm[5] = uarmu;
+            arm[6] = uarmh;
+            for(i=0;i<7;i++) {
+                if (arm[i]) {
+                    if (greater_armor(arm[i])) {
+                        if (armor_scales(arm[i]->otyp) != armor_scales(otmp->otyp)) {
+                            vibarm = arm[i];
+                            ok = FALSE;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!ok) {
+                if (noisy) {
+                    Your("%s %s, and it somehow refuses to be worn!",
+                        xname(vibarm), Deaf ? "vibrates strangely" : "screeches horribly");
+                }
+                err++;
+            }
+        }
     }
     /* Unnecessary since now only weapons and special items like pick-axes get
      * welded to your hand, not armor
@@ -2030,24 +2223,26 @@ struct obj *obj;
             remove_worn_item(obj, FALSE);
         setworn(obj, mask, FALSE);
         delay = -objects[obj->otyp].oc_delay;
+        if (is_multislot(obj))
+            delay = multislot_delay(obj);
         if (delay) {
             nomul(delay);
             multi_reason = "dressing up";
-            if (is_boots(obj))
+            if (obj == uarmf)
                 afternmv = Boots_on;
-            if (is_helmet(obj))
+            if (obj == uarmh)
                 afternmv = Helmet_on;
-            if (is_gloves(obj))
+            if (obj == uarmg)
                 afternmv = Gloves_on;
             if (obj == uarm)
                 afternmv = Armor_on;
             nomovemsg = "You finish your dressing maneuver.";
         } else {
-            if (is_cloak(obj))
+            if (obj == uarmc)
                 (void) Cloak_on();
-            if (is_shield(obj))
+            if (obj == uarms)
                 (void) Shield_on();
-            if (is_shirt(obj))
+            if (obj == uarmu)
                 (void) Shirt_on();
             on_msg(obj);
         }

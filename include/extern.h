@@ -483,6 +483,8 @@ E int NDECL(dowear);
 E int NDECL(doputon);
 E void NDECL(find_ac);
 E void NDECL(glibr);
+E int FDECL(armor_scales, (int));
+E boolean FDECL(greater_armor, (struct obj *));
 E struct obj *FDECL(some_armor, (struct monst *));
 E struct obj *FDECL(stuck_ring, (struct obj *, int));
 E struct obj *NDECL(unchanger);
@@ -907,6 +909,7 @@ E long FDECL(money_cnt, (struct obj *));
 
 /* ### hacklib.c ### */
 
+E unsigned FDECL(popcount, (unsigned));
 E boolean FDECL(digit, (CHAR_P));
 E boolean FDECL(letter, (CHAR_P));
 E char FDECL(highc, (CHAR_P));

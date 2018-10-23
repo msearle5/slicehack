@@ -7,6 +7,7 @@
 
 #include "hack.h"
 #include <ctype.h>
+#include <assert.h>
 
 /* "an uncursed greased partly eaten guardian naga hatchling [corpse]" */
 #define PREFIX 80 /* (56) */
@@ -1627,9 +1628,24 @@ unsigned doname_flags;
         if (obj->otyp != GORGET) break;
         /*FALLTHRU*/
     case ARMOR_CLASS:
-        if (obj->owornmask & W_ARMOR)
-            Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
+        if (obj->owornmask & W_ARMOR) {
+            if (is_multislot(obj)) {
+                const char *armor = NULL;
+                Strcat(bp, " (worn as ");
+                if (obj == uarm) armor = "armor";
+                else if (obj == uarms) armor = "a shield";
+                else if (obj == uarmg) armor = "gloves";
+                else if (obj == uarmf) armor = "boots";
+                else if (obj == uarmu) armor = "a shirt";
+                else if (obj == uarmc) armor = "a cloak";
+                else if (obj == uarmh) armor = "a helm";
+                assert(armor);
+                Strcat(bp, armor);
+                Strcat(bp, ")");
+            } else
+                Strcat(bp, (obj == uskin) ? " (embedded in your skin)"
                                       : " (being worn)");
+        }
         /*FALLTHRU*/
     case WEAPON_CLASS:
         if (ispoisoned)
@@ -4568,6 +4584,17 @@ typfnd:
             if (mntmp >= PM_GRAY_DRAGON && mntmp <= PM_YELLOW_DRAGON)
                 otmp->otyp = GRAY_DRAGON_SCALE_MAIL + mntmp - PM_GRAY_DRAGON;
             break;
+        default:
+            if (mntmp >= PM_GRAY_DRAGON && mntmp <= PM_YELLOW_DRAGON) {
+                if (strstr(bp, "helm"))
+                    otmp->otyp = GRAY_DRAGON_HELM + mntmp - PM_GRAY_DRAGON;
+                else if (strstr(bp, "shield"))
+                    otmp->otyp = GRAY_DRAGON_SHIELD + mntmp - PM_GRAY_DRAGON;
+                else if (strstr(bp, "boot"))
+                    otmp->otyp = GRAY_DRAGONHIDE_BOOTS + mntmp - PM_GRAY_DRAGON;
+                else if (strstr(bp, "gauntlet") || strstr(bp, "glove"))
+                    otmp->otyp = GRAY_DRAGONHIDE_GAUNTLETS + mntmp - PM_GRAY_DRAGON;
+            }
         }
     }
 

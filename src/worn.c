@@ -1002,7 +1002,7 @@ struct obj *obj;
      * get to use more armor abilities
      */
     if (obj) {
-        if (obj->otyp == SPEED_BOOTS && mon->permspeed != MFAST)
+        if ((mon->permspeed != MFAST) && (obj->otyp == SPEED_BOOTS || (Is_dragon_armor(obj) && (armor_scales(obj->otyp) == RAZOR_DRAGON_SCALES))))
             return 20;
     }
     return 0;
