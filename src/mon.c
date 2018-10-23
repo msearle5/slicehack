@@ -2487,9 +2487,9 @@ boolean was_swallowed; /* digestion */
             You_hear("the slithering of many bodies.");
         }
         if (mdat == &mons[PM_WORM_THAT_WALKS])
-            create_critters(rnd(10), &mons[PM_DEATH_MAGGOT], TRUE);
+            create_critters(d(5,2), &mons[PM_DEATH_MAGGOT], TRUE);
         else
-            create_critters(rnd(20), &mons[PM_DEATH_MAGGOT], TRUE);
+            create_critters(d(7,3), &mons[PM_DEATH_MAGGOT], TRUE);
         return FALSE;
     }
     /* A fusion elemental dissolves into elementals */
