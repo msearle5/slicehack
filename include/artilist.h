@@ -259,7 +259,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      */
     A("Grimtooth", ORCISH_DAGGER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2),
       0, M2_ELF, PHYS(2, 6), NO_DFNS,
-      NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ORC, 300L, CLR_RED),
+      NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ORC, 1000L, CLR_RED),
     /*
      *      Orcrist and Sting have same alignment as elves.
      *
@@ -290,33 +290,33 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR),
 
     A("Dragonbane", BROADSWORD,
-      (SPFX_RESTR | SPFX_DCLAS | SPFX_REFLECT), 0, S_DRAGON,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
-      NO_COLOR),
+      (SPFX_WARN | SPFX_RESTR | SPFX_DCLAS | SPFX_REFLECT), 0, S_DRAGON,
+      PHYS(8,20), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 2500L,
+      CLR_GREEN),
 
-    A("Demonbane", LONG_SWORD, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_DEMON,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 2500L,
-      NO_COLOR),
+    A("Demonbane", LONG_SWORD, (SPFX_WARN | SPFX_RESTR | SPFX_DFLAG2), 0, M2_DEMON,
+      PHYS(8,20), DRLI(0,0), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 2750L,
+      CLR_RED),
 
-    A("Werebane", SABER, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_WERE,
-      PHYS(5, 0), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
-      NO_COLOR),
+    A("Werebane", SABER, (SPFX_WARN | SPFX_RESTR | SPFX_DFLAG2), 0, M2_WERE,
+      PHYS(8,20), DFNS(AD_WERE), NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1750L,
+      CLR_RED),
 
     A("Grayswandir", SABER, (SPFX_RESTR | SPFX_HALRES), 0, 0,
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 8000L,
       NO_COLOR),
 
-    A("Giantslayer", LONG_SWORD, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_GIANT,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 200L,
-      NO_COLOR),
+    A("Giantslayer", LONG_SWORD, (SPFX_WARN | SPFX_RESTR | SPFX_DFLAG2), 0, M2_GIANT,
+      PHYS(8,20), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 1200L,
+      CLR_BRIGHT_BLUE),
 
-    A("Ogresmasher", WAR_HAMMER, (SPFX_RESTR | SPFX_DCLAS), 0, S_OGRE,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 200L,
-      NO_COLOR),
+    A("Ogresmasher", WAR_HAMMER, (SPFX_WARN | SPFX_RESTR | SPFX_DCLAS), 0, S_OGRE,
+      PHYS(8,20), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L,
+      CLR_BRIGHT_BLUE),
 
-    A("Trollsbane", MORNING_STAR, (SPFX_RESTR | SPFX_DCLAS), 0, S_TROLL,
-      PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 200L,
-      NO_COLOR),
+    A("Trollsbane", MORNING_STAR, (SPFX_WARN | SPFX_RESTR | SPFX_DCLAS), 0, S_TROLL,
+      PHYS(8,20), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 2000L,
+      CLR_BRIGHT_BLUE),
     /*
      *      Two problems:  1) doesn't let trolls regenerate heads,
      *      2) doesn't give unusual message for 2-headed monsters (but
@@ -336,9 +336,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Snickersnee", KATANA, SPFX_RESTR, 0, 0, PHYS(0, 8), NO_DFNS, NO_CARY,
       0, A_LAWFUL, PM_SAMURAI, NON_PM, 1200L, NO_COLOR),
 
-    A("Sunsword", LONG_SWORD, (SPFX_RESTR | SPFX_DFLAG2), 0, M2_UNDEAD,
-      PHYS(5, 0), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 1500L,
-      NO_COLOR),
+    A("Sunsword", LONG_SWORD, (SPFX_BLIND | SPFX_WARN | SPFX_RESTR | SPFX_DFLAG2), 0, M2_UNDEAD,
+      PHYS(8,12), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 1800L,
+      CLR_WHITE),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.

@@ -995,8 +995,11 @@ int dieroll;
 
                 if (obj->oartifact
                     && artifact_hit(&youmonst, mon, obj, &tmp, dieroll)) {
-                    if (DEADMONSTER(mon)) /* artifact killed monster */
+                    if (DEADMONSTER(mon)) { /* artifact killed monster */
+                        /* so that makecorpstat can mark the corpse as norevive */
+                        mon->m_ap_type = 1;
                         return FALSE;
+                    }
                     if (tmp == 0)
                         return TRUE;
                     hittxt = TRUE;
@@ -1369,7 +1372,7 @@ int dieroll;
             You_feel("like an evil coward for using a poisoned weapon.");
             adjalign(-1);
         }
-        if (obj && !rn2(nopoison)) {
+        if (obj && !obj->oartifact && !rn2(nopoison)) {
             /* remove poison now in case obj ends up in a bones file */
             obj->opoisoned = FALSE;
             /* defer "obj is no longer poisoned" until after hit message */
@@ -1453,8 +1456,13 @@ int dieroll;
        a level draining artifact has already done to max HP */
     if (mon->mhp > mon->mhpmax)
         mon->mhp = mon->mhpmax;
-    if (DEADMONSTER(mon))
+    if (DEADMONSTER(mon)) {
         destroyed = TRUE;
+        if(obj && obj->oartifact==ART_TROLLSBANE) {
+            /* so that makecorpstat can mark the corpse as norevive */
+            mon->m_ap_type=1;
+        }
+    }
     if (mon->mtame && tmp > 0) {
         /* do this even if the pet is being killed (affects revival) */
         abuse_dog(mon); /* reduces tameness */
@@ -1856,7 +1864,8 @@ register struct attack *mattk;
 
     if (is_demon(youmonst.data) && !rn2(13) && !uwep
         && u.umonnum != PM_SUCCUBUS && u.umonnum != PM_INCUBUS
-        && u.umonnum != PM_BALROG) {
+        && u.umonnum != PM_BALROG
+        && (!MON_WEP(mdef) || MON_WEP(mdef)->oartifact!=ART_DEMONBANE) ) {
         demonpet();
         return 0;
     }

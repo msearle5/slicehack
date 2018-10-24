@@ -1250,8 +1250,15 @@ see_monsters()
         newsym(mon->mx, mon->my);
         if (mon->wormno)
             see_wsegs(mon);
-        if (Warn_of_mon && (context.warntype.obj & mon->data->mflags2) != 0L)
-            new_warn_obj_cnt++;
+        if (Warn_of_mon) {
+            if (context.warntype.obj & 0x80000000) {
+                if ((context.warntype.obj & ~0x80000000) == mon->data->mlet)
+                    new_warn_obj_cnt++;
+            } else {
+                if ((context.warntype.obj & mon->data->mflags2) != 0L)
+                    new_warn_obj_cnt++;
+            }
+        }
     }
     /*
      * Make Sting glow blue or stop glowing if required.
