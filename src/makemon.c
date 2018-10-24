@@ -1931,6 +1931,9 @@ rndmonst()
             rndmonst_state.mchoices[mndx] = 0;
             if (tooweak(mndx, minmlev) || toostrong(mndx, maxmlev))
                 continue;
+            /* Baby dragons get much less common when adult dragons come into level */
+            if ((is_baby_dragon(ptr)) && (maxmlev >= 15) && (rn2(maxmlev-13)))
+                continue;
             if (upper && !isupper((uchar) def_monsyms[(int) ptr->mlet].sym))
                 continue;
             if (elemlevel && wrong_elem_type(ptr))
