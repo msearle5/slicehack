@@ -2314,9 +2314,16 @@ int final;
         you_are("warned", from_what(WARNING));
     if (Warn_of_mon && context.warntype.obj) {
         Sprintf(buf, "aware of the presence of %s",
-                (context.warntype.obj & M2_ORC) ? "orcs"
-                : (context.warntype.obj & M2_ELF) ? "elves"
-                : (context.warntype.obj & M2_DEMON) ? "demons" : something);
+            (context.warntype.obj==(0x80000000|S_OGRE)) ? "ogres" :
+            (context.warntype.obj==(0x80000000|S_TROLL)) ? "trolls" :
+            (context.warntype.obj==(0x80000000|S_DRAGON)) ? "dragons" :
+            (context.warntype.obj & M2_ORC) ? "orcs" :
+            (context.warntype.obj & M2_ELF) ? "elves" :
+            (context.warntype.obj & M2_DEMON) ? "demons" :
+            (context.warntype.obj & M2_WERE) ? "lycanthropes" :
+            (context.warntype.obj & M2_GIANT) ? "giants" :
+            (context.warntype.obj & M2_UNDEAD) ? "undead" :
+            "something");
         you_are(buf, from_what(WARN_OF_MON));
     }
     if (Warn_of_mon && context.warntype.polyd) {

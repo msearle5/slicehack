@@ -685,7 +685,8 @@ register struct monst *mtmp;
     /*  Special demon handling code */
     if ((mtmp->cham == NON_PM) && is_demon(mdat) && !range2
         && mtmp->data != &mons[PM_BALROG] && mtmp->data != &mons[PM_SUCCUBUS]
-        && mtmp->data != &mons[PM_INCUBUS])
+        && mtmp->data != &mons[PM_INCUBUS]
+        && (!uwep || uwep->oartifact!=ART_DEMONBANE))
         if ((!mtmp->mcan && !rn2(13)) ||
              (!mtmp->mcan && !rn2(4) && mtmp->data == &mons[PM_NALZOK]))
             (void) msummon(mtmp);
