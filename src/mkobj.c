@@ -277,46 +277,64 @@ STATIC_OVL void
 mkbox_cnts(box)
 struct obj *box;
 {
-    register int n;
+    register int n, maxn;
     register struct obj *otmp;
     int minn = 0;
+    int iclass = -1;
+    boolean theme = FALSE;
 
     box->cobj = (struct obj *) 0;
 
     switch (box->otyp) {
-    case MEDICAL_KIT:	n = 60;
+    case MEDICAL_KIT:	maxn = 60;
   				/* Initial inventory, no empty medical kits */
   				if (moves <= 1 && !in_mklev) minn = 1;
   				break;
     case ICE_BOX:
-        n = 20;
+        maxn = 20;
         break;
     case CHEST:
-        n = box->olocked ? 7 : 5;
+        maxn = box->olocked ? 7 : 4;
+        theme = TRUE;
         break;
     case LARGE_BOX:
-        n = box->olocked ? 5 : 3;
+        maxn = box->olocked ? 5 : 2;
+        theme = TRUE;
         break;
     case SACK:
     case OILSKIN_SACK:
         /* initial inventory: sack starts out empty */
         if (moves <= 1 && !in_mklev) {
-            n = 0;
+            maxn = 0;
             break;
         }
         /*FALLTHRU*/
     case BAG_OF_HOLDING:
-        n = 1;
+        maxn = 1;
         break;
     case MAGIC_CHEST:
-		n = 5; // FIXME
+		maxn = 5; // FIXME
 		break;
     default:
-        n = 0;
+        maxn = 0;
         break;
     }
 
-    for (n = max(minn, rn2(n + 1)); n > 0; n--) {
+    n = max(minn, rn2(maxn + 1));
+    if (maxn > 1) {
+        if (box->otrapped)
+            n = max(n, rn2(maxn));
+        if ((box->olocked) && (n == 0))
+            n = max(n, rn2(maxn + 1));
+    }
+    while ((maxn > 1) && (n == maxn)) {
+        maxn *= 2;
+        n = max(minn, rn2(maxn + 1));
+    }
+    if (rn2(10) <= (max(n - 3, 5)))
+        theme = FALSE;
+
+    for (; n > 0; n--) {
       if (box->otyp == MEDICAL_KIT) {
           int supplies[] = { PHIAL, BANDAGE, PILL };
           if (!(otmp = mksobj(supplies[rn2(SIZE(supplies))], TRUE, TRUE)))
@@ -336,9 +354,12 @@ struct obj *box;
             register int tprob;
             const struct icp *iprobs = boxiprobs;
 
-            for (tprob = rnd(100); (tprob -= iprobs->iprob) > 0; iprobs++)
-                ;
-            if (!(otmp = mkobj(iprobs->iclass, TRUE)))
+            if ((iclass < 0) || (!theme)) {
+                for (tprob = rnd(100); (tprob -= iprobs->iprob) > 0; iprobs++)
+                    ;
+                iclass = iprobs->iclass;
+            }
+            if (!(otmp = mkobj(iclass, TRUE)))
                 continue;
 
             /* handle a couple of special cases */
@@ -346,6 +367,7 @@ struct obj *box;
                 /* 2.5 x level's usual amount; weight adjusted below */
                 otmp->quan = (long) (rnd(level_difficulty() + 2) * rnd(75));
                 otmp->owt = weight(otmp);
+                theme = FALSE;
             } else
                 while (otmp->otyp == ROCK) {
                     otmp->otyp = rnd_class(DILITHIUM_CRYSTAL, LOADSTONE);
