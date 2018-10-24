@@ -369,6 +369,7 @@ nemean lion
 
 # Monty Python
 killer bunny
+black knight
 
 # The Princess Bride
 rodent of unusual size
@@ -382,6 +383,12 @@ were-rabbit
 # Discworld
 Luggage
 vampiric watermelon
+wizzard
+
+# Homestar runner
+Trogdor the Burninator
+
+Leeroy Jenkins
 
 # Lord of the Rings
 Ent

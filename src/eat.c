@@ -1799,6 +1799,10 @@ struct obj *otmp;
         pline("This tastes just like chicken!");
     } else if (mnum == PM_FLOATING_EYE && u.umonnum == PM_RAVEN) {
         You("peck the eyeball with delight.");
+    } else if (is_vampire(youmonst.data) && !vegetarian(&mons[mnum])) {
+        pline("The %s still has some %sblood in it!",
+            food_xname(otmp, FALSE),
+            (rotted<1)?"fresh ":(rotted<2)?"":"stale ");
     } else {
         /* yummy is always False for omnivores, palatable always True */
         boolean yummy = (vegan(&mons[mnum])
