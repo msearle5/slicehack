@@ -1222,6 +1222,36 @@ boolean blessed;
         costly_alteration(otmp, COST_DEGRD);
 }
 
+STATIC_OVL struct obj *
+warp_polymorph(obj)
+struct obj *obj;
+{
+    char buf[BUFSZ];
+    const char *effect;
+    short save_otyp = obj->otyp;
+    Strcpy(buf, Yobjnam2(obj, "glow"));
+    
+    if (!(obj == uball || obj == uskin || obj_resists(obj, 5, 95))) {
+        /* KMH, conduct */
+        if(!u.uconduct.polypiles++)
+            livelog_printf(LL_CONDUCT, "polymorphed %s first item", uhis());
+
+        obj = poly_obj(obj, STRANGE_OBJECT);
+    }
+
+    /* obj must be a weapon or armor, so not an amulet of change */
+    if (!obj) {
+        effect = " and dissolves!";
+    } else if (obj->otyp != save_otyp) {
+        effect = ", and it warps...";
+    } else {
+        effect = ", which fades without apparent effect.";
+    }
+
+    pline("%s with multi-hued light%s", buf, effect);
+    return obj;
+}
+
 /* scroll effects; return 1 if we use up the scroll and possibly make it
    become discovered, 0 if caller should take care of those side-effects */
 int
@@ -1916,7 +1946,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
     case SCR_WARP_WEAPON:
         if (!uwep)
             sobj = 0; /* nothing enchanted: strange_feeling -> useup */
-        else if (confused || scursed) {
+        else if (scursed) {
             pline("%s with a sickly green light!", Yobjnam2(uwep, "glow"));
             curse(uwep);
             uwep->oerodeproof = 0;
@@ -1925,6 +1955,8 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 costly_alteration(uwep, COST_DRAIN);
             } else
                 warp_material(uwep, TRUE);
+        } else if (confused) {
+            warp_polymorph(uwep);
         } else {
             if (sblessed)
                 bless(uwep);
@@ -1941,7 +1973,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             exercise(A_STR, !scursed);
             break;
         }
-        if (confused || scursed) {
+        if (scursed) {
             pline("%s with a sickly green light!", Yobjnam2(otmp, "glow"));
             curse(otmp);
             otmp->oerodeproof = 0;
@@ -1951,6 +1983,8 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             } else
                 warp_material(otmp, TRUE);
             break;
+        } else if (confused) {
+            warp_polymorph(otmp);
         } else {
             if (sblessed)
                 bless(otmp);
