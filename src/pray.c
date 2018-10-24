@@ -1889,8 +1889,8 @@ dosacrifice()
                 /* super big win */
                 adjalign(10);
                 u.uachieve.ascended = 1;
-                pline(
-               "An invisible choir sings, and you are bathed in radiance...");
+                pline("%s sings, and you are bathed in radiance...",
+                    Hallucination?"The fat lady":"An invisible choir");
                 godvoice(altaralign, "Mortal, thou hast done well!");
                 display_nhwindow(WIN_MESSAGE, FALSE);
                 verbalize(
