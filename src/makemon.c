@@ -1658,8 +1658,14 @@ int mmflags;
     } else if (ptr->msound == MS_NEMESIS) {
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {
+        register struct obj *otmp;
         mitem = POT_SICKNESS;
         (void) mongets(mtmp, BOW);
+        otmp = mksobj(ARROW, TRUE, FALSE);
+        otmp->quan = d(5,10);
+        otmp->owt = weight(otmp);
+        otmp->opoisoned = TRUE;
+        (void) mpickobj(mtmp, otmp);
     } else if (mndx == PM_DEATH) {
         mitem = GRAIN_SCYTHE;
     } else if (mndx == PM_FAMINE) {
