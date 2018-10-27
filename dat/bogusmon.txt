@@ -384,6 +384,7 @@ were-rabbit
 Luggage
 vampiric watermelon
 wizzard
+Eater of Socks
 
 # Homestar runner
 Trogdor the Burninator
@@ -396,6 +397,7 @@ Ent
 # Xanth
 tangle tree
 nickelpede
+quarterpede
 wiggle
 
 # Lewis Carroll
@@ -510,6 +512,11 @@ gnat swarm
 barnacle
 ferret
 
+# arcade games
+space invader
+galaxian
+gorfian
+
 # european cryptids
 wolpertinger
 elwedritsche
@@ -519,7 +526,6 @@ tatzelwurm
 dahu
 
 # fictitious beasts
-dropbear
 wild haggis
 jackalope
 flying pig
@@ -624,6 +630,9 @@ bold face
 boustrophedon
 ligature
 rebus
+octothorpe
+commercial at
+em-dash
 
 # Their actual character
 apostrophe golem
@@ -661,6 +670,7 @@ MissingNo
 =Test0
 corrupted cream pie
 glitch
+line noise
 
 # South Park
 manbearpig
@@ -731,6 +741,11 @@ ghoti
 # Roald Dahl
 vermicious knid
 
+# Muppets
+muppet
+Kermit
+Oscar the Grouch
+
 # Carcassonne
 meeple
 
@@ -781,35 +796,37 @@ blue dragoon
 beer wight
 boor wight
 brawny mold
-rave spider
+bust vortex
 clockatrice
 clod giant
 clue golem
 cockathrice
-bust vortex
 ear piercer
 errata elemental
 elastic eel
 electrocardiogram eel
-fir elemental
 tire elemental
-flamingo sphere
 fallacy golem
-frizzed centaur
-forest centerfold
+feather golem
 fierceness sphere
+fir elemental
+flamingo sphere
+floor piercer
+forest centerfold
+frizzed centaur
 frosted giant
 geriatric snake
 gnat ant
 giant bath
-grant beetle
-grind bug
 giant mango
+grind bug
 glossy golem
 gnome laureate
 gnome dummy
 gooier ooze
 green slide
+grant beetle
+grassy gnoll
 guardian nacho
 hearth elemental
 hell hound pun
@@ -818,23 +835,24 @@ hairnet devil
 holistic sphere
 ice trowel
 killer beet
+lockatrice
 +Mefisto
-feather golem
+moldier ant
 lounge worm
 monochromatic dragon
 mountain lymph
 pager golem
 pie fiend
 prophylactic worm
+rave spider
 razor flagon
-silt golem
-sock mole
-lockatrice
 rogue piercer
 score peopn
+silt golem
+sock mole
+sock puppet
 seesawing sphere
 simile mimic
-moldier ant
 stain vortex
 scone giant
 umbrella hulk
@@ -843,6 +861,16 @@ verbal jabberwock
 waiter elemental
 water lemon
 water melon
+water sneaker
 winged grizzly
 yellow gold
 yellow wight
+zorbie
+
+# movie monsters
+xenomorph
+face-hugger
+Mothra
+Godzilla
+Forrest Gump
+
