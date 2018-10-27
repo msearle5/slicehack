@@ -67,21 +67,24 @@ pet_type()
     else if (preferred_pet == 'b')
         return PM_LITTLE_BIRD;
     else if (Role_if(PM_PIRATE)) {
-     		if (preferred_pet == 'B')
-     			  return (PM_PARROT);
-     		else if(preferred_pet == 'Y')
-     			  return PM_MONKEY;
-     		else
-     			  return (rn2(2) ? PM_PARROT : PM_MONKEY);
-    } else
-        switch(rn2(3)) {
+        if (preferred_pet == 'B')
+              return (PM_PARROT);
+        else if(preferred_pet == 'Y')
+              return PM_MONKEY;
+        else
+              return (rn2(2) ? PM_PARROT : PM_MONKEY);
+    } else {
+        switch(rn2(3+(Role_if(PM_ARCHEOLOGIST)))) {
             case 0:
                 return PM_KITTEN;
             case 1:
                 return PM_LITTLE_BIRD;
-            default:
+            case 2:
                 return PM_LITTLE_DOG;
+            default:
+                return PM_MONKEY; /* Raiders of the Lost Ark */
         }
+    }
 }
 
 struct monst *
