@@ -1606,6 +1606,7 @@ int dieroll;
                              SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
                                  | SUPPRESS_INVISIBLE | SUPPRESS_IT,
                              FALSE));
+            introduce_item(obj);
             livelog_printf(LL_ARTIFACT, "obtained Sting by killing a spider");
         }
 

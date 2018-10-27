@@ -1390,6 +1390,8 @@ const char *name;
             /* prevent any wishes for materials on an artifact */
             set_material(obj, objects[obj->otyp].oc_material);
         }
+        if (via_naming)
+            introduce_item(obj);
     }
     if (carried(obj))
         update_inventory();

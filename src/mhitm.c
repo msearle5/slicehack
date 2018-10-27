@@ -396,6 +396,7 @@ register struct monst *magr, *mdef;
             }
             possibly_unwield(magr, FALSE);
             otmp = MON_WEP(magr);
+            introduce_item(otmp);
 
             if (otmp) {
                 if (vis)

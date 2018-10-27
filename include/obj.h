@@ -109,7 +109,8 @@ struct obj {
     Bitfield(bypass, 1); /* mark this as an object to be skipped by bhito() */
     Bitfield(cknown, 1); /* contents of container assumed to be known */
     Bitfield(lknown, 1); /* locked/unlocked status is known */
-    /* 7 free bits */
+    Bitfield(introduced, 1); /* any intro ("detect block text") has been printed */
+    /* 6 free bits */
 
     int corpsenm;         /* type of corpse is mons[corpsenm] */
 #define leashmon corpsenm /* gets m_id of attached pet */
