@@ -854,7 +854,8 @@ int difficulty;
     int i;
     long packed;
     boolean retry;
-    r->difficulty = difficulty;
+    int init_difficulty, limit;
+    r->difficulty = init_difficulty = difficulty;
     
     /* First time, get the number of monsters */
     if (nmons == -1) {
@@ -882,6 +883,7 @@ int difficulty;
         monsters = 0;
         difficulty = rarity;
         bound++;
+        limit = 40;
         retry = FALSE;
 
         /* Loop until out of space or difficulty OK or too many monsters */
@@ -893,6 +895,10 @@ int difficulty;
                     continue;
                 monsters++;
             }
+            limit++;
+            /* Avoid any one item being too much of the value of the potion */
+            if (alchemy_val[id[objects]] > ((init_difficulty * limit) / 100))
+                continue;
             difficulty -= alchemy_val[id[objects]];
             objects++;
         } while ((difficulty > bound) && (objects < 4));
