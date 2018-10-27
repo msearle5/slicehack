@@ -121,6 +121,8 @@ boolean quiet;
     } else
         unweapon = TRUE; /* for "bare hands" message */
     if (!restoring) update_inventory();
+    if (obj)
+        introduce_item(obj);
 }
 
 STATIC_OVL boolean

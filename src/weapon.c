@@ -850,7 +850,8 @@ register struct monst *mon;
         mon->weapon_check = NEED_WEAPON;
         if (canseemon(mon)) {
             pline("%s wields %s%s", Monnam(mon), doname(obj),
-   		          mon->mtame ? "." : "!");
+                mon->mtame ? "." : "!");
+            introduce_item(obj);
             if (mwelded(mw_tmp)) {
                 pline("%s %s to %s %s!", Tobjnam(obj, "weld"),
                       is_plural(obj) ? "themselves" : "itself",

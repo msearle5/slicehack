@@ -54,6 +54,298 @@ STATIC_OVL xchar artidisco[NROFARTIFACTS];
 STATIC_DCL void NDECL(hack_artifacts);
 STATIC_DCL boolean FDECL(attacks, (int, struct obj *));
 
+/* print a message on the first encounter with an artifact */
+STATIC_OVL boolean
+introduce_artifact(int art)
+{
+    static const char *sober[NROFARTIFACTS];
+    static const char *hallu[NROFARTIFACTS];
+    static boolean first = TRUE;
+    long size;
+    char line[BUFSZ];
+    const char *intro;
+    int width;
+    int padx;
+    int pady;
+    int i;
+
+    if (first) {
+        first = FALSE;
+
+       /* Artifact intro messages - can be anything less than 80x24, but typically
+        * around 60 (it changes slightly to get the nicest justification). There
+        * needs to be a \0 after the end of the first line. 
+        */
+
+        sober[ART_EXCALIBUR] =
+                "The blade itself gleamed like a beacon in the night.   There\0"
+                "was no light source for the sword to be reflecting from, for"
+                "the moon had darted behind a cloud in fear.    The sword was"
+                "glowing from  the intensity of  its  strength and power  and"
+                "knowledge  that it was  justice incarnate,  and that after a"
+                "slumber of uncounted years its time had again come.";
+                /* Knight Life, by Peter David */
+
+        hallu[ART_EXCALIBUR] =
+                "Listen.  Strange women lying in ponds distributing swords is\0"
+                "no basis for a system of government. Supreme executive power"
+                "derives  from  a mandate  from  the masses,  not  from  some"
+                "farcical aquatic ceremony. You can't expect to wield supreme"
+                "executive power just cause some watery tart threw a sword at"
+                "you!";
+                /* Monty Python */
+
+        sober[ART_ORCRIST] =
+                "The Great Goblin  gave a truly awful howl of rage when he looked\0"
+                "at it,  and all his soldiers gnashed their teeth,  clashed their"
+                "shields, and stamped. They knew the sword at once. It had killed"
+                "hundreds of goblins in its time, when the fair elves of Gondolin"
+                "hunted them in the hills or did battle before their walls.  They"
+                "had called it Orcrist, Goblin-cleaver, but the goblins called it"
+                "simply Biter. They hated it and hated worse any one that carried"
+                "it.";
+                /* The Hobbit, by J.R.R. Tolkien */
+
+        hallu[ART_ORCRIST] =
+                "There is a voice, with the sound of steel on stone.\0"
+                "'Orcs are poopy heads!'                            "
+                "Orcrist.";
+                /* MPS */
+
+        sober[ART_STING] =
+                "Somehow the killing of the giant spider,  all alone and by\0"
+                "himself in the dark without  the help of the wizard or the"
+                "dwarves or of anyone else,  made a great difference to Mr."
+                "Baggins.  He felt a different person, and much fiercer and"
+                "bolder in spite of an empty stomach, as he wiped his sword"
+                "on the grass and put it back into its sheath.             "
+                "                                                          "
+                "'I will give you a name,' he said to it, 'and I shall call"
+                " you Sting.'";
+                /* The Hobbit, by J.R.R. Tolkien */
+
+        hallu[ART_STING] =
+                "Dozens of locked chests, promising mysterious treasures.\0"
+                "One perfectly unique bronze elven dagger.               "
+                "No other artifact could be quite so suited to its role. "
+                "Sting.";
+                /* MPS */
+
+        sober[ART_STORMBRINGER] =
+                "These were the voices of men whose very souls were under siege;\0"
+                "men to whom death meant not mere extinction, but a continuation"
+                "of existence,  forever in thrall to some cruel and supernatural"
+                "master.   He had heard  men cry so  when his  salvation and his"
+                "nemesis, his great black battle-blade Stormbringer, drank their"
+                "souls.";
+                /* The Lands Beyond the World, by Michael Moorcock */
+ 
+        sober[ART_MJOLLNIR] =
+                "So long entrusted with the mighty hammer, Mjolnir, forged in the\0"
+                "heart of a dying star.  Its power has no equal! It’s a weapon to"
+                "destroy or as a tool to build. It is a fit companion for a king.";
+                /* Thor */
+
+        hallu[ART_MJOLLNIR] =
+                "Mojo: The libido. The life force.                   \0"
+                "The essence. The right stuff.                       "
+                "What the French call a certain... I don't know what.";
+                /* Austin Powers: The Spy Who Shagged Me */
+
+        sober[ART_TSURUGI_OF_MURAMASA] =
+                "This most ancient of swords has been passed down through the\0"
+                "leadership of the Samurai legions for hundreds of years.  It"
+                "is said to grant luck to its wielder,  but its main power is"
+                "terrible to behold. It has the capability to cut in half any"
+                "creature it is wielded against, instantly killing them.";
+                /* FIXME */
+
+        sober[ART_SUNSWORD] =
+                "What you seek is a blade of light,\0"
+                "a weapon for vengeance.";
+                /*...and a better quote */
+
+        hallu[ART_SUNSWORD] =
+                "As you can see, my young apprentice, your friends have failed.\0"
+                "Now witness the firepower of this fully ARMED and OPERATIONAL "
+                "battle station!                                               "
+                "Fire at will, Commander!";
+                /* Star Wars: Return of the Jedi */
+
+        sober[ART_SNICKERSNEE] =
+                "Ah, never shall I forget the cry,        \0"
+                "    or the shriek that shrieked he,      "
+                "As I gnashed my teeth, and from my sheath"
+                "    I drew my Snickersnee!";
+                /* The Mikado, by Sir W.S. Gilbert */
+
+        sober[ART_MAGIC_MIRROR_OF_MERLIN] =
+                "It virtue had to show in perfect sight         \0"
+                "Whatever thing was in the world contained,     "
+                "Betwixt the lowest earth and heaven's height,  "
+                "So that it to the looker appertained;          "
+                "Whatever foe had wrought, or friend had fained,"
+                "Therein discovered was, nor aught might pass,  "
+                "Nor aught in secret from the same remained;";
+                /* The Faerie Queene, by Edmund Spencer */
+
+        hallu[ART_MAGIC_MIRROR_OF_MERLIN] =
+                "Merlin: Wow, and how long have you been training to be a prat?           \0"
+                "Arthur: You can't address me that way!                                   "
+                "Merlin: I'm sorry, how long have you been training to be a prat, my lord?";
+                /* Merlin, episode 1 */
+
+        sober[ART_CLEAVER] =
+                "Hither came Conan the Cimmerian, black-haired, sullen-eyed, sword in\0"
+                "hand,  a thief,  a reaver,  a slayer, with gigantic melancholies and"
+                "gigantic mirth,  to tread the jeweled thrones of the Earth under his"
+                "sandalled feet.";
+                /* Robert E. Howard, "The Phoenix on the Sword" */
+
+        hallu[ART_CLEAVER] =
+                "Try his first wife's maiden name, \0"
+                "This is more than just a game.    "
+                "It's real fun, but just the same, "
+                "It's hacking, hacking, hacking.";
+
+        sober[ART_ACIDFALL] =
+                "Razors pain you;       \0"
+                "Rivers are damp.       "
+                "Acids stain you,       "
+                "And drugs cause cramp. "
+                "                       "
+                "Guns aren't lawful;    "
+                "Nooses give.           "
+                "Gas smells awful--     "
+                "You might as well live!";
+                /* Dorothy Parker, "Resume", 1926 */
+
+        hallu[ART_ACIDFALL] =
+                "There are two major products that come out of Berkeley:\0"
+                "LSD and UNIX.                                          "
+                "We don't believe this to be a coincidence.";
+                /* Jeremy S. Anderson */
+
+        sober[ART_FIRE_BRAND] =
+                "...he brandishes a flaming sword, and at the end of the\0"
+                "world he shall go forth and harry, and overcome all the"
+                "gods, and burn all the world with fire.";
+                /* The Prose Edda, by Snorri Sturluson */
+
+        sober[ART_FROST_BRAND] =
+                "Some say the world will end in fire,\0"
+                "Some say in ice.                    "
+                "From what I've tasted of desire     "
+                "I hold with those who favor fire.   "
+                "But if it had to perish twice,      "
+                "I think I know enough of hate       "
+                "To say that for destruction ice     "
+                "Is also great                       "
+                "And would suffice.";
+                /* Fire and Ice, by Robert Frost */
+
+        hallu[ART_FROST_BRAND] =
+        hallu[ART_FIRE_BRAND] =
+                "Some said the world should be in Perl;\0"
+                "Some said in Lisp.                    "
+                "Now, having given both a whirl,       "
+                "I held with those who favored Perl.   "
+                "But I fear we passed to men           "
+                "a disappointing founding myth.        "
+                "And should we do it all again,        "
+                "I'd end it with a close-paren.";
+                /* xkcd, 312 */
+
+        sober[ART_VORPAL_BLADE] =
+                "One, two! One, two! And through and through\0"
+                "  The vorpal blade went snicker-snack!     "
+                "He left it dead, and with its head         "
+                "  He went galumphing back.";
+                /* Jabberwocky, by Lewis Carroll */
+        
+        hallu[ART_VORPAL_BLADE] =
+                "Follow only if ye be men of valour, for the entrance to\0"
+                "this cave is guarded by a creature so foul and so cruel"
+                "that no man yet has fought with it and lived!  Bones of"
+                "full 50 men lie strewn about its lair, so brave knights"
+                "if you do doubt your courage come no further! For death"
+                "awaits you all with nasty big pointy teeth.";
+                /* Monty Python (Holy Grail) - about the vorpal bunny */
+
+        sober[ART_GRAYSWANDIR] =
+                "Why had I been wearing Grayswandir?                                         \0"
+                "Would another weapon have affected a Logrus-ghost as strongly?              "
+                "Had it really been my father, then, who had brought me here?                "
+                "And had he felt I might need the extra edge his weapon could provide?       "
+                "I wanted to think so, to believe that he had been more than a Pattern-ghost.";
+                /* Knight of Shadows, by Roger Zelazny */
+
+        sober[ART_HEART_OF_AHRIMAN] =
+                "The other three drew in their breath sharply,   and the dark, powerful man\0"
+                "who stood at the head of the sarcophagus whispered:                       "
+                "'The Heart of Ahriman!'                                                   "
+                "The other lifted a quick hand for silence.   Somewhere a dog began howling"
+                "dolefully,  and a stealthy step padded outside the barred and bolted door."
+                "But none looked aside from the mummy case over which the man in the ermine"
+                "trimmed robe was now moving the great flaming jewel,  while he muttered an"
+                "incantation that was old when Atlantis sank.";
+                /* The Hour of the Dragon */
+    }
+
+    if (!sober[art]) return FALSE;
+    if (Hallucination) {
+        if (hallu[art])
+            intro = hallu[art];
+        else
+            intro = sober[art];
+    } else
+        intro = sober[art];
+
+    winid win = create_nhwindow(NHW_TEXT);
+
+    /* Try to center it, guessing the terminal size... */
+    width = strlen(intro);
+    padx = (80-width)/2;
+    pady = 12-(((strlen(intro+strlen(intro)+1) / width)+2)/2);
+
+    /* Top blank */
+    for(i=0;i<pady;i++)
+        putstr(win, 0, "");
+
+    /* First line */
+    memset(line, ' ', padx);
+    strcpy(line+padx, intro);
+    putstr(win, 0, line);
+    intro += strlen(intro)+1;
+
+    /* Middle */
+    while (strlen(intro) > width) {
+        memset(line, ' ', padx);
+        strncpy(line+padx, intro, width);
+        intro += width;
+        line[width+padx] = 0;
+        putstr(win, 0, line);
+    }
+    /* Last line */
+    memset(line, ' ', padx);
+    strcpy(line+padx, intro);
+    putstr(win, 0, line);
+
+    display_nhwindow(win, TRUE);
+    destroy_nhwindow(win);
+    return TRUE;
+}
+
+/* check whether an item is an artifact that needs to be introduced. */
+void
+introduce_item(otmp)
+struct obj *otmp;
+{
+    if (!otmp || !otmp->oartifact || otmp->introduced) return;
+    otmp->introduced = TRUE;
+    (void) introduce_artifact(otmp->oartifact);
+}
+
 /* handle some special cases; must be called after u_init() */
 STATIC_OVL void
 hack_artifacts()

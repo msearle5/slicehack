@@ -1019,6 +1019,7 @@ const char *drop_fmt, *drop_arg, *hold_msg;
             obj->otyp = CRYSKNIFE;
             obj->oerodeproof = oerode;
         }
+        introduce_item(obj);
     }
     if (Fumbling) {
         if (drop_fmt)
