@@ -3095,6 +3095,14 @@ inv_weight()
             wt += otmp->owt;
         otmp = otmp->nobj;
     }
+    /* Knights have training using heavy armor */
+    if (Role_if(PM_KNIGHT)) {
+        if (uarm) {
+            if (uarm->owt > 200) {
+                wt -= (uarm->owt - 200) / 2;
+            }
+        }
+    }
     wc = weight_cap();
     return (wt - wc);
 }
