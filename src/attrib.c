@@ -8,6 +8,7 @@
 
 #include "hack.h"
 #include <ctype.h>
+#include <assert.h>
 
 /* part of the output on gain or loss of attribute */
 static const char
@@ -1074,6 +1075,60 @@ int oldlevel, newlevel;
   	adjtech(oldlevel, newlevel);
 }
 
+/* HP gain due to Con when gaining a level */
+int
+level_con(con, level)
+int con;
+int level;
+{
+    int conplus;
+    static char base[26] = {
+        -2, -2, -2, -2,
+        -1, -1, -1, 0,
+        0,  0,  0,  0,
+        0,  0,  0,  1,
+        1,  2,  3,  4,
+        4,  4,  4,  4,
+        4,  4   };
+    static char frac[26] = {
+        0,  0,  0,  0,
+        11, 7, 0,  13,
+        12, 10, 9, 8,
+        5, 2,  0,  9,
+        0,  0,  0,  9,
+        6, 4, 3, 2,
+        1,  0
+    };
+    /* 0, 2, 3, 4, 6,
+     * 7, 9, 10, 11, 15,
+     * 19, 20, 23, 26 */
+    static unsigned mask[] = {
+        0,
+        (1<<10)|(1<<20),
+        (1<<7)|(1<<14)|(1<<21),
+        (1<<6)|(1<<12)|(1<<18)|(1<<24),
+        (1<<4)|(1<<8)|(1<<13)|(1<<17)|(1<<22)|(1<<26),
+        (1<<3)|(1<<7)|(1<<10)|(1<<14)|(1<<17)|(1<<21)|(1<<25),
+        (1<<3)|(1<<6)|(1<<9)|(1<<12)|(1<<15)|(1<<18)|(1<<21)|(1<<24)|(1<<27),
+        (1<<3)|(1<<6)|(1<<8)|(1<<11)|(1<<14)|(1<<16)|(1<<19)|(1<<22)|(1<<24)|(1<<27),
+        (1<<3)|(1<<6)|(1<<8)|(1<<11)|(1<<13)|(1<<15)|(1<<18)|(1<<20)|(1<<22)|(1<<25)|(1<<28),
+        (1<<2)|(1<<4)|(1<<6)|(1<<8)|(1<<10)|(1<<12)|(1<<14)|(1<<15)|(1<<16)|(1<<18)|(1<<20)|(1<<24)|(1<<26)|(1<<28)|(1<<30),
+        ~((1<<3)|(1<<6)|(1<<8)|(1<<11)|(1<<13)|(1<<15)|(1<<18)|(1<<20)|(1<<22)|(1<<25)|(1<<28)),
+        ~((1<<3)|(1<<6)|(1<<8)|(1<<11)|(1<<14)|(1<<16)|(1<<19)|(1<<22)|(1<<24)|(1<<27)),
+        ~((1<<3)|(1<<7)|(1<<10)|(1<<14)|(1<<17)|(1<<21)|(1<<25)),
+        ~((1<<6)|(1<<12)|(1<<18)|(1<<24)),
+    };
+    assert(con <= 25);
+    conplus = base[con];
+    if (mask[frac[con]] & (1<<level)) {
+        if (base[con] <= 0)
+            conplus--;
+        else
+            conplus++;
+    }
+    return conplus;
+}
+
 int
 newhp()
 {
@@ -1111,20 +1166,7 @@ newhp()
                 if (urace.hpadv.hirnd > 0)
                     hp += rnd(urace.hpadv.hirnd);
             }
-            if (ACURR(A_CON) <= 3)
-                conplus = -2;
-            else if (ACURR(A_CON) <= 6)
-                conplus = -1;
-            else if (ACURR(A_CON) <= 14)
-                conplus = 0;
-            else if (ACURR(A_CON) <= 16)
-                conplus = 1;
-            else if (ACURR(A_CON) == 17)
-                conplus = 2;
-            else if (ACURR(A_CON) == 18)
-                conplus = 3;
-            else
-                conplus = 4;
+            conplus = level_con(ACURR(A_CON), u.ulevel);
             hp += conplus;
         }
     }
