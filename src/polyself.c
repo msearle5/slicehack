@@ -326,6 +326,7 @@ newman()
     hpmax = rounddiv((long) hpmax * (long) rn1(4, 8), 10);
     for (i = 0; (u.ulevel = i) < newlvl; i++)
         hpmax += newhp();
+    hpmax += con_adjust();
     if (hpmax < u.ulevel)
         hpmax = u.ulevel; /* min of 1 HP per level */
     /* retain same proportion for current HP; u.uhp * hpmax / u.uhpmax */

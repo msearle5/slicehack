@@ -422,6 +422,7 @@ struct you {
     uchar uspellprot;        /* protection by SPE_PROTECTION */
     uchar usptime;           /* #moves until uspellprot-- */
     uchar uspmtime;          /* #moves between uspellprot-- */
+    int uconhp;              /* previous hp max component from Con */
     int uhp, uhpmax;         /* hit points, aka health */
     int uen, uenmax;         /* magical energy - M. Stephenson */
     xchar uhpinc[MAXULEV],   /* increases to uhpmax for each level gain */

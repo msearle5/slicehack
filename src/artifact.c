@@ -2522,11 +2522,7 @@ void
 Sting_effects(orc_count)
 int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
 {
-    if (uwep
-        && (uwep->oartifact == ART_STING
-            || uwep->oartifact == ART_ORCRIST
-            || uwep->oartifact == ART_GRIMTOOTH
-            || uwep->oartifact == ART_VLADSBANE)) {
+    if (uwep && uwep->oartifact && artilist[uwep->oartifact].acolor != NO_COLOR) {
         if (orc_count == -1 && warn_obj_cnt > 0) {
             /* -1 means that blindness has just been toggled; give a
                'continue' message that eventual 'stop' message will match */

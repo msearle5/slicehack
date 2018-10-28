@@ -1040,6 +1040,7 @@ register struct obj *obj;
         if ((obj->owornmask & W_RING) && u_ring) {
             ABON(A_CON) -= obj->spe;
             context.botl = 1;
+            adjust_con_hp();
         }
         break;
     case RIN_ADORNMENT:
@@ -1158,6 +1159,7 @@ boolean by_you;
         if ((obj->owornmask & W_RING) && u_ring) {
             ABON(A_CON)--;
             context.botl = 1;
+            adjust_con_hp();
         }
         break;
     case RIN_ADORNMENT:
@@ -2939,6 +2941,7 @@ boolean youattack, allow_cancel_kill, self_cancel;
         if (youdefend) {
             context.botl = 1; /* potential AC change */
             find_ac();
+            adjust_con_hp();
         }
     }
 

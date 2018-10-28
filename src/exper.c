@@ -246,7 +246,7 @@ const char *drainer; /* cause of death, if drain should be fatal */
         if (u.mh <= 0)
             rehumanize();
     }
-
+    adjust_con_hp();
     context.botl = 1;
 }
 
@@ -280,6 +280,7 @@ boolean incr; /* true iff via incremental experience growth */
             u.mhmax += hpinc;
             u.mh += hpinc;
         }
+        adjust_con_hp();
         hpinc = newhp();
         u.uhpmax += hpinc;
         u.uhp += hpinc;

@@ -204,6 +204,7 @@ int msgflg; /* positive => no message, zero => message, and */
         return FALSE;
     }
 
+    adjust_con_hp();
     if (msgflg <= 0)
         You_feel("%s%s!", (incr > 1 || incr < -1) ? "very " : "", attrstr);
     context.botl = 1;
@@ -454,6 +455,7 @@ restore_attrib()
     }
     if (context.botl)
         (void) encumber_msg();
+    adjust_con_hp();
 }
 
 #define AVAL 50 /* tune value for exercise gains */
@@ -487,6 +489,7 @@ boolean inc_or_dec;
                                                                       ? "Dex"
                                                                       : "Con",
                     (inc_or_dec) ? "inc" : "dec", AEXE(i));
+        adjust_con_hp();
     }
     if (moves > 0 && (i == A_STR || i == A_CON))
         (void) encumber_msg();
@@ -740,6 +743,7 @@ redist_attr()
             ABASE(i) = ATTRMIN(i);
     }
     (void) encumber_msg();
+    adjust_con_hp();
 }
 
 STATIC_OVL
@@ -1089,14 +1093,15 @@ int level;
         0,  0,  0,  1,
         1,  2,  3,  4,
         4,  4,  4,  4,
-        4,  4   };
+        4,  4
+    };
     static char frac[26] = {
         0,  0,  0,  0,
-        11, 7, 0,  13,
-        12, 10, 9, 8,
-        5, 2,  0,  9,
+        11, 7,  0,  13,
+        12, 10, 9,  8,
+        5,  2,  0,  9,
         0,  0,  0,  9,
-        6, 4, 3, 2,
+        6,  4,  3,  2,
         1,  0
     };
     /* 0, 2, 3, 4, 6,
@@ -1129,10 +1134,52 @@ int level;
     return conplus;
 }
 
+/* Sum of all level adjustments */
+int
+cumulative_level_con(con, level)
+int con;
+int level;
+{
+    int i;
+    int sum = 0;
+
+    /* There is no CON adjustment for level 1 */
+    for(i=2; i<=level; i++)
+        sum += level_con(con, i);
+
+    return sum;
+}
+
+/* Adjustment to HP based on CON after changing level */
+int
+con_adjust()
+{
+    int previous = u.uconhp;
+    if (u.uroleplay.marathon)
+        return 0;
+    u.uconhp = cumulative_level_con(ACURR(A_CON), u.ulevel);
+    return u.uconhp - previous;
+}
+
+/* Change maxhp and hp based on Con */
+void
+adjust_con_hp()
+{
+    int adjust = con_adjust();
+    if (adjust != 0) {
+        int oldmax = u.uhpmax;
+        u.uhpmax += adjust;
+        if (adjust > 0)
+            u.uhp += adjust;
+        if (u.uhp > u.uhpmax)
+            u.uhp = u.uhpmax;
+    }
+}
+
 int
 newhp()
 {
-    int hp, conplus;
+    int hp;
 
     if (u.ulevel == 0) {
         /* Initialize hit points */
@@ -1166,12 +1213,9 @@ newhp()
                 if (urace.hpadv.hirnd > 0)
                     hp += rnd(urace.hpadv.hirnd);
             }
-            conplus = level_con(ACURR(A_CON), u.ulevel);
-            hp += conplus;
         }
     }
-    if (hp <= 0)
-        hp = 1;
+
     if (u.ulevel < MAXULEV)
         u.uhpinc[u.ulevel] = (xchar) hp;
     return hp;
