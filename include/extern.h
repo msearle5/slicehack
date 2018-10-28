@@ -120,6 +120,7 @@ E void NDECL(exerchk);
 E void FDECL(init_attr, (int));
 E void NDECL(redist_attr);
 E void FDECL(adjabil, (int, int));
+E void NDECL(adjust_con_hp);
 E int NDECL(newhp);
 E schar FDECL(acurr, (int));
 E schar NDECL(acurrstr);

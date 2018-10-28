@@ -1061,6 +1061,7 @@ register struct obj *obj;
         if (observable || !extremeattr(which))
             learnring(obj, observable);
         context.botl = 1;
+        adjust_con_hp();
         break;
     case RIN_INCREASE_ACCURACY: /* KMH */
         u.uhitinc += obj->spe;
@@ -1174,6 +1175,7 @@ boolean gone;
         if (observable || !extremeattr(which))
             learnring(obj, observable);
         context.botl = 1;
+        adjust_con_hp();
         break;
     case RIN_INCREASE_ACCURACY: /* KMH */
         u.uhitinc -= obj->spe;
