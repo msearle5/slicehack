@@ -1168,8 +1168,8 @@ u_init()
         if (!rn2(6))
             ini_inv(Lamp);
         if (Race_if(PM_GIANT)) {
+            struct trobj RandomGem = Gem[0];
             while (!rn2(3)) {
-                struct trobj RandomGem = Gem[0];
                 int gem = rnd_class(TOPAZ, JADE);
                 Gem[0] = RandomGem;
                 Gem[0].trotyp = gem;
@@ -1185,8 +1185,8 @@ u_init()
         Cave_man[C_AMMO].trquan = rn1(11, 10); /* 10..20 */
         ini_inv(Cave_man);
         if (Race_if(PM_GIANT)) {
+            struct trobj RandomGem = Gem[0];
             while (!rn2(8)) {
-                struct trobj RandomGem = Gem[0];
                 int gem = rnd_class(TOPAZ, JADE);
                 Gem[0] = RandomGem;
                 Gem[0].trotyp = gem;
