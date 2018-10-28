@@ -1125,10 +1125,11 @@ int level;
     };
     assert(con <= 25);
     conplus = base[con];
-    if (mask[frac[con]] & (1<<level)) {
-        if (base[con] <= 0)
+    if (base[con] <= 0) {
+        if (mask[frac[con]] & (1<<level))
             conplus--;
-        else
+    } else {
+        if (!(mask[frac[con]] & (1<<level)))
             conplus++;
     }
     return conplus;
@@ -1182,38 +1183,64 @@ newhp()
     int hp;
 
     if (u.ulevel == 0) {
+        int base = 1;
         /* Initialize hit points */
         hp = urole.hpadv.infix + urace.hpadv.infix;
-        if (urole.hpadv.inrnd > 0)
+        base += (urole.hpadv.infix + urace.hpadv.infix)*2;
+        if (urole.hpadv.inrnd > 0) {
             hp += rnd(urole.hpadv.inrnd);
-        if (urace.hpadv.inrnd > 0)
+            base += urole.hpadv.inrnd+1;
+        }
+        if (urace.hpadv.inrnd > 0) {
             hp += rnd(urace.hpadv.inrnd);
+            base += urace.hpadv.inrnd+1;
+        }
         if (moves <= 1L) { /* initial hero; skip for polyself to new man */
+            int total, target;
+
             /* Initialize alignment stuff */
             u.ualign.type = aligns[flags.initalign].value;
             u.ualign.record = urole.initrecord;
+
+            /* Initialize HP by level */
+            do {
+                int i;
+                total = hp;
+                target = base;
+
+                /* Target tracks twice the expected */
+                for(i=1;i<MAXULEV;i++) {
+                    if (i < urole.xlev) {
+                        u.uhpinc[i] = urole.hpadv.lofix + urace.hpadv.lofix;
+                        target += (urole.hpadv.lofix + urace.hpadv.lofix)*2;
+                        if (urole.hpadv.lornd > 0) {
+                            u.uhpinc[i] += rnd(urole.hpadv.lornd);
+                            target += urole.hpadv.lornd+1;
+                        }
+                        if (urace.hpadv.lornd > 0) {
+                            u.uhpinc[i] += rnd(urace.hpadv.lornd);
+                            target += urace.hpadv.lornd+1;
+                        }
+                    } else {
+                        u.uhpinc[i] = urole.hpadv.hifix + urace.hpadv.hifix;
+                        target += (urole.hpadv.hifix + urace.hpadv.hifix)*2;
+                        if (urole.hpadv.hirnd > 0) {
+                            u.uhpinc[i] += rnd(urole.hpadv.hirnd);
+                            target += urole.hpadv.hirnd+1;
+                        }
+                        if (urace.hpadv.hirnd > 0) {
+                            u.uhpinc[i] += rnd(urace.hpadv.hirnd);
+                            target += urace.hpadv.hirnd+1;
+                        }
+                    }
+                    total += u.uhpinc[i];
+                }
+                total *= 2;
+            } while (abs(total-target) > 1);
         }
-        /* Zero hp inc = not calculated yet */
-        memset(u.uhpinc, 0, sizeof(u.uhpinc));
         /* no Con adjustment for initial hit points */
     } else {
-        if (u.uhpinc[u.ulevel] != 0)
-            hp = u.uhpinc[u.ulevel];
-        else {
-            if (u.ulevel < urole.xlev) {
-                hp = urole.hpadv.lofix + urace.hpadv.lofix;
-                if (urole.hpadv.lornd > 0)
-                    hp += rnd(urole.hpadv.lornd);
-                if (urace.hpadv.lornd > 0)
-                    hp += rnd(urace.hpadv.lornd);
-            } else {
-                hp = urole.hpadv.hifix + urace.hpadv.hifix;
-                if (urole.hpadv.hirnd > 0)
-                    hp += rnd(urole.hpadv.hirnd);
-                if (urace.hpadv.hirnd > 0)
-                    hp += rnd(urace.hpadv.hirnd);
-            }
-        }
+        hp = u.uhpinc[u.ulevel];
     }
 
     if (u.ulevel < MAXULEV)
