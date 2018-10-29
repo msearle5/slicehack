@@ -3052,7 +3052,7 @@ struct permonst _mons2[] = {
         M1_BREATHLESS | M1_MINDLESS | M1_HUMANOID,
         M2_UNDEAD | M2_STALK | M2_HOSTILE | M2_GIANT | M2_STRONG,
         M3_INFRAVISION, CLR_CYAN),
-    MON("ghast", S_ZOMBIE,  LVL(4, 6, 10, 0, -2), (G_GENO | G_NOCORPSE | 1),
+    MON("ghast", S_ZOMBIE,  LVL(6, 6, 10, 0, -2), (G_GENO | G_NOCORPSE | 1),
       	A(ATTK(AT_CLAW, AD_PLYS, 1, 2), ATTK(AT_CLAW, AD_PHYS, 1, 4),
       	  ATTK(AT_BITE, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK),
       	SIZ(400, 50, MS_SILENT, MZ_SMALL),
