@@ -492,6 +492,9 @@ int dieroll;
         if (weapon && (weapon->oclass == WEAPON_CLASS || is_weptool(weapon)))
             u.uconduct.weaphit++;
 
+        if (Quick)
+            u.uquick = TRUE;
+
         /* we hit the monster; be careful: it might die or
            be knocked into a different location */
         notonhead = (mon->mx != x || mon->my != y);

@@ -134,7 +134,12 @@ boolean resuming;
 
         if (context.move) {
             /* actual time passed */
-            youmonst.movement -= NORMAL_SPEED;
+            if (u.uquick) {
+                youmonst.movement -= NORMAL_SPEED / 2;
+                u.uquick = FALSE;
+            }
+            else
+                youmonst.movement -= NORMAL_SPEED;
 
             do { /* hero can't move this turn loop */
                 wtcap = encumber_msg();

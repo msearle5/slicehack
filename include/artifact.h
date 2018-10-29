@@ -47,10 +47,13 @@
 #define SPFX_BLIND 0x80000000L /* Weapon blinds on hit */
 /* #define SPFX_JUMP 0x1F000000L */
 
+#define SPFX_QUICK 0x00000001L  /* fast attacks */
+
 struct artifact {
     short otyp;
     const char *name;
     unsigned long spfx;  /* special effect from wielding/wearing */
+    unsigned long spfx2;  /* special effect from wielding/wearing */
     unsigned long cspfx; /* special effect just from carrying obj */
     unsigned long mtype; /* monster type, symbol, or flag */
     struct attack attk, defn, cary;

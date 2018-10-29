@@ -390,7 +390,7 @@ struct you {
     Bitfield(uinvulnerable, 1); /* you're invulnerable (praying) */
     Bitfield(uburied, 1);       /* you're buried */
     Bitfield(uedibility, 1);    /* blessed food detect; sense unsafe food */
-    /* 1 free bit! */
+    Bitfield(uquick, 1);        /* last action was a successful hit from Quick Blade */
 
     unsigned udg_cnt;           /* how long you have been demigod */
     unsigned uin_cnt;           /* how long since the invocation */
