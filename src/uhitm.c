@@ -944,9 +944,9 @@ int dieroll;
                                 (Role_if(PM_SAMURAI) && obj->otyp == KATANA && !uarms))
                            && ((wtype = uwep_skill_type()) != P_NONE
                                && P_SKILL(wtype) >= P_SKILLED)) ||
-                             (dieroll == 3 && (Race_if(PM_GIANT)) && ((wtype != P_NONE)
+                             (dieroll == 3 && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
                                && P_SKILL(wtype) >= P_BASIC)) ||
-                             (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT)) && ((wtype != P_NONE)
+                             (dieroll == 4 && (!rn2(2)) && (Race_if(PM_GIANT)) && (((wtype = uwep_skill_type()) != P_NONE)
                                && P_SKILL(wtype) >= P_EXPERT)))
                            && ((monwep = MON_WEP(mon)) != 0
                                && !is_flimsy(monwep)
