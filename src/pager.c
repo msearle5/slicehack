@@ -641,8 +641,8 @@ struct permonst * pm;
 #define MONPUTSTR(str) putstr(datawin, ATR_BOLD, str)
 
     /* Misc */
-    Sprintf(buf, "Difficulty %d, speed %d, base AC %d, magic saving throw %d, weight %d.",
-            diff, pm->mmove, pm->ac, pm->mr, pm->cwt);
+    Sprintf(buf, "Difficulty %d, exp %d, speed %d, base AC %d, magic save %d, weight %d.",
+            diff, pm_experience(pm), pm->mmove, pm->ac, pm->mr, pm->cwt);
     MONPUTSTR(buf);
 
     /* Generation */

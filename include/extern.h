@@ -746,6 +746,7 @@ E void FDECL(make_grave, (int, int, const char *));
 
 E long FDECL(newuexp, (int));
 E int NDECL(newpw);
+E int FDECL(pm_experience, (struct permonst *));
 E int FDECL(experience, (struct monst *, int));
 E void FDECL(more_experienced, (int, int));
 E void FDECL(losexp, (const char *));
