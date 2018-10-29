@@ -777,6 +777,7 @@ boolean quiet;
     register struct obj *obj;
     register uchar dtyp;
     register long spfx;
+    register long spfx2;
 
     if (!oart)
         return;
@@ -825,8 +826,9 @@ boolean quiet;
             *mask &= ~wp_mask;
     }
 
-    /* intrinsics from the spfx field; there could be more than one */
+    /* intrinsics from the spfx fields; there could be more than one */
     spfx = (wp_mask != W_ART) ? oart->spfx : oart->cspfx;
+    spfx2 = (wp_mask != W_ART) ? oart->spfx2 : 0;
     if (spfx && wp_mask == W_ART && !on) {
         /* don't change any spfx also conferred by other artifacts */
         for (obj = invent; obj; obj = obj->nobj)
@@ -959,6 +961,12 @@ boolean quiet;
         else
             EJumping &= ~wp_mask;
     } */
+    if (spfx & SPFX_QUICK) {
+        if (on)
+            EQuick |= wp_mask;
+        else
+            EQuick &= ~wp_mask;
+    }
 
     if (wp_mask == W_ART && !on && oart->inv_prop) {
         /* might have to turn off invoked power too */

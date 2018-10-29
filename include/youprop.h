@@ -146,6 +146,10 @@
 #define ESleepy u.uprops[SLEEPY].extrinsic
 #define Sleepy (HSleepy || ESleepy)
 
+#define HQuick u.uprops[QUICK].intrinsic
+#define EQuick u.uprops[QUICK].extrinsic
+#define Quick (HQuick || EQuick)
+
 #define HHunger u.uprops[HUNGER].intrinsic
 #define EHunger u.uprops[HUNGER].extrinsic
 #define Hunger (HHunger || EHunger)

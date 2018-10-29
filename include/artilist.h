@@ -9,6 +9,7 @@
 /* in makedefs.c, all we care about is the list of names */
 
 #define A(nam, typ, s1, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr) nam
+#define AX(nam, typ, s1, s1a, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr) nam
 
 static const char *artifact_names[] = {
 #else
@@ -16,7 +17,11 @@ static const char *artifact_names[] = {
 
 #define A(nam, typ, s1, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr) \
     {                                                                       \
-        typ, nam, s1, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr    \
+        typ, nam, s1, 0, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr    \
+    }
+#define AX(nam, typ, s1, s1x, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr) \
+    {                                                                       \
+        typ, nam, s1, s1x, s2, mt, atk, dfn, cry, inv, al, cl, rac, cost, clr    \
     }
 
 /* clang-format off */
@@ -339,6 +344,9 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("Sunsword", LONG_SWORD, (SPFX_BLIND | SPFX_WARN | SPFX_RESTR | SPFX_DFLAG2), 0, M2_UNDEAD,
       PHYS(8,12), DFNS(AD_BLND), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 1800L,
       CLR_WHITE),
+
+    AX("Quick Blade", SABER, SPFX_RESTR, SPFX_QUICK, 0, 0,
+      PHYS(8, 0), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 5000L, NO_COLOR),
 
     /*
      *      The artifacts for the quest dungeon, all self-willed.
