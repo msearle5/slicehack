@@ -74,6 +74,18 @@ newpw()
     return en;
 }
 
+/* return # of exp points for permonst after current number killed */
+int
+pm_experience(ptr)
+register struct permonst *ptr;
+{
+    struct monst mtmp;
+    memset(&mtmp, 0, sizeof(mtmp));
+    mtmp.data = ptr;
+    mtmp.m_lev = ptr->mlevel;
+    return experience(&mtmp, (int) mvitals[ptr-mons].died);
+}
+
 /* return # of exp points for mtmp after nk killed */
 int
 experience(mtmp, nk)
