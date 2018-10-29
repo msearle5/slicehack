@@ -1480,6 +1480,18 @@ u_init()
         }
     }
 
+    /* Ensure that you don't start with poisonous meat, unless you resist.
+     **/
+    if (!Role_if(PM_BARBARIAN) && !Role_if(PM_HEALER) &&
+		!Race_if(PM_ORC) && !Race_if(PM_HUMAN_WEREWOLF)) {
+        struct obj *otmp;
+        for(otmp = invent; otmp; otmp = otmp->nobj) {
+            if ((otmp->otyp == TIN) && (poisonous(&mons[otmp->corpsenm]))) {
+                otmp->corpsenm = PM_LICHEN;
+            }
+        }
+    }
+
     find_ac();     /* get initial ac value */
     init_attr(75); /* init attribute values */
     max_rank_sz(); /* set max str size for class ranks */
