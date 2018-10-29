@@ -181,7 +181,7 @@ make_carrier(xtime, talk)
 long xtime;
 boolean talk;
 {
-    long old = Vomiting;
+    long old = LarvaCarrier;
 
     if (Unaware)
         talk = FALSE;
