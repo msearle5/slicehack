@@ -117,17 +117,24 @@ static const char * const bogus_items[] = {
 	"dagger",
 	"elven dagger",
 	"orcish dagger",
+	"oldish dagger",
 	"silver dagger",
 	"athame",
 	"scalpel",
 	"knife",
+	"penknife",
 	"stiletto",
 	"worm tooth",
+	"hen tooth",
 	"crysknife",
+	"crispknife",
+	"stick of hitting",
 	"axe",
+	"hatchet",
 	"battle-axe",
 	"short sword",
 	"scimitar",
+	"cutlass",
 	"curved sword",
 	"silver saber",
 	"broadsword",
@@ -180,9 +187,11 @@ static const char * const bogus_items[] = {
 	"banded mail",
 	"sanded mail",
 	"splint mail",
+	"split mail",
 	"chain mail",
 	"chain letter",
 	"scale mail",
+	"half-scale mail",
 	"lizard scale mail",
 	"ring mail",
 	"studded leather armor",
@@ -191,21 +200,30 @@ static const char * const bogus_items[] = {
 	"cloak",
 	"robe",
 	"small shield",
+	"elfin chain mail",
+	"vorpal two-handed sword",
 	"elven shield",
 	"shield of reflection",
+	"shield of deflection",
 	"silly hat",
 	"waddling boots",
+	"wellington boots",
 	"old gloves",
 	"padded gloves",
+	"kid gloves",
 	"riding gloves",
+	"woolly gloves",
 	"fencing gloves",
 	"walking shoes",
+	"self-walking shoes",
 	"seven-league boots",
+	"skidding boots",
 	"little-league boots",
 	"hard shoes",
-	"Doc Martens",
+	"easy shoes",
 	"jackboots",
 	"combat boots",
+	"wombat boots",
 	"jungle boots",
 	"bungle boots",
 	"hiking boots",
@@ -213,6 +231,10 @@ static const char * const bogus_items[] = {
 	"muddy boots",
 	"buckled boots",
 	"riding boots",
+	"rudesword",
+	"dunesword",
+	"three-handed sword",
+	"wallhanger",
 
 	/* Modern */
 	"polo mallet",
@@ -241,13 +263,13 @@ static const char * const bogus_items[] = {
 	"YAFM",                             /* rgrn */
 	"YAAP",
 	"YASD",
+    "YANI",
 	"Puddingbane",
 	"malevolent RNG",
 	"pamphlet titled 'How to Raise the Perfect Pudding'",
 	"blessed greased +5 silly object of hilarity",
-	"The Staff of Misspelling",
+	"Staff of Misspelling",
 	"greased very rotten partly eaten guardian naga hatchling corpse", /* longest possible object name - see objnam.c, line 7 */
-	"yet another poorly-differentiated polearm",
 
 	/* Silly */
 	"left-handed iron chain",
@@ -260,13 +282,12 @@ static const char * const bogus_items[] = {
 	"chainmail bikini",
 	"first class one-way ticket to Albuquerque", /* Weird Al */
 	"yellow spandex dragon scale mail", /* X-Men */
-	"Kentucky Fried Basilisk",
 	"magic device",
 	"kinda lame joke",
 
 	/* Musical Instruments */
 	"grand piano",
-	"two slightly sampled electric eels", /* Oldfield */
+	" two slightly sampled electric eels", /* Oldfield */
 	"kick drum",                        /* 303 */
 	"tooled airhorn",
 
@@ -278,13 +299,11 @@ static const char * const bogus_items[] = {
 	"pincers of peril",                 /* Goonies */
 	"ring of schwartz",                 /* Spaceballs */
 	"signed copy of Diaspora",          /* Greg Egan */
-	"the missing evidence in the Kelner case", /* Naked Gun */
 	"blessed +9 helm of Des Lynam",     /* Bottom */
 
 	/* Culture */
 	"The Book of Sand",                 /* Jorge Luis Borges */
 	"sonic screwdriver",                /* Doctor Who */
-	"lutefisk",
 
 	/* Brithack */
 #ifdef BRITHACK
@@ -316,8 +335,8 @@ static const char * const bogus_items[] = {
 	"fly ichor barrel",                 /* Dwarf Fortress */
 	"cat tallow roast",                 /* Dwarf Fortress */
 	"si",                               /* ADOM, it means "strange item" */
-	"Scroll of omnipotence",            /* ADOM */
-	"Scroll of vermin control",         /* ADOM */
+	"scroll of omnipotence",            /* ADOM */
+	"scroll of vermin control",         /* ADOM */
 
 	/* fruit names from NAO - http://alt.org/nethack/petnames.html */
 	"!!+dimple cup stew+!!",            /* fruit name from NAO, inspired by Dwarf Fortress */
@@ -350,9 +369,10 @@ static const char * const bogus_items[] = {
 	"lowest unoccupied molecular orbital",
 	"mammoth corpse",
 	"morsel of existential dread",
-	"motor oil",
-	"nanobots",
-	"nuclear waste",
+	"potion of motor oil",
+    "potion of coffee",
+	"flask of nanobots",
+	"potion of nuclear waste",
 	"potion of genocide",
 	"potion of mana",
 	"preserved head",
@@ -366,14 +386,13 @@ static const char * const bogus_items[] = {
 
 	/* Fantasy */
 	"Necronomicon",                     /* Lovecraft */
-	"pipe weed",                        /* LOTR */
+	"pinch of pipe weed",               /* LOTR */
 	"knife missile",                    /* Iain M. Banks */
 	"large gem",                        /* Valhalla */
 	"monster manual",                   /* D&D */
 	"spellbook called Octavo",          /* Discworld */
 	"ring of power",                    /* LOTR */
 	"lightsaber",
-	"no tea",                           /* HGttG game */
 	"pan-galactic gargle blaster",      /* HGttG */
 	"Silmaril",                         /* LOTR */
 	"Slimaril",
@@ -394,8 +413,10 @@ static const char * const bogus_items[] = {
 	"maximally subsentient emacs mode",
 	"bongard diagram",                  /* Intelligence test */
 	"git repository",
+    "patch",
 	"directed acyclic graph",
 	"server",
+    "install CD",
 
 	/* Historical */
 	"dead sea scroll",
@@ -418,10 +439,13 @@ static const char * const bogus_items[] = {
 	/* Mashups */
 	"scale-reinforced banded-splint mail with chain joints",
 	"potion of rebigulation",           /* Simpsons */
+    "cromulent potion",                 /* the same potion when unIDed */
 	"potion of score doubling",
+    "scroll of gold duplication",
 	"potion of gain divinity",
 	"potion of bad breath",
 	"scroll labelled ED AWK YACC",      /* the standard scroll */
+    "scroll labelled MR YUCK",
 	"scroll labelled RTFM",
 	"scroll labelled KLAATU BARADA NIKTO", /* Evil Dead 3 */
 	"scroll of omniscience",
@@ -474,7 +498,7 @@ static const char * const bogus_items[] = {
 	"Sealed Evil in a Can ",
 	"The Home Handyman's Guide to Building Gates to Hell",
 	"The Idiot's Guide to Demonology",
-	"tome of Eldritch Lore ",
+	"tome of Eldritch Lore",
 	"airborne aircraft carrier ",
 	"airborne airborne aircraft carrier carrier",
 	"MacGuffin",
@@ -492,13 +516,27 @@ static const char * const bogus_items[] = {
 	"jar of gelatinous cube jam",
 	/* end of ProgressQuest */
 	"brand new, all time lowest introductory rate special offer",
-	"dirty rag"
+	"dirty rag",
+    
+    "ragdoll",
 };
 
+/* Produce a random hallucinatory object name (if no object is passed), or
+ * a name which changes slowly but is linked to that object, using a simple
+ * RNG to produce the item index.
+ */
 const char *
-get_bogus_item_name()
+get_bogus_item_name(struct obj *otmp)
 {
-	return bogus_items[rn2(SIZE(bogus_items))];
+    unsigned name;
+    if (!otmp) return bogus_items[rn2(SIZE(bogus_items))];
+    name = otmp->otyp + (otmp->o_id * NUM_OBJECTS) ^ ((HHallucination & 0xfff0) << 2);
+    name *= 214013;
+    name += 2531011;
+    name >>= 16;
+    name &= 16383;
+    name %= SIZE(bogus_items);
+	return bogus_items[name];
 }
 
 STATIC_OVL char *
@@ -1280,6 +1318,16 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     default:
         Sprintf(buf, "glorkum %d %d %d", obj->oclass, typ, obj->spe);
     }
+
+    if (Hallucination) {
+        const char *name = get_bogus_item_name(obj);
+        *buf = 0;
+        if ((strstr(name, "shoes")) || (strstr(name, "boots")) ||
+             strstr(name, "earmuff") || (strstr(name, "lenses")))
+                Strcpy(buf, "pair of ");
+        Strcat(buf, name);
+    }
+
     if (pluralize)
         Strcpy(buf, makeplural(buf));
 
@@ -1754,6 +1802,29 @@ unsigned doname_flags;
         if (obj->owornmask & W_BALL)
             Strcat(bp, " (chained to you)");
         break;
+    }
+
+    if (Hallucination) {
+        const char *name = get_bogus_item_name(obj);
+        *bp = 0;
+        if ((strstr(name, "shoes")) || (strstr(name, "boots")) ||
+            (strstr(name, "gloves")) || (strstr(name, "gauntlets")) ||
+            (strstr(name, "earmuff")) || (strstr(name, "lenses")))
+                Strcpy(bp, "pair of ");
+        if (isupper(*name)) {
+            Strcpy(prefix, "the ");
+            Strcat(bp, name);
+        } else {
+            if (obj->quan != 1L) {
+                if (dknown || !vague_quan) {
+                    Strcpy(prefix, "some ");
+                    Strcat(bp, makeplural(name));
+                }
+            } else {
+                Strcpy(prefix, "a ");
+                Strcat(bp, name);
+            }
+        }
     }
 
     if ((obj->owornmask & W_WEP) && !mrg_to_wielded) {
