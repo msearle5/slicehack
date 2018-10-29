@@ -4177,7 +4177,7 @@ essential in locating the Amulet of Yendor."
 #
 #	Banishment message (for converted hero)
 #
-%Cc - 00080
+%Cc - 00060
 "You have betrayed all those who hold allegiance to %d, as you once did.
 My allegiance to %d holds fast and I cannot condone or accept what you
 have done.
