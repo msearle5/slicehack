@@ -4659,11 +4659,11 @@ typfnd:
             break;
         case FIGURINE:
         case MASK:
-            if (!(mons[mntmp].geno & G_UNIQ) && !is_human(&mons[mntmp])
+            if ((!(mons[mntmp].geno & G_UNIQ) && !is_human(&mons[mntmp])
 #ifdef MAIL
                 && mntmp != PM_MAIL_DAEMON
 #endif
-                )
+                ) || wizard)
                 otmp->corpsenm = mntmp;
             break;
         case STATUE:
