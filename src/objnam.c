@@ -238,6 +238,7 @@ static const char * const bogus_items[] = {
 
 	/* Modern */
 	"polo mallet",
+	"polo mint",
 	"string vest",
 	"muscle vest",
 	"applied theology textbook",        /* AFutD */
@@ -249,9 +250,11 @@ static const char * const bogus_items[] = {
 	"traffic cone",
 	"chainsaw",
 	"Klein bottle",
+	"Thompson gun",
 	"pair of high-heeled stilettos",    /* the *other* stiletto */
 	"intercontinental ballistic missile",
 	"doomsday device",
+	"infernal device",
 	"potion of Wow-Wow sauce",
 	"dyson sphere",
 	"Demon Core",
@@ -264,11 +267,15 @@ static const char * const bogus_items[] = {
 	"YAAP",
 	"YASD",
     "YANI",
+    "spoiler",
+    "wiki",
+    "wizard bones",
 	"Puddingbane",
 	"malevolent RNG",
 	"pamphlet titled 'How to Raise the Perfect Pudding'",
 	"blessed greased +5 silly object of hilarity",
 	"Staff of Misspelling",
+	"Eye of the Whatever",
 	"greased very rotten partly eaten guardian naga hatchling corpse", /* longest possible object name - see objnam.c, line 7 */
 
 	/* Silly */
@@ -284,9 +291,16 @@ static const char * const bogus_items[] = {
 	"yellow spandex dragon scale mail", /* X-Men */
 	"magic device",
 	"kinda lame joke",
+	"Bane",
+	"Youbane",
+	"Smasher",
 
 	/* Musical Instruments */
 	"grand piano",
+	"synthesizer",
+	"tuba",
+	"sousaphone",
+	"euphonium",
 	" two slightly sampled electric eels", /* Oldfield */
 	"kick drum",                        /* 303 */
 	"tooled airhorn",
@@ -383,6 +397,7 @@ static const char * const bogus_items[] = {
 	"sinister omen of imminent doom",
 	"syntax error",
 	"thoroughly useless object",
+	"scroll of perfection",
 
 	/* Fantasy */
 	"Necronomicon",                     /* Lovecraft */
@@ -393,6 +408,8 @@ static const char * const bogus_items[] = {
 	"spellbook called Octavo",          /* Discworld */
 	"ring of power",                    /* LOTR */
 	"lightsaber",
+	"dimsaber",
+	"darksaber",
 	"pan-galactic gargle blaster",      /* HGttG */
 	"Silmaril",                         /* LOTR */
 	"Slimaril",
@@ -417,6 +434,7 @@ static const char * const bogus_items[] = {
 	"directed acyclic graph",
 	"server",
     "install CD",
+    "CPU",
 
 	/* Historical */
 	"dead sea scroll",
@@ -427,6 +445,7 @@ static const char * const bogus_items[] = {
 	"bayonet",
 	"iron maiden",
 	"oubliette",
+	"garderobe",
 	"pestle and mortar"
 	"plowshare",
 	"The Book of the All-Virtuous Wisdom of Joshua ben Sira",
@@ -451,12 +470,14 @@ static const char * const bogus_items[] = {
 	"scroll of omniscience",
 	"scroll of mash keyboard",
 	"scroll of plot detection",
+	"scroll of detect box text",
 	"scroll of RNG taming",
 	"scroll of fungicide",
 	"scroll of stupidity",
 	"spellbook of detect foot",
 	"spellbook of detect evil",
-	"Spellbook of wishing", /* http://www.alt.org/nethack/addmsgs/viewmsgs.php */
+	"spellbook of wishing", /* http://www.alt.org/nethack/addmsgs/viewmsgs.php */
+    "spellbook of improved wish",
 	"heavily obfuscated spellbook",
 	"helm of telemetry",
 	"blue suede boots of charisma",
