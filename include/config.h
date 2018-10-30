@@ -586,6 +586,8 @@ typedef unsigned char uchar;
 
 #define SHOW_WEIGHT
 
+#define ARTI_WITH_OWNER	/* Wishing for artifact may bring the artifact with a hostile owner */
+
 #include "global.h" /* Define everything else according to choices above */
 
 #endif /* CONFIG_H */
