@@ -120,6 +120,7 @@ E void NDECL(exerchk);
 E void FDECL(init_attr, (int));
 E void NDECL(redist_attr);
 E void FDECL(adjabil, (int, int));
+E int NDECL(con_adjust);
 E void NDECL(adjust_con_hp);
 E int NDECL(newhp);
 E schar FDECL(acurr, (int));
@@ -1570,7 +1571,7 @@ E void NDECL(monstr_init);
 /* ### mplayer.c ### */
 
 E struct monst *FDECL(mk_mplayer,
-                      (struct permonst *, XCHAR_P, XCHAR_P, BOOLEAN_P));
+    (struct permonst *, XCHAR_P, XCHAR_P, BOOLEAN_P, struct obj *));
 E void FDECL(create_mplayers, (int, BOOLEAN_P));
 E void FDECL(mplayer_talk, (struct monst *));
 

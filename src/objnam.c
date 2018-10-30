@@ -4784,8 +4784,11 @@ typfnd:
             otmp->opoisoned=1;
     }
 
-    /* more wishing abuse: don't allow wishing for certain artifacts */
-    /* and make them pay; charge them for the wish anyway! */
+    /* more wishing abuse: don't allow wishing for certain artifacts
+     * and make them pay; charge them for the wish anyway!
+     * otherwise an increasing probability that the artifact returns
+     * with its previous owner
+     **/
     if ((is_quest_artifact(otmp)
          || (Role_if(PM_PIRATE) && otmp->oartifact == ART_REAVER)
          || (otmp->oartifact && rn2(u.uconduct.wisharti) > 1)) && !wizard) {
@@ -4798,6 +4801,238 @@ typfnd:
             pline("For a moment, you feel %s in your %s, but it disappears!",
               something, makeplural(body_part(HAND)));
     }
+#ifdef ARTI_WITH_OWNER
+    else if (otmp->oartifact &&
+        ((otmp->oartifact == ART_THIEFBANE) ||
+         (rn2(nartifact_exist()) > 1)))
+
+    if(wizard && yn("Force the wish to succeed?") == 'n')
+    {
+        int pm = -1;
+        int strategy = NEED_HTH_WEAPON;
+        struct monst *mtmp;
+        const char *voice = NULL;
+        struct obj *otmp2 = (struct obj *) 0;
+        /* You can use otmp2 to give the owner some other item you want to.
+           Used here to give ammunition for the Longbow of Diana, and weapons
+           for guardians of non-weapon artifacts.
+           **/
+        const char *aname = artiname(otmp->oartifact);
+
+        /* Wishing for a quest artifact may summon its nemesis (and quest enemies?) */
+        if (any_quest_artifact(otmp) && (rn2(nartifact_exist()) > 1)) {
+            const struct Role *role = roles;
+            while ((role->name.m) && (role->questarti != otmp->oartifact)) role++;
+            if (role->name.m) {
+                /* Don't bring the Tourist's nemesis to fight a Rogue when he is also
+                 * the Rogue's quest leader.
+                 */
+                if (!((role->neminum == PM_MASTER_OF_THIEVES) && Role_if(PM_ROGUE)))
+                    pm=role->neminum;
+            }
+        }
+
+        if (pm < 0) {
+            switch(otmp->oartifact) {
+                /* You can't get Thiefbane by wishing, and moving Arms Dealer out of the Black Market
+                 * to fight you wouldn't help. But sending a guard would be OK.
+                 */
+                case ART_THIEFBANE:
+                    artifact_exists(otmp, safe_oname(otmp), FALSE);
+                    obfree(otmp, (struct obj *) 0);
+                    otmp = mksobj(TWO_HANDED_SWORD, TRUE, FALSE);
+                    if (otmp->spe < 5) otmp->spe += 3;
+                    pm=PM_ROCK_TROLL;
+                    break;
+                case ART_VLADSBANE:
+                    pm=PM_VAMPIRE_LORD;
+                    voice="Vlad the Impaler";
+                    break;
+                case ART_KING_IN_YELLOW:
+                    pm=PM_SHADE;
+                    break;
+                /* Non-weapon artifacts: can still send in an appropriate guardian, but give them a
+                 * weapon.
+                 */
+                case ART_ORB_OF_DETECTION:
+                    otmp2 = mksobj(SABER, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_SUNSWORD:
+                case ART_QUICK_BLADE:
+                case ART_GRAYSWANDIR:
+                case ART_REAPER:
+                    pm=PM_ARCHEOLOGIST;
+                    break;
+                case ART_HEART_OF_AHRIMAN:
+                    otmp2 = mksobj(BATTLE_AXE, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_CLEAVER:
+                case ART_STORMBRINGER:
+                case ART_OGRESMASHER:
+                case ART_WAR_S_SWORD:
+                    pm=PM_BARBARIAN;
+                    break;
+                case ART_HOLOGRAPHIC_VOID_LILY:
+                    otmp2 = mksobj(SHURIKEN, TRUE, FALSE);
+                    otmp2->quan = (long) rn1(20, 10);
+                    otmp2->owt = weight(otmp2);
+                    otmp2->blessed = otmp2->cursed = 0;
+                    otmp2->spe = rn2(3);
+                    strategy = NEED_RANGED_WEAPON;
+                    pm=PM_CARTOMANCER;
+                    break;
+                case ART_GAE_BULG:
+                case ART_GAE_DEARG:
+                case ART_GAE_BUIDHE:
+                case ART_DRAGONBANE:
+                case ART_SCEPTRE_OF_MIGHT:
+                    pm=PM_CAVEMAN;
+                    break;
+                case ART_SHARUR:
+                    pm=PM_DRAGONMASTER;
+                    break;
+                case ART_STAFF_OF_AESCULAPIUS:
+                    pm=PM_HEALER;
+                    break;
+                case ART_PRIDWEN:
+                case ART_MAGIC_MIRROR_OF_MERLIN:
+                case ART_CARNWENNAN:
+                case ART_DISMOUNTER:
+                    otmp2 = mksobj(LONG_SWORD, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_EXCALIBUR:
+                    pm=PM_KNIGHT;
+                    break;
+                case ART_BALANCE:
+                case ART_EYES_OF_THE_OVERWORLD:
+                    pm=PM_MONK;
+                    break;
+                case ART_MARAUDER_S_MAP:
+                case ART_TREASURY_OF_PROTEUS:
+                case ART_SEAFOAM:
+                    otmp2 = mksobj(SCIMITAR, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_REAVER:
+                    pm=PM_PIRATE;
+                    break;
+                case ART_MITRE_OF_HOLINESS:
+                    otmp2 = mksobj(MACE, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_SUNSPOT:
+                case ART_TROLLSBANE:
+                case ART_SONICBOOM:
+                case ART_UNLIMITED_MOON:
+                    pm=PM_PRIEST;
+                    break;
+                case ART_LONGBOW_OF_DIANA:
+                    otmp2 = mksobj(ARROW, TRUE, FALSE);
+                    otmp2->quan = (long) rn1(20, 10);
+                    otmp2->owt = weight(otmp2);
+                    otmp2->blessed = otmp2->cursed = 0;
+                    otmp2->spe = rn2(3);
+                    strategy = NEED_RANGED_WEAPON;
+                case ART_ORCRIST:
+                    pm=PM_RANGER;
+                    break;
+                case ART_MASTER_KEY_OF_THIEVERY:
+                    otmp2 = mksobj(SHORT_SWORD, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_STING:
+                case ART_GRIMTOOTH:
+                    pm=PM_ROGUE;
+                    break;
+                case ART_TSURUGI_OF_MURAMASA:
+                case ART_SNICKERSNEE:
+                    pm=PM_SAMURAI;
+                    break;
+                case ART_YENDORIAN_EXPRESS_CARD:
+                    otmp2 = mksobj(UNICORN_HORN, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_VORPAL_BLADE:
+                case ART_LUCKLESS_FOLLY:
+                    pm=PM_TOURIST;
+                    break;
+                case ART_ORB_OF_FATE:
+                case ART_GLEIPNIR:
+                    otmp2 = mksobj(WAR_HAMMER, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_GIANTSLAYER:
+                case ART_GUNGNIR:
+                case ART_MJOLLNIR:
+                    pm=PM_VALKYRIE;
+                    break;
+                case ART_EYE_OF_THE_AETHIOPICA:
+                    otmp2 = mksobj(QUARTERSTAFF, TRUE, FALSE);
+                    if (otmp2->spe < 3)
+                        otmp2->spe = rnd(4);
+                case ART_MAGICBANE:
+                    pm=PM_WIZARD;
+                    break;
+                case ART_FROST_BRAND:
+                    if(u.ualign.type == A_NEUTRAL)
+                        pm=PM_TOURIST;
+                    else
+                        pm=PM_KNIGHT;
+                    break;
+                case ART_ACIDFALL:
+                case ART_FIRE_BRAND:
+                    if(u.ualign.type == A_NEUTRAL)
+                        pm=PM_BARBARIAN;
+                    else
+                        pm=PM_ARCHEOLOGIST;
+                    break;
+                case ART_DEMONBANE:
+                    if(u.ualign.type == A_NEUTRAL)
+                        pm=PM_HEALER;
+                    else
+                        pm=PM_PRIEST;
+                    break;
+                case ART_WEREBANE:
+                    if(u.ualign.type == A_NEUTRAL)
+                        pm=PM_BARBARIAN;
+                    else
+                        pm=PM_CAVEMAN;
+                    break;
+                default:
+                    impossible("Unknown artifact!");
+                    break;
+            }
+            if(pm==PM_CAVEMAN && rn2(2)) pm=PM_CAVEWOMAN;
+            if(pm==PM_PRIEST  && rn2(2)) pm=PM_PRIESTESS;
+        }
+
+        mtmp = mk_mplayer(&mons[pm], u.ux, u.uy, TRUE, otmp);
+        if (mtmp) {
+            if(Blind) {
+                if (Hallucination)
+                    pline("What's this with fried onions?");
+                else
+                    You("hear a small explosion and smell smoke.");
+                You("hear somebody say: Did you think that I would relinquish %s so easily?", aname);
+            } else {
+                if (Hallucination)
+                    pline("Nice colors, but the sound could have been more mellow.");
+                else
+                    pline("There is a puff of smoke and somebody appears!");
+                pline("%s says: Did you think that I would relinquish %s so easily?", voice ? voice : Monnam(mtmp), aname);
+            }
+            (void) mpickobj(mtmp, otmp);
+            if (otmp2) (void) mpickobj(mtmp, otmp2);
+            otmp = &zeroobj;
+            m_dowear(mtmp, TRUE);
+            mtmp->weapon_check = strategy;
+            mon_wield_item(mtmp);
+        }
+    }
+#endif /*ARTI_WITH_OWNER */
 
     /* un-deferred now that obj materials have been rebalanced */
     if (material > 0 && !otmp->oartifact
