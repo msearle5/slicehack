@@ -1445,7 +1445,7 @@ unsigned trflags;
 
     case LEVEL_TELEP:
         seetrap(trap);
-        level_tele_trap(trap, trflags);
+        (void)level_tele_trap(trap, trflags);
         break;
 
     case WEB: /* Our luckless player has stumbled into a web. */

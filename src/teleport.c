@@ -499,6 +499,11 @@ dotele()
     boolean trap_once = FALSE;
 
     trap = t_at(u.ux, u.uy);
+
+    if (trap && trap->tseen && trap->ttyp == LEVEL_TELEP &&
+        yn("There is a level teleporter here.  Jump in?") == 'y')
+        return level_tele_trap(trap, FORCETRAP);
+ 
     if (trap && (!trap->tseen || trap->ttyp != TELEP_TRAP))
         trap = 0;
 
@@ -896,27 +901,38 @@ struct trap *trap;
     }
 }
 
-void
+int
 level_tele_trap(trap, trflags)
 struct trap *trap;
 unsigned trflags;
 {
     char verbbuf[BUFSZ];
-
-    if ((trflags & VIASITTING) != 0)
-        Strcpy(verbbuf, "trigger"); /* follows "You sit down." */
-    else
-        Sprintf(verbbuf, "%s onto",
+    boolean jumped = (trflags & FORCETRAP);
+    /*
+     * The message here calls it a "level teleport trap", but in
+     * other places it's called a "level teleporter" ('There is a
+     * level teleporter here.').  This is also the string to wish
+     * for to generate one in wizmode.
+     */
+    if (jumped)
+        You("%s onto the level teleporter.",
+                locomotion(youmonst.data, "jump"));
+    else {
+        if ((trflags & VIASITTING) != 0)
+            Strcpy(verbbuf, "trigger"); /* follows "You sit down." */
+        else
+            Sprintf(verbbuf, "%s onto",
                 Levitation ? (const char *) "float"
                            : locomotion(youmonst.data, "step"));
-    You("%s a level teleport trap!", verbbuf);
+        You("%s onto a level teleport trap!", verbbuf);
+    }
 
-    if (Antimagic) {
+    if (!jumped && Antimagic) {
         shieldeff(u.ux, u.uy);
     }
-    if (Antimagic || In_endgame(&u.uz)) {
+    if ((!jumped && Antimagic) || In_endgame(&u.uz)) {
         You_feel("a wrenching sensation.");
-        return;
+        return(0);
     }
     if (!Blind)
         You("are momentarily blinded by a flash of light.");
@@ -925,6 +941,7 @@ unsigned trflags;
     deltrap(trap);
     newsym(u.ux, u.uy); /* get rid of trap symbol */
     level_tele();
+    return(1);
 }
 
 /* check whether monster can arrive at location <x,y> via Tport (or fall) */
