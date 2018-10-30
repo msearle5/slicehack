@@ -2578,7 +2578,10 @@ boolean loseit;    /* whether to drop it if hero can longer touch it */
                       yname(obj));
             }
             else {
-                You_cant("handle %s%s!", yname(obj),
+                if (Hallucination)
+                    You_cant("handle the truth!");
+                else
+                    You_cant("handle %s%s!", yname(obj),
                         obj->owornmask ? " anymore" : "");
             }
         /* also inflict damage unless touch_artifact() already did so */
