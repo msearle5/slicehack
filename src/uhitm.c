@@ -1622,6 +1622,9 @@ int dieroll;
                 pline("%s appears confused.", Monnam(mon));
         }
     }
+
+    if (!destroyed) wounds_message(mon);
+
     if (unpoisonmsg)
         Your("%s %s no longer poisoned.", saved_oname,
              vtense(saved_oname, "are"));

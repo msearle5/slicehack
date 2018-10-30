@@ -4478,6 +4478,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                             /* normal non-fatal hit */
                             if (say || canseemon(mon))
                                 hit(fltxt, mon, exclam(tmp));
+                            wounds_message(mon);
                         } else {
                             /* some armor was destroyed; no damage done */
                             if (canseemon(mon))
@@ -5532,7 +5533,8 @@ int damage, tell;
                 monkilled(mtmp, NULL, "", AD_RBRE);
             else
                 killed(mtmp);
-        }
+        } else
+            wounds_message(mtmp);
     }
     return resisted;
 }
