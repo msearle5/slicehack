@@ -179,6 +179,10 @@ introduce_artifact(int art)
                 "    I drew my Snickersnee!";
                 /* The Mikado, by Sir W.S. Gilbert */
 
+        hallu[ART_SNICKERSNEE] =
+                "A Snickersnee a day            \0"
+                "helps you hack, slash and play!";
+
         sober[ART_MAGIC_MIRROR_OF_MERLIN] =
                 "It virtue had to show in perfect sight         \0"
                 "Whatever thing was in the world contained,     "
@@ -293,7 +297,7 @@ introduce_artifact(int art)
     }
 
     if (!sober[art]) return FALSE;
-    if (Hallucination) {
+    if ((Hallucination) || ((art == ART_SNICKERSNEE) && (u.uroleplay.marathon))) {
         if (hallu[art])
             intro = hallu[art];
         else
