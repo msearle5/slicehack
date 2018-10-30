@@ -209,8 +209,6 @@ struct obj *wep;
             prinv((char *) 0, wep, 0L);
             wep->owornmask = dummy;
         }
-        setuwep(wep);
-
         /* KMH -- Talking artifacts are finally implemented */
         arti_speak(wep);
 
@@ -219,7 +217,10 @@ struct obj *wep;
             if (!Blind)
                 pline("%s to shine %s!", Tobjnam(wep, "begin"),
                       arti_light_description(wep));
-        }
+            do_setuwep(wep, TRUE);
+        } else
+			setuwep(wep);
+
 #if 0
         /* we'll get back to this someday, but it's not balanced yet */
         if (Race_if(PM_ELF) && !wep->oartifact

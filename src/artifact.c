@@ -903,7 +903,7 @@ boolean quiet;
                 EWarn_of_mon &= ~wp_mask;
                 context.warntype.obj = 0;
             }
-            see_monsters();
+            see_warn_monsters(on);
         } else {
             if (on)
                 EWarning |= wp_mask;
@@ -1681,7 +1681,8 @@ int dieroll; /* needed for Magicbane and vorpal blades */
         if(rnd_tmp<2) rnd_tmp = 2;
         if(youdefend) {
             make_blinded(Blinded+rnd_tmp, FALSE);
-            if (!Blind) Your(vision_clears);
+            if (!Blind)
+                pline("Your vision clears.");
         } else {
             if ((rnd_tmp += mdef->mblinded) > 127) rnd_tmp = 127;
             mdef->mblinded = rnd_tmp;
@@ -2525,28 +2526,38 @@ int arti_indx;
     return hcolor(colorstr);
 }
 
-/* use for warning "glow" for Sting, Orcrist, and Grimtooth */
+/* use for warning "glow" for Sting, Orcrist, etc */
 void
 Sting_effects(orc_count)
 int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
 {
     if (uwep && uwep->oartifact && artilist[uwep->oartifact].acolor != NO_COLOR) {
+        boolean lamp = (arti_light_radius > 0);
         if (orc_count == -1 && warn_obj_cnt > 0) {
             /* -1 means that blindness has just been toggled; give a
                'continue' message that eventual 'stop' message will match */
-            pline("%s is %s.", bare_artifactname(uwep),
+            if ((lamp) && (!Blind))
+                pline("%s's light is pulsing.", bare_artifactname(uwep));
+            else
+                pline("%s is %s.", bare_artifactname(uwep),
                   !Blind ? "glowing" : "quivering");
         } else if (orc_count > 0 && warn_obj_cnt == 0) {
             /* 'start' message */
             if (!Blind)
-                pline("%s %s %s!", bare_artifactname(uwep),
+                if (lamp)
+                    pline("%s's light pulsates!", bare_artifactname(uwep));
+                else
+                    pline("%s %s %s!", bare_artifactname(uwep),
                       otense(uwep, "glow"), glow_color(uwep->oartifact));
             else
                 pline("%s quivers slightly.", bare_artifactname(uwep));
         } else if (orc_count == 0 && warn_obj_cnt > 0) {
-            /* 'stop' message */
-            pline("%s stops %s.", bare_artifactname(uwep),
-                  !Blind ? "glowing" : "quivering");
+            if ((lamp) && (!Blind))
+                pline("%s's pulsing light steadies.", bare_artifactname(uwep));
+            else
+                /* 'stop' message */
+                pline("%s stops %s.", bare_artifactname(uwep),
+                    !Blind ? "glowing" : "quivering");
         }
     }
 }
