@@ -862,9 +862,10 @@ struct attack *mattk;
     if (magr->mtame) { /* give this one even if it was visible */
         You(brief_feeling, "melancholy");
         if (mdef->mhp <= 0) {
-          /* duplicates mon.c experience code */
-          more_experienced(experience(mdef, (int) mvitals[mdef->cham].died), 0);
-          newexplevel(); /* will decide if you go up */
+            int ex = experience(mdef, (int) mvitals[mdef->cham].died);
+            /* duplicates mon.c experience code */
+            more_experienced(ex, ex, 0);
+            newexplevel(); /* will decide if you go up */
         } else {
             setmangry(mdef, TRUE);
         }

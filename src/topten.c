@@ -558,7 +558,7 @@ time_t when;
     t0->ver_major = VERSION_MAJOR;
     t0->ver_minor = VERSION_MINOR;
     t0->patchlevel = PATCHLEVEL;
-    t0->points = u.urexp;
+    t0->points = u.urscore;
     t0->deathdnum = u.uz.dnum;
     /* deepest_lev_reached() is in terms of depth(), and reporting the
      * deepest level reached in the dungeon death occurred in doesn't

@@ -1000,7 +1000,7 @@ winid endwin;
             value = arti_cost(otmp); /* zorkmid value */
             points = value * 5 / 2;  /* score value */
             if (counting) {
-                nowrap_add(u.urexp, points);
+                nowrap_add(u.urscore, points);
             } else {
                 discover_object(otmp->otyp, TRUE, FALSE);
                 otmp->known = otmp->dknown = otmp->bknown = otmp->rknown = 1;
@@ -1263,16 +1263,16 @@ int how;
         tmp += 50L * (long) (deepest - 1);
         if (deepest > 20)
             tmp += 1000L * (long) ((deepest > 30) ? 10 : deepest - 20);
-        nowrap_add(u.urexp, tmp);
+        nowrap_add(u.urscore, tmp);
 
         /* ascension gives a score bonus iff offering to original deity */
         if (how == ASCENDED && u.ualign.type == u.ualignbase[A_ORIGINAL]) {
             /* retaining original alignment: score *= 2;
                converting, then using helm-of-OA to switch back: *= 1.5 */
             tmp = (u.ualignbase[A_CURRENT] == u.ualignbase[A_ORIGINAL])
-                      ? u.urexp
-                      : (u.urexp / 2L);
-            nowrap_add(u.urexp, tmp);
+                      ? u.urscore
+                      : (u.urscore / 2L);
+            nowrap_add(u.urscore, tmp);
         }
     }
 
@@ -1371,7 +1371,7 @@ int how;
                 if (val->list[i].count != 0L) {
                     tmp = val->list[i].count
                           * (long) objects[val->list[i].typ].oc_cost;
-                    nowrap_add(u.urexp, tmp);
+                    nowrap_add(u.urscore, tmp);
                 }
 
         /* count the points for artifacts */
@@ -1393,7 +1393,7 @@ int how;
             while (mtmp) {
                 Sprintf(eos(pbuf), " and %s", mon_nam(mtmp));
                 if (mtmp->mtame)
-                    nowrap_add(u.urexp, mtmp->mhp);
+                    nowrap_add(u.urscore, mtmp->mhp);
                 mtmp = mtmp->nmon;
             }
             dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
@@ -1404,7 +1404,7 @@ int how;
         Sprintf(eos(pbuf), "%s with %ld point%s,",
                 how == ASCENDED ? "went to your reward"
                                  : "escaped from the dungeon",
-                u.urexp, plur(u.urexp));
+                u.urscore, plur(u.urscore));
         dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
 
         if (!done_stopprint)
@@ -1464,7 +1464,7 @@ int how;
                         In_quest(&u.uz) ? dunlev(&u.uz) : depth(&u.uz));
         }
 
-        Sprintf(eos(pbuf), " with %ld point%s,", u.urexp, plur(u.urexp));
+        Sprintf(eos(pbuf), " with %ld point%s,", u.urscore, plur(u.urscore));
         dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
     }
 

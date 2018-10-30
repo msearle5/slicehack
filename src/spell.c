@@ -537,7 +537,7 @@ register struct obj *spellbook;
                 makeknown(booktype);
                 if (!u.uevent.read_tribute) {
                     /* give bonus of 20 xp and 4*20+0 pts */
-                    more_experienced(20, 0);
+                    more_experienced(20, 20, 0);
                     newexplevel();
                     u.uevent.read_tribute = 1; /* only once */
                 }
