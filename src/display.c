@@ -1238,6 +1238,13 @@ int mode;
 void
 see_monsters()
 {
+    see_warn_monsters (TRUE);
+}
+
+void
+see_warn_monsters (glow)
+boolean glow;
+{
     register struct monst *mon;
     int new_warn_obj_cnt = 0;
 
@@ -1263,7 +1270,7 @@ see_monsters()
     /*
      * Make Sting glow blue or stop glowing if required.
      */
-    if (new_warn_obj_cnt != warn_obj_cnt) {
+    if (glow && (new_warn_obj_cnt != warn_obj_cnt)) {
         Sting_effects(new_warn_obj_cnt);
         warn_obj_cnt = new_warn_obj_cnt;
     }

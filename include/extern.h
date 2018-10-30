@@ -350,6 +350,7 @@ E void FDECL(swallowed, (int));
 E void FDECL(under_ground, (int));
 E void FDECL(under_water, (int));
 E void NDECL(see_monsters);
+E void FDECL(see_warn_monsters, (boolean));
 E void NDECL(set_mimic_blocking);
 E void NDECL(see_objects);
 E void NDECL(see_traps);

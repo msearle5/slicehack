@@ -1859,11 +1859,17 @@ unsigned doname_flags;
                     (obj->otyp == AKLYS) ? "tethered " : "", hand_s);
 
             if (warn_obj_cnt && obj == uwep && (EWarn_of_mon & W_WEP) != 0L) {
-                /* presumably can be felt when blind */
-                Strcat(bp, " (glowing");
-                if (!Blind)
-                    Sprintf(eos(bp), " %s", glow_color(obj->oartifact));
-                Strcat(bp, ")");
+                /* presumably can be felt when blind - while the difference
+                 * between steady and pulsing can't */
+                if (arti_light_radius(obj) > 0) {
+                    if (!Blind)
+                        Strcat(bp, " (pulsating)");
+                } else {
+                    Strcat(bp, " (glowing");
+                    if (!Blind)
+                        Sprintf(eos(bp), " %s", glow_color(obj->oartifact));
+                    Strcat(bp, ")");
+                }
             }
         }
     }
