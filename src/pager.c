@@ -271,6 +271,12 @@ int x, y;
     if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1) {
         Sprintf(eos(buf), ", riding %s", a_monnam(ERID(mtmp)->m1));
     }
+
+    if (mon_wounds(mtmp)) {
+        Strcat(buf, ", ");
+        Strcat(buf, mon_wounds(mtmp));
+    }
+
     if (u.ustuck == mtmp) {
         if (u.uswallow || iflags.save_uswallow) /* monster detection */
             Strcat(buf, is_animal(mtmp->data)
