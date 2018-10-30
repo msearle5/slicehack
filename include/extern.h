@@ -750,7 +750,7 @@ E long FDECL(newuexp, (int));
 E int NDECL(newpw);
 E int FDECL(pm_experience, (struct permonst *));
 E int FDECL(experience, (struct monst *, int));
-E void FDECL(more_experienced, (int, int));
+E void FDECL(more_experienced, (int, int, int));
 E void FDECL(losexp, (const char *));
 E void NDECL(newexplevel);
 E void FDECL(pluslvl, (BOOLEAN_P));

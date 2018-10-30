@@ -174,20 +174,25 @@ register int nk;
 }
 
 void
-more_experienced(exper, rexp)
-register int exper, rexp;
+more_experienced(exper, score, rexp)
+register int exper, score, rexp;
 {
     long newexp = u.uexp + exper;
     long rexpincr = 4 * exper + rexp;
     long newrexp = u.urexp + rexpincr;
+    long rscoreincr = 4 * score + rexp;
+    long newrscore = u.urscore + rscoreincr;
 
     /* cap experience and score on wraparound */
     if (newexp < 0 && exper > 0)
         newexp = LONG_MAX;
     if (newrexp < 0 && rexpincr > 0)
         newrexp = LONG_MAX;
+    if (newrscore < 0 && rscoreincr > 0)
+        newrscore = LONG_MAX;
     u.uexp = newexp;
     u.urexp = newrexp;
+    u.urscore = newrscore;
 
     if (exper
 #ifdef SCORE_ON_BOTL

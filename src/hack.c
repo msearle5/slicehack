@@ -1894,7 +1894,7 @@ domove()
                         livelog_write_string (LL_CONDUCT, "killed for the first time");
                     mndx = monsndx(mtmp->data);
                     tmp = experience(mtmp, (int) mvitals[mndx].died);
-                    more_experienced(tmp, 0);
+                    more_experienced(tmp, 0, 0);
                     newexplevel(); /* will decide if you go up */
                 }
                 /* That's no way to treat a pet!  Your god gets angry.

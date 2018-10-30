@@ -2236,7 +2236,7 @@ register struct obj *obj;
     }
     if (known) {
         if (!objects[obj->otyp].oc_name_known)
-            more_experienced(0, 10);
+            more_experienced(0, 0, 10);
         /* effect was observable; discover the wand type provided
            that the wand itself has been seen */
         learnwand(obj);
@@ -3287,7 +3287,7 @@ struct obj *obj;
     if (disclose) {
         learnwand(obj);
         if (was_unkn)
-            more_experienced(0, 10);
+            more_experienced(0, 0, 10);
     }
     return;
 }

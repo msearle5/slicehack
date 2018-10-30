@@ -686,7 +686,7 @@ drinksink()
         break;
     case 8:
         pline("Yuk, this %s tastes awful.", hliquid("water"));
-        more_experienced(1, 0);
+        more_experienced(1, 1, 0);
         newexplevel();
         break;
     case 9:
