@@ -1159,8 +1159,11 @@ int how;
         u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
     else if (how == STONING)
         u.ugrave_arise = (NON_PM - 1); /* statue instead of corpse */
-    else if (how == TURNED_SLIME)
+    else if (how == TURNED_SLIME) {
         u.ugrave_arise = PM_GREEN_SLIME;
+        if (Hallucination)
+            pline("Next time, watch out for slime!");
+    }
 
     if (how == QUIT) {
         killer.format = NO_KILLER_PREFIX;
