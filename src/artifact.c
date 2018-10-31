@@ -2887,6 +2887,22 @@ static const char *random_seasound[] = {
    	"waves lapping against a hull"
 };
 
+static const char *hallu_seasound[] = {
+    "an ice cream van!",
+    "a speedboat.",
+    "a squeaking rubber duck!",
+    "a toilet flush!",
+    "the shower running.",
+    "a loud advert for Tide.",
+    "a commercial for protein bars.",
+    "a shark jumping!",
+    "a C major chord.",
+    "a dripping tap.",
+    "something fishy happening.",
+    "a gull asking for a bite of your sandwich.",
+    "a foghorn!"
+};
+
 /* Polymorph obj contents */
 void
 arti_poly_contents(obj)
@@ -2894,7 +2910,10 @@ struct obj *obj;
 {
     struct obj *dobj = 0;  /*object to be deleted*/
     struct obj *otmp;
-   	You_hear("%s.",random_seasound[rn2(SIZE(random_seasound))]);
+    if (Hallucination)
+        You_hear("%s",hallu_seasound[rn2(SIZE(hallu_seasound))]);
+   	else
+        You_hear("%s.",random_seasound[rn2(SIZE(random_seasound))]);
    	for (otmp = obj->cobj; otmp; otmp = otmp->nobj){
      		if (dobj) {
      			  delobj(dobj);
