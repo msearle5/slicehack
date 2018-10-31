@@ -2492,15 +2492,6 @@ struct permonst _mons2[] = {
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID | M1_POIS,
         M2_HOSTILE | M2_NEUTER, 0, CLR_GREEN),
-    MON("blood pudding", S_PUDDING, LVL(7, 5, 4, 0, 0),
-        (G_GENO | G_NOCORPSE | 1), A(ATTK(AT_TUCH, AD_DRLI, 0, 0), NO_ATTK,
-                                     NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(500, 250, MS_SILENT, MZ_MEDIUM),
-        MR_COLD | MR_ELEC | MR_POISON | MR_ACID | MR_STONE,
-        MR_COLD | MR_ELEC | MR_POISON,
-        M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
-            | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
-        M2_HOSTILE | M2_NEUTER | M2_NASTY, 0, CLR_RED),
     MON("black pudding", S_PUDDING, LVL(10, 6, 6, 0, 0),
         (G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_BITE, AD_CORR, 3, 8), ATTK(AT_NONE, AD_CORR, 0, 0), NO_ATTK,
@@ -2511,6 +2502,15 @@ struct permonst _mons2[] = {
         M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
             | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
         M2_HOSTILE | M2_NEUTER, 0, CLR_BLACK),
+    MON("blood pudding", S_PUDDING, LVL(7, 5, 4, 0, 0),
+        (G_GENO | G_NOCORPSE | 1), A(ATTK(AT_TUCH, AD_DRLI, 0, 0), NO_ATTK,
+                                     NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(500, 250, MS_SILENT, MZ_MEDIUM),
+        MR_COLD | MR_ELEC | MR_POISON | MR_ACID | MR_STONE,
+        MR_COLD | MR_ELEC | MR_POISON,
+        M1_BREATHLESS | M1_AMORPHOUS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD
+            | M1_MINDLESS | M1_OMNIVORE | M1_ACID,
+        M2_HOSTILE | M2_NEUTER | M2_NASTY, 0, CLR_RED),
     MON("Ancient Brain", S_PUDDING, LVL(15, 12, 10, 50, 13), (G_UNIQ | G_NOGEN),
       A(ATTK(AT_MAGC, AD_PSYC, 2, 4), ATTK(AT_MAGC, AD_PSYC, 2, 4),
         ATTK(AT_MAGC, AD_PSYC, 2, 4), ATTK(AT_MAGC, AD_SPEL, 0, 0), NO_ATTK,
