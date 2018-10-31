@@ -1675,6 +1675,7 @@ E boolean FDECL(munslime, (struct monst *, BOOLEAN_P));
 
 /* ### music.c ### */
 
+E const char * NDECL(generic_lvl_desc);
 E void FDECL(awaken_monsters, (int));
 E void FDECL(awaken_soldiers, (struct monst *));
 E void FDECL(do_earthquake, (int, int, int));
