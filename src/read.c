@@ -2149,37 +2149,78 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         /* TODO: handle steeds */
         if (!Is_rogue_level(&u.uz) && has_ceiling(&u.uz)
             && (!In_endgame(&u.uz) || Is_earthlevel(&u.uz))) {
-            register int x, y;
-            int nboulders = 0;
 
-            /* Identify the scroll */
-            if (u.uswallow)
-                You_hear("rumbling.");
-            else
-                pline_The("%s rumbles %s you!", ceiling(u.ux, u.uy),
-                          sblessed ? "around" : "above");
-            known = 1;
-            sokoban_guilt();
+            if (confused) {
+                known = TRUE;
+                if (scursed) {
+                    register struct monst *mtmp;
+                    int elementals = 0;
+                    int vortices = 0;
+                    int difficulty = level_difficulty();
+                    int i;
 
-            /* Loop through the surrounding squares */
-            if (!scursed)
-                for (x = u.ux - 1; x <= u.ux + 1; x++) {
-                    for (y = u.uy - 1; y <= u.uy + 1; y++) {
-                        /* Is this a suitable spot? */
-                        if (isok(x, y) && !closed_door(x, y)
-                            && !IS_ROCK(levl[x][y].typ)
-                            && !IS_AIR(levl[x][y].typ)
-                            && (x != u.ux || y != u.uy)) {
-                            nboulders +=
-                                drop_boulder_on_monster(x, y, confused, TRUE);
+                    if (difficulty < 3) {
+                        vortices = rnd(2);
+                    } else if (difficulty < 6) {
+                        vortices = rn2(2);
+                        elementals = 2-vortices;
+                    } else if (difficulty < 9) {
+                        elementals = rnd(2);
+                    } else if (difficulty < 12) {
+                        elementals = rnd(2)+1;
+                    } else {
+                        elementals = d(2,2);
+                    }
+                    for(i=0;i<vortices;i++) {
+                        mtmp = makemon(&mons[PM_DUST_VORTEX], u.ux, u.uy, MM_NOWAIT);
+                        mtmp->mtame = mtmp->mpeaceful = 0;
+                    }
+                    for(i=0;i<elementals;i++) {
+                        mtmp = makemon(&mons[PM_EARTH_ELEMENTAL], u.ux, u.uy, MM_NOWAIT);
+                        mtmp->mtame = mtmp->mpeaceful = 0;
+                    }
+                    mtmp->mtame = mtmp->mpeaceful = 0;
+                    pline("The earth moves around you!");
+                } else {
+                    pline("There is a thunderous rumbling!");
+                    pline_The("entire %s is shaking around you!", generic_lvl_desc());
+                    do_earthquake((sblessed) ? 8 : 5, u.ux, u.uy);
+                    /* shake up monsters in a much larger radius... */
+                    awaken_monsters(ROWNO * COLNO);
+                }
+            } else {
+                register int x, y;
+                int nboulders = 0;
+
+                /* Identify the scroll */
+                if (u.uswallow)
+                    You_hear("rumbling.");
+                else
+                    pline_The("%s rumbles %s you!", ceiling(u.ux, u.uy),
+                              sblessed ? "around" : "above");
+                known = 1;
+                sokoban_guilt();
+
+                /* Loop through the surrounding squares */
+                if (!scursed)
+                    for (x = u.ux - 1; x <= u.ux + 1; x++) {
+                        for (y = u.uy - 1; y <= u.uy + 1; y++) {
+                            /* Is this a suitable spot? */
+                            if (isok(x, y) && !closed_door(x, y)
+                                && !IS_ROCK(levl[x][y].typ)
+                                && !IS_AIR(levl[x][y].typ)
+                                && (x != u.ux || y != u.uy)) {
+                                nboulders +=
+                                    drop_boulder_on_monster(x, y, confused, TRUE);
+                            }
                         }
                     }
-                }
-            /* Attack the player */
-            if (!sblessed) {
-                drop_boulder_on_player(confused, !scursed, TRUE, FALSE);
-            } else if (!nboulders)
-                pline("But nothing else happens.");
+                /* Attack the player */
+                if (!sblessed) {
+                    drop_boulder_on_player(confused, !scursed, TRUE, FALSE);
+                } else if (!nboulders)
+                    pline("But nothing else happens.");
+            }
         }
         break;
     case SCR_PUNISHMENT:
