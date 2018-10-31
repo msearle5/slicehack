@@ -1765,7 +1765,8 @@ xchar x, y;
     /* Monsters avoid a trap if they've seen that type before */
     } else if (trap && rn2(40)
                && (mtmp->mtrapseen & (1 << (trap->ttyp - 1))) != 0) {
-        return TRUE;
+        if (!Is_stronghold(&u.uz) && !Is_knox(&u.uz) && !Is_nemesis(&u.uz)) return TRUE;
+        if (mindless(mtmp->data) || (!humanoid(mtmp->data))) return TRUE;
     }
 
     return FALSE;
