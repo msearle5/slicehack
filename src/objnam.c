@@ -3648,9 +3648,10 @@ const char * in_str;
  * return null.
  */
 struct obj *
-readobjnam(bp, no_wish)
+readobjnam(bp, no_wish, extra)
 register char *bp;
 struct obj *no_wish;
+int extra;
 {
     register char *p;
     register int i;
@@ -4593,15 +4594,21 @@ typfnd:
         obj_extract_self(otmp); /* now release it for caller's use */
     }
 
-    /* if player specified a reasonable count, maybe honor it */
-    if (cnt > 1 && objects[typ].oc_merge
-        && (wizard || cnt < rnd(6) || (cnt <= 7 && Is_candle(otmp))
-            || (cnt <= 20 && ((oclass == WEAPON_CLASS && is_ammo(otmp))
-                              || typ == ROCK || is_missile(otmp))))) {
-        if (oclass == COIN_CLASS && !wizard && cnt > 5000) {
-            cnt = 5000;
-        }
-        otmp->quan = (long) cnt;
+    /* if player specified a reasonable count, maybe honor it.
+     * increase by 50% per step of extra
+     **/
+    if (cnt > 1 && objects[typ].oc_merge) {
+        long limit = rn2(6);
+        if (Is_candle(otmp))
+            limit = 7;
+        if ((oclass == WEAPON_CLASS && is_ammo(otmp)) ||
+            typ == ROCK || is_missile(otmp))
+            limit = 20;
+        if (oclass == COIN_CLASS)
+            limit = 5000;
+        limit = (limit * (2 + extra)) / 2;
+        if (wizard || (cnt <= limit))
+            otmp->quan = (long) cnt;
     }
 
     if (oclass == VENOM_CLASS)
@@ -4614,7 +4621,7 @@ typfnd:
     } else if (oclass == ARMOR_CLASS || oclass == WEAPON_CLASS
                || is_weptool(otmp)
                || (oclass == RING_CLASS && objects[typ].oc_charged)) {
-        if (spe > rnd(5) && spe > otmp->spe)
+        if (spe > rnd(5+extra) && spe > otmp->spe)
             spe = 0;
         if (spe > 2 && Luck < 0)
             spesgn = -1;
@@ -4626,8 +4633,8 @@ typfnd:
             if (spe > 0 && spesgn == -1)
                 spe = 0;
         }
-        if (spe > otmp->spe)
-            spe = otmp->spe;
+        if (spe > (otmp->spe + extra))
+            spe = (otmp->spe + extra);
     }
 
     if (spesgn == -1)

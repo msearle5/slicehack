@@ -3128,7 +3128,7 @@ boolean
 proc_wizkit_line(buf)
 char *buf;
 {
-    struct obj *otmp = readobjnam(buf, (struct obj *) 0);
+    struct obj *otmp = readobjnam(buf, (struct obj *) 0, 0);
 
     if (otmp) {
         if (otmp != &zeroobj)

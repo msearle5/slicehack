@@ -5602,6 +5602,16 @@ int triesleft;
 void
 makewish()
 {
+    improved_wish(0);
+}
+
+/* Make a wish. The 'extra' parameter biases the limits on numbers (stacks,
+ * charge, enchantment...)
+ */
+void
+improved_wish(extra)
+int extra;
+{
     char buf[BUFSZ] = DUMMY;
     char promptbuf[BUFSZ];
     char bufcpy[BUFSZ];
@@ -5633,13 +5643,13 @@ retry:
      *  value to remain distinct.
      */
     strcpy(bufcpy, buf);
-    otmp = readobjnam(buf, &nothing);
+    otmp = readobjnam(buf, &nothing, extra);
     if (!otmp) {
         pline("Nothing fitting that description exists in the game.");
         if (++tries < MAXWISHTRY)
             goto retry;
         pline1(thats_enough_tries);
-        otmp = readobjnam((char *) 0, (struct obj *) 0);
+        otmp = readobjnam((char *) 0, (struct obj *) 0, extra);
         if (!otmp)
             return; /* for safety; should never happen */
     } else if (otmp == &nothing) {

@@ -3524,7 +3524,7 @@ struct obj *obj;
     static const char nothing_else_happens[] = "But nothing else happens...";
     register int i, x, y;
     register struct monst *mon;
-    int dmg, damage;
+    int dmg, damage, spe;
     boolean affects_objects;
     boolean shop_damage = FALSE;
     boolean fillmsg = FALSE;
@@ -3560,6 +3560,7 @@ struct obj *obj;
     freeinv(obj);       /* hide it from destroy_item instead... */
     setnotworn(obj);    /* so we need to do this ourselves */
 
+    spe = obj->spe;
     if (!zappable(obj)) {
         pline(nothing_else_happens);
         goto discard_broken_wand;
@@ -3580,14 +3581,16 @@ struct obj *obj;
     affects_objects = FALSE;
 
     switch (obj->otyp) {
-    case WAN_WISHING:
     case WAN_NOTHING:
     case WAN_LOCKING:
     case WAN_PROBING:
     case WAN_ENLIGHTENMENT:
     case WAN_OPENING:
     case WAN_SECRET_DOOR_DETECTION:
-        pline(nothing_else_happens);
+        if (Hallucination)
+            You("wish you hadn't done that.");
+        else
+            pline(nothing_else_happens);
         goto discard_broken_wand;
     case WAN_DEATH:
     case WAN_LIGHTNING:
@@ -3623,6 +3626,16 @@ struct obj *obj;
     case WAN_TELEPORTATION:
     case WAN_UNDEAD_TURNING:
         affects_objects = TRUE;
+        break;
+    case WAN_WISHING:
+        if ((Luck + rn2(5) < 0) || (spe < 0)) {
+            if (Hallucination)
+                You("wish you hadn't done that.");
+            else
+                pline(nothing_else_happens);
+            break;
+        }
+        improved_wish(spe + (obj->recharged == 0));
         break;
     default:
         break;
