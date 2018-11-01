@@ -319,7 +319,7 @@ struct obj *obj;
             pline("You draw a hand of five cards. Wow, a royal flush!");
         }
         /* if blessed, indicate the luck value directly. */
-        if (obj->blessed && Luck > 0) {
+        if ((obj->blessed || Role_if(PM_CARTOMANCER)) && Luck > 0) {
             pline("You shuffle the deck %d times.", Luck);
         } else {
             pline("You don't bother shuffling the deck.");
@@ -348,7 +348,7 @@ struct obj *obj;
         if (obj->cursed && index > 1) {
           index--;
         }
-        if (obj->blessed && index < 22) {
+        if ((obj->blessed || Role_if(PM_CARTOMANCER)) && index < 22) {
           index++;
         }
         switch(index) {
