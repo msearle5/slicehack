@@ -46,6 +46,11 @@ enum encumbrance_types {
 #define SHOP_WALL_COST 200L /* cost of destroying a wall */
 #define SHOP_WALL_DMG  (10L * ACURRSTR) /* damaging a wall */
 
+#define PIOUS 20
+#define DEVOUT 14
+#define FERVENT 9
+#define STRIDENT 4
+
 /* hunger states - see hu_stat in eat.c */
 enum hunger_state_types {
     SATIATED = 0,

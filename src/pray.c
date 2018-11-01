@@ -60,11 +60,6 @@ static aligntyp p_aligntyp;
 static int p_trouble;
 static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
 
-#define PIOUS 20
-#define DEVOUT 14
-#define FERVENT 9
-#define STRIDENT 4
-
 /*
  * The actual trouble priority is determined by the order of the
  * checks performed in in_trouble() rather than by these numeric

@@ -385,14 +385,29 @@ struct obj *obj;
                 draws = 0;
                 break;
             case 6:
+                /* If pious and not angry, you get a good effect instead */
                 pline("You draw Judgement...");
-                punish(obj);
+                if ((u.ualign.record >= PIOUS) && (!u.ugangr)) {
+                    pline("You are surrounded in a golden glow!");
+                    if (!(HProtection & INTRINSIC)) {
+                        HProtection |= FROMOUTSIDE;
+                        if (!u.ublessed)
+                            u.ublessed = rn1(3, 2);
+                    } else
+                        u.ublessed++;
+                }
+                else
+                    punish(obj);
                 break;
             case 7:
                 pline("You draw The Emperor...");
-                pline("You feel worthless.");
-                attrcurse();
-                attrcurse();
+                if (is_prince(youmonst.data))
+                    You_feel("entitled!");
+                else {
+                    pline("You feel worthless.");
+                    attrcurse();
+                    attrcurse();
+                }
                 break;
             case 8:
                 pline("You draw The Hermit...");
