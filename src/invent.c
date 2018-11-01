@@ -3628,7 +3628,7 @@ register struct obj *otmp, *obj;
         return FALSE;
 
     /* fuming potions of acid never merge */
-    if (obj->otyp == POT_ACID && obj->ovar1)
+    if ((obj->otyp == POT_ACID) && (obj->ovar1))
         return FALSE;
 
     /* don't merge surcharged item with base-cost item */
