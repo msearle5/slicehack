@@ -407,7 +407,7 @@ tty_player_selection()
     menu_item *selected = 0;
 
     /* Used to avoid "Is this ok?" if player has already specified all
-     * four facets of role.
+     * five facets of role.
      * Note that rigid_role_checks might force any unspecified facets to
      * have a specific value, but that will still require confirmation;
      * player can specify the forced ones if avoiding that is demanded.
@@ -502,7 +502,6 @@ makepicks:
                     any = zeroany; /* separator, not a choice */
                     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, "",
                              MENU_UNSELECTED);
-                    role_menu_extra(RS_SUBROLE, win, TRUE);
                     role_menu_extra(RS_RACE, win, FALSE);
                     role_menu_extra(RS_GENDER, win, FALSE);
                     role_menu_extra(RS_ALGNMNT, win, FALSE);
@@ -586,7 +585,6 @@ makepicks:
                     any = zeroany; /* separator, not a choice */
                     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, "",
                              MENU_UNSELECTED);
-                    role_menu_extra(RS_SUBROLE, win, TRUE);
                     role_menu_extra(RS_RACE, win, FALSE);
                     role_menu_extra(RS_GENDER, win, FALSE);
                     role_menu_extra(RS_ALGNMNT, win, FALSE);

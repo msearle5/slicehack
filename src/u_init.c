@@ -855,7 +855,7 @@ int difficulty;
     long packed;
     boolean retry;
     int init_difficulty, limit;
-    r->difficulty = init_difficulty = difficulty;
+    r->difficulty = difficulty;
     
     /* First time, get the number of monsters */
     if (nmons == -1) {
@@ -874,6 +874,7 @@ int difficulty;
     rarity = isqrt(rarity);
     rarity += 30;
     targetid = alchemy_otyp_id(target);
+    init_difficulty = rarity;
 
      /* Loop until acceptable, each time increasing the acceptance window */
     bound = rarity / 20;
@@ -904,6 +905,7 @@ int difficulty;
         } while ((difficulty > bound) && (objects < 4));
         if (monsters >= 2) retry = TRUE;
         if ((difficulty < -bound) || (difficulty > bound)) retry = TRUE;
+        if (objects < 1) retry = TRUE;
     
         if (retry == FALSE) {
             /* Convert them to recipe form, and make sure it's not the same as a previous recipe */
