@@ -6,6 +6,7 @@
 /* Edited on 4/14/18 by NullCGT */
 
 #include "hack.h"
+#include "date.h"
 #include <ctype.h>
 #include <assert.h>
 
@@ -88,16 +89,20 @@ static const char * const bogus_items[] = {
 
     /* Real */
     "arrow",
+    "arrowroot",
     "elven arrow",
     "orcish arrow",
     "runed arrow",
+    "ruled arrow",
     "ruined arrow",
     "crude arrow",
     "vulgar arrow",
     "ya",
+    "ya boo arrow",
     "bamboo arrow",
     "crossbow bolt",
     "dart",
+    "lawn dart",
     "gorget",
     "holy symbol",
     "holy cymbal",
@@ -123,6 +128,9 @@ static const char * const bogus_items[] = {
     "scalpel",
     "knife",
     "penknife",
+    "phoenix feather wand",
+    "wand of psonics",
+    "polyjuice potion",
     "stiletto",
     "worm tooth",
     "hen tooth",
@@ -134,8 +142,10 @@ static const char * const bogus_items[] = {
     "battle-axe",
     "short sword",
     "scimitar",
+    "really short sword",
     "cutlass",
     "curved sword",
+    "wonky sword",
     "silver saber",
     "broadsword",
     "long sword",
@@ -164,6 +174,7 @@ static const char * const bogus_items[] = {
     "iron bar",
     "aklys",
     "thonged club",
+    "club in flip-flops",
     "flail",
     "bullwhip",
     "bow",
@@ -173,9 +184,12 @@ static const char * const bogus_items[] = {
     "sling",
     "crossbow",
     "fedora",
+    "red hat",
     "conical hat",
     "comical hat",
     "plumed helmet",
+    "plummed helmet",
+    "peaked helmet",
     "plumbed helmet",
     "etched helmet",
     "itched helmet",
@@ -203,6 +217,13 @@ static const char * const bogus_items[] = {
     "elfin chain mail",
     "vorpal two-handed sword",
     "elven shield",
+    "wand of depth",
+    "wand of tickling",
+    "wand of whining",
+    "wand of winning",
+    "wand of something",
+    "wand of worm turning",
+    "tin of spam",
     "shield of reflection",
     "shield of deflection",
     "silly hat",
@@ -241,6 +262,7 @@ static const char * const bogus_items[] = {
     "polo mint",
     "string vest",
     "muscle vest",
+    "graphic tee",
     "applied theology textbook",        /* AFutD */
     "handbag",
     "onion ring",
@@ -269,6 +291,7 @@ static const char * const bogus_items[] = {
     "YANI",
     "spoiler",
     "wiki",
+    "source diving helmet",
     "wizard bones",
     "Puddingbane",
     "malevolent RNG",
@@ -301,7 +324,6 @@ static const char * const bogus_items[] = {
     "tuba",
     "sousaphone",
     "euphonium",
-    " two slightly sampled electric eels", /* Oldfield */
     "kick drum",                        /* 303 */
     "tooled airhorn",
 
@@ -309,7 +331,6 @@ static const char * const bogus_items[] = {
     "flux capacitor",                   /* BTTF */
     "Walther PPK",                      /* Bond */
     "hanging chad",                     /* US Election 2000 */
-    "99 red balloons",                  /* 80s */
     "pincers of peril",                 /* Goonies */
     "ring of schwartz",                 /* Spaceballs */
     "signed copy of Diaspora",          /* Greg Egan */
@@ -335,15 +356,19 @@ static const char * const bogus_items[] = {
     "Orb of Zot",                       /* Dungeon Crawl */
     "head of Morgoth",                  /* Angband, sort of */
     "hand of Vecna",                    /* SLASH'EM */
+    "head of Vecna",
     "eye of the beholder",              /* SLASH'EM */
     "heavy machine gun",                /* SLASH'EM */
     "gas grenade",                      /* SLASH'EM */
+    "frag grenade",                     /* SLASH'EM */
+    "frog grenade",
     "gauntlets of swimming",            /* SLASH'EM */
     "amulet versus stone",              /* SLASH'EM */
     "potion of clairvoyance",           /* SLASH'EM */
     "potion of invulnerability",        /* SLASH'EM */
     "spellbook of enchant armor",       /* SLASH'EM */
     "wand of create horde",             /* SLASH'EM */
+    "wand of infinite kittens",
     "map of The Great Adamantine Space Elevator", /*Dwarf Fortress*/
     "rat blood barrel",                 /* Dwarf Fortress */
     "fly ichor barrel",                 /* Dwarf Fortress */
@@ -351,8 +376,13 @@ static const char * const bogus_items[] = {
     "si",                               /* ADOM, it means "strange item" */
     "scroll of omnipotence",            /* ADOM */
     "scroll of vermin control",         /* ADOM */
+    "potion of cure dianthroritis",     /* Larn */
+    "Eye of Spam",                      /* Larn sent you mail if you won */
+    "long sword named Ringil",          /* Angband */
+    "long sword named Anduril",         /* Angband */
+    "metal shod boots of stealth",      /* Angband */
 
-    /* fruit names from NAO - http://alt.org/nethack/petnames.html */
+    /* fruit names mostly from NAO - http://alt.org/nethack/petnames.html */
     "!!+dimple cup stew+!!",            /* fruit name from NAO, inspired by Dwarf Fortress */
     "!!-lignite rock candy-!!",         /* fruit name from NAO, inspired by Dwarf Fortress */
     "!!cat biscuit!!",                  /* fruit name from NAO, inspired by Dwarf Fortress */
@@ -367,13 +397,14 @@ static const char * const bogus_items[] = {
     "bananananananana",
     "big bowl of sauerkraut",
     "bonesfile",
-    "brain of mind flayer",
+    "brain of a mind flayer",
     "brain",
     "brown percent sign",
     "calculus textbook",
     "chocolate Amulet of Yendor",
     "corpse of a grid bug",
     "eldritch pear",
+    "flask of nanobots",
     "gingerbread Amulet of Yendor",
     "Hand of Vecna",
     "Higgs Boson",
@@ -385,7 +416,6 @@ static const char * const bogus_items[] = {
     "morsel of existential dread",
     "potion of motor oil",
     "potion of coffee",
-    "flask of nanobots",
     "potion of nuclear waste",
     "potion of genocide",
     "potion of mana",
@@ -393,6 +423,7 @@ static const char * const bogus_items[] = {
     "radioactive orb",
     "Recursive RRF Fruit",
     "scroll labeled EAT ME",
+    "scroll labeled NO WAY",
     "sentient slime mold",
     "sinister omen of imminent doom",
     "syntax error",
@@ -408,6 +439,7 @@ static const char * const bogus_items[] = {
     "spellbook called Octavo",          /* Discworld */
     "ring of power",                    /* LOTR */
     "lightsaber",
+    "blaster",
     "dimsaber",
     "darksaber",
     "pan-galactic gargle blaster",      /* HGttG */
@@ -418,13 +450,14 @@ static const char * const bogus_items[] = {
     "horcrux",                          /* HP */
     "Codex of the Infinite Planes",     /* DnD */
     "dragon's claw",
+    "Eye-Shield",                       /* Dungeon Master */
 
     /* Geekery */
     "AAA chipset",                      /* Amiga */
     "thoroughly used copy of Nethack for Dummies",
     "named pipe",                       /* UNIX */
     "kernel trap",
-    "copy of SliceHack 0.3.0",          /* recursion... */
+    "copy of SliceHack " VERSION_STRING, /* recursion... */
     "cursed smooth manifold",           /* Topology */
     "vi clone",
     "maximally subsentient emacs mode",
@@ -433,20 +466,24 @@ static const char * const bogus_items[] = {
     "patch",
     "directed acyclic graph",
     "server",
+    "swerver",
     "install CD",
     "CPU",
+    "core dump",
+    "compiler",
 
     /* Historical */
     "dead sea scroll",
     "cat o'nine tails",
     "pieces of eight",
+    "poignard",
     "codpiece",
     "straight-jacket",
     "bayonet",
     "iron maiden",
     "oubliette",
     "garderobe",
-    "pestle and mortar"
+    "pestle and mortar",
     "plowshare",
     "The Book of the All-Virtuous Wisdom of Joshua ben Sira",
     "Holy Grail",                      /* Arthurian legends */
@@ -456,6 +493,9 @@ static const char * const bogus_items[] = {
     "scythe",
 
     /* Mashups */
+    "snail mail",
+    "bandaged mail",
+    "splintered mail",
     "scale-reinforced banded-splint mail with chain joints",
     "potion of rebigulation",           /* Simpsons */
     "cromulent potion",                 /* the same potion when unIDed */
@@ -490,6 +530,8 @@ static const char * const bogus_items[] = {
     "wand of vaporization",
     "wand of disruption",
     "wand of disintegration",
+    "wand of stunning",
+    "wand of prestidigitation",
     "ring named Frost Band",
     "expensive exact replica of the Amulet of Yendor",
     "giant beatle",
@@ -501,6 +543,7 @@ static const char * const bogus_items[] = {
     "cursed -3 earring of adornment",
     "wisdom boots",
     "ornamental cape",
+    "ornamental cap",
     "acid blob skeleton",
     "Lawyerbane",
     "RNG corpse",
@@ -515,11 +558,11 @@ static const char * const bogus_items[] = {
 
     /* from tvtropes.org */
     "Sealed Good in a Can",
-    "Sealed Evil in a Can ",
+    "Sealed Evil in a Can",
     "The Home Handyman's Guide to Building Gates to Hell",
     "The Idiot's Guide to Demonology",
     "tome of Eldritch Lore",
-    "airborne aircraft carrier ",
+    "airborne aircraft carrier",
     "airborne airborne aircraft carrier carrier",
     "MacGuffin",
     "plot device",
