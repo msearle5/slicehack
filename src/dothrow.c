@@ -182,18 +182,19 @@ int shotlimit;
                 if (skill == -P_CROSSBOW)
                     multishot++;
                 break;
-            case PM_GIANT:
-                /* Giants are good at throwing things, but not at
-                 * using bows, crossbows and slings.
-                 */
-                if ((skill == -P_CROSSBOW) || (skill == -P_BOW) || (skill == -P_SLING))
-                    multishot = 1;
-                break;
             case PM_HUMAN:
             case PM_DWARF:
             default:
                 break; /* No bonus */
             }
+
+        if (Race_if(PM_GIANT)) {
+            /* Giants are good at throwing things, but not at
+             * using bows, crossbows and slings.
+             */
+            if ((skill == -P_CROSSBOW) || (skill == -P_BOW) || (skill == -P_SLING))
+                multishot = 1;
+        }
 
         /* Tech: Flurry */
   	    if (objects[obj->otyp].oc_skill == -P_BOW && tech_inuse(T_FLURRY)) {
