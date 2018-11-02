@@ -83,6 +83,10 @@
      || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER] \
      || (ptr) == &mons[PM_HELLBEAR])
 #define is_silent(ptr) ((ptr)->msound == MS_SILENT)
+#define mon_flammable(ptr) (((ptr) == &mons[PM_WOOD_GOLEM]) || ((ptr) == &mons[PM_STRAW_GOLEM]) \
+    || ((ptr) == &mons[PM_PAPER_GOLEM]) || ((ptr) == &mons[PM_GREEN_SLIME]) \
+    || ((ptr) == &mons[PM_WALKING_OAK]) || ((ptr) == &mons[PM_WALKING_BIRCH]) \
+    || ((ptr) == &mons[PM_WALKING_WILLOW]))
 #define unsolid(ptr) (((ptr)->mflags1 & M1_UNSOLID) != 0L)
 #define mindless(ptr) (((ptr)->mflags1 & M1_MINDLESS) != 0L)
 #define humanoid(ptr) (((ptr)->mflags1 & M1_HUMANOID) != 0L)

@@ -1593,13 +1593,26 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
         if (realizes_damage)
-            pline_The("fiery blade %s %s%c",
+            if (mon_flammable(mdef->data)) {
+                if (youdefend) {
+                    pline("As the fiery blade touches you, you ignite and burn to ash!");
+                    u.mh = -1;
+                    rehumanize();
+                } else {
+                    pline("As the fiery blade touches the %s, it ignites and burns to ash!", hittee);
+                    mondead(mdef, NULL);
+                }
+            } else {
+                pline_The("fiery blade %s %s%c",
                       !spec_dbon_applies
                           ? "hits"
                           : (mdef->data == &mons[PM_WATER_ELEMENTAL])
                                 ? "vaporizes part of"
-                                : "burns",
+                                : (mdef->data == &mons[PM_ICE_VORTEX])
+                                    ? "melts part of"
+                                    : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
+            }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
         if (!rn2(4))
