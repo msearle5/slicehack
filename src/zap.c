@@ -2258,7 +2258,7 @@ struct obj *otmp;
 
 static NEARDATA const char zap_syms[] = { WAND_CLASS, 0 };
 
-/* 'z' command (or 'y' if numbed_pad==-1) */
+/* 'z' command (or 'y' if number_pad==-1) */
 int
 dozap()
 {
