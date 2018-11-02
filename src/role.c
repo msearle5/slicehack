@@ -804,7 +804,8 @@ const struct Subrole subroles[] = {
     { { "Wizard", 0 },
         "Wizard",
         "The traditional unspecialized magic-user. You are capable of handling all spell schools "
-        "effectively and you will begin with a wide assortment of magical items and spells.",
+        "effectively and you will begin with a wide assortment of magical items and spells, including "
+        "a wizard's staff.",
         SR_WIZARD,
         0,
       {

@@ -843,6 +843,8 @@ boolean artif;
                 && (otmp->spe + otmp->oerodeproof > rnd(5)))
                 otmp = weapon_oname(otmp);
 
+            staff_set_en(otmp);
+
             rustable = TRUE;
             erodable = TRUE;
             rustproofable = TRUE;

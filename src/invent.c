@@ -825,6 +825,7 @@ struct obj *obj;
              }
         }
         set_artifact_intrinsic(obj, 1, W_ART, FALSE);
+        staff_wield();
     }
 
     /* "special achievements" aren't discoverable during play, they

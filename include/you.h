@@ -438,6 +438,7 @@ struct you {
     long urscore;            /* the current score */
     long ucleansed;          /* to record moves when player was cleansed */
     long usleep;             /* sleeping; monstermove you last started */
+    unsigned ustaff_id;      /* wizardstaff last used, or 0 if none */
     int uinvault;
     struct monst *ustuck;    /* engulfer or grabber, maybe grabbee if Upolyd */
     struct monst *usteed;    /* mount when riding */

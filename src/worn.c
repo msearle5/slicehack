@@ -104,6 +104,7 @@ boolean quiet;
                         }
                         if (obj->oartifact)
                             set_artifact_intrinsic(obj, 1, mask, quiet);
+                        staff_wield();
                     }
                 }
             }

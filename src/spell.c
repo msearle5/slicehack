@@ -945,6 +945,16 @@ boolean atme;
     struct obj *pseudo;
     struct monst *mtmp;
     coord cc;
+    int staffenergy = 0;
+    
+    /* If you are a wizard, wielding a wizardstaff, allow it to be used
+     * for extra energy.
+     */
+
+    if ((Role_if(PM_WIZARD)) && (uwep) && (uwep->otyp == WIZARDSTAFF)) {
+        if (uwep->ovar1 > 0)
+            staffenergy = uwep->ovar1 / STAFF_TURNS_PER_EN;
+    }
 
     /*
      * Reject attempting to cast while stunned or with no free hands.
@@ -1010,7 +1020,7 @@ boolean atme;
         context.botl = 1;
         res = 1; /* time is going to elapse even if spell doesn't get cast */
     }
-    if (!BloodMagic && energy > u.uen) {
+    if (!BloodMagic && energy > (u.uen + staffenergy)) {
         You("don't have enough energy to cast that spell.");
         return res;
     } else {
@@ -1073,7 +1083,7 @@ boolean atme;
     }
 
     /* only can hit this case if using blood magic */
-    if (energy > u.uen && BloodMagic) {
+    if (energy > (u.uen + staffenergy) && BloodMagic) {
         energy -= u.uen;
         u.uen = 0;
         pline("You draw upon your own life force to cast the spell.");
@@ -1082,7 +1092,40 @@ boolean atme;
             spellid(spell) == SPE_EXTRA_HEALING)
             losehp(3 * energy, "abuse of blood magic", KILLED_BY);
     } else {
-        u.uen -= energy;
+        if (energy <= u.uen)
+            u.uen -= energy;
+        else {
+            const char *flow;
+            /* Cast with the aid of a wizardstaff */
+            staffenergy -= u.uen;
+            u.uen = 0;
+            if (staffenergy < 10)
+                flow = "trickle";
+            else if (staffenergy < 20)
+                flow = "flow";
+            else if (staffenergy < 30)
+                flow = "drain";
+            else if (staffenergy < 40)
+                flow = "rushe";
+            else if (staffenergy < 60)
+                flow = "pour";
+            else
+                flow = "flood";
+
+            staff_adj_en(uwep, -(staffenergy * STAFF_TURNS_PER_EN));
+            if (Hallucination) {
+                const char *hflow[] = {
+                    "whizze", "tinkle", "flie", "cascade", "flushe",
+                    "shower", "fountain", "spray", "zap", "coruscate",
+                    "sparkle", "flashe", "spark", "bounce", "blast"
+                };
+                flow = hflow[rn2(sizeof(hflow)/sizeof(hflow[0]))];
+                staffenergy = 99;
+            }
+
+            pline("Power %ss from your staff%c", flow, (staffenergy < 40) ? '.' : '!');
+            makeknown(uwep->otyp);
+        }
     }
     context.botl = 1;
     exercise(A_WIS, TRUE);

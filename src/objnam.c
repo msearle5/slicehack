@@ -4831,6 +4831,8 @@ typfnd:
     if (otmp->otyp == TIN && tvariety >= 0 && (rn2(4) || wizard))
         set_tin_variety(otmp, tvariety);
 
+    staff_set_en(otmp);
+
     if (name) {
         const char *aname;
         short objtyp;

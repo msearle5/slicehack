@@ -410,6 +410,12 @@ struct obj {
 #define POTHIT_MONST_THROW 2 /* thrown by a monster */
 #define POTHIT_OTHER_THROW 3 /* propelled by some other means [scatter()] */
 
+/* Exchange rate for wizardstaffs - energy points per + to enchantment */
+#define STAFF_EN_PER_SPE    10
+
+/* Wizardstaffs: internal units (ovar1, increased by 1 per turn at max energy) per energy point */
+#define STAFF_TURNS_PER_EN  5
+
 /*
  *  Notes for adding new oextra structures:
  *

@@ -199,7 +199,7 @@ static struct trobj Valkyrie[] = {
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Wizard[] = {
-    { QUARTERSTAFF, 1, WEAPON_CLASS, 1, 1 },
+    { WIZARDSTAFF, 1, WEAPON_CLASS, 1, 1 },
     { CLOAK_OF_MAGIC_RESISTANCE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, RING_CLASS, 2, UNDEF_BLESS },
@@ -1853,8 +1853,10 @@ register struct trobj *trop;
             if (is_ammo(obj) || is_missile(obj)) {
                 if (!uquiver)
                     setuqwep(obj);
-            } else if (!uwep)
+            } else if (!uwep) {
                 setuwep(obj);
+                staff_set_en(obj);
+            }
             else if (!uswapwep)
                 setuswapwep(obj);
         }

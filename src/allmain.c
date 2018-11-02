@@ -48,6 +48,71 @@ struct obj *pobj;
     return FALSE;
 }
 
+/* Check for a change of staff */
+void
+staff_wield(void)
+{
+    if ((uwep) && (uwep->otyp == WIZARDSTAFF) && (Role_if(PM_WIZARD))) {
+        if ((u.ustaff_id) && (u.ustaff_id != uwep->o_id)) {
+            if (uwep->ovar1 > 0) {
+                uwep->spe = 0;
+                staff_set_en(uwep);
+                pline("The new staff's energy dissipates as you attune to it.");
+            }
+        }
+        staff_set_spe(uwep);
+        u.ustaff_id = uwep->o_id;
+    }
+}
+
+/* Returns the maximum energy a wizardstaff can hold.
+ * 10 at level 1, 53 at level 15, 70 at level 30.
+ **/
+int
+staff_max_en(void)
+{
+    if (u.ulevel < 17)
+        return (7 + (u.ulevel * 3)) * STAFF_TURNS_PER_EN;
+    else
+        return (7 + (16 * 3) + 1 + (u.ulevel - 16)) * STAFF_TURNS_PER_EN;
+}
+
+/* Sets the + of a staff to be consistent with its
+ * stored energy
+ */
+void
+staff_set_spe(otmp)
+struct obj *otmp;
+{
+    if ((otmp) && (otmp->otyp == WIZARDSTAFF))
+        otmp->spe = otmp->ovar1 / (STAFF_EN_PER_SPE * STAFF_TURNS_PER_EN);
+}
+
+/* Sets the stored energy of a staff to be consistent
+ * with its enchantment
+ */
+void
+staff_set_en(otmp)
+struct obj *otmp;
+{
+    if ((otmp) && (otmp->otyp == WIZARDSTAFF))
+        otmp->ovar1 = otmp->spe * (STAFF_EN_PER_SPE * STAFF_TURNS_PER_EN);
+}
+
+/* Adjust the stored energy of a staff and set the
+ * spe appropriately
+ */
+void
+staff_adj_en(otmp, adj)
+struct obj *otmp;
+int adj;
+{
+    otmp->ovar1 += adj;
+    if (otmp->ovar1 > staff_max_en())
+        otmp->ovar1 = staff_max_en();
+    staff_set_spe(otmp);
+}
+
 void
 moveloop(resuming)
 boolean resuming;
@@ -325,6 +390,12 @@ boolean resuming;
                         context.botl = 1;
                         if (u.uen == u.uenmax)
                             interrupt_multi("You feel full of energy.");
+                    }
+
+                    if (u.uen >= u.uenmax) {
+                        if ((uwep) && (Role_if(PM_WIZARD)) && (uwep->otyp == WIZARDSTAFF)) {
+                            staff_adj_en(uwep,1);
+                        }
                     }
 
                     if (!u.uinvulnerable) {

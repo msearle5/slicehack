@@ -867,6 +867,8 @@ register int amount;
         && (is_elven_weapon(uwep) || uwep->oartifact || !rn2(7)))
         pline("%s unexpectedly.", Yobjnam2(uwep, "suddenly vibrate"));
 
+    staff_set_en(uwep);
+
     return 1;
 }
 

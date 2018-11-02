@@ -20,7 +20,11 @@ E char *FDECL(fmt_ptr, (const genericptr));
 #if !defined(MAKEDEFS_C) && !defined(LEV_LEX_C)
 
 /* ### allmain.c ### */
-
+E void NDECL(staff_wield);
+E int NDECL(staff_max_en);
+E void FDECL(staff_set_spe, (struct obj *));
+E void FDECL(staff_set_en, (struct obj *));
+E void FDECL(staff_adj_en, (struct obj *, int));
 E void FDECL(moveloop, (BOOLEAN_P));
 E void NDECL(stop_occupation);
 E void NDECL(display_gamewindows);

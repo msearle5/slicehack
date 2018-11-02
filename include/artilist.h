@@ -221,11 +221,11 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       CLR_MAGENTA),
 
     /*
-    *      Shield of King Arthur.
+    *      Wizardstaff, teleport control.
     */
-    A("Balance", QUARTERSTAFF,
+    A("Balance", WIZARDSTAFF,
       (SPFX_RESTR | SPFX_TCTRL), 0, 0,
-      PHYS(2, 6), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 500L,
+      PHYS(2, 3), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 2500L,
       CLR_MAGENTA),
 
     /*
