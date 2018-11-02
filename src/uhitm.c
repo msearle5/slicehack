@@ -1036,6 +1036,9 @@ int dieroll;
                 if (thrown == HMON_THROWN
                     && (is_ammo(obj) || is_missile(obj))) {
                     if (ammo_and_launcher(obj, uwep)) {
+                        /* Slings hit giants harder (as Goliath) */
+                        if ((uwep->otyp == SLING) && is_giant(mdat))
+                            tmp *= 2;
                         /* Elves and Samurai do extra damage using
                          * their bows&arrows; they're highly trained.
                          */
