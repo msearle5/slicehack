@@ -4,6 +4,346 @@ This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
 ********************************************************************************
+*	Release 0.4.0 'Dragon Helm'
+
+	The big stuff:
+
+*   New Dragon Armor
+    
+    This patch introduces dragon shields, dragon helms, dragonhide
+    gauntlets, and dragonhide boots. These items have the same extrinsic
+    that the mail and scales provide and 3 AC. To make them you need to
+    wear scales in the shield, helm, gloves or boots slot and read a
+    scroll of enchant armor. This means that this patch also incudes
+    support for multislot armors, and because this makes the unenchanted
+    scales a more powerful item they are now a little heavier and have
+    only 1 AC.
+    
+    A confused scroll of enchant armor's usual use doesn't apply to dragon
+    armor, so it can now be used to turn scales into a random dragon armor
+    (this is not useful) or turn a dragon armor back into scales (which
+    might be useful, if you wanted it in a different form.)
+    
+    These are powerful items, and the intent is to give more variety to
+    ascension kits but without making things overly powerful and trying to
+    avoid items being strictly better than an existing item - although not
+    if this is at the expense of consistency.
+    
+    For this reason, dragons are classified as "common" (chromatic),
+    "rare" (black, silver, grey, shimmering, purple), "high" (hex, filth,
+    ooze, razor) and "never generated" (void). You can wear common items
+    in any combination, but you can only wear one colour of rare (or
+    better) items at any time, and so only get one property from them.
+    (So, for example, that silver dragon shield is lighter and more
+    protective than a shield of reflection - but it won't cooperate with
+    your grey dragon scale mail.)
+    
+    All but the void dragon scales are randomly generated, but only deep
+    and very rarely. You are still expected to be more likely to get
+    dragon armor by killing a dragon - or wishing for it. They are also
+    now considered magical, so you can't easily polypile for them.
+
+*	Announce the finding of artifacts
+    When an artifact is encountered for the first time (by wielding it,
+    or having it used against you) some will print an intro (some taken
+    from the encylopedia entries). Some have alternative messages seen
+    when hallucinating.
+
+*	Add Nephi's Bane Boosting patch
+    
+    Ported from 3.4.3.
+    Changes I have kept are:
+    Grimtooth:   permanently poisoned
+	Orcrist:     warning (of orcs)
+    Dragonbane:  warning, +d8 hit / +d20 damage, reflection.
+    Demonbane:   warning, +d8 hit / +d20 damage, drain resistance, prevent
+        demons gating.
+    Werebane:    warning, +d8 hit / +d20 damage.
+    Ogresmasher: warning, +d8 hit / +d20 damage.
+    Giantslayer: warning, +d8 hit / +d20 damage, kill seven giants at one
+        blow on a natural 20.
+    Trollsbane:  warning, +d8 hit / +d20 damage, hungerless regeneration,
+        trolls don't revive.
+    
+    Changes I have nerfed:
+    
+    Sunsword:    warning (undead), +d8 hit / +d12 damage, blind on hit.
+        (The original patch had +d20 damage)
+    
+    Changes I have skipped:
+    
+    Vorpal Blade and Muramasa - they don't need buffing!
+
+*    Theme chests
+    
+    Some chests and large boxes (more often those with a lot of stuff)
+    are 'themed' which at the moment just means that all items are from
+    the same class. The numbers of items in a box has also been changed,
+    so than occasionally larger numbers of items will be seen, and locked
+    and especially trapped boxes usually have some loot in. (The average
+    number of items generated in containers should not have changed much
+    though, and the distribution of item classes should also be
+    unchanged.)
+
+*	Added the artifact "Quick Blade".
+
+    Quick Blade is an (iron) saber with the property that a successful hit
+    with it takes half the usual turn time. The result is comparable to
+    double damage but is more powerful (attacks can be split between
+    opponents, especially when one dies with the first hit) and reliable
+    (with two attacks against the same opponent you have another chance
+    to hit).
+    
+    That does only apply in the ideal case of hitting every time, though.
+    
+    You can expect 9 average damage at +0 and 23 at +7 - the same as
+    Grayswandir, but without the silver damage.
+    
+    It's intended to be a AK-worthy but not overpowered (compared to Frost
+    Brand, for example) weapon that encourages a different tactical style,
+    with Archeologists (as the only role which can gain Expert in saber)
+    being especially targeted... though it probably needs some tweaking as
+    yet.
+
+*	Addes a modified version of Topi Linkala's Owned Artifacts patch.
+
+	Artifacts have an owner. If you wish for an artifact there is an
+    increasing chance with each wish that you will get the artifact
+    only after killing its guardian. These are generally player-monsters
+    of a type associated with that artifact (e.g. blunt instruments get
+    a Priest, Stormy gets a Barbarian...). There are a few special cases
+    (Thiefbane, King in Yellow, Vladbane), and quest artifacts will
+    sometimes bring in the associated nemesis!
+
+*	HP changes: precalculate HP
+    
+    HP gain from role/race is now precalculated at character creation,
+    and constrained to give a (very close to) average HP at level 30.
+
+	Splits the part of level-based max HP gain which is
+    based on Con into an independent bonus which is updated whenever Con
+    or level changes. The result is that your current max HP depends on
+    your current Con, rather than the history of Con at level gain.
+    
+    As most characters gain Con over the game, the average Con gain has
+    been adjusted down slightly (in the previous patch) intending to
+    end up with no change to typical HP. Other effects are that items
+    which boost Con are more valuable, while loss of Con is more
+    immediately dangerous (although without any long-term effects once
+    restored). It is possible to lose 1HP on level up, but only if you
+    have 5 or less Con. Some kinds of "drain for gain" are prevented.
+
+	Increases don't change when repeated -i n the same way than drained
+	levels use the record of the amount of
+    HP gained when the level was gained, levels regained now also use
+    the record and so gain the same amount as the first time.
+
+
+*	Added the Wizardstaff
+    
+    A wizardstaff is a weapon similar to a quarterstaff. For non-wizard
+    roles it is almost exactly the same, the only difference being the
+    high price. All sub-roles of the wizard role can make use of one, but
+    only the Wizard sub-role starts with one. (They are randomly generated
+    but very rare - and it would be a reasonable use of a wish.)
+    
+    When wielding a wizardstaff, if you are at maximum energy then you
+    will charge it - the stored energy increases and this is reflected in
+    the enchantment. 10 energy is equivalent to +1 to enchantment and
+    takes 50 turns to recover. The upper limit increases with level from
+    +1 at level 1 to +7 at level 30. (You can charge it quickly with a
+    scroll of enchant weapon, but not beyond its limit.)
+    
+    If you attempt to cast a spell without sufficient energy, you can draw
+    energy from the staff to make up the difference, leaving you with 0
+    energy. This happens before blood magic, if you have both. The staff's
+    enchantment will go down again - it's always proportional to the
+    stored energy.
+ 
+    The existing artifact quartstaff 'Balance' has been made into a
+    wizardstaff. The + to damage has been reduced to d3 from d6 to allow
+    for it being easier to enchant, and the price increased.
+    
+    You can exchange, unwield, drop etc. a staff without losing energy.
+    However if you have more than one wizardstaff, and change between them
+    then as you wield a staff which is not the one which you last wielded,
+    then it will become "attuned" to you and drain back to +0. (Otherwise
+    a large collection of wizardstaffs would be an almost unlimited
+    energy pool.)
+
+*   Improved Wish
+    
+    An improved wish is one in which specified numbers (enchantment,
+    charges, size of stack) are biased to allow you to get more (or
+    less, although that's not used yet).
+    
+    The only way to get an improved wish is to break a wand of wishing
+    which either has at least one charge left, or which has not been
+    recharged. (Not having been recharged is equivalent to one more
+    charge). Such a wand can (with the wrest charge) be used to make
+    at least two wishes, which you are giving up for one more powerful
+    wish.
+    
+    Each additional charge increases stack sizes by 50%, maximum wand
+    charge by 1 and maximum armor or weapon enchantment by 1. It doesn't
+    otherwise change the way that enchantment is handled, so it's still
+    not guaranteed to get more than +1 - although the average is higher
+    and it is possible (if very chancy) to get more than +5.
+    
+*	Patric Mueller's Harmonic Scoring
+    
+    Limits scoring by changing the score per monster kill.
+    Scores grow without limit. For every killed monster the player gets
+    the same number of points.
+    
+    For regular monsters this is not really a problem as after a specific
+    number of kills these monsters won't be generated again. Unique
+    monsters like the Wizard of Yendor or the riders can be killed
+    infinite times.
+    
+    The Harmonic Scoring Patch decouples the score points per monster
+    kill from the experience points and decreases them continuously with
+    every kill.
+    
+    For the first kill, the complete points are awarded, the second kill
+    yields only half points, the third kill only a third, etc.
+    
+    This leads to smaller scores. For the early and mid game scores are
+    about half as large. For the late game and pre-ascension, the score
+    is between 0.5 and 2 million points.
+    
+    With this method of scoring the doubling of the score and counting of
+    the value of the items for an ascension have again a noticeable impact
+    on the final score.
+
+*	Knights can handle heavy armor better
+    
+    If you are wearing armor weighting 200 or more, the effective weight
+    for encumbrance is reduced by half the weight above 200. (E.g. plate
+    weighing 450 is reduced to 200+((450-200)/2), or 325.)
+
+*	Port Stevie-O's level teleporter jump patch
+    
+    ^T while standing on a level teleporter activates the trap.
+    Sometimes (especially if you have teleport control) you *want* to use
+    a teleportation trap. Pressing ^T while standing on a intralevel
+    teleporter will print "You jump onto the teleportation trap." and
+    activate the trap. For a level teleporter, however, the only way to
+    use the trap is to remove any and all objects providing MR (CoMR, Eye
+    of Aethiopica, Grey DSM, wielded Magicbane, ...), step off of the
+    trap, and then step back onto it.
+    
+    This patch modifies the ^T command slightly so that if invoked while
+    standing on a level teleporter, the game asks "There is a level
+    teleporter here. Jump in? [yn]". If the user chooses 'y', the
+    teleporter is activated as if you had no MR. Choosing 'n' will
+    fall through to the original logic (using the Teleport Away spell,
+    or exploiting teleportitis with TC).
+
+*	Add L's damage messages patch (with some new hallu adverbs)
+    
+    Healers get extra feedback on how damaged a monster is when you hit
+    it in melee, with a projectile, or a spell/ray - or directly using
+    the ';' key.
+
+*	Drop the Dead Dragon
+    
+    Dragonmasters can no longer eat dragons - it is considered
+    cannibalism.
+    
+    This make sense thematically (for the same reasons that they can't
+    wear DSM) but of course makes it more difficult to gain intrinsics,
+    and disintegration in particular has no non-dragon source.
+    
+    So they will now gain all intrinsics that can be had from a common
+    dragon with experience - but late enough that they will still benefit
+    from finding other sources early. (Most characters will have poison
+    and sleep resistance at least by the time they encounter their first
+    dragon, and quite likely fire and cold as well.)
+    
+    Level   Intrinsic
+    15      Poison
+    16      Sleep
+    18      Fire
+    19      Cold
+    21      Shock
+    23      Disintegration
+
+
+	Minor features:
+*	Fix Demogorgon / quest banishment message mixup
+*	Castle soldiers don't fall through the trapdoors
+	It is common for lots of soldiers and other Castle monsters to fall
+    through the trapdoors into the Valley. This doesn't make much sense,
+    they set the traps after all and should know where they are - and it
+    doesn't help the appearance of the Valley either.
+    So monsters will now avoid a trap (as if they had already encountered
+    one of its type before) if:
+    It is the Castle, Ludios or Quest End level (it's not an obvious
+    problem for Ludios or Quest End, but the same reasoning applies),
+    and the monster is a non-mindless humanoid.
+*	Scrolls of earth have a confused effect:
+	If cursed, summon level appropriate numbers of hostile earth
+	elementals and/or dust vortices.
+	If uncursed, earthquake (like the drum), radius 5.
+	If blessed, earthquake, radius 8.
+*	Legendary lichens don't rot
+*	Give Pestilence poisoned arrows along with the bow
+*	Reading warp armor/weapon confused causes polymorph
+*	Objects generated on the rogue level are always of base material
+*	No (lower case) packrat special generation on the rogue level
+*	Unicorns should sometimes carry a (real) gem.
+*	Slings do double damage against giants. Including player giants.
+*	Fire Brand is fiery:
+	A hit against an ice vortex "melts part of" it (like the message with
+	water elementals, this doesn't affect damage - it's just a more
+	accurate message - water doesn't burn!)
+	A hit against a "flammable" monster instantly kills it. (all walking
+	trees, the wood, paper and straw golems, and the green slime.)
+*	Deck of Fate special cases
+    If you are polymorphed into "royalty" (ogre king, etc.) you get a
+    different message and no bad effect if you draw "The Emperor".
+    If you are at least Pious and have not angered the gods, you can
+    also get a good effect (instead of punishment) from Judgement.
+    ...it's probably still not a good idea to use it, though.
+*	Cartomancers can use playing cards or decks of fate as if blessed
+*	Baby dragons can be generated, but rarely when adults are in level.
+*	Worms that walk always dissolve into many maggots, never just one
+*	Hobbits carry food
+*	Misc hallucinatory objects, monsters, messages etc.
+*	In wizard mode, all figurines can be wished for.
+*	Ghast moved from level 4 to level 6.
+    (It's nastier - doing more damage - than the skeletal pirate and
+    draugr. Neither of which paralyze, and both are level 5 so the
+    ghast looks overpowered at level 4.)
+*	Show the experience in the monster info window
+*	Avoid alchemy recipes avoid having a large part of the value from one item
+    This avoids (for example) a middle-value potion requiring a potion
+    of gain ability as one of the ingredients.
+*	Archeologists (randomly, or on request) have a pet monkey
+    (Think "Raiders of the Lost Ark")
+*	Potions of oil can't be diluted with water
+*	New monster: colossal slime (which can engulf you)
+
+	Bugs fixed:     
+	Stop pets eating their inedible inventory (e.g. saddle).
+		(The pet wouldn't consume it but would delay as if eating)
+	Database comment for Alchemists
+	Fix giants' initial inventory gems
+	Ensure that you don't start with poisonous meat, unless you resist
+	Larva carrier (using the wrong count) fix
+	Fix Giants' extra chance of shattering weapons
+	Fix Demogorgon / quest banishment message mixup
+	Artifacts which both illuminate and warn have a combine message
+	Pets don't get intrinsic gain messages when already having it
+	Fuming potions of acid were incorrectly being merged with non-fuming
+	Some bogus objs got an extra The
+	Add db entries for multi-headed hydras
+	Fix giants' shooting penalty
+	Fixed Alchemist (choosing subrole, and rarity calcs)
+	misc typos, bogobjs, etc.
+
+********************************************************************************
 *	Release 0.3.0 'Candy Bar'
 
 	The big stuff:
