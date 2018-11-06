@@ -230,6 +230,8 @@ efreeti
 rot grub
 bookworm
 master lichen
+demilichen
+emperor lichen
 shadow
 hologram
 jester
