@@ -2158,14 +2158,14 @@ const int matprices[] = {
      5, /* LEATHER */
      8, /* WOOD */
     20, /* BONE */
-   200, /* DRAGON_HIDE - DSM to scale mail */
+   200, /* UNOBTAINIUM */
     10, /* IRON */
     10, /* METAL */
     10, /* COPPER */
     30, /* SILVER */
     30, /* GOLD */
     30, /* PLATINUM */
-    32, /* MITHRIL - mithril-coat to regular chain mail */
+    32, /* TITANIUM */
     10, /* PLASTIC */
     20, /* GLASS */
    500, /* GEMSTONE */

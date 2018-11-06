@@ -17,14 +17,14 @@ enum obj_material_types {
     LEATHER,
     WOOD,
     BONE,
-    DRAGON_HIDE, /* not leather! */
+    UNOBTAINIUM, /* Metal */
     IRON,        /* Fe - includes steel */
-    METAL,       /* Sn, &c. */
+    METAL,       /* Sn, Al, stainless, &c. */
     COPPER,      /* Cu - includes brass */
     SILVER,      /* Ag */
     GOLD,        /* Au */
     PLATINUM,    /* Pt */
-    MITHRIL,
+    TITANIUM,
     PLASTIC,
     GLASS,
     GEMSTONE,
@@ -79,7 +79,7 @@ struct objclass {
 
 #define is_organic(otmp) (otmp->material <= WOOD)
 #define is_metallic(otmp)                    \
-    (otmp->material >= IRON && otmp->material <= MITHRIL)
+    (otmp->material >= UNOBTAINIUM && otmp->material <= TITANIUM)
 
 /* primary damage: fire/rust/--- */
 /* is_flammable(otmp), is_rottable(otmp) in mkobj.c */

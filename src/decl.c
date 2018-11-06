@@ -268,9 +268,9 @@ struct c_common_strings c_common_strings = { "Nothing happens.",
    order of oc_material values #define'd in objclass.h. */
 const char *materialnm[] = { "mysterious", "liquid",  "wax",        "organic",
                              "flesh",      "paper",   "cloth",      "leather",
-                             "wooden",     "bone",    "dragonhide", "iron",
+                             "wooden",     "bone",    "unobtainium", "iron",
                              "metal",      "copper",  "silver",     "gold",
-                             "platinum",   "mithril", "plastic",    "glass",
+                             "platinum",   "titanium", "plastic",    "glass",
                              "gemstone",   "stone" };
 
 /* Vision */

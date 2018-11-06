@@ -1342,7 +1342,7 @@ int okind;
     switch (okind) {
     case IRON:
     case METAL:
-    case MITHRIL:
+    case TITANIUM:
         pm_index = PM_IRON_GOLEM;
         material = "metal ";
         break;
@@ -5589,7 +5589,7 @@ int triesleft;
   "Wish details:",
   "",
   "Enter the name of an object, such as \"potion of monster detection\",",
-  "\"scroll labeled README\", \"elven mithril-coat\", or \"Grimtooth\"",
+  "\"scroll labeled README\", \"death ray device\", or \"Grimtooth\"",
   "(without the quotes).",
   "",
   "For object types which come in stacks, you may specify a plural name",

@@ -993,7 +993,7 @@ struct monst *mon;
             /* mithril armor grants MC 2 even if it has a different base
              * material */
             if (((o->owornmask & W_ARM) || (o->owornmask & W_ARMC))
-                && o->material == MITHRIL && armpro < 2) {
+                && o->material == TITANIUM && armpro < 2) {
                 armpro = 2;
             }
             if (armpro > mc)

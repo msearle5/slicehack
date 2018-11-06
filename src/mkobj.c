@@ -1536,7 +1536,7 @@ const int matdensities[] = {
     90,  // SILVER
     60, /* GOLD */
     80, /* PLATINUM */
-    50, /* MITHRIL */
+    50, /* TITANIUM */
     20,  // PLASTIC
     60,  // GLASS
     55,  // GEMSTONE
@@ -1640,14 +1640,14 @@ const int matac[] = {
      3,  // LEATHER
      4,  // WOOD
      6,  // BONE
-     10, // DRAGON_HIDE
+     10, // UNOBTAINIUM
      5,  // IRON - de facto baseline for metal armor
      5,  // METAL
      4,  // COPPER
      5,  // SILVER
      3,  // GOLD
      4,  // PLATINUM
-     6,  // MITHRIL
+     6,  // TITANIUM
      3,  // PLASTIC
      5,  // GLASS
      7,  // GEMSTONE
@@ -3124,7 +3124,7 @@ static const struct icp metal_materials[] = {
     { 5, WOOD},
     { 5, SILVER},
     { 3, COPPER},
-    { 3, MITHRIL},
+    { 3, TITANIUM},
     { 1, GOLD},
     { 1, BONE},
     { 1, GLASS},
@@ -3139,7 +3139,7 @@ static const struct icp shiny_materials[] = {
     {10, GOLD},
     {12, IRON}, /* stainless steel */
     {12, GLASS},
-    { 7, MITHRIL},
+    { 7, TITANIUM},
     { 5, METAL}, /* aluminum, or similar */
     { 2, PLATINUM}
 };
@@ -3173,7 +3173,7 @@ static const struct icp leather_materials[] = {
 /* for objects of dwarvish make */
 static const struct icp dwarvish_materials[] = {
     {85, IRON},
-    {10, MITHRIL},
+    {10, TITANIUM},
     { 2, COPPER},
     { 1, SILVER},
     { 1, GOLD},
@@ -3185,7 +3185,7 @@ static const struct icp dwarvish_materials[] = {
 static const struct icp elven_materials[] = {
     {80, WOOD},
     {10, COPPER},
-    { 5, MITHRIL},
+    { 5, TITANIUM},
     { 3, SILVER},
     { 2, GOLD}
 };
@@ -3196,18 +3196,18 @@ static const struct icp resonant_materials[] = {
     {25, COPPER},
     { 6, SILVER},
     { 5, IRON},
-    { 5, MITHRIL},
+    { 5, TITANIUM},
     { 3, GOLD},
     { 1, PLATINUM}
 };
 /* for horns, currently. */
 static const struct icp horn_materials[] = {
     {70, BONE},
-    {10, COPPER},
-    { 8, MITHRIL},
-    { 5, WOOD},
+    {15, COPPER},
+    { 7, WOOD},
     { 5, SILVER},
-    { 2, GOLD}
+    { 2, GOLD},
+    { 1, PLATINUM},
 };
 /* hacks for specific objects... not great because it's a lot of data, but it's
  * a relatively clean solution */
@@ -3220,7 +3220,7 @@ static const struct icp bow_materials[] = {
   /* assumes all bows will be wood by default, fairly safe assumption */
     {75, WOOD},
     { 7, IRON},
-    { 5, MITHRIL},
+    { 5, TITANIUM},
     { 4, COPPER},
     { 4, BONE},
     { 2, SILVER},
@@ -3241,11 +3241,12 @@ static const struct icp warp_materials[] = {
     {5, IRON},
     {5, METAL},
     {5, PLATINUM},
-    {5, GEMSTONE},
+    {3, GEMSTONE},
+    {2, UNOBTAINIUM},
     {5, MINERAL},
     {5, BONE},
     {5, COPPER},
-    {5, MITHRIL},
+    {5, TITANIUM},
     {5, SILVER},
     {5, GOLD}
 };

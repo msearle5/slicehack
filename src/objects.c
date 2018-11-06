@@ -386,7 +386,7 @@ HELM("helm of telepathy", "visored helmet",
  */
 #define DRGN_ITEM(name,mgc,power,cost,ac,color,weight,slot,prob,delay)  \
     ARMOR(name, None, 1, mgc, 1, power, prob, 5, weight,  \
-          cost, ac, 0, slot, DRAGON_HIDE, color)
+          cost, ac, 0, slot, UNOBTAINIUM, color)
 #define DRGN_HELM_R(name,mgc,power,color) \
 	DRGN_ITEM(name,mgc,power,1200,7,color,30,ARM_HELM,0,1)
 #define DRGN_HELM_C(name,mgc,power,color) \
@@ -788,7 +788,7 @@ OBJECT(OBJ("cheap plastic imitation of the Amulet of Yendor",
        0, AMULET_CLASS, 0, 0, 20, 0, 0, 0, 0, 0, 1, HI_METAL),
 OBJECT(OBJ("Amulet of Yendor", /* note: description == name */
            "Amulet of Yendor"),
-       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, MITHRIL),
+       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, PLATINUM),
        0, AMULET_CLASS, 0, 0, 20, 30000, 0, 0, 0, 0, 20, HI_METAL),
 #undef AMULET
 

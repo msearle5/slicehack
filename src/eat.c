@@ -2341,7 +2341,7 @@ eatspecial()
 static const char *foodwords[] = {
     "meal",    "liquid",  "wax",       "food", "meat",     "paper",
     "cloth",   "leather", "wood",      "bone", "scale",    "metal",
-    "metal",   "metal",   "silver",    "gold", "platinum", "mithril",
+    "metal",   "metal",   "silver",    "gold", "platinum", "titanium",
     "plastic", "glass",   "rich food", "stone"
 };
 
@@ -2582,8 +2582,7 @@ struct obj *otmp;
      * Breaks conduct, but otherwise safe.
      */
     if (!u.uconduct.unvegan
-        && ((material == LEATHER || material == BONE
-             || material == DRAGON_HIDE || material == WAX)
+        && ((material == LEATHER || material == BONE || material == WAX)
             || (cadaver && !vegan(&mons[mnum])))) {
         Sprintf(buf, "%s foul and unfamiliar to you. %s", foodsmell,
                 eat_it_anyway);
@@ -2593,8 +2592,7 @@ struct obj *otmp;
             return 2;
     }
     if (!u.uconduct.unvegetarian
-        && ((material == LEATHER || material == BONE
-             || material == DRAGON_HIDE)
+        && ((material == LEATHER || material == BONE)
             || (cadaver && !vegetarian(&mons[mnum])))) {
         Sprintf(buf, "%s unfamiliar to you. %s", foodsmell, eat_it_anyway);
         if (yn_function(buf, ynchars, 'n') == 'n')
@@ -2741,8 +2739,7 @@ doeat()
             livelog_printf(LL_CONDUCT, "ate for the first time (%s)", food_xname(otmp,FALSE));
         }
         material = otmp->material;
-        if (material == LEATHER || material == BONE
-            || material == DRAGON_HIDE) {
+        if (material == LEATHER || material == BONE) {
             if(!u.uconduct.unvegan++ && !ll_conduct) {
                 livelog_printf(LL_CONDUCT, "consumed animal products for the first time, by eating %s", an(food_xname(otmp,FALSE)));
                 ll_conduct++;
@@ -2835,7 +2832,7 @@ doeat()
             dont_start = TRUE;
         /* if not used up, eatcorpse sets up reqtime and may modify oeaten */
     } else {
-        /* No checks for WAX, LEATHER, BONE, DRAGON_HIDE.  These are
+        /* No checks for WAX, LEATHER, BONE.  These are
          * all handled in the != FOOD_CLASS case, above.
          */
         if (otmp->material == FLESH) {

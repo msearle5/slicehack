@@ -3624,7 +3624,7 @@ xchar x, y;
        and books--let fire damage deal with them), cloth, leather, wood, bone
        unless it's inherently or explicitly fireproof or contains something;
        note: potions are glass so fall through to fire_damage() and boil */
-    if (obj->material < DRAGON_HIDE
+    if (obj->material < UNOBTAINIUM
         && ocls != SCROLL_CLASS && ocls != SPBOOK_CLASS
         && objects[otyp].oc_oprop != FIRE_RES
         && otyp != WAN_FIRE_BLAST && otyp != FIRE_HORN

@@ -2636,16 +2636,6 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
     
         switch(oclass) {
             case ARMOR_CLASS:
-            /* Dragon scales are valid. So is mail (which is equivalent) */
-            if (objects[otyp].oc_material == DRAGON_HIDE) {
-                int scales = armor_scales(otyp);
-                if (scales != VOID_DRAGON_SCALES) {
-                    if (otyp >= GRAY_DRAGON_SCALES)
-                        ok = TRUE;
-                    else
-                        valid = (otyp - scales) + baseid;
-                }
-            }
             break;
             
             case POTION_CLASS:
