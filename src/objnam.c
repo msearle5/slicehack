@@ -337,7 +337,7 @@ static const char * const bogus_items[] = {
     "blessed +9 helm of Des Lynam",     /* Bottom */
 
     /* Culture */
-    "The Book of Sand",                 /* Jorge Luis Borges */
+    "Book of Sand",                 /* Jorge Luis Borges */
     "sonic screwdriver",                /* Doctor Who */
 
     /* Brithack */
@@ -485,10 +485,10 @@ static const char * const bogus_items[] = {
     "garderobe",
     "pestle and mortar",
     "plowshare",
-    "The Book of the All-Virtuous Wisdom of Joshua ben Sira",
+    "Book of the All-Virtuous Wisdom of Joshua ben Sira",
     "Holy Grail",                      /* Arthurian legends */
     "cauldron",
-    "The Five Books of Moses",         /* aka the Torah */
+    "Five Books of Moses",         /* aka the Torah */
     "Voynich Manuscript",
     "scythe",
 
@@ -559,8 +559,8 @@ static const char * const bogus_items[] = {
     /* from tvtropes.org */
     "Sealed Good in a Can",
     "Sealed Evil in a Can",
-    "The Home Handyman's Guide to Building Gates to Hell",
-    "The Idiot's Guide to Demonology",
+    "Home Handyman's Guide to Building Gates to Hell",
+    "Idiot's Guide to Demonology",
     "tome of Eldritch Lore",
     "airborne aircraft carrier",
     "airborne airborne aircraft carrier carrier",
