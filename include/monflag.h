@@ -183,6 +183,18 @@
 #define M3_SLIME 0x20000      /* is a green slime, or something similar such as a colossal slime */
 #define M3_TELEPATHIC 0x40000 /* is telepathic, like a mind flayer */
 #define M3_ONEEYE 0x80000     /* has (and probably is) one eye */
+#define M3_DISPLACED 0x100000 /* is displaced, like a shimmering dragon */
+#define M3_WEBMAKER 0x200000  /* makes spider webs */
+#define M3_LONGWORM 0x400000  /* is a long worm (inc. babies & tails) */
+#define M3_WATCH 0x800000     /* is a Watch officer */
+#define M3_RIDER 0x1000000    /* is a Rider */
+#define M3_NONROTTING 0x2000000 /* corpses don't rot, like lizards */
+#define M3_FLAMING 0x4000000  /* is on fire (like a fire vortex) - not just having a fire attack (like a fire ant) */
+#define M3_ELDER 0x8000000    /* is an elder dragon */
+#define M3_MPLAYER 0x10000000 /* is a player-monster */
+#define M3_PIRATE 0x20000000  /* is a pirate */
+#define M3_MINDFLAYER 0x40000000  /* is a mindflayer, including the Ancient Brain */
+#define M3_PLACEHOLDER 0x80000000 /* is a placeholder for zombies */
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

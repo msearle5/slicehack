@@ -1593,7 +1593,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
         if (realizes_damage)
-            if (mon_flammable(mdef->data)) {
+            if (completelyburns(mdef->data)) {
                 if (youdefend) {
                     pline("As the fiery blade touches you, you ignite and burn to ash!");
                     u.mh = -1;

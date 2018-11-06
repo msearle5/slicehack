@@ -69,12 +69,9 @@
 #define is_whirly(ptr) \
     ((ptr)->mlet == S_VORTEX || (ptr) == &mons[PM_AIR_ELEMENTAL] || \
       (ptr) == &mons[PM_TASMANIAN_DEVIL])
-#define flaming(ptr)                                                     \
-    ((ptr) == &mons[PM_FIRE_VORTEX] || (ptr) == &mons[PM_FLAMING_SPHERE] \
-     || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER] \
-     || (ptr) == &mons[PM_HELLBEAR])
+#define flaming(ptr) (((ptr)->mflags3 & M3_FLAMING) != 0L)
 #define is_silent(ptr) ((ptr)->msound == MS_SILENT)
-#define mon_flammable(ptr) (((ptr)->mflags3 & M3_FLAMMABLE) != 0L)
+#define completelyburns(ptr) (((ptr)->mflags3 & M3_FLAMMABLE) != 0L)
 #define unsolid(ptr) (((ptr)->mflags1 & M1_UNSOLID) != 0L)
 #define mindless(ptr) (((ptr)->mflags1 & M1_MINDLESS) != 0L)
 #define humanoid(ptr) (((ptr)->mflags1 & M1_HUMANOID) != 0L)
@@ -113,10 +110,9 @@
                           (ptr) == &mons[PM_WALLAROO] || \
                           (ptr) == &mons[PM_KANGAROO])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
+#define is_elder(ptr) (((ptr)->mflags3 & M3_ELDER) != 0L)
 #define is_domestic(ptr) ((((ptr)->mflags2 & M2_DOMESTIC) != 0L) \
-     || (Role_if(PM_DRAGONMASTER) && (((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
-                             (ptr) <= &mons[PM_GREEN_DRAGON]) || \
-                             (ptr) == &mons[PM_YELLOW_DRAGON])))
+     || (Role_if(PM_DRAGONMASTER) && is_dragon(ptr) && !is_elder(ptr)))
 #define is_demon(ptr) (((ptr)->mflags2 & M2_DEMON) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
@@ -149,37 +145,24 @@
 #define likes_gems(ptr) (((ptr)->mflags2 & M2_JEWELS) != 0L)
 #define likes_objs(ptr) (((ptr)->mflags2 & M2_COLLECT) != 0L || is_armed(ptr))
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
-#define webmaker(ptr) \
-    ((ptr) == &mons[PM_CAVE_SPIDER] || (ptr) == &mons[PM_GIANT_SPIDER])
+#define webmaker(ptr) (((ptr)->mflags3 & M3_WEBMAKER) != 0L)
 #define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
-#define is_longworm(ptr)                                                   \
-    (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
-     || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
+#define is_longworm(ptr) (((ptr)->mflags3 & M3_LONGWORM) != 0L)
 #define is_covetous(ptr) ((ptr->mflags3 & M3_COVETOUS))
 #define infravision(ptr) ((ptr->mflags3 & M3_INFRAVISION))
 #define infravisible(ptr) ((ptr->mflags3 & M3_INFRAVISIBLE))
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
-#define is_displaced(ptr) ((ptr) == &mons[PM_SHIMMERING_DRAGON] || \
-    (ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] || \
-    (ptr) == &mons[PM_CHESHIRE_CAT])
-#define is_mplayer(ptr) \
-    (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
-#define is_watch(ptr) \
-    ((ptr) == &mons[PM_WATCHMAN] || (ptr) == &mons[PM_WATCH_CAPTAIN])
-#define is_rider(ptr)                                      \
-    ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
-     || (ptr) == &mons[PM_PESTILENCE])
+#define is_displaced(ptr) (((ptr)->mflags3 & M3_DISPLACED) != 0L)
+#define is_mplayer(ptr) (((ptr)->mflags3 & M3_MPLAYER) != 0L)
+#define is_watch(ptr) (((ptr)->mflags3 & M3_WATCH) != 0L)
+#define is_rider(ptr) (((ptr)->mflags3 & M3_RIDER) != 0L)
 /* Rider corpses are treated as non-rotting so that attempting to eat one
    will be sure to reach the stage of eating where that meal is fatal */
-#define nonrotting_corpse(mnum) \
-    ((mnum) == PM_LIZARD || (mnum) == PM_LICHEN || \
-     (mnum) == PM_LEGENDARY_LICHEN || is_rider(&mons[mnum]))
+#define nonrotting_corpse(mnum) ((mons[mnum].mflags3 & M3_NONROTTING) != 0L)
 
 #define is_silver(ptr) \
     ((ptr) == &mons[PM_SILVER_GOLEM])
-#define is_placeholder(ptr)                             \
-    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT] \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN])
+#define is_placeholder(ptr) (((ptr)->mflags3 & M3_PLACEHOLDER) != 0L)
 /* return TRUE if the monster tends to revive */
 #define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL)
 /* monsters whose corpses and statues need special handling;
@@ -189,14 +172,9 @@
 
 /* this returns the light's range, or 0 if none; if we add more light emitting
    monsters, we'll likely have to add a new light range field to mons[] */
-#define emits_light(ptr)                                          \
-    (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
-      || (ptr) == &mons[PM_SHOCKING_SPHERE]                       \
-      || (ptr) == &mons[PM_FIRE_VORTEX]                          \
-      || (ptr) == &mons[PM_WAX_GOLEM])                           \
-         ? 1                                                      \
-         : ((ptr) == &mons[PM_FIRE_ELEMENTAL]) ? 1 : 0)
-/*	[note: the light ranges above were reduced to 1 for performance...] */
+#define emits_light(ptr) ((((ptr)->mlet == S_LIGHT) || flaming(ptr)) ? 1 : 0)
+/* [note: the light ranges above were reduced to 1 for performance...] */
+
 #define likes_lava(ptr) \
     (ptr == &mons[PM_FIRE_ELEMENTAL] || ptr == &mons[PM_SALAMANDER] \
           || ptr == &mons[PM_MAGMA_ELEMENTAL])
@@ -215,16 +193,10 @@
 /* monster types that cause hero to be turned into stone if eaten */
 #define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
 
-#define is_mind_flayer(ptr) \
-    ((ptr) == &mons[PM_MIND_FLAYER] || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
-      || (ptr) == &mons[PM_MIND_FLAYER_TELEPATH] \
-      || (ptr) == &mons[PM_ANCIENT_BRAIN])
+#define is_mind_flayer(ptr) (((ptr)->mflags3 & M3_MINDFLAYER) != 0L)
 
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
-#define is_pirate(ptr) \
-    ((ptr) == &mons[PM_PIRATE] || (ptr) == &mons[PM_SKELETAL_PIRATE] \
-      || (ptr) == &mons[PM_DAMNED_PIRATE] || (ptr) == &mons[PM_PLANAR_PIRATE] \
-      || (ptr) == &mons[PM_MAYOR_CUMMERBUND] || (ptr) == &mons[PM_PIRATE_BROTHER])
+#define is_pirate(ptr) (((ptr)->mflags3 & M3_PIRATE) != 0L)
 
 #define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] \
       || (ptr) == &mons[PM_NOSFERATU])
@@ -233,11 +205,6 @@
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)
 #define nonliving(ptr) \
     (is_undead(ptr) || (ptr) == &mons[PM_MANES] || weirdnonliving(ptr))
-
-/* no corpse (ie, blank scrolls) if killed by fire */
-#define completelyburns(ptr) \
-    ((ptr) == &mons[PM_PAPER_GOLEM] || (ptr) == &mons[PM_STRAW_GOLEM] \
-      || (ptr) == &mons[PM_WAX_GOLEM] || (ptr) == &mons[PM_GREEN_SLIME])
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */
