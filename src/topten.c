@@ -96,14 +96,22 @@ int how;
 boolean incl_helpless;
 {
     static NEARDATA const char *const killed_by_prefix[] = {
-        /* DIED, CHOKING, POISONING, STARVING, */
-        "killed by ", "choked on ", "poisoned by ", "died of ",
+        /* DIED, MURDERED, CHOKING, POISONING, STARVING, */
+        "killed by ", "killed by ", "choked on ", "poisoned by ", "died of ",
         /* DROWNING, BURNING, DISSOLVED, CRUSHING, */
         "drowned in ", "burned by ", "dissolved in ", "crushed to death by ",
         /* STONING, TURNED_SLIME, GENOCIDED, */
         "petrified by ", "turned to slime by ", "killed by ",
         /* PANICKED, TRICKED, QUIT, ESCAPED, ASCENDED */
         "", "", "", "", ""
+    };
+    static NEARDATA const char *const murdered_by_msg[] = {
+        "murdered by ",     "eliminated by ",             "slain by ",
+        "dismembered by ",  "sent to the next life by ",  "overpowered by ",
+        "killed by ",       "inhumed by ",                "dispatched by ",
+        "exterminated by ", "done in by ",                "defeated by ",
+        "struck down by ",  "offed by ",                  "mowed down by ",
+        "taken down by ",   "sent to the grave by ",
     };
     unsigned l;
     char c, *kname = killer.name;
@@ -119,7 +127,11 @@ boolean incl_helpless;
         kname = an(kname);
         /*FALLTHRU*/
     case KILLED_BY:
-        (void) strncat(buf, killed_by_prefix[how], siz - 1);
+        if (how == MURDERED)
+            (void) strncat(buf,
+                murdered_by_msg[rn2(SIZE(murdered_by_msg))], siz - 1);
+        else
+            (void) strncat(buf, killed_by_prefix[how], siz - 1);
         l = strlen(buf);
         buf += l, siz -= l;
         break;

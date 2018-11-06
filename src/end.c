@@ -287,7 +287,7 @@ NH_panictrace_gdb()
  */
 static NEARDATA const char *deaths[] = {
     /* the array of death */
-    "died", "choked", "poisoned", "starvation", "drowning", "burning",
+    "died", "died", "choked", "poisoned", "starvation", "drowning", "burning",
     "dissolving under the heat and pressure", "crushed", "turned to stone",
     "turned into slime", "genocided", "panic", "trickery", "quit",
     "escaped", "ascended"
@@ -295,7 +295,7 @@ static NEARDATA const char *deaths[] = {
 
 static NEARDATA const char *ends[] = {
     /* "when you %s" */
-    "died", "choked", "were poisoned",
+    "died", "died", "choked", "were poisoned",
     "starved", "drowned", "burned",
     "dissolved in the lava",
     "were crushed", "turned to stone",
@@ -887,7 +887,7 @@ int how;
     else
         multi = -1;
     if (u.utrap && u.utraptype == TT_LAVA)
-        u.utrap = 0;
+        reset_utrap(FALSE);
     context.botl = 1;
     u.ugrave_arise = NON_PM;
     HUnchanging = 0L;
@@ -1308,7 +1308,7 @@ int how;
         if (WIN_INVEN != WIN_ERR) {
             destroy_nhwindow(WIN_INVEN),  WIN_INVEN = WIN_ERR;
             /* precaution in case any late update_inventory() calls occur */
-            flags.perm_invent = 0;
+            iflags.perm_invent = 0;
         }
         display_nhwindow(WIN_MESSAGE, TRUE);
         destroy_nhwindow(WIN_MAP),  WIN_MAP = WIN_ERR;

@@ -1652,15 +1652,20 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       !spec_dbon_applies ? "hits" : "blasts", hittee,
                       !spec_dbon_applies ? '.' : '!');
         if (!rn2(4))
-            destroy_item(ARMOR_CLASS, AD_LOUD);
+            destroy_item(mdef, ARMOR_CLASS, AD_LOUD);
         if (!rn2(4))
-            destroy_item(POTION_CLASS, AD_LOUD);
+            destroy_item(mdef, POTION_CLASS, AD_LOUD);
         if (!rn2(7))
-            destroy_item(RING_CLASS, AD_LOUD);
+            destroy_item(mdef, RING_CLASS, AD_LOUD);
         if (!rn2(7))
-            destroy_item(TOOL_CLASS, AD_LOUD);
+            destroy_item(mdef, TOOL_CLASS, AD_LOUD);
         if (!rn2(7))
-            destroy_item(WAND_CLASS, AD_LOUD);
+            destroy_item(mdef, WAND_CLASS, AD_LOUD);
+        if (mdef->data == &mons[PM_GLASS_GOLEM]) {
+            pline("%s shatters into a million pieces!", Monnam(mdef));
+            *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;
+            return TRUE;
+        }
         return realizes_damage;
     }
     if (attacks(AD_ELEC, otmp)) {
@@ -2928,6 +2933,8 @@ struct obj *obj;
    	else
         You_hear("%s.",random_seasound[rn2(SIZE(random_seasound))]);
    	for (otmp = obj->cobj; otmp; otmp = otmp->nobj){
+        if (!otmp->unpaid)
+            otmp->no_charge = 1;
      		if (dobj) {
      			  delobj(dobj);
      			    dobj = 0;

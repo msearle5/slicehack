@@ -290,7 +290,7 @@ boolean allow_drag;
             }
         }
     }
-    u.utrap = 0;
+    reset_utrap(FALSE);
     u.ustuck = 0;
     u.ux0 = u.ux;
     u.uy0 = u.uy;
@@ -493,7 +493,14 @@ struct obj *scroll;
 }
 
 int
-dotele()
+dotelecmd()
+{
+    return dotele((wizard) ? TRUE : FALSE);
+}
+
+int
+dotele(break_the_rules)
+boolean break_the_rules;
 {
     struct trap *trap;
     boolean trap_once = FALSE;
@@ -535,7 +542,7 @@ dotele()
                         castit = TRUE;
                         break;
                     }
-            if (!wizard) {
+            if (!break_the_rules) {
                 if (!castit) {
                     if (!Teleportation)
                         You("don't know that spell.");
@@ -547,7 +554,7 @@ dotele()
         }
 
         if (u.uhunger <= 100 || ACURR(A_STR) < 6) {
-            if (!wizard) {
+            if (!break_the_rules) {
                 You("lack the strength %s.",
                     castit ? "for a teleport spell" : "to teleport");
                 return 1;
@@ -556,7 +563,7 @@ dotele()
 
         energy = objects[SPE_TELEPORT_AWAY].oc_level * 7 / 2 - 2;
         if (u.uen <= energy) {
-            if (wizard)
+            if (break_the_rules)
                 energy = u.uen;
             else {
                 You("lack the energy %s.",
@@ -573,11 +580,13 @@ dotele()
             exercise(A_WIS, TRUE);
             if (spelleffects(sp_no, TRUE))
                 return 1;
-            else if (!wizard)
+            else if (!break_the_rules)
                 return 0;
         } else {
-            u.uen -= energy;
-            context.botl = 1;
+            if (!break_the_rules) {
+                u.uen -= energy;
+                context.botl = 1;
+            }
         }
     }
 
@@ -1185,7 +1194,7 @@ int in_sight;
         d_level tolevel;
         int migrate_typ = MIGR_RANDOM;
 
-        if ((tt == HOLE || tt == TRAPDOOR)) {
+        if (is_hole(tt)) {
             if (Is_stronghold(&u.uz)) {
                 assign_level(&tolevel, &valley_level);
             } else if (Is_botlevel(&u.uz)) {

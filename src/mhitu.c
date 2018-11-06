@@ -2016,7 +2016,7 @@ register struct attack *mattk;
             u.ugrave_arise = NON_PM;
             killer.format = KILLED_BY_AN;
             Strcpy(killer.name, mtmp->data->mname);
-            done(DIED);
+            done(MURDERED);
         }
         break;
     case AD_PITS:
@@ -2172,7 +2172,7 @@ struct attack *mattk;
 
         if (!engulf_target(mtmp, &youmonst))
             return 0;
-        if ((t && ((t->ttyp == PIT) || (t->ttyp == SPIKED_PIT)))
+        if ((t && is_pit(t->ttyp))
             && sobj_at(BOULDER, u.ux, u.uy))
             return 0;
 
@@ -2207,7 +2207,7 @@ struct attack *mattk;
         if (u.utrap) {
             You("are released from the %s!",
                 u.utraptype == TT_WEB ? "web" : "trap");
-            u.utrap = 0;
+            reset_utrap(FALSE);
         }
 
         i = number_leashed();
@@ -2616,9 +2616,11 @@ struct attack *mattk;
         }
         break;
         case AD_PLYS:
-            if (!mtmp->mcan && mtmp->mcansee && !mtmp->mspec_used && rn2(4) &&
-                multi>=0 && !((is_undead(youmonst.data)
-                || is_demon(youmonst.data)) && is_undead(mtmp->data))) {
+            if (!mtmp->mcan && canseemon(mtmp)
+                && couldsee(mtmp->mx, mtmp->my) && !is_fainted()
+                && !mtmp->mspec_used && rn2(4)
+                && multi>=0 && !((is_undead(youmonst.data)
+                  || is_demon(youmonst.data)) && is_undead(mtmp->data))) {
                 pline("%s aberrant stare frightens you to the core!",
                     s_suffix(Monnam(mtmp)));
                 if(Free_action){
@@ -2867,7 +2869,7 @@ int n;
     } else {
         u.uhp -= n;
         if (u.uhp < 1)
-            done_in_by(mtmp, DIED);
+            done_in_by(mtmp, MURDERED);
     }
 }
 
@@ -3191,7 +3193,7 @@ struct monst *mon;
         ;
     } else if (rn2(20) < ACURR(A_CHA)) {
         pline("%s demands that you pay %s, but you refuse...",
-              noit_Monnam(mon), Blind ? (fem ? "her" : "him") : mhim(mon));
+              noit_Monnam(mon), noit_mhim(mon));
     } else if (u.umonnum == PM_LEPRECHAUN) {
         pline("%s tries to take your money, but fails...", noit_Monnam(mon));
     } else {

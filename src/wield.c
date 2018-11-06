@@ -634,7 +634,12 @@ can_twoweapon()
         pline("%s isn't one-handed.", Yname2(otmp));
     } else if (uarms)
         You_cant("use two weapons while wearing a shield.");
-    else if (uswapwep->oartifact)
+    /* Gae Dearg and Gae Buidhe may be dual-wielded. */
+    else if (uswapwep->oartifact &&
+      !((uwep->oartifact == ART_GAE_DEARG
+          && uswapwep->oartifact == ART_GAE_BUIDHE) ||
+        (uwep->oartifact == ART_GAE_BUIDHE
+            && uswapwep->oartifact == ART_GAE_DEARG)))
         pline("%s being held second to another weapon!",
               Yobjnam2(uswapwep, "resist"));
     else if (uswapwep->otyp == CORPSE && cant_wield_corpse(uswapwep)) {

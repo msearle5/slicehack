@@ -1,4 +1,4 @@
-/* NetHack 3.6	objnam.c	$NHDT-Date: 1533352036 2018/08/04 03:07:16 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.206 $ */
+/* NetHack 3.6	objnam.c	$NHDT-Date: 1539938837 2018/10/19 08:47:17 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.214 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -17,7 +17,7 @@
 
 STATIC_DCL char *FDECL(strprepend, (char *, const char *));
 STATIC_DCL short FDECL(rnd_otyp_by_wpnskill, (SCHAR_P));
-STATIC_DCL short FDECL(rnd_otyp_by_namedesc, (char *, CHAR_P));
+STATIC_DCL short FDECL(rnd_otyp_by_namedesc, (const char *, CHAR_P, int));
 STATIC_DCL boolean FDECL(wishymatch, (const char *, const char *, BOOLEAN_P));
 STATIC_DCL char *NDECL(nextobuf);
 STATIC_DCL void FDECL(releaseobuf, (char *));
@@ -1073,7 +1073,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
     register struct objclass *ocl = &objects[typ];
     int nn = ocl->oc_name_known, omndx = obj->corpsenm;
     const char *actualn = OBJ_NAME(*ocl);
-    const char *dn = OBJ_DESCR(*ocl) ? OBJ_DESCR(*ocl) : actualn;
+    const char *dn = OBJ_DESCR(*ocl);
     const char *un = ocl->oc_uname;
     boolean pluralize = (obj->quan != 1L) && !(cxn_flags & CXN_SINGULAR);
     boolean known, dknown, bknown;
@@ -1085,6 +1085,10 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
      		actualn = Alternate_item_name(typ,Cartomancer_items);
     else if (Role_if(PM_PIRATE) && Alternate_item_name(typ,Pirate_items))
      		actualn = Alternate_item_name(typ,Pirate_items);
+    /* 3.6.2: this used to be part of 'dn's initialization, but it
+       needs to come after possibly overriding 'actualn' */
+    if (!dn)
+        dn = actualn;
 
     buf[0] = '\0';
     /*
@@ -1791,7 +1795,7 @@ unsigned doname_flags;
                 obj->leashmon = 0;
             } else {
                 Sprintf(eos(bp), " (attached to %s)",
-                        a_monnam(mlsh));
+                        noit_mon_nam(mlsh));
             }
             break;
         }
@@ -3206,7 +3210,13 @@ const char *oldstr;
         if (p >= bp + 2 && lowc(p[-2]) == 'e') {
             if (p >= bp + 3 && lowc(p[-3]) == 'i') { /* "ies" */
                 if (!BSTRCMPI(bp, p - 7, "cookies")
-                    || !BSTRCMPI(bp, p - 4, "pies")
+                    || (!BSTRCMPI(bp, p - 4, "pies")
+                        /* avoid false match for "harpies" */
+                        && (p - 4 == bp || p[-5] == ' '))
+                    /* alternate djinni/djinn spelling; not really needed */
+                    || (!BSTRCMPI(bp, p - 6, "genies")
+                        /* avoid false match for "progenies" */
+                        && (p - 6 == bp || p[-7] == ' '))
                     || !BSTRCMPI(bp, p - 5, "mbies") /* zombie */
                     || !BSTRCMPI(bp, p - 5, "yries")) /* valkyrie */
                     goto mins;
@@ -3456,7 +3466,7 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
    absence of spaces and/or hyphens (such as "pickaxe" vs "pick axe"
    vs "pick-axe") then there is no need for inclusion in this list;
    likewise for ``"of" inversions'' ("boots of speed" vs "speed boots") */
-struct alt_spellings {
+static struct alt_spellings {
     const char *sp;
     int ob;
 } spellings[] = {
@@ -3480,6 +3490,8 @@ struct alt_spellings {
     { "eucalyptus", EUCALYPTUS_LEAF },
     { "royal jelly", LUMP_OF_ROYAL_JELLY },
     { "lembas", LEMBAS_WAFER },
+    { "cookie", FORTUNE_COOKIE },
+    { "pie", CREAM_PIE },
     { "marker", MAGIC_MARKER },
     { "hook", GRAPPLING_HOOK },
     { "grappling iron", GRAPPLING_HOOK },
@@ -3504,6 +3516,7 @@ schar skill;
 {
     int i, n = 0;
     short otyp = STRANGE_OBJECT;
+
     for (i = bases[WEAPON_CLASS];
          i < NUM_OBJECTS && objects[i].oc_class == WEAPON_CLASS; i++)
         if (objects[i].oc_skill == skill) {
@@ -3522,20 +3535,29 @@ schar skill;
 }
 
 STATIC_OVL short
-rnd_otyp_by_namedesc(name, oclass)
-char *name;
+rnd_otyp_by_namedesc(name, oclass, xtra_prob)
+const char *name;
 char oclass;
+int xtra_prob; /* to force 0% random generation items to also be considered */
 {
     int i, n = 0;
     short validobjs[NUM_OBJECTS];
     register const char *zn;
-    long maxprob = 0;
+    int prob, maxprob = 0;
 
-    if (!name)
+    if (!name || !*name)
         return STRANGE_OBJECT;
 
     memset((genericptr_t) validobjs, 0, sizeof validobjs);
 
+    /* FIXME:
+     * When this spans classes (the !oclass case), the item
+     * probabilities are not very useful because they don't take
+     * the class generation probability into account.  [If 10%
+     * of spellbooks were blank and 1% of scrolls were blank,
+     * "blank" would have 10/11 chance to yield a blook even though
+     * scrolls are supposed to be much more common than books.]
+     */
     for (i = oclass ? bases[(int) oclass] : STRANGE_OBJECT + 1;
          i < NUM_OBJECTS && (!oclass || objects[i].oc_class == oclass);
          ++i) {
@@ -3548,20 +3570,25 @@ char oclass;
             || ((zn = objects[i].oc_uname) != 0
                 && wishymatch(name, zn, FALSE))) {
             validobjs[n++] = (short) i;
-            maxprob += (get_oc_prob(i) + 1);
+            maxprob += (get_oc_prob(i) + xtra_prob);
         }
     }
 
     if (n > 0 && maxprob) {
-        long prob = rn2(maxprob);
-
-        i = 0;
-        while (i < n - 1
-               && (prob -= (get_oc_prob(validobjs[i]) + 1)) >= 0)
-            i++;
+        prob = rn2(maxprob);
+        for (i = 0; i < n - 1; i++)
+            if ((prob -= (objects[validobjs[i]].oc_prob + xtra_prob)) < 0)
+                break;
         return validobjs[i];
     }
     return STRANGE_OBJECT;
+}
+
+int
+shiny_obj(oclass)
+char oclass;
+{
+    return (int) rnd_otyp_by_namedesc("shiny", oclass, 0);
 }
 
 /*
@@ -4084,7 +4111,7 @@ int extra;
 
     /* Alternate spellings (pick-ax, silver sabre, &c) */
     {
-        struct alt_spellings *as = spellings;
+        const struct alt_spellings *as = spellings;
 
         while (as->sp) {
             if (fuzzymatch(bp, as->sp, " -", TRUE)) {
@@ -4128,6 +4155,11 @@ int extra;
     }
     if (unlabeled && !BSTRCMPI(bp, p - 9, "spellbook")) {
         typ = SPE_BLANK_PAPER;
+        goto typfnd;
+    }
+    /* specific food rather than color of gem/potion/spellbook[/scales] */
+    if (!BSTRCMPI(bp, p - 6, "orange") && mntmp == NON_PM) {
+        typ = ORANGE;
         goto typfnd;
     }
     /*
@@ -4300,10 +4332,10 @@ srch:
         }
     }
 
-    if (((typ = rnd_otyp_by_namedesc(actualn, oclass)) != STRANGE_OBJECT)
-        || ((typ = rnd_otyp_by_namedesc(dn, oclass)) != STRANGE_OBJECT)
-        || ((typ = rnd_otyp_by_namedesc(un, oclass)) != STRANGE_OBJECT)
-        || ((typ = rnd_otyp_by_namedesc(origbp, oclass)) != STRANGE_OBJECT))
+    if (((typ = rnd_otyp_by_namedesc(actualn, oclass, 1)) != STRANGE_OBJECT)
+        || ((typ = rnd_otyp_by_namedesc(dn, oclass, 1)) != STRANGE_OBJECT)
+        || ((typ = rnd_otyp_by_namedesc(un, oclass, 1)) != STRANGE_OBJECT)
+        || ((typ = rnd_otyp_by_namedesc(origbp, oclass, 1)) != STRANGE_OBJECT))
         goto typfnd;
     typ = 0;
 
@@ -4432,7 +4464,7 @@ wiztrap:
             if (strncmpi(tname, bp, strlen(tname)))
                 continue;
             /* found it; avoid stupid mistakes */
-            if ((trap == TRAPDOOR || trap == HOLE) && !Can_fall_thru(&u.uz))
+            if (is_hole(trap) && !Can_fall_thru(&u.uz))
                 trap = ROCKTRAP;
             if ((t = maketrap(x, y, trap)) != 0) {
                 trap = t->ttyp;

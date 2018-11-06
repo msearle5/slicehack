@@ -191,6 +191,7 @@ struct obj *obj;
             break;
         case PM_CAVEMAN:
         case PM_CAVEWOMAN:
+        case PM_CAVEPERSON:
             if (rn2(4))
                 weapon = MACE;
             else if (rn2(2))
@@ -213,6 +214,13 @@ struct obj *obj;
                 weapon = BROADSWORD;
             armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             break;
+        case PM_PIRATE:
+            if (rn2(4))
+                weapon = SCIMITAR;
+            if (rn2(3))
+                armor = JACKET;
+            (void) mongets(mtmp, POT_BOOZE);
+            break;
         case PM_KNIGHT:
             if (rn2(4))
                 weapon = LONG_SWORD;
@@ -228,6 +236,7 @@ struct obj *obj;
             break;
         case PM_PRIEST:
         case PM_PRIESTESS:
+        case PM_MINISTER:
             if (rn2(2))
                 weapon = MACE;
             if (rn2(2))

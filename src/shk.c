@@ -534,9 +534,9 @@ boolean newlev;
                       plname);
         else
             pline("%s %s that you need to pay before leaving%s",
-                Shknam(shkp),
-                NOTANGRY(shkp) ? "points out" : "makes it clear",
-                NOTANGRY(shkp) ? "." : "!");
+                  Shknam(shkp),
+                  NOTANGRY(shkp) ? "points out" : "makes it clear",
+                  NOTANGRY(shkp) ? "." : "!");
         return;
     }
 
@@ -690,7 +690,7 @@ char *enterstring;
             verbalize("Invisible customers are not welcome!");
         else
             pline("%s stands firm as if %s knows you are there.",
-                  Shknam(shkp), mhe(shkp));
+                  Shknam(shkp), noit_mhe(shkp));
         return;
     }
 
@@ -699,21 +699,18 @@ char *enterstring;
     if (ANGRY(shkp)) {
         if (!Deaf && !muteshk(shkp))
             verbalize("So, %s, you dare return to %s %s?!", plname,
-                  s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
+                      s_suffix(shkname(shkp)), shtypes[rt - SHOPBASE].name);
         else
             pline("%s seems %s over your return to %s %s!",
-                  Shknam(shkp),
-                  angrytexts[rn2(SIZE(angrytexts))],
-                  mhis(shkp),
-                  shtypes[rt - SHOPBASE].name);
+                  Shknam(shkp), angrytexts[rn2(SIZE(angrytexts))],
+                  noit_mhis(shkp), shtypes[rt - SHOPBASE].name);
     } else if (eshkp->robbed) {
         if (!Deaf)
             pline("%s mutters imprecations against shoplifters.",
-                  shkname(shkp));
+                  Shknam(shkp));
         else
             pline("%s is combing through %s inventory list.",
-                  Shknam(shkp),
-                  mhis(shkp));
+                  Shknam(shkp), noit_mhis(shkp));
     } else {
         if (!Deaf && !muteshk(shkp))
             verbalize("%s, %s!  Welcome%s to %s %s!", Hello(shkp), plname,
@@ -760,20 +757,20 @@ char *enterstring;
                           tool, plur(cnt));
             else
                 pline("%s %s to let you in with your %s%s.",
-                        Shknam(shkp),
-                        NOTANGRY(shkp) ? "is hesitant" : "refuses",
-                        tool, plur(cnt));
+                      Shknam(shkp),
+                      NOTANGRY(shkp) ? "is hesitant" : "refuses",
+                      tool, plur(cnt));
             should_block = TRUE;
         } else if (u.usteed) {
             if (!Deaf && !muteshk(shkp))
                 verbalize(NOTANGRY(shkp) ? "Will you please leave %s outside?"
                                      : "Leave %s outside.",
-                      y_monnam(u.usteed));
+                          y_monnam(u.usteed));
             else
                 pline("%s %s to let you in while you're riding %s.",
-                        Shknam(shkp),
-                        NOTANGRY(shkp) ? "doesn't want" : "refuses",
-                        y_monnam(u.usteed));
+                      Shknam(shkp),
+                      NOTANGRY(shkp) ? "doesn't want" : "refuses",
+                      y_monnam(u.usteed));
             should_block = TRUE;
         } else {
             should_block =
@@ -1494,7 +1491,7 @@ proceed:
         } else {
             if (umoney > ltmp) {
                 You("give %s the %ld gold piece%s %s asked for.",
-                    shkname(shkp), ltmp, plur(ltmp), mhe(shkp));
+                    shkname(shkp), ltmp, plur(ltmp), noit_mhe(shkp));
                 pay(ltmp, shkp);
             } else {
                 You("give %s all your%s gold.", shkname(shkp),
@@ -1504,7 +1501,8 @@ proceed:
                     pline("But you have hidden gold!");
             }
             if ((umoney < ltmp / 2L) || (umoney < ltmp && stashed_gold))
-                pline("Unfortunately, %s doesn't look satisfied.", mhe(shkp));
+                pline("Unfortunately, %s doesn't look satisfied.",
+                      noit_mhe(shkp));
             else
                 make_happy_shk(shkp, FALSE);
         }
@@ -1524,13 +1522,14 @@ proceed:
                 if (!umoney)
                     pline(no_money, stashed_gold ? " seem to" : "");
                 else
-                    pline(not_enough_money, mhim(shkp));
+                    pline(not_enough_money, noit_mhim(shkp));
                 return 1;
             }
-            pline("But since %s shop has been robbed recently,", mhis(shkp));
+            pline("But since %s shop has been robbed recently,",
+                  noit_mhis(shkp));
             pline("you %scompensate %s for %s losses.",
                   (umoney < ltmp) ? "partially " : "", shkname(shkp),
-                  mhis(shkp));
+                  noit_mhis(shkp));
             pay(umoney < ltmp ? umoney : ltmp, shkp);
             make_happy_shk(shkp, FALSE);
         } else {
@@ -1541,11 +1540,14 @@ proceed:
                 if (!umoney)
                     pline(no_money, stashed_gold ? " seem to" : "");
                 else
-                    pline(not_enough_money, mhim(shkp));
+                    pline(not_enough_money, noit_mhim(shkp));
                 return 1;
             }
             You("try to appease %s by giving %s 1000 gold pieces.",
-                x_monnam(shkp, ARTICLE_THE, "angry", 0, FALSE), mhim(shkp));
+                canspotmon(shkp)
+                    ? x_monnam(shkp, ARTICLE_THE, "angry", 0, FALSE)
+                    : shkname(shkp),
+                noit_mhim(shkp));
             pay(1000L, shkp);
             if (strncmp(eshkp->customer, plname, PL_NSIZ) || rn2(3))
                 make_happy_shk(shkp, FALSE);
@@ -1689,13 +1691,13 @@ proceed:
     }
     if (!ANGRY(shkp) && paid) {
         if (!Deaf && !muteshk(shkp))
-            verbalize("Thank you for shopping in %s %s!", s_suffix(shkname(shkp)),
-                  shtypes[eshkp->shoptype - SHOPBASE].name);
+            verbalize("Thank you for shopping in %s %s!",
+                      s_suffix(shkname(shkp)),
+                      shtypes[eshkp->shoptype - SHOPBASE].name);
         else
             pline("%s nods appreciatively at you for shopping in %s %s!",
-                    Shknam(shkp),
-                    mhis(shkp),
-                    shtypes[eshkp->shoptype - SHOPBASE].name);
+                  Shknam(shkp), noit_mhis(shkp),
+                  shtypes[eshkp->shoptype - SHOPBASE].name);
     }
     return 1;
 }
@@ -1931,7 +1933,7 @@ int croaked;
         if (cansee(shkp->mx, shkp->my) && croaked) {
             takes[0] = '\0';
             if (has_head(shkp->data) && !rn2(2))
-                Sprintf(takes, ", shakes %s %s,", mhis(shkp),
+                Sprintf(takes, ", shakes %s %s,", noit_mhis(shkp),
                         mbodypart(shkp, HEAD));
             pline("%s %slooks at your corpse%s and %s.", Shknam(shkp),
                   (!shkp->mcanmove || shkp->msleeping) ? "wakes up, " : "",
@@ -1950,7 +1952,7 @@ int croaked;
         taken = (invent != 0);
         if (taken)
             pline("%s gratefully inherits all your possessions.",
-                  shkname(shkp));
+                  Shknam(shkp));
         set_repo_loc(shkp);
         goto clear;
     }
@@ -1981,7 +1983,7 @@ int croaked;
             if (umoney > 0)
                 money2mon(shkp, umoney);
             context.botl = 1;
-            pline("%s %s all your possessions.", shkname(shkp), takes);
+            pline("%s %s all your possessions.", Shknam(shkp), takes);
             taken = TRUE;
             /* where to put player's invent (after disclosure) */
             set_repo_loc(shkp);
@@ -1991,7 +1993,7 @@ int croaked;
             pline("%s %s the %ld %s %sowed %s.", Shknam(shkp),
                   takes, loss, currency(loss),
                   strncmp(eshkp->customer, plname, PL_NSIZ) ? "" : "you ",
-                  mhim(shkp));
+                  noit_mhim(shkp));
             /* shopkeeper has now been paid in full */
             pacify_shk(shkp);
             eshkp->following = 0;
@@ -2418,9 +2420,8 @@ boolean quietly;
                     verbalize("I won't stock that.  Take it out of here!");
                 else
                     pline("%s shakes %s %s in refusal.",
-                            Shknam(shkp),
-                            mhis(shkp),
-                            mbodypart(shkp, HEAD));
+                          Shknam(shkp), noit_mhis(shkp),
+                          mbodypart(shkp, HEAD));
             }
         }
         return TRUE;
@@ -3214,7 +3215,7 @@ xchar x, y;
         if (sell_how == SELL_NORMAL || auto_credit) {
             c = sell_response = 'y';
         } else if (sell_response != 'n') {
-            pline("%s cannot pay you at present.", shkname(shkp));
+            pline("%s cannot pay you at present.", Shknam(shkp));
             Sprintf(qbuf, "Will you accept %ld %s in credit for ", tmpcr,
                     currency(tmpcr));
             c = ynaq(safe_qbuf(qbuf, qbuf, "?", obj, doname, thesimpleoname,
@@ -3283,7 +3284,7 @@ xchar x, y;
                 "... your items in the <bag>.  Sell them?"
              */
             Sprintf(qbuf, "%s offers%s %ld gold piece%s for %s%s ",
-                    shkname(shkp), short_funds ? " only" : "", offer,
+                    Shknam(shkp), short_funds ? " only" : "", offer,
                     plur(offer),
                     (cltmp && !ltmp)
                         ? ((yourc == 1L) ? "your item in " : "your items in ")
@@ -3854,8 +3855,7 @@ struct monst *shkp;
                               Hello(shkp), plname);
                 else
                     pline("%s holds out %s upturned %s.",
-                          Shknam(shkp),
-                          mhis(shkp),
+                          Shknam(shkp), noit_mhis(shkp),
                           mbodypart(shkp, HAND));
                 followmsg = moves;
                 if (!rn2(9)) {
@@ -4013,7 +4013,7 @@ register int fall;
              */
             if (lang == 2)
                 pline("%s curses %s inability to grab your backpack!",
-                      shkname(shkp), mhim(shkp));
+                      Shknam(shkp), noit_mhim(shkp));
             rile_shk(shkp);
             return;
 #endif
@@ -4024,16 +4024,16 @@ register int fall;
             if (distu(shkp->mx, shkp->my) > 2) {
                 if (lang == 2)
                     pline("%s curses you in anger and frustration!",
-                          shkname(shkp));
+                          Shknam(shkp));
                 else if (lang == 1)
                     growl(shkp);
                 rile_shk(shkp);
                 return;
             } else
-                pline("%s %s, and %s your backpack!", shkname(shkp),
+                pline("%s %s, and %s your backpack!", Shknam(shkp),
                       makeplural(locomotion(shkp->data, "leap")), grabs);
         } else
-            pline("%s %s your backpack!", shkname(shkp), grabs);
+            pline("%s %s your backpack!", Shknam(shkp), grabs);
 
         for (obj = invent; obj; obj = obj2) {
             obj2 = obj->nobj;
@@ -4173,7 +4173,7 @@ boolean cant_mollify;
     if (uinshp) {
         if (um_dist(shkp->mx, shkp->my, 1)
             && !um_dist(shkp->mx, shkp->my, 3)) {
-            pline("%s leaps towards you!", shkname(shkp));
+            pline("%s leaps towards you!", Shknam(shkp));
             mnexto(shkp);
         }
         pursue = um_dist(shkp->mx, shkp->my, 1);
@@ -4220,16 +4220,16 @@ boolean cant_mollify;
             else
                 pline("%s is %s that you decided to %s %s %s!",
                       Shknam(shkp), angrytexts[rn2(SIZE(angrytexts))],
-                      dmgstr, mhis(shkp), dugwall ? "shop" : "door");
+                      dmgstr, noit_mhis(shkp), dugwall ? "shop" : "door");
         } else {
             if (!Deaf) {
-                pline("%s shouts:", shkname(shkp));
+                pline("%s shouts:", Shknam(shkp));
                 verbalize("Who dared %s my %s?", dmgstr,
                           dugwall ? "shop" : "door");
             } else {
                 pline("%s is %s that someone decided to %s %s %s!",
                       Shknam(shkp), angrytexts[rn2(SIZE(angrytexts))],
-                      dmgstr, mhis(shkp), dugwall ? "shop" : "door");
+                      dmgstr, noit_mhis(shkp), dugwall ? "shop" : "door");
             }
         }
         hot_pursuit(shkp);
@@ -4255,10 +4255,8 @@ boolean cant_mollify;
                 verbalize("Oh, yes!  You'll pay!");
             else
                 pline("%s lunges %s %s toward your %s!",
-                    Shknam(shkp),
-                    mhis(shkp),
-                    mbodypart(shkp, HAND),
-                    body_part(NECK));
+                      Shknam(shkp), noit_mhis(shkp),
+                      mbodypart(shkp, HAND), body_part(NECK));
         } else
             growl(shkp);
         hot_pursuit(shkp);
@@ -4437,9 +4435,9 @@ struct monst *shkp;
     eshk = ESHK(shkp);
     if (ANGRY(shkp)) {
         pline("%s %s how much %s dislikes %s customers.",
-              shkname(shkp),
+              Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "mentions" : "indicates",
-              mhe(shkp), eshk->robbed ? "non-paying" : "rude");
+              noit_mhe(shkp), eshk->robbed ? "non-paying" : "rude");
     } else if (eshk->following) {
         if (strncmp(eshk->customer, plname, PL_NSIZ)) {
             if (!Deaf && !muteshk(shkp))
@@ -4458,28 +4456,28 @@ struct monst *shkp;
         register long total = addupbill(shkp) + eshk->debit;
 
         pline("%s %s that your bill comes to %ld %s.",
-              shkname(shkp),
+              Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "says" : "indicates",
               total, currency(total));
     } else if (eshk->debit) {
         pline("%s %s that you owe %s %ld %s.",
-              shkname(shkp),
+              Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "reminds you" : "indicates",
-              mhim(shkp), eshk->debit, currency(eshk->debit));
+              noit_mhim(shkp), eshk->debit, currency(eshk->debit));
     } else if (eshk->credit) {
         pline("%s encourages you to use your %ld %s of credit.",
-              shkname(shkp), eshk->credit, currency(eshk->credit));
+              Shknam(shkp), eshk->credit, currency(eshk->credit));
     } else if (eshk->robbed) {
         pline("%s %s about a recent robbery.",
               Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "complains" : "indicates concern");
     } else if ((shkmoney = money_cnt(shkp->minvent)) < 50L) {
         pline("%s %s that business is bad.",
-              shkname(shkp),
+              Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "complains" : "indicates");
     } else if (shkmoney > 4000) {
         pline("%s %s that business is good.",
-              shkname(shkp),
+              Shknam(shkp),
               (!Deaf && !muteshk(shkp)) ? "says" : "indicates");
     } else if (is_izchak(shkp, FALSE)) {
         if (!Deaf && !muteshk(shkp))
@@ -4489,7 +4487,7 @@ struct monst *shkp;
               shkname(shkp));
     } else {
         if (!Deaf && !muteshk(shkp))
-            pline("%s talks about the problem of shoplifters.", shkname(shkp));
+            pline("%s talks about the problem of shoplifters.", Shknam(shkp));
     }
 }
 
@@ -4692,7 +4690,7 @@ register xchar x, y;
         && ESHK(shkp)->shd.y == y
         && shkp->mcanmove && !shkp->msleeping
         && (ESHK(shkp)->debit || ESHK(shkp)->billct || ESHK(shkp)->robbed)) {
-        pline("%s%s blocks your way!", shkname(shkp),
+        pline("%s%s blocks your way!", Shknam(shkp),
               Invis ? " senses your motion and" : "");
         return TRUE;
     }
@@ -4729,7 +4727,7 @@ register xchar x, y;
         && (x == sx - 1 || x == sx + 1 || y == sy - 1 || y == sy + 1)
         && (Invis || carrying(PICK_AXE) || carrying(DWARVISH_MATTOCK)
             || u.usteed)) {
-        pline("%s%s blocks your way!", shkname(shkp),
+        pline("%s%s blocks your way!", Shknam(shkp),
               Invis ? " senses your motion and" : "");
         return TRUE;
     }

@@ -521,6 +521,9 @@ IF [75%] {
   }
 }
 
+# Plane is lit
+REGION:(00,00,75,19),lit,"ordinary"
+
 # Rider locations
 $place = { (23,9),(37,14),(51,9) }
 SHUFFLE: $place

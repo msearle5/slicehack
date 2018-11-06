@@ -245,6 +245,9 @@
       || (ptr) == &mons[PM_DAMNED_PIRATE] || (ptr) == &mons[PM_PLANAR_PIRATE] \
       || (ptr) == &mons[PM_MAYOR_CUMMERBUND] || (ptr) == &mons[PM_PIRATE_BROTHER])
 
+#define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] \
+      || (ptr) == &mons[PM_NOSFERATU])
+
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)
 #define nonliving(ptr) \
@@ -283,7 +286,8 @@
        : (is_domestic(ptr) && (obj)->oclass == FOOD_CLASS                \
           && ((ptr)->mlet != S_UNICORN                                   \
               || obj->material == VEGGY               \
-              || ((obj)->otyp == CORPSE && (obj)->corpsenm == PM_LICHEN))))
+              || ((obj)->otyp == CORPSE && ((obj)->corpsenm == PM_LICHEN \
+                    || (obj)->corpsenm == PM_LEGENDARY_LICHEN)))))
 
 #define is_blkmktstaff(ptr)	(Is_blackmarket(&u.uz) && \
 				  (ptr) == &mons[PM_ARMS_DEALER])

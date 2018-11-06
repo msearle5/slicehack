@@ -168,6 +168,7 @@ E NEARDATA struct sinfo {
 } program_state;
 
 E boolean restoring;
+E boolean ransacked;
 
 E const char quitchars[];
 E const char vowels[];

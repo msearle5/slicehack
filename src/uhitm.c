@@ -369,12 +369,14 @@ register struct monst *mtmp;
                 Strcpy(buf, y_monnam(mtmp));
                 buf[0] = highc(buf[0]);
                 You("stop.  %s is in the way!", buf);
-                context.travel = context.travel1 = context.mv = context.run = 0;
+                context.travel = context.travel1 = context.mv = context.run
+                    = 0;
                 return TRUE;
             } else if ((mtmp->mfrozen || (!mtmp->mcanmove)
                         || (mtmp->data->mmove == 0)) && rn2(6)) {
                 pline("%s doesn't seem to move!", Monnam(mtmp));
-                context.travel = context.travel1 = context.mv = context.run = 0;
+                context.travel = context.travel1 = context.mv = context.run
+                    = 0;
                 return TRUE;
             } else
                 return FALSE;
@@ -449,7 +451,7 @@ register struct monst *mtmp;
 
     mtmp->mstrategy &= ~STRAT_WAITMASK;
 
-atk_done:
+ atk_done:
     /* see comment in attack_checks() */
     /* we only need to check for this if we did an attack_checks()
      * and it returned 0 (it's okay to attack), and the monster didn't
@@ -728,6 +730,7 @@ int dieroll;
             unpoisonmsg = FALSE;
     boolean tigermsg = FALSE;
     boolean harm_obj = FALSE;
+    boolean lightobj = FALSE;
     int harm_material = 0;
 
     boolean valid_weapon_attack = FALSE;
@@ -877,7 +880,10 @@ int dieroll;
         		    tmp += dmgbonus;
         	  } /* Techinuse Elemental Fist */
     } else {
-        Strcpy(saved_oname, cxname(obj));
+        if (!(artifact_light(obj) && obj->lamplit))
+            Strcpy(saved_oname, cxname(obj));
+        else
+            Strcpy(saved_oname, bare_artifactname(obj));
         if (obj->oclass == WEAPON_CLASS || is_weptool(obj)
             || obj->oclass == GEM_CLASS) {
             /* is it not a melee weapon? */
@@ -1026,6 +1032,9 @@ int dieroll;
                     harm_obj = TRUE;
                     harm_material = obj->material;
                 }
+                if (artifact_light(obj) && obj->lamplit
+                    && mon_hates_light(mon))
+                    lightobj = TRUE;
                 if (u.usteed && !thrown && tmp > 0
                     && weapon_type(obj) == P_LANCE && mon != u.ustuck) {
                     jousting = joust(mon, obj);
@@ -1579,6 +1588,30 @@ int dieroll;
         pline(fmt, whom);
     }
 
+    if (lightobj) {
+        const char *fmt;
+        char *whom = mon_nam(mon);
+        char emitlightobjbuf[BUFSZ];
+
+        if (canspotmon(mon)) {
+            if (saved_oname[0]) {
+                Sprintf(emitlightobjbuf,
+                        "%s radiance penetrates deep into",
+                        s_suffix(saved_oname));
+                Strcat(emitlightobjbuf, " %s!");
+                fmt = emitlightobjbuf;
+            } else
+                fmt = "The light sears %s!";
+        } else {
+            *whom = highc(*whom); /* "it" -> "It" */
+            fmt = "%s is seared!";
+        }
+        /* note: s_suffix returns a modifiable buffer */
+        if (!noncorporeal(mdat) && !amorphous(mdat))
+            whom = strcat(s_suffix(whom), " flesh");
+        pline(fmt, whom);
+    }
+>>>>>>> 095656c701b88a6688fc4960a78aa26e45cdbe6b
     /* if a "no longer poisoned" message is coming, it will be last;
        obj->opoisoned was cleared above and any message referring to
        "poisoned <obj>" has now been given; we want just "<obj>" for
@@ -1833,6 +1866,9 @@ struct attack *mattk;
                 setmnotwielded(mdef, otmp);
             otmp->owornmask = 0L;
             update_mon_intrinsics(mdef, otmp, FALSE, FALSE);
+            /* give monster a chance to wear other equipment on its next
+               move instead of waiting until it picks something up */
+            mdef->misc_worn_check |= I_SPECIAL;
 
             if (otmp == stealoid) /* special message for final item */
                 pline("%s finishes taking off %s suit.", Monnam(mdef),
@@ -2091,8 +2127,9 @@ register struct attack *mattk;
             tmp = 1;
         if (!negated && tmp < mdef->mhp) {
             char nambuf[BUFSZ];
-            boolean u_saw_mon =
-                canseemon(mdef) || (u.uswallow && u.ustuck == mdef);
+            boolean u_saw_mon = (canseemon(mdef)
+                                 || (u.uswallow && u.ustuck == mdef));
+
             /* record the name before losing sight of monster */
             Strcpy(nambuf, Monnam(mdef));
             if (u_teleport_mon(mdef, FALSE) && u_saw_mon
@@ -2174,9 +2211,9 @@ register struct attack *mattk;
     case AD_DRCO:
         if (!negated && !rn2(8)) {
             Your("%s was poisoned!", mpoisons_subj(&youmonst, mattk));
-            if (resists_poison(mdef))
+            if (resists_poison(mdef)) {
                 pline_The("poison doesn't seem to affect %s.", mon_nam(mdef));
-            else {
+            } else {
                 if (!rn2(10)) {
                     Your("poison was deadly...");
                     tmp = mdef->mhp;
@@ -2416,12 +2453,11 @@ explum(mdef, mattk)
 register struct monst *mdef;
 register struct attack *mattk;
 {
+    boolean resistance; /* only for cold/fire/elec */
     register int tmp = d((int) mattk->damn, (int) mattk->damd);
 
     You("explode!");
     switch (mattk->adtyp) {
-        boolean resistance; /* only for cold/fire/elec */
-
     case AD_BLND:
         if (!resists_blnd(mdef)) {
             pline("%s is blinded by your flash of light!", Monnam(mdef));

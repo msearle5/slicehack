@@ -1,4 +1,4 @@
-/* NetHack 3.6	mon.c	$NHDT-Date: 1526132509 2018/05/12 13:41:49 $  $NHDT-Branch: master $:$NHDT-Revision: 1.252 $ */
+/* NetHack 3.6	mon.c	$NHDT-Date: 1539479657 2018/10/14 01:14:17 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.260 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -686,7 +686,7 @@ unsigned corpseflags;
      *  underneath it, you could be told the corpse type of a
      *  monster that you never knew was there without this.
      *  The code in hitmu() substitutes the word "something"
-     *  if the corpses obj->dknown is 0.
+     *  if the corpse's obj->dknown is 0.
      */
     if (Blind && !sensemon(mtmp))
         obj->dknown = 0;
@@ -967,6 +967,17 @@ movemon()
         clear_splitobjs();
         if (minliquid(mtmp))
             continue;
+
+        /* after losing equipment, try to put on replacement */
+        if (mtmp->misc_worn_check & I_SPECIAL) {
+            long oldworn;
+
+            mtmp->misc_worn_check &= ~I_SPECIAL;
+            oldworn = mtmp->misc_worn_check;
+            m_dowear(mtmp, FALSE);
+            if (mtmp->misc_worn_check != oldworn || !mtmp->mcanmove)
+                continue;
+        }
 
         if (is_hider(mtmp->data)) {
             /* unwatched mimics and piercers may hide again  [MRS] */
@@ -1628,7 +1639,11 @@ nexttry: /* eels prefer the water, but if there is no water nearby,
                 && !((IS_TREE(ntyp) ? treeok : rockok) && may_dig(nx, ny)))
                 continue;
             /* KMH -- Added iron bars */
-            if (ntyp == IRONBARS && !(flag & ALLOW_BARS))
+            if (ntyp == IRONBARS
+                && (!(flag & ALLOW_BARS)
+                    || ((levl[nx][ny].wall_info & W_NONDIGGABLE)
+                        && (dmgtype(mdat, AD_RUST)
+                            || dmgtype(mdat, AD_CORR)))))
                 continue;
             if (IS_DOOR(ntyp) && !(amorphous(mdat) || can_fog(mon))
                 && (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
@@ -1754,8 +1769,7 @@ nexttry: /* eels prefer the water, but if there is no water nearby,
                     if ((ttmp->ttyp != RUST_TRAP
                          || mdat == &mons[PM_IRON_GOLEM])
                         && ttmp->ttyp != STATUE_TRAP
-                        && ((ttmp->ttyp != PIT && ttmp->ttyp != SPIKED_PIT
-                             && ttmp->ttyp != TRAPDOOR && ttmp->ttyp != HOLE)
+                        && ((!is_pit(ttmp->ttyp) && !is_hole(ttmp->ttyp))
                             || (!is_flyer(mdat) && !is_floater(mdat)
                                 && !is_clinger(mdat)) || Sokoban)
                         && (ttmp->ttyp != SLP_GAS_TRAP || !resists_sleep(mon))
@@ -2219,12 +2233,9 @@ struct monst *mtmp;
             }
             pline_The("medallion crumbles to dust!");
         }
-        if (lifesave) {
-            m_useup(mtmp, lifesave);
-            /* monsters with multiple amulets / disintegrated items will now
-               re-equip themselves at the cost of a single m_dowear call. */
-            m_dowear(mtmp, FALSE);
-        }
+        m_useup(mtmp, lifesave);
+        /* equip replacement amulet, if any, on next move */
+        mtmp->misc_worn_check |= I_SPECIAL;
 
         surviver = !(mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
         mtmp->mcanmove = 1;
@@ -2235,13 +2246,14 @@ struct monst *mtmp;
         if (mtmp->mhpmax <= 0)
             mtmp->mhpmax = 10;
         mtmp->mhp = mtmp->mhpmax;
-        if (surviver)
-            return;
 
-        /* genocided monster can't be life-saved */
-        if (cansee(mtmp->mx, mtmp->my))
-            pline("Unfortunately, %s is still genocided...", mon_nam(mtmp));
-        mtmp->mhp = 0;
+        if (!surviver) {
+            /* genocided monster can't be life-saved */
+            if (cansee(mtmp->mx, mtmp->my))
+                pline("Unfortunately, %s is still genocided...",
+                      mon_nam(mtmp));
+            mtmp->mhp = 0;
+        }
     }
 }
 
@@ -2838,7 +2850,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
     }
 
     if (mtmp->mtrapped && (t = t_at(x, y)) != 0
-        && (t->ttyp == PIT || t->ttyp == SPIKED_PIT)) {
+        && is_pit(t->ttyp)) {
         if (sobj_at(BOULDER, x, y))
             nocorpse = TRUE; /* Prevent corpses/treasure being created
                                 "on top" of boulder that is about to fall in.
@@ -3270,7 +3282,10 @@ setmangry(mtmp, via_attack)
 struct monst *mtmp;
 boolean via_attack;
 {
-    if (via_attack && sengr_at("Elbereth", u.ux, u.uy, TRUE)) {
+    if (via_attack && sengr_at("Elbereth", u.ux, u.uy, TRUE)
+        /* only hypocritical if monster is vulnerable to Elbereth (or
+           peaceful--not vulnerable but attacking it is hypocritical) */
+        && (onscary(u.ux, u.uy, mtmp) || mtmp->mpeaceful)) {
         You_feel("like a hypocrite.");
         /* AIS: Yes, I know alignment penalties and bonuses aren't balanced
            at the moment. This is about correct relative to other "small"
@@ -3279,7 +3294,8 @@ boolean via_attack;
            violating your own request. I know 5 isn't actually large, but
            it's intentionally larger than the 1s and 2s that are normally
            given for this sort of thing. */
-        adjalign(-5);
+        /* reduce to 3 (average) when alignment is already very low */
+        adjalign((u.ualign.record > 5) ? -5 : -rnd(5));
 
         if (!Blind)
             pline("The engraving beneath you fades.");
@@ -3529,7 +3545,8 @@ restartcham()
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
             continue;
-        mtmp->cham = pm_to_cham(monsndx(mtmp->data));
+        if (!mtmp->mcan)
+            mtmp->cham = pm_to_cham(monsndx(mtmp->data));
         if (mtmp->data->mlet == S_MIMIC && mtmp->msleeping
             && cansee(mtmp->mx, mtmp->my)) {
             set_mimic_sym(mtmp);
@@ -3571,7 +3588,7 @@ register struct monst *mtmp;
         || rn2(3) || mtmp == u.ustuck
         /* can't hide while trapped except in pits */
         || (mtmp->mtrapped && (t = t_at(mtmp->mx, mtmp->my)) != 0
-            && !(t->ttyp == PIT || t->ttyp == SPIKED_PIT))
+            && !is_pit(t->ttyp))
         || (sensemon(mtmp) && distu(mtmp->mx, mtmp->my) <= 2))
         return FALSE;
 
@@ -3599,7 +3616,7 @@ struct monst *mtmp;
         ; /* can't hide if holding you or held by you */
     } else if (is_u ? (u.utrap && u.utraptype != TT_PIT)
                     : (mtmp->mtrapped && (t = t_at(x, y)) != 0
-                       && !(t->ttyp == PIT || t->ttyp == SPIKED_PIT))) {
+                       && !is_pit(t->ttyp))) {
         ; /* can't hide while stuck in a non-pit trap */
     } else if (mtmp->data->mlet == S_EEL) {
         undetected = (is_pool(x, y) && !Is_waterlevel(&u.uz));
@@ -4054,6 +4071,13 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
            anomalous extinction feedback during final disclsoure */
         if (mbirth_limit(monsndx(olddata)) < MAXMONNO)
             return 0;
+        /* cancelled shapechangers become uncancelled prior
+           to being given a new shape */
+        if (mtmp->mcan && !Protection_from_shape_changers) {
+            mtmp->cham = pm_to_cham(monsndx(mtmp->data));
+            if (mtmp->cham != NON_PM)
+                mtmp->mcan = 0;
+        }
     }
 
     if (msg) {

@@ -304,9 +304,11 @@ struct monst *mtmp;
         return TRUE;
     }
     if ((obj = m_carrying(mtmp, WAN_HEALING)) != 0) {
-        m.defensive = obj;
-        m.has_defense = MUSE_WAN_HEALING;
-        return TRUE;
+        if (obj->spe > 0) {
+            m.defensive = obj;
+            m.has_defense = MUSE_WAN_HEALING;
+            return TRUE;
+        }
     }
     if (is_vampire(mtmp->data) &&
 		  (obj = m_carrying(mtmp, POT_VAMPIRE_BLOOD)) !=0) {
@@ -484,7 +486,7 @@ boolean force;
                 || onscary(xx, yy, mtmp))
                 continue;
             /* use trap if it's the correct type */
-            if ((t->ttyp == TRAPDOOR || t->ttyp == HOLE)
+            if (is_hole(t->ttyp)
                 && !is_floater(mtmp->data)
                 && !mtmp->isshk && !mtmp->isgd && !mtmp->ispriest
                 && Can_fall_thru(&u.uz)) {
@@ -540,7 +542,7 @@ boolean force;
 
     /* kludge to cut down on trap destruction (particularly portals) */
     t = t_at(x, y);
-    if (t && (t->ttyp == PIT || t->ttyp == SPIKED_PIT || t->ttyp == WEB
+    if (t && (is_pit(t->ttyp) || t->ttyp == WEB
               || t->ttyp == BEAR_TRAP))
         t = 0; /* ok for monster to dig here */
 
@@ -1024,6 +1026,7 @@ struct monst *mtmp;
             pline("%s looks better.", Monnam(mtmp));
         if (oseen)
             makeknown(WAN_HEALING);
+        otmp->spe--;
         return 2;
     case MUSE_POT_EXTRA_HEALING:
         mquaffmsg(mtmp, otmp);
@@ -1984,7 +1987,8 @@ struct monst *mtmp;
             m.has_misc = MUSE_POT_SPEED;
         }
         nomore(MUSE_POT_BOOZE);
-        if (obj->otyp == POT_BOOZE && is_pirate(mtmp->data) && !mtmp->mconf) {
+        if (obj->otyp == POT_BOOZE &&
+          ((is_pirate(mtmp->data) && !mtmp->mconf) || mtmp->mflee)) {
             m.misc = obj;
             m.has_misc = MUSE_POT_BOOZE;
         }
@@ -2179,6 +2183,17 @@ struct monst *mtmp;
     case MUSE_POT_BOOZE:
         mquaffmsg(mtmp, otmp);
         mtmp->mconf = 1;
+        mtmp->mflee = 0;
+        mtmp->mfleetim = 0;
+        if (!otmp->odiluted) {
+            mtmp->mhp += 1;
+            if (mtmp->mhp > mtmp->mhpmax)
+                mtmp->mhp = mtmp->mhpmax;
+        }
+        if (otmp->cursed) {
+            sleep_monst(mtmp, rnd(15), -1);
+            pline("%s passes out!", Monnam(mtmp));
+        }
         m_useup(mtmp, otmp);
         if (mtmp->data == &mons[PM_SKELETAL_PIRATE] && canseemon(mtmp))
             pline("%s splatters out of the ribcage of %s.",
@@ -3027,9 +3042,11 @@ struct monst *mon;
             /* This is fine for dragons, because an artifact would be a good
                addition to their hoard. */
             otmp = mk_artifact((struct obj *)0, mon->malign);
-            bless(otmp);
-            (void) mpickobj(mon, otmp);
-            wearable = TRUE;
+            if (otmp) {
+                bless(otmp);
+                (void) mpickobj(mon, otmp);
+                wearable = TRUE;
+            }
             break;
         case 4:
             if (!(mon->mreflect == 1 || monsndx(mon->data) == PM_SILVER_DRAGON)) {

@@ -6,13 +6,13 @@
 /* Edited on 5/3/18 by NullCGT */
 /* Edited on 13/9/18 - 18/10/18 by MikeS */
 
-/* SliceHack 0.2.0 */
+/* SliceHack 0.4.1 */
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 4
 /*
  * PATCHLEVEL is updated for each release.
  */
-#define PATCHLEVEL 0
+#define PATCHLEVEL 1
 /*
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
@@ -34,7 +34,7 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x00040000L
+#define VERSION_COMPATIBILITY 0x00040100L
 
 /****************************************************************************/
 /* Version 3.6.x */

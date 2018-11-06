@@ -228,6 +228,23 @@ boolean init, artif;
     return otmp;
 }
 
+struct obj *
+mksobj_migr_to_species(otyp, mflags2, init, artif)
+int otyp;
+unsigned mflags2;
+boolean init, artif;
+{
+    struct obj *otmp;
+
+    otmp = mksobj(otyp, init, artif);
+    if (otmp) {
+        add_to_migration(otmp);
+        otmp->owornmask = (long) MIGR_TO_SPECIES;
+        otmp->corpsenm = mflags2;
+    }
+    return otmp;
+}
+
 /* mkobj(): select a type of item from a class, use mksobj() to create it */
 struct obj *
 mkobj(oclass, artif)
@@ -1263,7 +1280,8 @@ struct obj *body;
 #define ROT_AGE (250L)         /* age when corpses rot away */
 
     /* lizards and lichen don't rot or revive */
-    if (body->corpsenm == PM_LIZARD || body->corpsenm == PM_LICHEN || body->corpsenm == PM_LEGENDARY_LICHEN)
+    if (body->corpsenm == PM_LIZARD || body->corpsenm == PM_LICHEN ||
+        body->corpsenm == PM_LEGENDARY_LICHEN)
         return;
 
     action = ROT_CORPSE;             /* default action: rot away */

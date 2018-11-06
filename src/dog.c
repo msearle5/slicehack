@@ -439,6 +439,12 @@ boolean with_you;
         break;
     }
 
+    if ((mtmp->mspare1 & MIGR_LEFTOVERS) != 0L) {
+        /* Pick up the rest of the MIGR_TO_SPECIES objects */
+        if (migrating_objs)
+            deliver_obj_to_mon(mtmp, 0, DF_ALL);
+    }
+
     if (xlocale && wander) {
         /* monster moved a bit; pick a nearby location */
         /* mnearto() deals w/stone, et al */
@@ -846,6 +852,8 @@ register struct obj *obj;
             if ((peek_at_iced_corpse_age(obj) + 50L <= monstermoves
                  && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
                  && obj->corpsenm != PM_LEGENDARY_LICHEN && mptr->mlet != S_FUNGUS)
+                 && obj->corpsenm != PM_LEGENDARY_LICHEN
+                 && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
                 || (poisonous(fptr) && !resists_poison(mon))
                 || (touch_petrifies(&mons[obj->corpsenm]) &&

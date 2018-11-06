@@ -527,7 +527,7 @@ int spellnum;
                 dmg = (dmg + 1) / 2;
             losestr(rnd(dmg));
             if (u.uhp < 1)
-                done_in_by(mtmp, DIED);
+                done_in_by(mtmp, MURDERED);
         }
         dmg = 0;
         break;
