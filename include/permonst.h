@@ -60,6 +60,7 @@ struct permonst {
     unsigned long mflags1,      /* boolean bitflags */
         mflags2;                /* more boolean bitflags */
     unsigned long mflags3;      /* yet more boolean bitflags */
+    unsigned long mflags4;      /* guess */
 #ifdef TEXTCOLOR
     uchar mcolor; /* color to use */
 #endif

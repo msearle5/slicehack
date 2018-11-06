@@ -66,9 +66,7 @@
 #define has_beak(ptr)          (is_bird(ptr) || \
                                (ptr) == &mons[PM_TENGU] || \
                                (ptr) == &mons[PM_VROCK])
-#define is_whirly(ptr) \
-    ((ptr)->mlet == S_VORTEX || (ptr) == &mons[PM_AIR_ELEMENTAL] || \
-      (ptr) == &mons[PM_TASMANIAN_DEVIL])
+#define is_whirly(ptr) (((ptr)->mflags4 & M4_WHIRLY) != 0L)
 #define flaming(ptr) (((ptr)->mflags3 & M3_FLAMING) != 0L)
 #define is_silent(ptr) ((ptr)->msound == MS_SILENT)
 #define completelyburns(ptr) (((ptr)->mflags3 & M3_FLAMMABLE) != 0L)
@@ -178,17 +176,14 @@
 #define likes_lava(ptr) \
     (ptr == &mons[PM_FIRE_ELEMENTAL] || ptr == &mons[PM_SALAMANDER] \
           || ptr == &mons[PM_MAGMA_ELEMENTAL])
-#define pm_invisible(ptr) \
-    ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT] \
-      || (ptr) == &mons[PM_HELLCAT])
+#define pm_invisible(ptr) (((ptr)->mflags4 & M4_INVISIBLE) != 0L)
 
 /* could probably add more */
 #define likes_fire(ptr)                                                  \
     ((ptr) == &mons[PM_FIRE_VORTEX] || (ptr) == &mons[PM_FLAMING_SPHERE] \
      || likes_lava(ptr))
 
-#define touch_petrifies(ptr) \
-    ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE])
+#define touch_petrifies(ptr) (((ptr)->mflags4 & M4_PETRIFY) != 0L)
 
 /* monster types that cause hero to be turned into stone if eaten */
 #define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
@@ -209,16 +204,8 @@
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */
 /* Maybe someday this could be in mflags... */
-#define vegan(ptr)                                                 \
-    ((ptr)->mlet == S_BLOB || (ptr)->mlet == S_JELLY               \
-     || (ptr)->mlet == S_FUNGUS || (ptr)->mlet == S_VORTEX         \
-     || (ptr)->mlet == S_LIGHT                                     \
-     || ((ptr)->mlet == S_ELEMENTAL && (ptr) != &mons[PM_STALKER]) \
-     || ((ptr)->mlet == S_GOLEM && (ptr) != &mons[PM_FLESH_GOLEM]  \
-         && (ptr) != &mons[PM_LEATHER_GOLEM]) || noncorporeal(ptr))
-#define vegetarian(ptr) \
-    (vegan(ptr)         \
-     || ((ptr)->mlet == S_PUDDING && (ptr) != &mons[PM_BLACK_PUDDING]))
+#define vegan(ptr) ((((ptr)->mflags4 & M4_VEGAN) != 0L) || noncorporeal(ptr))
+#define vegetarian(ptr) ((((ptr)->mflags4 & (M4_VEGAN|M4_VEGETARIAN)) != 0L) || noncorporeal(ptr))
 
 /* monkeys are tameable via bananas but not pacifiable via food,
    otherwise their theft attack could be nullified too easily;
