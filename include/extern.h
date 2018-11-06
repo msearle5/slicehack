@@ -2971,6 +2971,7 @@ E void NDECL(nethack_enter_winnt);
 
 /* ### wizard.c ### */
 
+E void NDECL(wizard_init);
 E void NDECL(amulet);
 E int FDECL(mon_has_amulet, (struct monst *));
 E int FDECL(mon_has_special, (struct monst *));

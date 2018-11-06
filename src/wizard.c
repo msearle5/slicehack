@@ -23,41 +23,62 @@ STATIC_DCL boolean FDECL(you_have, (int));
 STATIC_DCL unsigned long FDECL(target_on, (int, struct monst *));
 STATIC_DCL unsigned long FDECL(strategy, (struct monst *));
 
-/* adding more neutral creatures will tend to reduce the number of monsters
+/* Nasties: see M3_SUMMONABLE.
+   adding more neutral creatures will tend to reduce the number of monsters
    summoned by nasty(); adding more lawful creatures will reduce the number
    of monsters summoned by lawfuls; adding more chaotic creatures will reduce
    the number of monsters summoned by chaotics; prior to 3.6.1, there were
    only four lawful candidates, so lawful summoners tended to summon more
    (trying to get lawful or neutral but obtaining chaotic instead) than
    their chaotic counterparts */
-static NEARDATA const int nasties[] = {
-    /* neutral */
-    PM_COCKATRICE, PM_ETTIN, PM_STALKER, PM_MINOTAUR,
-    PM_OWLBEAR, PM_PURPLE_WORM, PM_XAN, PM_UMBER_HULK,
-    PM_XORN, PM_ZRUTY, PM_LEOCROTTA, PM_BALUCHITHERIUM,
-    PM_CARNIVOROUS_APE, PM_FIRE_ELEMENTAL, PM_JABBERWOCK,
-    PM_IRON_GOLEM, PM_OCHRE_JELLY, PM_GREEN_SLIME, PM_MANTICORE,
-    PM_AMALGAMATION, PM_TASMANIAN_DEVIL,
-    /* chaotic */
-    PM_BLACK_DRAGON, PM_RED_DRAGON, PM_ARCH_LICH, PM_VAMPIRE_LORD,
-    PM_MASTER_MIND_FLAYER, PM_DISENCHANTER, PM_WINGED_GARGOYLE,
-    PM_STORM_GIANT, PM_OLOG_HAI, PM_ELF_LORD, PM_ELVENKING,
-    PM_OGRE_KING, PM_CAPTAIN, PM_GREMLIN, PM_NIGHTMARE,
-    PM_AMPHISBAENA, PM_NUCKELAVEE,
-    /* lawful */
-    PM_SILVER_DRAGON, PM_ORANGE_DRAGON, PM_GREEN_DRAGON,
-    PM_YELLOW_DRAGON, PM_GUARDIAN_NAGA, PM_FIRE_GIANT,
-    PM_ALEAX, PM_COUATL, PM_HORNED_DEVIL, PM_BARBED_DEVIL,
-    PM_BANSHEE, PM_MEMORY_HOUND, PM_DUST_DEVIL
-    /* (titans, ki-rin, and golden nagas are suitably nasty, but
-       they're summoners so would aggravate excessive summoning) */
-};
+static NEARDATA int *nasties;
+static int nnasties;
 
-static NEARDATA const unsigned wizapp[] = {
-    PM_HUMAN,      PM_WATER_DEMON,  PM_VAMPIRE,       PM_RED_DRAGON,
-    PM_TROLL,      PM_UMBER_HULK,   PM_XORN,          PM_XAN,
-    PM_COCKATRICE, PM_FLOATING_EYE, PM_GUARDIAN_NAGA, PM_TRAPPER,
-};
+/* (titans, ki-rin, and golden nagas are suitably nasty, but
+    they're summoners so would aggravate excessive summoning) */
+static NEARDATA int *wizapp;
+static int nwizapp;
+
+void
+wizard_init()
+{
+    struct permonst *m = mons;
+    nnasties = 0;
+    do
+    {
+        if (m->mflags3 & M3_SUMMONABLE) nnasties++;
+        m++;
+    } while (m->mname[0]);
+    nasties = malloc(sizeof(int) * nnasties);
+    nnasties = 0;
+    m = mons;
+    do
+    {
+        if (m->mflags3 & M3_SUMMONABLE) {
+            nasties[nnasties] = m - mons;
+            nnasties++;
+        }
+        m++;
+    } while (m->mname[0]);
+    nwizapp = 0;
+    m = mons;
+    do
+    {
+        if (m->mflags3 & M3_WIZAPP) nwizapp++;
+        m++;
+    } while (m->mname[0]);
+    wizapp = malloc(sizeof(int) * nwizapp);
+    nwizapp = 0;
+    m = mons;
+    do
+    {
+        if (m->mflags3 & M3_WIZAPP) {
+            wizapp[nwizapp] = m - mons;
+            nwizapp++;
+        }
+        m++;
+    } while (m->mname[0]);
+}
 
 /* If you've found the Amulet, make the Wizard appear after some time */
 /* Also, give hints about portal locations, if amulet is worn/wielded -dlc */

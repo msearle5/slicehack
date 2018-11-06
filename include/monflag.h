@@ -174,6 +174,8 @@
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
 #define M3_DISPLACES 0x0400 /* moves monsters out of its way */
+#define M3_SUMMONABLE 0x800 /* target of summoning (nasties - not the same as M2_NASTY) */
+#define M3_WIZAPP 0x1000    /* possible wizard appearance */ 
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

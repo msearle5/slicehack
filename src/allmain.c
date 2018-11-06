@@ -131,6 +131,7 @@ boolean resuming;
     decl_init();
     monst_init();
     monstr_init(); /* monster strengths */
+    wizard_init();
     objects_init();
 
     /* if a save file created in normal mode is now being restored in
