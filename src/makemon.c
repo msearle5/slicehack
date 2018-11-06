@@ -1995,7 +1995,7 @@ rndmonst()
      **/
     if (u.ulevel > 5) {
         cap = near_capacity();
-        if (cap > 0) {
+        if ((cap > 0) && (!Is_rogue_level(&u.uz))) {
             if (mons[mndx].mlevel <= mons[PM_PACKRAT].mlevel + cap) {
                 if (rnd(100) <= (cap * 5)) {
                     mndx = PM_PACKRAT;
