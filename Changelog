@@ -4,6 +4,12 @@ This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
 ********************************************************************************
+*	Release 0.4.1 'Helm of Opposite Alignment'
+
+	Merge everything up to 6 Nov from Splice, which includes Nethack 3.6.2
+	This has not been tested much...
+
+********************************************************************************
 *	Release 0.4.0 'Dragon Helm'
 
 	The big stuff:
