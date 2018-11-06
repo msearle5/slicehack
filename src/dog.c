@@ -845,7 +845,7 @@ register struct obj *obj;
         case CORPSE:
             if ((peek_at_iced_corpse_age(obj) + 50L <= monstermoves
                  && obj->corpsenm != PM_LIZARD && obj->corpsenm != PM_LICHEN
-                 && mptr->mlet != S_FUNGUS)
+                 && obj->corpsenm != PM_LEGENDARY_LICHEN && mptr->mlet != S_FUNGUS)
                 || (acidic(fptr) && !resists_acid(mon))
                 || (poisonous(fptr) && !resists_poison(mon))
                 || (touch_petrifies(&mons[obj->corpsenm]) &&

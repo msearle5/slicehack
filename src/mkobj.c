@@ -1263,7 +1263,7 @@ struct obj *body;
 #define ROT_AGE (250L)         /* age when corpses rot away */
 
     /* lizards and lichen don't rot or revive */
-    if (body->corpsenm == PM_LIZARD || body->corpsenm == PM_LICHEN)
+    if (body->corpsenm == PM_LIZARD || body->corpsenm == PM_LICHEN || body->corpsenm == PM_LEGENDARY_LICHEN)
         return;
 
     action = ROT_CORPSE;             /* default action: rot away */
@@ -1683,7 +1683,7 @@ int x, y;
 
 /* return TRUE if the corpse has special timing */
 #define special_corpse(num)                                                 \
-    (((num) == PM_LIZARD) || ((num) == PM_LICHEN) || (is_rider(&mons[num])) \
+    (((num) == PM_LIZARD) || ((num) == PM_LICHEN) || ((num) == PM_LEGENDARY_LICHEN) || (is_rider(&mons[num])) \
      || (mons[num].mlet == S_TROLL))
 
 /*
