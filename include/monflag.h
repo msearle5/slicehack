@@ -173,11 +173,16 @@
 #define M3_INFRAVISION 0x0100  /* has infravision */
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
 
-#define M3_DISPLACES 0x0400 /* moves monsters out of its way */
-#define M3_SUMMONABLE 0x800 /* target of summoning (nasties - not the same as M2_NASTY) */
-#define M3_WIZAPP 0x1000    /* possible wizard appearance */ 
-#define M3_DRAGON 0x2000    /* a dragon (including babies, but not hydras) */
+#define M3_DISPLACES 0x0400   /* moves monsters out of its way */
+#define M3_SUMMONABLE 0x800   /* target of summoning (nasties - not the same as M2_NASTY) */
+#define M3_WIZAPP 0x1000      /* possible wizard appearance */ 
+#define M3_DRAGON 0x2000      /* a dragon (including babies, but not hydras) */
 #define M3_BAT    0x4000
+#define M3_JUMPER 0x8000      /* jumps, e.g. kangaroo */
+#define M3_FLAMMABLE 0x10000  /* will burn completely if killed by fire, e.g. straw golem */
+#define M3_SLIME 0x20000      /* is a green slime, or something similar such as a colossal slime */
+#define M3_TELEPATHIC 0x40000 /* is telepathic, like a mind flayer */
+#define M3_ONEEYE 0x80000     /* has (and probably is) one eye */
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

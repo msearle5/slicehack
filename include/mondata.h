@@ -40,12 +40,7 @@
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
 /* This definitely needs to become a flag, once reflagging takes place. */
-#define is_jumper(ptr) ((ptr) == &mons[PM_JUMPING_SPIDER] || \
-                        (ptr) == &mons[PM_EARTHSHARK] || \
-                        (ptr) == &mons[PM_WALLABY] || \
-                        (ptr) == &mons[PM_WALLAROO] || \
-                        (ptr) == &mons[PM_KANGAROO] || \
-                        (ptr) == &mons[PM_ANUBITE])
+#define is_jumper(ptr) (((ptr)->mflags3 & M3_JUMPER) != 0L)
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
@@ -62,11 +57,7 @@
 #define hides_under(ptr) (((ptr)->mflags1 & M1_CONCEAL) != 0L)
 #define is_hider(ptr) (((ptr)->mflags1 & M1_HIDE) != 0L)
 #define haseyes(ptr) (((ptr)->mflags1 & M1_NOEYES) == 0L)
-#define eyecount(ptr)                                         \
-    (!haseyes(ptr) ? 0 : ((ptr) == &mons[PM_CYCLOPS]          \
-                          || (ptr) == &mons[PM_FLOATING_EYE]) \
-                             ? 1                              \
-                             : 2)
+#define eyecount(ptr) (!haseyes(ptr) ? 0 : ((((ptr)->mflags3 & M3_ONEEYE) != 0L) ? 1 : 2))
 #define nohands(ptr) (((ptr)->mflags1 & M1_NOHANDS) != 0L)
 #define nolimbs(ptr) (((ptr)->mflags1 & M1_NOLIMBS) == M1_NOLIMBS)
 #define notake(ptr) (((ptr)->mflags1 & M1_NOTAKE) != 0L)
@@ -83,10 +74,7 @@
      || (ptr) == &mons[PM_FIRE_ELEMENTAL] || (ptr) == &mons[PM_SALAMANDER] \
      || (ptr) == &mons[PM_HELLBEAR])
 #define is_silent(ptr) ((ptr)->msound == MS_SILENT)
-#define mon_flammable(ptr) (((ptr) == &mons[PM_WOOD_GOLEM]) || ((ptr) == &mons[PM_STRAW_GOLEM]) \
-    || ((ptr) == &mons[PM_PAPER_GOLEM]) || ((ptr) == &mons[PM_GREEN_SLIME]) \
-    || ((ptr) == &mons[PM_WALKING_OAK]) || ((ptr) == &mons[PM_WALKING_BIRCH]) \
-    || ((ptr) == &mons[PM_WALKING_WILLOW]))
+#define mon_flammable(ptr) (((ptr)->mflags3 & M3_FLAMMABLE) != 0L)
 #define unsolid(ptr) (((ptr)->mflags1 & M1_UNSOLID) != 0L)
 #define mindless(ptr) (((ptr)->mflags1 & M1_MINDLESS) != 0L)
 #define humanoid(ptr) (((ptr)->mflags1 & M1_HUMANOID) != 0L)
@@ -94,17 +82,14 @@
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
 #define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr->mlet) == S_PLANT)
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
-#define slimeproof(ptr) \
-    ((ptr) == &mons[PM_GREEN_SLIME] || flaming(ptr) || noncorporeal(ptr))
+#define is_slime(ptr) (((ptr)->mflags3 & M3_SLIME) != 0L)
+#define slimeproof(ptr) (is_slime(ptr) || flaming(ptr) || noncorporeal(ptr))
 #define lays_eggs(ptr) (((ptr)->mflags1 & M1_OVIPAROUS) != 0L)
 #define regenerates(ptr) (((ptr)->mflags1 & M1_REGEN) != 0L)
 #define perceives(ptr) (((ptr)->mflags1 & M1_SEE_INVIS) != 0L)
 #define can_teleport(ptr) (((ptr)->mflags1 & M1_TPORT) != 0L)
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
-#define telepathic(ptr)                                                \
-    ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER] \
-     || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
-     || (ptr) == &mons[PM_ANCIENT_BRAIN])
+#define telepathic(ptr) (((ptr)->mflags3 & M3_TELEPATHIC) != 0L)
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)
