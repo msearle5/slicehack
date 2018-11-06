@@ -3198,8 +3198,10 @@ struct ext_func_tab extcmdlist[] = {
     { '\0', "migratemons", "migrate N random monsters",
             wiz_migrate_mons, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
 #endif
+#ifdef undef
     { '\0', "monpolycontrol", "control monster polymorphs",
             wiz_mon_polycontrol, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+#endif
     { M('m'), "monster", "use monster's special ability",
             domonability, IFBURIED | AUTOCOMPLETE, NULL },
     { 'N', "name", "name a monster or an object",
@@ -3307,6 +3309,8 @@ struct ext_func_tab extcmdlist[] = {
 #ifdef DEBUG
     { '\0', "wizdebug_bury", "wizard debug: bury objs under and around you",
             wiz_debug_cmd_bury, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
+#endif
+#ifdef undef
     { '\0', "wizdebug_traveldisplay", "wizard debug: toggle travel display",
             wiz_debug_cmd_traveldisplay, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
 #endif

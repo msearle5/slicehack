@@ -1830,7 +1830,7 @@ register struct trobj *trop;
 
         if (obj->oclass == ARMOR_CLASS) {
             if (is_shield(obj) && !uarms && !(uwep && bimanual(uwep))) {
-                setworn(obj, W_ARMS);
+                setworn(obj, W_ARMS, TRUE);
                 /* 3.6.2: this used to unset uswapwep if it was set, but
                    wearing a shield doesn't prevent having an alternate
                    weapon ready to swap with the primary; just make sure we
@@ -1859,7 +1859,7 @@ register struct trobj *trop;
                 setuwep(obj);
                 staff_set_en(obj);
             }
-            else if (!uswapwep)
+            else if (!uswapwep) {
                 setuswapwep(obj);
             }
         }

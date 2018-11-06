@@ -1652,15 +1652,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                       !spec_dbon_applies ? "hits" : "blasts", hittee,
                       !spec_dbon_applies ? '.' : '!');
         if (!rn2(4))
-            destroy_item(mdef, ARMOR_CLASS, AD_LOUD);
+            destroy_mitem(mdef, ARMOR_CLASS, AD_LOUD);
         if (!rn2(4))
-            destroy_item(mdef, POTION_CLASS, AD_LOUD);
+            destroy_mitem(mdef, POTION_CLASS, AD_LOUD);
         if (!rn2(7))
-            destroy_item(mdef, RING_CLASS, AD_LOUD);
+            destroy_mitem(mdef, RING_CLASS, AD_LOUD);
         if (!rn2(7))
-            destroy_item(mdef, TOOL_CLASS, AD_LOUD);
+            destroy_mitem(mdef, TOOL_CLASS, AD_LOUD);
         if (!rn2(7))
-            destroy_item(mdef, WAND_CLASS, AD_LOUD);
+            destroy_mitem(mdef, WAND_CLASS, AD_LOUD);
         if (mdef->data == &mons[PM_GLASS_GOLEM]) {
             pline("%s shatters into a million pieces!", Monnam(mdef));
             *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;

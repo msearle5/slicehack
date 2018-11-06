@@ -3829,7 +3829,7 @@ do_setlast()
 
     setlast = TRUE;
     for (row = 0; row < 2; ++row)
-        for (i = MAX_PER_ROW - 1; i > 0; --i) {
+        for (i = MAXBLSTATS - 1; i > 0; --i) {
            fld = fieldorder[row][i];
 
            if (fld == BL_FLUSH || !status_activefields[fld])

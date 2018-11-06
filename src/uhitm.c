@@ -1611,7 +1611,6 @@ int dieroll;
             whom = strcat(s_suffix(whom), " flesh");
         pline(fmt, whom);
     }
->>>>>>> 095656c701b88a6688fc4960a78aa26e45cdbe6b
     /* if a "no longer poisoned" message is coming, it will be last;
        obj->opoisoned was cleared above and any message referring to
        "poisoned <obj>" has now been given; we want just "<obj>" for
