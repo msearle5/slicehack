@@ -683,6 +683,13 @@ register struct monst *mtmp;
             }
         }
         break;
+    case S_UNICORN:
+        if (is_unicorn(mtmp->data)) {
+            while (!rn2(2)) {
+                mongets(mtmp, DILITHIUM_CRYSTAL+rn2(JADE-DILITHIUM_CRYSTAL));
+            };
+        }
+        break;
     case S_WRAITH:
         (void) mongets(mtmp, KNIFE);
         (void) mongets(mtmp, LONG_SWORD);
