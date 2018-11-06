@@ -352,7 +352,7 @@ dosounds()
       !rn2(200)) {
         static const char *void_msg[3] = {
             "You hear a sucking sound.",
-            "This area is disturbingly quiet.\"",
+            "This area is disturbingly quiet.",
             "You hear the absence of noise.",
         };
       pline("%s", void_msg[rn2(2)+hallu]);
