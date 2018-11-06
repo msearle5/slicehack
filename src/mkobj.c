@@ -3242,6 +3242,11 @@ struct obj* obj;
 {
     unsigned short otyp = obj->otyp;
     int default_material = objects[otyp].oc_material;
+
+    /* Objects generated on the rogue level are always of base material */
+    if (!Is_rogue_level(&u.uz))
+        return NULL;
+
     /* Cases for specific object types. */
     switch (otyp) {
         /* Special exceptions to the whole randomized materials system - where
