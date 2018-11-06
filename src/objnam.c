@@ -146,6 +146,7 @@ static const char * const bogus_items[] = {
     "cutlass",
     "curved sword",
     "wonky sword",
+    "cutlass",
     "silver saber",
     "broadsword",
     "long sword",
@@ -190,6 +191,9 @@ static const char * const bogus_items[] = {
     "plumed helmet",
     "plummed helmet",
     "peaked helmet",
+    "conical hat",
+    "comical hat",
+    "plumed helmet",
     "plumbed helmet",
     "etched helmet",
     "itched helmet",
@@ -331,6 +335,7 @@ static const char * const bogus_items[] = {
     "flux capacitor",                   /* BTTF */
     "Walther PPK",                      /* Bond */
     "hanging chad",                     /* US Election 2000 */
+    "99 red balloons",                  /* 80s */
     "pincers of peril",                 /* Goonies */
     "ring of schwartz",                 /* Spaceballs */
     "signed copy of Diaspora",          /* Greg Egan */
@@ -362,6 +367,8 @@ static const char * const bogus_items[] = {
     "gas grenade",                      /* SLASH'EM */
     "frag grenade",                     /* SLASH'EM */
     "frog grenade",
+    "eye of the beholder",              /* SLASH'EM */
+    "heavy machine gun",                /* SLASH'EM */
     "gauntlets of swimming",            /* SLASH'EM */
     "amulet versus stone",              /* SLASH'EM */
     "potion of clairvoyance",           /* SLASH'EM */
@@ -471,6 +478,8 @@ static const char * const bogus_items[] = {
     "CPU",
     "core dump",
     "compiler",
+    "install CD",
+    "CPU",
 
     /* Historical */
     "dead sea scroll",
@@ -532,6 +541,7 @@ static const char * const bogus_items[] = {
     "wand of disintegration",
     "wand of stunning",
     "wand of prestidigitation",
+    "wand of digitization",
     "ring named Frost Band",
     "expensive exact replica of the Amulet of Yendor",
     "giant beatle",
@@ -4879,12 +4889,29 @@ typfnd:
             pline("For a moment, you feel %s in your %s, but it disappears!",
               something, makeplural(body_part(HAND)));
     }
-#ifdef ARTI_WITH_OWNER
+#ifndef ARTI_WITH_OWNER
     else if (otmp->oartifact &&
         ((otmp->oartifact == ART_THIEFBANE) ||
          (rn2(nartifact_exist()) > 1)))
 
     if(wizard && yn("Force the wish to succeed?") == 'n')
+#else
+    /* more wishing abuse: don't allow wishing for the quest artifact */
+    /* otherwise an increasing propability that the artifact returns */
+    /* with its previous owner */
+    if (is_quest_artifact(otmp) && !wizard) {
+        artifact_exists(otmp, ONAME(otmp), FALSE);
+        obfree(otmp, (struct obj *) 0);
+        otmp = &zeroobj;
+        pline("For a moment, you feel %s in your %s, but it disappears!",
+          something,
+          makeplural(body_part(HAND)));
+    } else if (otmp->oartifact &&
+        ((otmp->oartifact == ART_THIEFBANE) ||
+         (rn2(nartifact_exist()) > 1)))
+
+    if(wizard && yn("Force the wish to succeed?") == 'n')
+
     {
         int pm = -1;
         int strategy = NEED_HTH_WEAPON;
