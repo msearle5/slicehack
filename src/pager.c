@@ -1035,7 +1035,7 @@ add_obj_info(winid datawin, short otyp)
         OBJPUTSTR(buf);
     }
     if (olet == WAND_CLASS) {
-        Sprintf(buf, "%s wand.", dir);
+        Sprintf(buf, "%s device.", dir);
         OBJPUTSTR(buf);
     }
     if (olet == RING_CLASS) {

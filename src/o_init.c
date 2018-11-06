@@ -195,7 +195,7 @@ init_objects()
 #ifdef USE_TILES
     shuffle_tiles();
 #endif
-    objects[WAN_NOTHING].oc_dir = rn2(2) ? NODIR : IMMEDIATE;
+    objects[WAN_NON_FUNCTIONAL].oc_dir = rn2(2) ? NODIR : IMMEDIATE;
 }
 
 /* retrieve the range of objects that otyp shares descriptions with */

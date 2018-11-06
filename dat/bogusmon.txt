@@ -602,7 +602,6 @@ dust speck
 silver dragon scale mail
 amulet of reflection
 |Amulet of Yendor
-wand of wishing
 
 # DnD monster
 gazebo

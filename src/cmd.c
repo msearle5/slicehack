@@ -3340,7 +3340,7 @@ struct ext_func_tab extcmdlist[] = {
             wiz_object_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { '\0', "wmode", "show wall modes",
             wiz_show_wmodes, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
-    { 'z', "zap", "zap a wand", dozap, 0, NULL },
+    { 'z', "zap", "zap a device", dozap, 0, NULL },
     { '\0', (char *) 0, (char *) 0, donull, 0, (char *) 0 } /* sentinel */
 };
 

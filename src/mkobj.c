@@ -399,7 +399,7 @@ struct obj *box;
                     otmp->owt = weight(otmp);
                 } else
                     while (otmp->otyp == WAN_CANCELLATION)
-                        otmp->otyp = rnd_class(WAN_LIGHT, WAN_LIGHTNING);
+                        otmp->otyp = rnd_class(WAN_LIGHTING, WAN_LIGHTNING);
             }
         }
         (void) add_to_container(box, otmp);
@@ -1913,7 +1913,7 @@ register struct obj *otmp;
     if (Is_candle(otmp))
         return FALSE;
 
-    if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE)
+    if (objects[otyp].oc_oprop == FIRE_RES || otyp == WAN_FIRE_BLAST)
         return FALSE;
 
     return (boolean) ((omat <= WOOD && omat != LIQUID) || omat == PLASTIC);

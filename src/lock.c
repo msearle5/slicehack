@@ -902,7 +902,7 @@ struct obj *obj, *otmp; /* obj *is* a box */
         } else /* silently fix if broken */
             obj->obroken = 0;
         break;
-    case WAN_POLYMORPH:
+    case WAN_MUTATION:
     case SPE_POLYMORPH:
         /* maybe start unlocking chest, get interrupted, then zap it;
            we must avoid any attempt to resume unlocking it */

@@ -1312,6 +1312,15 @@ major demon
 	them difficult to deal with, even on the rare occasions when
 	they are friendly.
 	  [ The Tough Guide to Fantasyland, by Diana Wynne Jones ]
+device *
+*device
+	The shadow of the dome of pleasure
+	Floated midway on the waves;
+	Where was heard the mingled measure
+	From the fountain and the caves.
+	It was a miracle of rare device,
+	A sunny pleasure-dome with caves of ice!
+	  [ Kubla Khan, by Samuel Taylor Coleridge]
 diamond
 	The hardest known mineral (with a hardness of 10 on Mohs' scale).
 	It is an allotropic form of pure carbon that has crystallized in
@@ -2839,7 +2848,7 @@ spike
 	a scroll of cloning, and then feeds their pet titan the
 	corpse of a chromatic dragon.
 
-	A follower of Spike zaps a wand of death.
+	A follower of Spike zaps a death ray.
 
 juiblex
 jubilex
@@ -4102,7 +4111,7 @@ orcrist
 orcus
 	Orcus, Prince of the Undead, has a ram's head and a poison
 	stinger.  He is most feared, though, for his powerful magic
-	abilities.  His wand causes death to those he chooses.
+	abilities - he carries a death ray.
 ~orc ??m*
 ~orcish barbarian
 ~orcish ranger
@@ -5829,20 +5838,6 @@ wakizashi
 	and especially during times of civil wars, a tanto was worn
 	in place of a wakizashi.
 		[ Wikipedia, the free encyclopedia ]
-# takes "wand or a wall" when specifying '/'
-~*sleep
-wand *
-*wand
-	'Saruman!' he cried, and his voice grew in power and authority.
-	'Behold, I am not Gandalf the Grey, whom you betrayed.  I am
-	Gandalf the White, who has returned from death.  You have no
-	colour now, and I cast you from the order and from the Council.'
-	He raised his hand, and spoke slowly in a clear cold voice.
-	'Saruman, your staff is broken.'  There was a crack, and the
-	staff split asunder in Saruman's hand, and the head of it
-	fell down at Gandalf's feet.  'Go!' said Gandalf.  With a cry
-	Saruman fell back and crawled away.
-		[ The Two Towers, by J.R.R. Tolkien ]
 warg
 	Suddenly Aragorn leapt to his feet.  "How the wind howls!"
 	he cried.  "It is howling with wolf-voices.  The Wargs have

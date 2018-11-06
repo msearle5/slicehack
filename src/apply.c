@@ -3543,7 +3543,7 @@ struct obj *obj;
     if (!paranoid_query(ParanoidBreakwand,
                        safe_qbuf(confirm,
                                  "Are you really sure you want to break ",
-                                 "?", obj, yname, ysimple_name, "the wand")))
+                                 "?", obj, yname, ysimple_name, "the device")))
         return 0;
 
     if (nohands(youmonst.data)) {
@@ -3589,37 +3589,37 @@ struct obj *obj;
     affects_objects = FALSE;
 
     switch (obj->otyp) {
-    case WAN_NOTHING:
+    case WAN_NON_FUNCTIONAL:
     case WAN_LOCKING:
     case WAN_PROBING:
     case WAN_ENLIGHTENMENT:
     case WAN_OPENING:
-    case WAN_SECRET_DOOR_DETECTION:
+    case WAN_DETECTION:
         if (Hallucination)
             You("wish you hadn't done that.");
         else
             pline(nothing_else_happens);
         goto discard_broken_wand;
-    case WAN_DEATH:
+    case WAN_DEATH_RAY:
     case WAN_LIGHTNING:
-    case WAN_SONICS:
+    case WAN_SONIC_BOOM:
         dmg *= 4;
         goto wanexpl;
-    case WAN_FIRE:
+    case WAN_FIRE_BLAST:
         expltype = EXPL_FIERY;
         /*FALLTHRU*/
-    case WAN_ACID:
+    case WAN_ACID_STREAM:
     case WAN_POISON_GAS:
         if (expltype == EXPL_MAGICAL)
             expltype = EXPL_NOXIOUS;
         /*FALLTHRU*/
-    case WAN_COLD:
+    case WAN_FREEZE_RAY:
         if (expltype == EXPL_MAGICAL)
             expltype = EXPL_FROSTY;
         dmg *= 2;
         /*FALLTHRU*/
-    case WAN_MAGIC_MISSILE:
-    case WAN_PSIONICS:
+    case WAN_MISSILE:
+    case WAN_PSIONIC:
     wanexpl:
         explode(u.ux, u.uy, -(obj->otyp), dmg, WAND_CLASS, expltype);
         makeknown(obj->otyp); /* explode describes the effect */
@@ -3630,7 +3630,7 @@ struct obj *obj;
         dmg = d(1 + obj->spe, 6); /* normally 2d12 */
         /*FALLTHRU*/
     case WAN_CANCELLATION:
-    case WAN_POLYMORPH:
+    case WAN_MUTATION:
     case WAN_TELEPORTATION:
     case WAN_UNDEAD_TURNING:
         affects_objects = TRUE;
@@ -3699,7 +3699,7 @@ struct obj *obj;
                                                       : HOLE);
             }
             continue;
-        } else if (obj->otyp == WAN_CREATE_MONSTER) {
+        } else if (obj->otyp == WAN_SUMMONING) {
             /* u.ux,u.uy creates it near you--x,y might create it in rock */
             (void) makemon((struct permonst *) 0, u.ux, u.uy, NO_MM_FLAGS);
             continue;
@@ -3742,7 +3742,7 @@ struct obj *obj;
             }
             damage = zapyourself(obj, FALSE);
             if (damage) {
-                Sprintf(buf, "killed %sself by breaking a wand", uhim());
+                Sprintf(buf, "killed %sself by breaking a device", uhim());
                 losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
             }
             if (context.botl)
@@ -3758,7 +3758,7 @@ struct obj *obj;
     if (shop_damage)
         pay_for_damage("dig into", FALSE);
 
-    if (obj->otyp == WAN_LIGHT)
+    if (obj->otyp == WAN_LIGHTING)
         litroom(TRUE, obj); /* only needs to be done once */
 
 discard_broken_wand:

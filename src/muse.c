@@ -263,7 +263,7 @@ struct obj *otmp;
 #define MUSE_TELEPORT_TRAP 7
 #define MUSE_UPSTAIRS 8
 #define MUSE_DOWNSTAIRS 9
-#define MUSE_WAN_CREATE_MONSTER 10
+#define MUSE_WAN_SUMMONING 10
 #define MUSE_SCR_CREATE_MONSTER 11
 #define MUSE_UP_LADDER 12
 #define MUSE_DN_LADDER 13
@@ -273,7 +273,7 @@ struct obj *otmp;
 #define MUSE_UNICORN_HORN 17
 #define MUSE_POT_FULL_HEALING 18
 #define MUSE_LIZARD_CORPSE 19
-#define MUSE_WAN_HEALING 20
+#define MUSE_WAN_MEDICAL 20
 #define MUSE_POT_VAMPIRE_BLOOD 21
 /*
 #define MUSE_INNATE_TPT 9999
@@ -303,10 +303,10 @@ struct monst *mtmp;
         m.has_defense = MUSE_POT_HEALING;
         return TRUE;
     }
-    if ((obj = m_carrying(mtmp, WAN_HEALING)) != 0) {
+    if ((obj = m_carrying(mtmp, WAN_MEDICAL)) != 0) {
         if (obj->spe > 0) {
             m.defensive = obj;
-            m.has_defense = MUSE_WAN_HEALING;
+            m.has_defense = MUSE_WAN_MEDICAL;
             return TRUE;
         }
     }
@@ -612,20 +612,20 @@ boolean force;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_EXTRA_HEALING;
             }
-            nomore(MUSE_WAN_CREATE_MONSTER);
-            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
+            nomore(MUSE_WAN_SUMMONING);
+            if (obj->otyp == WAN_SUMMONING && obj->spe > 0) {
                 m.defensive = obj;
-                m.has_defense = MUSE_WAN_CREATE_MONSTER;
+                m.has_defense = MUSE_WAN_SUMMONING;
             }
             nomore(MUSE_POT_HEALING);
             if (obj->otyp == POT_HEALING) {
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_HEALING;
             }
-            nomore(MUSE_WAN_HEALING);
-            if (obj->otyp == WAN_HEALING) {
+            nomore(MUSE_WAN_MEDICAL);
+            if (obj->otyp == WAN_MEDICAL) {
                 m.defensive = obj;
-                m.has_defense = MUSE_WAN_HEALING;
+                m.has_defense = MUSE_WAN_MEDICAL;
             }
             nomore(MUSE_POT_VAMPIRE_BLOOD);
         		if(is_vampire(mtmp->data) && obj->otyp == POT_VAMPIRE_BLOOD) {
@@ -638,10 +638,10 @@ boolean force;
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_FULL_HEALING;
             }
-            nomore(MUSE_WAN_CREATE_MONSTER);
-            if (obj->otyp == WAN_CREATE_MONSTER && obj->spe > 0) {
+            nomore(MUSE_WAN_SUMMONING);
+            if (obj->otyp == WAN_SUMMONING && obj->spe > 0) {
                 m.defensive = obj;
-                m.has_defense = MUSE_WAN_CREATE_MONSTER;
+                m.has_defense = MUSE_WAN_SUMMONING;
             }
         }
         nomore(MUSE_SCR_CREATE_MONSTER);
@@ -824,7 +824,7 @@ struct monst *mtmp;
                          (coord *) 0);
         return 2;
     }
-    case MUSE_WAN_CREATE_MONSTER: {
+    case MUSE_WAN_SUMMONING: {
         coord cc;
         /* pm: 0 => random, eel => aquatic, croc => amphibious */
         struct permonst *pm =
@@ -839,7 +839,7 @@ struct monst *mtmp;
         otmp->spe--;
         mon = makemon((struct permonst *) 0, cc.x, cc.y, NO_MM_FLAGS);
         if (mon && canspotmon(mon) && oseen)
-            makeknown(WAN_CREATE_MONSTER);
+            makeknown(WAN_SUMMONING);
         return 2;
     }
     case MUSE_SCR_CREATE_MONSTER: {
@@ -1016,7 +1016,7 @@ struct monst *mtmp;
             makeknown(POT_HEALING);
         m_useup(mtmp, otmp);
         return 2;
-    case MUSE_WAN_HEALING:
+    case MUSE_WAN_MEDICAL:
         mzapmsg(mtmp, otmp, TRUE);
         i = d(6, 4);
         mtmp->mhp += i;
@@ -1025,7 +1025,7 @@ struct monst *mtmp;
         if (vismon)
             pline("%s looks better.", Monnam(mtmp));
         if (oseen)
-            makeknown(WAN_HEALING);
+            makeknown(WAN_MEDICAL);
         otmp->spe--;
         return 2;
     case MUSE_POT_EXTRA_HEALING:
@@ -1109,7 +1109,7 @@ try_again:
     case 8:
     case 10:
         if (!rn2(3))
-            return WAN_CREATE_MONSTER;
+            return WAN_SUMMONING;
         /*FALLTHRU*/
     case 2:
         return SCR_CREATE_MONSTER;
@@ -1130,12 +1130,12 @@ try_again:
     return 0;
 }
 
-#define MUSE_WAN_DEATH 1
-#define MUSE_WAN_SLEEP 2
-#define MUSE_WAN_FIRE 3
-#define MUSE_WAN_COLD 4
+#define MUSE_WAN_DEATH_RAY 1
+#define MUSE_WAN_SLEEP_RAY 2
+#define MUSE_WAN_FIRE_BLAST 3
+#define MUSE_WAN_FREEZE_RAY 4
 #define MUSE_WAN_LIGHTNING 5
-#define MUSE_WAN_MAGIC_MISSILE 6
+#define MUSE_WAN_MISSILE 6
 #define MUSE_WAN_STRIKING 7
 #define MUSE_SCR_FIRE 8
 #define MUSE_POT_PARALYSIS 9
@@ -1150,10 +1150,10 @@ try_again:
 #define MUSE_WAN_CANCELLATION 18
 /* #define MUSE_POT_POLYMORPH_THROW 19 */
 #define MUSE_POT_HALLUCINATION 20
-#define MUSE_WAN_ACID 21
+#define MUSE_WAN_ACID_STREAM 21
 #define MUSE_WAN_POISON_GAS 22
-#define MUSE_WAN_SONICS 23
-#define MUSE_WAN_PSIONICS 24
+#define MUSE_WAN_SONIC_BOOM 23
+#define MUSE_WAN_PSIONIC 24
 #define MUSE_MGC_FLUTE 25
 #define MUSE_MGC_DRUM 26
 #define MUSE_SCR_WEB 27
@@ -1194,50 +1194,50 @@ struct monst *mtmp;
     /* this picks the last viable item rather than prioritizing choices */
     for (obj = mtmp->minvent; obj; obj = obj->nobj) {
         if (!reflection_skip) {
-            nomore(MUSE_WAN_DEATH);
-            if (obj->otyp == WAN_DEATH && obj->spe > 0) {
+            nomore(MUSE_WAN_DEATH_RAY);
+            if (obj->otyp == WAN_DEATH_RAY && obj->spe > 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_DEATH;
+                m.has_offense = MUSE_WAN_DEATH_RAY;
             }
-            nomore(MUSE_WAN_SLEEP);
-            if (obj->otyp == WAN_SLEEP && obj->spe > 0 && multi >= 0) {
+            nomore(MUSE_WAN_SLEEP_RAY);
+            if (obj->otyp == WAN_SLEEP_RAY && obj->spe > 0 && multi >= 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_SLEEP;
+                m.has_offense = MUSE_WAN_SLEEP_RAY;
             }
             nomore(MUSE_WAN_CANCELLATION);
             if (obj->otyp == WAN_CANCELLATION && obj->spe > 0 && multi >= 0) {
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_CANCELLATION;
             }
-            nomore(MUSE_WAN_FIRE);
-            if (obj->otyp == WAN_FIRE && obj->spe > 0) {
+            nomore(MUSE_WAN_FIRE_BLAST);
+            if (obj->otyp == WAN_FIRE_BLAST && obj->spe > 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_FIRE;
+                m.has_offense = MUSE_WAN_FIRE_BLAST;
             }
             nomore(MUSE_FIRE_HORN);
             if (obj->otyp == FIRE_HORN && obj->spe > 0 && can_blow(mtmp)) {
                 m.offensive = obj;
                 m.has_offense = MUSE_FIRE_HORN;
             }
-            nomore(MUSE_WAN_COLD);
-            if (obj->otyp == WAN_COLD && obj->spe > 0) {
+            nomore(MUSE_WAN_FREEZE_RAY);
+            if (obj->otyp == WAN_FREEZE_RAY && obj->spe > 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_COLD;
+                m.has_offense = MUSE_WAN_FREEZE_RAY;
             }
-            nomore(MUSE_WAN_ACID);
-            if (obj->otyp == WAN_ACID && obj->spe > 0) {
+            nomore(MUSE_WAN_ACID_STREAM);
+            if (obj->otyp == WAN_ACID_STREAM && obj->spe > 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_ACID;
+                m.has_offense = MUSE_WAN_ACID_STREAM;
             }
             nomore(MUSE_WAN_POISON_GAS);
             if (obj->otyp == WAN_POISON_GAS && obj->spe > 0) {
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_POISON_GAS;
             }
-            nomore(MUSE_WAN_SONICS);
-            if (obj->otyp == WAN_SONICS && obj->spe > 0) {
+            nomore(MUSE_WAN_SONIC_BOOM);
+            if (obj->otyp == WAN_SONIC_BOOM && obj->spe > 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_SONICS;
+                m.has_offense = MUSE_WAN_SONIC_BOOM;
             }
             nomore(MUSE_FROST_HORN);
             if (obj->otyp == FROST_HORN && obj->spe > 0 && can_blow(mtmp)) {
@@ -1249,16 +1249,16 @@ struct monst *mtmp;
                 m.offensive = obj;
                 m.has_offense = MUSE_WAN_LIGHTNING;
             }
-            nomore(MUSE_WAN_MAGIC_MISSILE);
-            if (obj->otyp == WAN_MAGIC_MISSILE && obj->spe > 0) {
+            nomore(MUSE_WAN_MISSILE);
+            if (obj->otyp == WAN_MISSILE && obj->spe > 0) {
                 m.offensive = obj;
-                m.has_offense = MUSE_WAN_MAGIC_MISSILE;
+                m.has_offense = MUSE_WAN_MISSILE;
             }
         }
-        nomore(MUSE_WAN_PSIONICS);
-        if (obj->otyp == WAN_PSIONICS && obj->spe > 0) {
+        nomore(MUSE_WAN_PSIONIC);
+        if (obj->otyp == WAN_PSIONIC && obj->spe > 0) {
             m.offensive = obj;
-            m.has_offense = MUSE_WAN_PSIONICS;
+            m.has_offense = MUSE_WAN_PSIONIC;
         }
         nomore(MUSE_WAN_STRIKING);
         if (obj->otyp == WAN_STRIKING && obj->spe > 0) {
@@ -1402,13 +1402,13 @@ register struct obj *otmp;
                 shieldeff(u.ux, u.uy);
                 pline("Boing!");
             } else if (rnd(20) < 10 + u.uac) {
-                pline_The("wand hits you!");
+                pline_The("device hits you!");
                 tmp = d(2, 12);
                 if (Half_spell_damage)
                     tmp = (tmp + 1) / 2;
-                losehp(tmp, "wand", KILLED_BY_AN);
+                losehp(tmp, "device", KILLED_BY_AN);
             } else
-                pline_The("wand misses you.");
+                pline_The("device misses you.");
             stop_occupation();
             nomul(0);
         } else if (resists_magm(mtmp)) {
@@ -1416,12 +1416,12 @@ register struct obj *otmp;
             pline("Boing!");
         } else if (rnd(20) < 10 + find_mac(mtmp)) {
             tmp = d(2, 12);
-            hit("wand", mtmp, exclam(tmp));
+            hit("device", mtmp, exclam(tmp));
             (void) resist(mtmp, otmp->oclass, tmp, TELL);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
                 makeknown(WAN_STRIKING);
         } else {
-            miss("wand", mtmp);
+            miss("device", mtmp);
             if (cansee(mtmp->mx, mtmp->my) && zap_oseen)
                 makeknown(WAN_STRIKING);
         }
@@ -1568,23 +1568,23 @@ struct monst *mtmp;
     oseen = otmp && canseemon(mtmp);
 
     switch (m.has_offense) {
-    case MUSE_WAN_DEATH:
-    case MUSE_WAN_SLEEP:
-    case MUSE_WAN_FIRE:
-    case MUSE_WAN_COLD:
-    case MUSE_WAN_ACID:
+    case MUSE_WAN_DEATH_RAY:
+    case MUSE_WAN_SLEEP_RAY:
+    case MUSE_WAN_FIRE_BLAST:
+    case MUSE_WAN_FREEZE_RAY:
+    case MUSE_WAN_ACID_STREAM:
     case MUSE_WAN_POISON_GAS:
-    case MUSE_WAN_SONICS:
-    case MUSE_WAN_PSIONICS:
+    case MUSE_WAN_SONIC_BOOM:
+    case MUSE_WAN_PSIONIC:
     case MUSE_WAN_LIGHTNING:
-    case MUSE_WAN_MAGIC_MISSILE:
+    case MUSE_WAN_MISSILE:
         mzapmsg(mtmp, otmp, FALSE);
         otmp->spe--;
         if (oseen)
             makeknown(otmp->otyp);
         m_using = TRUE;
-        buzz((int) (-30 - (otmp->otyp - WAN_MAGIC_MISSILE)),
-             (otmp->otyp == WAN_MAGIC_MISSILE) ? 2 : 6, mtmp->mx, mtmp->my,
+        buzz((int) (-30 - (otmp->otyp - WAN_MISSILE)),
+             (otmp->otyp == WAN_MISSILE) ? 2 : 6, mtmp->mx, mtmp->my,
              sgn(tbx), sgn(tby));
         m_using = FALSE;
         return (DEADMONSTER(mtmp)) ? 1 : 2;
@@ -1818,7 +1818,7 @@ struct monst *mtmp;
         || pm->mlet == S_GHOST || pm->mlet == S_KOP)
         return 0;
     if (difficulty > 7 && !rn2(35))
-        return WAN_DEATH;
+        return WAN_DEATH_RAY;
     switch (rn2(9 - (difficulty < 4) + 4 * (difficulty > 6))) {
     case 0: {
         struct obj *helmet = which_armor(mtmp, W_ARMH);
@@ -1841,13 +1841,13 @@ struct monst *mtmp;
         return POT_PARALYSIS;
     case 7:
     case 8:
-        return WAN_MAGIC_MISSILE;
+        return WAN_MISSILE;
     case 9:
-        return WAN_SLEEP;
+        return WAN_SLEEP_RAY;
     case 10:
-        return WAN_FIRE;
+        return WAN_FIRE_BLAST;
     case 11:
-        return WAN_COLD;
+        return WAN_FREEZE_RAY;
     case 12:
         return WAN_LIGHTNING;
     }
@@ -1856,12 +1856,12 @@ struct monst *mtmp;
 }
 
 #define MUSE_POT_GAIN_LEVEL 1
-#define MUSE_WAN_MAKE_INVISIBLE 2
+#define MUSE_WAN_INVISIBILITY 2
 #define MUSE_POT_INVISIBILITY 3
 #define MUSE_POLY_TRAP 4
-#define MUSE_WAN_POLYMORPH 5
+#define MUSE_WAN_MUTATION 5
 #define MUSE_POT_SPEED 6
-#define MUSE_WAN_SPEED_MONSTER 7
+#define MUSE_WAN_SPEED_RAY 7
 #define MUSE_BULLWHIP 8
 #define MUSE_POT_POLYMORPH 9
 #define MUSE_FIGURINE 10
@@ -1961,12 +1961,12 @@ struct monst *mtmp;
         /* Note: peaceful/tame monsters won't make themselves
          * invisible unless you can see them.  Not really right, but...
          */
-        nomore(MUSE_WAN_MAKE_INVISIBLE);
-        if (obj->otyp == WAN_MAKE_INVISIBLE && obj->spe > 0 && !mtmp->minvis
+        nomore(MUSE_WAN_INVISIBILITY);
+        if (obj->otyp == WAN_INVISIBILITY && obj->spe > 0 && !mtmp->minvis
             && !mtmp->invis_blkd && (!mtmp->mpeaceful || See_invisible)
             && (!attacktype(mtmp->data, AT_GAZE) || mtmp->mcan)) {
             m.misc = obj;
-            m.has_misc = MUSE_WAN_MAKE_INVISIBLE;
+            m.has_misc = MUSE_WAN_INVISIBILITY;
         }
         nomore(MUSE_POT_INVISIBILITY);
         if (obj->otyp == POT_INVISIBILITY && !mtmp->minvis
@@ -1975,11 +1975,11 @@ struct monst *mtmp;
             m.misc = obj;
             m.has_misc = MUSE_POT_INVISIBILITY;
         }
-        nomore(MUSE_WAN_SPEED_MONSTER);
-        if (obj->otyp == WAN_SPEED_MONSTER && obj->spe > 0
+        nomore(MUSE_WAN_SPEED_RAY);
+        if (obj->otyp == WAN_SPEED_RAY && obj->spe > 0
             && mtmp->mspeed != MFAST && !mtmp->isgd) {
             m.misc = obj;
-            m.has_misc = MUSE_WAN_SPEED_MONSTER;
+            m.has_misc = MUSE_WAN_SPEED_RAY;
         }
         nomore(MUSE_POT_SPEED);
         if (obj->otyp == POT_SPEED && mtmp->mspeed != MFAST && !mtmp->isgd) {
@@ -1999,11 +1999,11 @@ struct monst *mtmp;
             m.misc = obj;
             m.has_misc = MUSE_POT_REFLECT;
         }
-        nomore(MUSE_WAN_POLYMORPH);
-        if (obj->otyp == WAN_POLYMORPH && obj->spe > 0
+        nomore(MUSE_WAN_MUTATION);
+        if (obj->otyp == WAN_MUTATION && obj->spe > 0
             && (mtmp->cham == NON_PM) && monstr[monsndx(mdat)] < 6) {
             m.misc = obj;
-            m.has_misc = MUSE_WAN_POLYMORPH;
+            m.has_misc = MUSE_WAN_MUTATION;
         }
         nomore(MUSE_POT_POLYMORPH);
         if (obj->otyp == POT_POLYMORPH && (mtmp->cham == NON_PM)
@@ -2137,9 +2137,9 @@ struct monst *mtmp;
             return 1;
         /* grew into genocided monster */
         return 2;
-    case MUSE_WAN_MAKE_INVISIBLE:
+    case MUSE_WAN_INVISIBILITY:
     case MUSE_POT_INVISIBILITY:
-        if (otmp->otyp == WAN_MAKE_INVISIBLE) {
+        if (otmp->otyp == WAN_INVISIBILITY) {
             mzapmsg(mtmp, otmp, TRUE);
             otmp->spe--;
         } else
@@ -2166,7 +2166,7 @@ struct monst *mtmp;
             m_useup(mtmp, otmp);
         }
         return 2;
-    case MUSE_WAN_SPEED_MONSTER:
+    case MUSE_WAN_SPEED_RAY:
         mzapmsg(mtmp, otmp, TRUE);
         otmp->spe--;
         mon_adjust_speed(mtmp, 1, otmp);
@@ -2208,12 +2208,12 @@ struct monst *mtmp;
             makeknown(POT_REFLECTION);
         m_useup(mtmp, otmp);
         return 2;
-    case MUSE_WAN_POLYMORPH:
+    case MUSE_WAN_MUTATION:
         mzapmsg(mtmp, otmp, TRUE);
         otmp->spe--;
         (void) newcham(mtmp, muse_newcham_mon(mtmp), TRUE, FALSE);
         if (oseen)
-            makeknown(WAN_POLYMORPH);
+            makeknown(WAN_MUTATION);
         return 2;
     case MUSE_POT_POLYMORPH:
         mquaffmsg(mtmp, otmp);
@@ -2387,7 +2387,7 @@ struct monst *mtmp;
      * the monster and strong monsters won't use it at all...
      */
     if (difficulty < 6 && !rn2(30))
-        return rn2(6) ? POT_POLYMORPH : WAN_POLYMORPH;
+        return rn2(6) ? POT_POLYMORPH : WAN_MUTATION;
 
     if (!rn2(40) && !nonliving(pm) && !is_vampshifter(mtmp))
         return AMULET_OF_LIFE_SAVING;
@@ -2403,11 +2403,11 @@ struct monst *mtmp;
     case 0:
         if (mtmp->isgd)
             return 0;
-        return rn2(6) ? POT_SPEED : WAN_SPEED_MONSTER;
+        return rn2(6) ? POT_SPEED : WAN_SPEED_RAY;
     case 1:
         if (mtmp->mpeaceful && !See_invisible)
             return 0;
-        return rn2(6) ? POT_INVISIBILITY : WAN_MAKE_INVISIBLE;
+        return rn2(6) ? POT_INVISIBILITY : WAN_INVISIBILITY;
     case 2:
         return POT_GAIN_LEVEL;
     case 3:
@@ -2428,10 +2428,10 @@ struct obj *obj;
         || mon->data == &mons[PM_GHOST]) /* don't loot bones piles */
         return FALSE;
 
-    if (typ == WAN_MAKE_INVISIBLE || typ == POT_INVISIBILITY)
+    if (typ == WAN_INVISIBILITY || typ == POT_INVISIBILITY)
         return (boolean) (!mon->minvis && !mon->invis_blkd
                           && !attacktype(mon->data, AT_GAZE));
-    if (typ == WAN_SPEED_MONSTER || typ == POT_SPEED)
+    if (typ == WAN_SPEED_RAY || typ == POT_SPEED)
         return (boolean) (mon->mspeed != MFAST);
     if (typ == POT_REFLECTION)
         return mon->mreflect != 1;
@@ -2442,12 +2442,12 @@ struct obj *obj;
             return FALSE;
         if (typ == WAN_DIGGING)
             return (boolean) !is_floater(mon->data);
-        if (typ == WAN_POLYMORPH)
+        if (typ == WAN_MUTATION)
             return (boolean) (monstr[monsndx(mon->data)] < 6);
         if (objects[typ].oc_dir == RAY || typ == WAN_STRIKING
-            || typ == WAN_TELEPORTATION || typ == WAN_CREATE_MONSTER
+            || typ == WAN_TELEPORTATION || typ == WAN_SUMMONING
             || typ == WAN_CANCELLATION
-            || typ == WAN_HEALING)
+            || typ == WAN_MEDICAL)
             return TRUE;
         break;
     case POTION_CLASS:
@@ -2972,7 +2972,7 @@ struct obj *obj;
     if (obj->otyp == SCR_FIRE)
         return (haseyes(mon->data) && mon->mcansee);
     /* hero doesn't need hands or even limbs to zap, so mon doesn't either */
-    return ((obj->otyp == WAN_FIRE
+    return ((obj->otyp == WAN_FIRE_BLAST
              || (obj->otyp == FIRE_HORN && can_blow(mon)))
             && obj->spe > 0);
 }
@@ -3066,7 +3066,7 @@ struct monst *mon;
                 (void) mkmonmoney(mon, 5000);
             }
             else {
-                (void) mongets(mon, WAN_SPEED_MONSTER);
+                (void) mongets(mon, WAN_SPEED_RAY);
             }
     }
     if (wearable)

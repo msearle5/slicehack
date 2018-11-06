@@ -81,7 +81,7 @@ static struct trobj Healer[] = {
     { MEDICAL_KIT, 0, TOOL_CLASS, 1, 0 },
     { POT_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
-    { WAN_SLEEP, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
+    { WAN_SLEEP_RAY, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     /* always blessed, so it's guaranteed readable */
     { SPE_HEALING, 0, SPBOOK_CLASS, 1, 1 },
     { SPE_EXTRA_HEALING, 0, SPBOOK_CLASS, 1, 1 },
@@ -1738,7 +1738,7 @@ register struct trobj *trop;
                    || otyp == SPE_BLANK_PAPER
                    || otyp == RIN_AGGRAVATE_MONSTER
                    || otyp == RIN_HUNGER
-                   || otyp == WAN_NOTHING
+                   || otyp == WAN_NON_FUNCTIONAL
                    /* orcs start with poison resistance */
                    || (otyp == RIN_POISON_RESISTANCE && Race_if(PM_ORC))
                    /* Monks don't use weapons */
@@ -1768,7 +1768,7 @@ register struct trobj *trop;
              * objects, we need more nocreate variables...)
              */
             switch (otyp) {
-            case WAN_POLYMORPH:
+            case WAN_MUTATION:
             case RIN_POLYMORPH:
             case POT_POLYMORPH:
                 nocreate = RIN_POLYMORPH_CONTROL;

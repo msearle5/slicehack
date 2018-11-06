@@ -44,7 +44,7 @@ n	Start a count; continue with digit(s)
 N	Name: shortcut for '#name'
 u	Untrap: shortcut for '#untrap'
 &. #0,-1 vs 1,2,3,4
-a	Apply (use) a tool or break a wand
+a	Apply (use) a tool or break a device
 A	Remove all armor and/or all accessories and/or unwield weapons
 ^A	Redo the previous command
 ^B	Go southwest until you are near something
@@ -98,7 +98,7 @@ y	Go northwest 1 space
 Y	Go northwest until you are on top of something
 &.
 ^Y	Go northwest until you are near something
-z	Zap a wand
+z	Zap a device
 Z	Zap (cast) a spell
 &? suspend
 ^Z	Suspend game; 'fg' (foreground) to resume
@@ -106,7 +106,7 @@ Z	Zap (cast) a spell
 ^Z	unavailable command: suspend
 &.
 &: number_pad=-1
-y	Zap a wand
+y	Zap a device
 Y	Zap (cast) a spell
 &? suspend
 ^Y	Suspend game; 'fg' (foreground) to resume

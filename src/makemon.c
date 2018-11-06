@@ -737,7 +737,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, BROADSWORD);
             break;
         case PM_ORCUS:
-            (void) mongets(mtmp, WAN_DEATH); /* the Wand of Orcus */
+            (void) mongets(mtmp, WAN_DEATH_RAY); /* the Wand of Orcus */
             break;
         case PM_HORNED_DEVIL:
             (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
@@ -935,7 +935,7 @@ register struct monst *mtmp;
             switch (rn2(4)) {
             /* MAJOR fall through ... */
             case 0:
-                (void) mongets(mtmp, WAN_MAGIC_MISSILE);
+                (void) mongets(mtmp, WAN_MISSILE);
                 /*FALLTHRU*/
             case 1:
                 (void) mongets(mtmp, POT_EXTRA_HEALING);
@@ -1029,7 +1029,7 @@ register struct monst *mtmp;
         break;
     case S_LICH:
         if (ptr == &mons[PM_MASTER_LICH] && !rn2(13))
-            (void) mongets(mtmp, (rn2(7) ? ATHAME : WAN_NOTHING));
+            (void) mongets(mtmp, (rn2(7) ? ATHAME : WAN_NON_FUNCTIONAL));
         else if (ptr == &mons[PM_ARCH_LICH] && !rn2(3)) {
             otmp = mksobj(rn2(3) ? ATHAME : QUARTERSTAFF, TRUE,
                           rn2(13) ? FALSE : TRUE);
@@ -1074,8 +1074,8 @@ register struct monst *mtmp;
         if (ptr == &mons[PM_ICE_DEVIL] && !rn2(4)) {
             (void) mongets(mtmp, SPEAR);
         } else if (ptr == &mons[PM_ASMODEUS]) {
-            (void) mongets(mtmp, WAN_COLD);
-            (void) mongets(mtmp, WAN_FIRE);
+            (void) mongets(mtmp, WAN_FREEZE_RAY);
+            (void) mongets(mtmp, WAN_FIRE_BLAST);
         }
         break;
     case S_GNOME:

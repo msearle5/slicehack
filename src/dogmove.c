@@ -103,49 +103,49 @@ boolean check_if_better;
     boolean can_use =
         /* make sure this is an intelligent monster */
         (mtmp && !is_animal(mtmp->data) && !mindless(mtmp->data) &&
- 	        !nohands(mtmp->data) && otmp &&
- 	      /* food */
+        !nohands(mtmp->data) && otmp &&
+        /* food */
         ((dogfood(mtmp, otmp) < APPORT) ||
- 	      /* better weapons */
- 	      (attacktype(mtmp->data, AT_WEAP) &&
- 	      (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) &&
- 		    (!check_if_better ||
- 		    would_prefer_hwep(mtmp, otmp) ||
- 		    would_prefer_rwep(mtmp, otmp))) ||
- 	      /* better armor */
- 	      (otmp->oclass == ARMOR_CLASS &&
- 	      (!check_if_better || is_better_armor(mtmp, otmp))) ||
- 	      /* useful amulets */
- 	      otmp->otyp == AMULET_OF_LIFE_SAVING ||
- 	      otmp->otyp == AMULET_OF_REFLECTION ||
- 	      /* misc magic items that muse can use */
- 	      otmp->otyp == SCR_TELEPORTATION ||
+        /* better weapons */
+        (attacktype(mtmp->data, AT_WEAP) &&
+        (otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) &&
+        (!check_if_better ||
+        would_prefer_hwep(mtmp, otmp) ||
+        would_prefer_rwep(mtmp, otmp))) ||
+        /* better armor */
+        (otmp->oclass == ARMOR_CLASS &&
+        (!check_if_better || is_better_armor(mtmp, otmp))) ||
+        /* useful amulets */
+        otmp->otyp == AMULET_OF_LIFE_SAVING ||
+        otmp->otyp == AMULET_OF_REFLECTION ||
+        /* misc magic items that muse can use */
+        otmp->otyp == SCR_TELEPORTATION ||
         otmp->otyp == SCR_EARTH ||
         otmp->otyp == SCR_REMOVE_CURSE ||
         otmp->otyp == SCR_FIRE ||
- 	      otmp->otyp == WAN_DEATH ||
- 	      otmp->otyp == WAN_DIGGING ||
- 	      otmp->otyp == WAN_FIRE ||
- 	      otmp->otyp == WAN_COLD ||
-        otmp->otyp == WAN_SONICS ||
-        otmp->otyp == WAN_PSIONICS ||
- 	      otmp->otyp == WAN_LIGHTNING ||
- 	      otmp->otyp == WAN_MAGIC_MISSILE ||
- 	      otmp->otyp == WAN_STRIKING ||
- 	      otmp->otyp == WAN_TELEPORTATION ||
- 	      otmp->otyp == POT_HEALING ||
- 	      otmp->otyp == POT_EXTRA_HEALING ||
- 	      otmp->otyp == POT_FULL_HEALING ||
- 	      otmp->otyp == POT_PARALYSIS ||
- 	      otmp->otyp == POT_BLINDNESS ||
- 	      otmp->otyp == POT_CONFUSION ||
+        otmp->otyp == WAN_DEATH_RAY ||
+        otmp->otyp == WAN_DIGGING ||
+        otmp->otyp == WAN_FIRE_BLAST ||
+        otmp->otyp == WAN_FREEZE_RAY ||
+        otmp->otyp == WAN_SONIC_BOOM ||
+        otmp->otyp == WAN_PSIONIC ||
+        otmp->otyp == WAN_LIGHTNING ||
+        otmp->otyp == WAN_MISSILE ||
+        otmp->otyp == WAN_STRIKING ||
+        otmp->otyp == WAN_TELEPORTATION ||
+        otmp->otyp == POT_HEALING ||
+        otmp->otyp == POT_EXTRA_HEALING ||
+        otmp->otyp == POT_FULL_HEALING ||
+        otmp->otyp == POT_PARALYSIS ||
+        otmp->otyp == POT_BLINDNESS ||
+        otmp->otyp == POT_CONFUSION ||
         otmp->otyp == POT_HALLUCINATION ||
- 	      otmp->otyp == POT_ACID ||
- 	      otmp->otyp == FROST_HORN ||
- 	      otmp->otyp == FIRE_HORN ||
+        otmp->otyp == POT_ACID ||
+        otmp->otyp == FROST_HORN ||
+        otmp->otyp == FIRE_HORN ||
         otmp->otyp == MAGIC_HARP ||
         otmp->otyp == DRUM_OF_EARTHQUAKE ||
- 	      otmp->otyp == UNICORN_HORN));
+        otmp->otyp == UNICORN_HORN));
 
     if (can_use)
     {

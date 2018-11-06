@@ -128,8 +128,8 @@ static const char * const bogus_items[] = {
     "scalpel",
     "knife",
     "penknife",
-    "phoenix feather wand",
-    "wand of psonics",
+    "rare device",
+    "psonics device",
     "polyjuice potion",
     "stiletto",
     "worm tooth",
@@ -221,12 +221,11 @@ static const char * const bogus_items[] = {
     "elfin chain mail",
     "vorpal two-handed sword",
     "elven shield",
-    "wand of depth",
-    "wand of tickling",
-    "wand of whining",
-    "wand of winning",
-    "wand of something",
-    "wand of worm turning",
+    "depth-ray device",
+    "tickling device",
+    "whining device",
+    "winning device",
+    "something device",
     "tin of spam",
     "shield of reflection",
     "shield of deflection",
@@ -374,8 +373,6 @@ static const char * const bogus_items[] = {
     "potion of clairvoyance",           /* SLASH'EM */
     "potion of invulnerability",        /* SLASH'EM */
     "spellbook of enchant armor",       /* SLASH'EM */
-    "wand of create horde",             /* SLASH'EM */
-    "wand of infinite kittens",
     "map of The Great Adamantine Space Elevator", /*Dwarf Fortress*/
     "rat blood barrel",                 /* Dwarf Fortress */
     "fly ichor barrel",                 /* Dwarf Fortress */
@@ -535,13 +532,13 @@ static const char * const bogus_items[] = {
     "amulet of bad luck",
     "amulet of refraction",
     "O-ring",
-    "wand of washing",
-    "wand of vaporization",
-    "wand of disruption",
-    "wand of disintegration",
-    "wand of stunning",
-    "wand of prestidigitation",
-    "wand of digitization",
+    "washing device",
+    "vaporization device",
+    "disruption device",
+    "disintegration device",
+    "stunning device",
+    "prestidigitation device",
+    "digitization device",
     "ring named Frost Band",
     "expensive exact replica of the Amulet of Yendor",
     "giant beatle",
@@ -563,7 +560,6 @@ static const char * const bogus_items[] = {
     "circular sword",
     "evening star",
     "peace hammer",
-    "heap of wands of wishing", /* Janis Papanagnou on rgrn */
     "size XXXS gray dragon scale mail", /* http://www.nicolaas.net/dudley/index.php?f=20050819 */
 
     /* from tvtropes.org */
@@ -738,7 +734,7 @@ char *buf;
                 Strcpy(buf, "a potion");
                 break;
             case WAND_CLASS:
-                Strcpy(buf, "a wand");
+                Strcpy(buf, "a device");
                 break;
             default:
                 strcpy(buf, index("aeio", *name) ? "an " : "a ");
@@ -795,7 +791,7 @@ register int otyp;
             Strcpy(buf, "scroll");
         break;
     case WAND_CLASS:
-        Strcpy(buf, "wand");
+        Strcpy(buf, "device");
         break;
     case SPBOOK_CLASS:
         if (otyp != SPE_NOVEL) {
@@ -1334,13 +1330,13 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         break;
     case WAND_CLASS:
         if (!dknown)
-            Strcpy(buf, "wand");
+            Strcpy(buf, "device");
         else if (nn)
-            Sprintf(buf, "wand of %s", actualn);
+            Sprintf(buf, "%s device", actualn);
         else if (un)
-            Sprintf(buf, "wand called %s", un);
+            Sprintf(buf, "device called %s", un);
         else
-            Sprintf(buf, "%s wand", dn);
+            Sprintf(buf, "%s device", dn);
         break;
     case SPBOOK_CLASS:
         if (typ == SPE_NOVEL) { /* 3.6 tribute */
@@ -2689,7 +2685,7 @@ struct obj *obj;
 }
 
 static const char *wrp[] = {
-    "wand",   "ring",      "potion",     "scroll", "gem",
+    "device",   "ring",      "potion",     "scroll", "gem",
     "amulet", "spellbook", "spell book",
     /* for non-specific wishes */
     "weapon", "armor",     "tool",       "food",   "comestible",
@@ -4051,7 +4047,7 @@ int extra;
          * Don't check if it's a wand or spellbook.
          * (avoid "wand/finger of death" confusion).
          */
-        if (!strstri(bp, "wand ") && !strstri(bp, "spellbook ")
+        if (!strstri(bp, "device ") && !strstri(bp, "spellbook ")
             && !strstri(bp, "finger ")) {
             if ((p = strstri(bp, "tin of ")) != 0) {
                 if (!strcmpi(p + 7, "spinach")) {

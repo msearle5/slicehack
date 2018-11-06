@@ -1326,8 +1326,8 @@ STATIC_VAR const struct paranoia_opts {
       "yes vs y to save bones data when dying in debug mode" },
     { PARANOID_HIT, "attack", 1, "hit", 1,
       "yes vs y to attack a peaceful monster" },
-    { PARANOID_BREAKWAND, "wand-break", 2, "break-wand", 2,
-      "yes vs y to break a wand via (a)pply" },
+    { PARANOID_BREAKWAND, "device-break", 2, "break-device", 2,
+      "yes vs y to break a device via (a)pply" },
     { PARANOID_WERECHANGE, "Were-change", 2, (const char *) 0, 0,
       "yes vs y to change form when lycanthropy is controllable" },
     { PARANOID_PRAY, "pray", 1, 0, 0,
@@ -4972,7 +4972,7 @@ boolean setinitial, setfromfile;
             " 0 (off)", " 1 (on)", " 2 (on, MSDOS compatible)",
             " 3 (on, phone-style digit layout)",
             " 4 (on, phone-style layout, MSDOS compatible)",
-            "-1 (off, 'z' to move upper-left, 'y' to zap wands)"
+            "-1 (off, 'z' to move upper-left, 'y' to zap devices)"
         };
         menu_item *mode_pick = (menu_item *) 0;
 

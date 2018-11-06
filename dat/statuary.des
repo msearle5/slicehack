@@ -31,7 +31,7 @@ ROOM: "ordinary" , random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   CONTAINER:('`',"statue"),random {
-      OBJECT:('/',"wonder")
+      OBJECT:('/',"mysterious")
   }
   MONSTER: random, random
   MONSTER: random, random

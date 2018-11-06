@@ -190,7 +190,7 @@ struct obj *otmp;
 
     switch (otyp) {
     case WAN_STRIKING:
-        zap_type_text = "wand";
+        zap_type_text = "device";
     /*FALLTHRU*/
     case SPE_FORCE_BOLT:
         reveal_invis = TRUE;
@@ -212,7 +212,7 @@ struct obj *otmp;
             miss(zap_type_text, mtmp);
         learn_it = TRUE;
         break;
-    case WAN_SLOW_MONSTER:
+    case WAN_TANGLE_BEAM:
     case SPE_SLOW_MONSTER:
         if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
             if (disguised_mimic)
@@ -226,7 +226,7 @@ struct obj *otmp;
             }
         }
         break;
-    case WAN_SPEED_MONSTER:
+    case WAN_SPEED_RAY:
         if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
             if (disguised_mimic)
                 seemimic(mtmp);
@@ -256,7 +256,7 @@ struct obj *otmp;
             }
         }
         break;
-    case WAN_POLYMORPH:
+    case WAN_MUTATION:
     case SPE_POLYMORPH:
     case POT_POLYMORPH:
         if (mtmp->data == &mons[PM_LONG_WORM] && has_mcorpsenm(mtmp)) {
@@ -333,7 +333,7 @@ struct obj *otmp;
             seemimic(mtmp);
         reveal_invis = !u_teleport_mon(mtmp, TRUE);
         break;
-    case WAN_MAKE_INVISIBLE: {
+    case WAN_INVISIBILITY: {
         int oldinvis = mtmp->minvis;
         char nambuf[BUFSZ];
 
@@ -397,7 +397,7 @@ struct obj *otmp;
             mdrop_obj(mtmp, obj, FALSE);
         }
         break;
-    case WAN_HEALING:
+    case WAN_MEDICAL:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
         reveal_invis = TRUE;
@@ -433,13 +433,13 @@ struct obj *otmp;
                           d(3, otyp == SPE_EXTRA_HEALING ? 8 : 4), TELL);
         }
         break;
-    case WAN_LIGHT: /* (broken wand) */
+    case WAN_LIGHTING: /* (broken wand) */
         if (flash_hits_mon(mtmp, otmp)) {
             learn_it = TRUE;
             reveal_invis = TRUE;
         }
         break;
-    case WAN_SLEEP: /* (broken wand) */
+    case WAN_SLEEP_RAY: /* (broken wand) */
         /* [wakeup() doesn't rouse victims of temporary sleep,
            so it's okay to leave `wake' set to TRUE here] */
         reveal_invis = TRUE;
@@ -487,7 +487,7 @@ struct obj *otmp;
             }
         }
         break;
-    case WAN_NOTHING:
+    case WAN_NON_FUNCTIONAL:
         wake = FALSE;
         break;
     default:
@@ -1612,8 +1612,8 @@ int id;
         break;
 
     case WAND_CLASS:
-        while (otmp->otyp == WAN_WISHING || otmp->otyp == WAN_POLYMORPH)
-            otmp->otyp = rnd_class(WAN_LIGHT, WAN_LIGHTNING);
+        while (otmp->otyp == WAN_WISHING || otmp->otyp == WAN_MUTATION)
+            otmp->otyp = rnd_class(WAN_LIGHTING, WAN_LIGHTNING);
         /* altering the object tends to degrade its quality
            (analogous to spellbook `read count' handling) */
         if ((int) otmp->recharged < rn2(7)) /* recharge_limit */
@@ -1956,9 +1956,9 @@ struct obj *obj, *otmp;
             res = 0;
     } else
         switch (otmp->otyp) {
-        case WAN_POLYMORPH:
+        case WAN_MUTATION:
         case SPE_POLYMORPH:
-            if (obj->otyp == WAN_POLYMORPH || obj->otyp == SPE_POLYMORPH
+            if (obj->otyp == WAN_MUTATION || obj->otyp == SPE_POLYMORPH
                 || obj->otyp == POT_POLYMORPH || obj_resists(obj, 5, 95)) {
                 res = 0;
                 break;
@@ -2013,7 +2013,7 @@ struct obj *obj, *otmp;
             if (res)
                 learn_it = TRUE;
             break;
-        case WAN_SONICS:
+        case WAN_SONIC_BOOM:
         case WAN_STRIKING:
         case SPE_FORCE_BOLT:
             /* learn the type if you see or hear something break
@@ -2063,7 +2063,7 @@ struct obj *obj, *otmp;
         case SPE_TELEPORT_AWAY:
             (void) rloco(obj);
             break;
-        case WAN_MAKE_INVISIBLE:
+        case WAN_INVISIBILITY:
             break;
         case WAN_UNDEAD_TURNING:
         case SPE_TURN_UNDEAD:
@@ -2100,11 +2100,11 @@ struct obj *obj, *otmp;
             if (res)
                 learn_it = TRUE;
             break;
-        case WAN_SLOW_MONSTER: /* no effect on objects */
+        case WAN_TANGLE_BEAM: /* no effect on objects */
         case SPE_SLOW_MONSTER:
-        case WAN_SPEED_MONSTER:
-        case WAN_NOTHING:
-        case WAN_HEALING:
+        case WAN_SPEED_RAY:
+        case WAN_NON_FUNCTIONAL:
+        case WAN_MEDICAL:
         case SPE_HEALING:
         case SPE_EXTRA_HEALING:
             res = 0;
@@ -2179,7 +2179,7 @@ register struct obj *wand;
     if (wand->spe < 0 || (wand->spe == 0 && (rn2(250) > wand->ovar1++)))
         return 0;
     if (wand->spe == 0)
-        You("wrest one last charge from the worn-out wand.");
+        You("wrest one last charge from the worn-out device.");
     wand->spe--;
     return 1;
 }
@@ -2197,16 +2197,16 @@ register struct obj *obj;
        in order to catch various cases for engraving and keeping Wands
        from being identified erroneously. */
     boolean wonder = FALSE;
-    if (obj->otyp == WAN_WONDER) {
+    if (obj->otyp == WAN_MYSTERIOUS) {
         switch (rn2(4)) {
         case 0:
-            obj->otyp = WAN_LIGHT;
+            obj->otyp = WAN_LIGHTING;
             break;
         case 1:
-            obj->otyp = WAN_SECRET_DOOR_DETECTION;
+            obj->otyp = WAN_DETECTION;
             break;
         case 2:
-            obj->otyp = WAN_CREATE_MONSTER;
+            obj->otyp = WAN_SUMMONING;
             break;
         case 3:
             obj->otyp = WAN_ENLIGHTENMENT;
@@ -2215,7 +2215,7 @@ register struct obj *obj;
         wonder = TRUE;
     }
     switch (obj->otyp) {
-    case WAN_LIGHT:
+    case WAN_LIGHTING:
     case SPE_LIGHT:
         litroom(TRUE, obj);
         if (!Blind)
@@ -2223,14 +2223,14 @@ register struct obj *obj;
         if (lightdamage(obj, TRUE, 5))
             known = TRUE;
         break;
-    case WAN_SECRET_DOOR_DETECTION:
+    case WAN_DETECTION:
     case SPE_DETECT_UNSEEN:
         if (!findit())
             return;
         if (!Blind)
             known = TRUE;
         break;
-    case WAN_CREATE_MONSTER:
+    case WAN_SUMMONING:
         known = create_critters(rn2(23) ? 1 : rn1(7, 2),
                                 (struct permonst *) 0, FALSE);
         break;
@@ -2252,7 +2252,7 @@ register struct obj *obj;
         break;
     }
     if (wonder) {
-        obj->otyp = WAN_WONDER;
+        obj->otyp = WAN_MYSTERIOUS;
         known = FALSE;
     }
     if (known) {
@@ -2273,7 +2273,7 @@ struct obj *otmp;
     otmp->in_use = TRUE; /* in case losehp() is fatal */
     pline("%s suddenly explodes!", The(xname(otmp)));
     dmg = d(otmp->spe + 2, 6);
-    losehp(Maybe_Half_Phys(dmg), "exploding wand", KILLED_BY_AN);
+    losehp(Maybe_Half_Phys(dmg), "exploding device", KILLED_BY_AN);
     useup(otmp);
 }
 
@@ -2310,7 +2310,7 @@ dozap()
         if ((damage = zapyourself(obj, TRUE)) != 0) {
             char buf[BUFSZ];
 
-            Sprintf(buf, "zapped %sself with a wand", uhim());
+            Sprintf(buf, "zapped %sself with %s", uhim(), doname(obj));
             losehp(Maybe_Half_Phys(damage), buf, NO_KILLER_PREFIX);
         }
     } else {
@@ -2418,17 +2418,17 @@ boolean ordinary;
     boolean learn_it = FALSE;
     boolean wonder = FALSE;
     int damage = 0;
-    if (obj->otyp == WAN_WONDER) {
+    if (obj->otyp == WAN_MYSTERIOUS) {
         switch (rn2(7)) {
         /* Not a complete list, just some interesting effects. */
         case 1:
             obj->otyp = WAN_LIGHTNING;
             break;
         case 2:
-            obj->otyp = WAN_MAGIC_MISSILE;
+            obj->otyp = WAN_MISSILE;
             break;
         case 3:
-            obj->otyp = WAN_POLYMORPH;
+            obj->otyp = WAN_MUTATION;
             break;
         case 4:
             obj->otyp = WAN_UNDEAD_TURNING;
@@ -2437,10 +2437,10 @@ boolean ordinary;
             obj->otyp = WAN_TELEPORTATION;
             break;
         case 6:
-            obj->otyp = WAN_DEATH;
+            obj->otyp = WAN_DEATH_RAY;
             break;
         default:
-            obj->otyp = WAN_SLEEP;
+            obj->otyp = WAN_SLEEP_RAY;
             break;
         }
         wonder = TRUE;
@@ -2483,7 +2483,7 @@ boolean ordinary;
         explode(u.ux, u.uy, 11, d(6, 6), WAND_CLASS, EXPL_FIERY);
         break;
 
-    case WAN_ACID:
+    case WAN_ACID_STREAM:
         learn_it = TRUE;
         if (Acid_resistance) {
             shieldeff(u.ux, u.uy);
@@ -2504,7 +2504,7 @@ boolean ordinary;
         (void) create_gas_cloud(u.ux, u.uy, 1, 8);
         break;
 
-    case WAN_SONICS:
+    case WAN_SONIC_BOOM:
         learn_it = TRUE;
         if (!Deaf) {
             pline("KABOOM! You deafen yourself!");
@@ -2522,7 +2522,7 @@ boolean ordinary;
         destroy_item(POTION_CLASS, AD_LOUD);
         break;
 
-    case WAN_PSIONICS:
+    case WAN_PSIONIC:
         learn_it = TRUE;
         if (Psychic_resistance) {
             shieldeff(u.ux, u.uy);
@@ -2534,7 +2534,7 @@ boolean ordinary;
         }
         break;
 
-    case WAN_FIRE:
+    case WAN_FIRE_BLAST:
     case FIRE_HORN:
         learn_it = TRUE;
         if (Fire_resistance) {
@@ -2554,7 +2554,7 @@ boolean ordinary;
         destroy_item(FOOD_CLASS, AD_FIRE); /* only slime for now */
         break;
 
-    case WAN_COLD:
+    case WAN_FREEZE_RAY:
     case SPE_CONE_OF_COLD:
     case FROST_HORN:
         learn_it = TRUE;
@@ -2569,7 +2569,7 @@ boolean ordinary;
         destroy_item(POTION_CLASS, AD_COLD);
         break;
 
-    case WAN_MAGIC_MISSILE:
+    case WAN_MISSILE:
     case SPE_MAGIC_MISSILE:
         learn_it = TRUE;
         if (Antimagic) {
@@ -2581,7 +2581,7 @@ boolean ordinary;
         }
         break;
 
-    case WAN_POLYMORPH:
+    case WAN_MUTATION:
     case SPE_POLYMORPH:
         if (!Unchanging) {
             learn_it = TRUE;
@@ -2602,7 +2602,7 @@ boolean ordinary;
         damage = 0; /* No additional damage */
         break;
 
-    case WAN_MAKE_INVISIBLE: {
+    case WAN_INVISIBILITY: {
         /* have to test before changing HInvis but must change
          * HInvis before doing newsym().
          */
@@ -2626,7 +2626,7 @@ boolean ordinary;
         break;
     }
 
-    case WAN_SPEED_MONSTER:
+    case WAN_SPEED_RAY:
         if (!(HFast & INTRINSIC)) {
             learn_it = TRUE;
             if (!Fast)
@@ -2638,7 +2638,7 @@ boolean ordinary;
         HFast |= FROMOUTSIDE;
         break;
 
-    case WAN_SLEEP:
+    case WAN_SLEEP_RAY:
     case SPE_SLEEP:
         learn_it = TRUE;
         if (Sleep_resistance) {
@@ -2650,7 +2650,7 @@ boolean ordinary;
         }
         break;
 
-    case WAN_SLOW_MONSTER:
+    case WAN_TANGLE_BEAM:
     case SPE_SLOW_MONSTER:
         if (HFast & (TIMEOUT | INTRINSIC)) {
             learn_it = TRUE;
@@ -2667,11 +2667,11 @@ boolean ordinary;
             learn_it = TRUE;
         break;
 
-    case WAN_DEATH:
+    case WAN_DEATH_RAY:
     case SPE_FINGER_OF_DEATH:
         if (nonliving(youmonst.data) || is_demon(youmonst.data)) {
-            pline((obj->otyp == WAN_DEATH)
-                      ? "The wand shoots an apparently harmless beam at you."
+            pline((obj->otyp == WAN_DEATH_RAY)
+                      ? "It shoots an apparently harmless beam at you."
                       : "You seem no deader than before.");
             break;
         }
@@ -2694,7 +2694,7 @@ boolean ordinary;
         } else
             You("shudder in dread.");
         break;
-    case WAN_HEALING:
+    case WAN_MEDICAL:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
         learn_it = TRUE; /* (no effect for spells...) */
@@ -2702,7 +2702,7 @@ boolean ordinary;
                (obj->blessed || obj->otyp == SPE_EXTRA_HEALING));
         You_feel("%sbetter.", obj->otyp == SPE_EXTRA_HEALING ? "much " : "");
         break;
-    case WAN_LIGHT: /* (broken wand) */
+    case WAN_LIGHTING: /* (broken wand) */
         /* assert( !ordinary ); */
         damage = d(obj->spe, 25);
         /*FALLTHRU*/
@@ -2742,7 +2742,7 @@ boolean ordinary;
     case WAN_DIGGING:
     case SPE_DIG:
     case SPE_DETECT_UNSEEN:
-    case WAN_NOTHING:
+    case WAN_NON_FUNCTIONAL:
         break;
     case WAN_PROBING: {
         struct obj *otmp;
@@ -2800,7 +2800,7 @@ boolean ordinary;
     /* wand of wonder case */
     if (wonder) {
         learn_it = FALSE;
-        obj->otyp = WAN_WONDER;
+        obj->otyp = WAN_MYSTERIOUS;
     }
     /* if effect was observable then discover the wand type provided
        that the wand itself has been seen */
@@ -2905,17 +2905,17 @@ struct obj *obj; /* wand or spell */
 
     /* Default processing via bhitm() for these */
     case SPE_CURE_SICKNESS:
-    case WAN_MAKE_INVISIBLE:
+    case WAN_INVISIBILITY:
     case WAN_CANCELLATION:
     case SPE_CANCELLATION:
-    case WAN_POLYMORPH:
+    case WAN_MUTATION:
     case SPE_POLYMORPH:
     case WAN_STRIKING:
     case SPE_FORCE_BOLT:
-    case WAN_SLOW_MONSTER:
+    case WAN_TANGLE_BEAM:
     case SPE_SLOW_MONSTER:
-    case WAN_SPEED_MONSTER:
-    case WAN_HEALING:
+    case WAN_SPEED_RAY:
+    case WAN_MEDICAL:
     case SPE_HEALING:
     case SPE_EXTRA_HEALING:
     case SPE_DRAIN_LIFE:
@@ -3168,14 +3168,14 @@ struct obj *obj; /* wand or spell */
         /* subset of engraving effects; none sets `disclose' */
         if ((e = engr_at(x, y)) != 0 && e->engr_type != HEADSTONE) {
             switch (obj->otyp) {
-            case WAN_POLYMORPH:
+            case WAN_MUTATION:
             case SPE_POLYMORPH:
                 del_engr(e);
                 make_engr_at(x, y, random_engraving(buf, TRUE), moves, (xchar) 0);
                 break;
             case WAN_CANCELLATION:
             case SPE_CANCELLATION:
-            case WAN_MAKE_INVISIBLE:
+            case WAN_INVISIBILITY:
                 del_engr(e);
                 break;
             case WAN_TELEPORTATION:
@@ -3254,17 +3254,17 @@ struct obj *obj;
     boolean disclose = FALSE, was_unkn = !objects[otyp].oc_name_known;
     boolean wonder = FALSE;
 
-    if (otyp == WAN_WONDER) {
-        wondertemp = WAN_LIGHT + rn2(WAN_LIGHTNING - WAN_LIGHT);
+    if (otyp == WAN_MYSTERIOUS) {
+        wondertemp = WAN_LIGHTING + rn2(WAN_LIGHTNING - WAN_LIGHTING);
         /* You can't usually get a wish from a wand of wonder.
          * However the wrest charge can - how likely this is depends on your luck, and BUC.
          */
         if ((wondertemp == WAN_WISHING) && ((obj->spe >= 0) || (rnd(20) > (Luck+(obj->blessed ? 5 : (obj->cursed ? -10 : 2))))))
             wondertemp = WAN_POISON_GAS;
-        if (wondertemp == WAN_WONDER)
-            wondertemp = WAN_POLYMORPH;
-        if (wondertemp == WAN_NOTHING)
-            wondertemp = WAN_DEATH;
+        if (wondertemp == WAN_MYSTERIOUS)
+            wondertemp = WAN_MUTATION;
+        if (wondertemp == WAN_NON_FUNCTIONAL)
+            wondertemp = WAN_DEATH_RAY;
         obj->otyp = wondertemp;
         otyp = wondertemp;
         wonder = TRUE;
@@ -3314,15 +3314,15 @@ struct obj *obj;
         else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_FINGER_OF_DEATH)
             buzz(otyp - SPE_MAGIC_MISSILE + 10, u.ulevel / 2 + 1, u.ux, u.uy,
                  u.dx, u.dy);
-        else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_PSIONICS)
-            buzz(otyp - WAN_MAGIC_MISSILE,
-                 (otyp == WAN_MAGIC_MISSILE) ? 2 : 6, u.ux, u.uy, u.dx, u.dy);
+        else if (otyp >= WAN_MISSILE && otyp <= WAN_PSIONIC)
+            buzz(otyp - WAN_MISSILE,
+                 (otyp == WAN_MISSILE) ? 2 : 6, u.ux, u.uy, u.dx, u.dy);
         else
-            impossible("weffects: unexpected spell or wand");
+            impossible("weffects: unexpected spell or device");
         disclose = TRUE;
     }
     if (wonder) {
-        obj->otyp = WAN_WONDER;
+        obj->otyp = WAN_MYSTERIOUS;
         disclose = FALSE;
     }
     if (disclose) {
@@ -5153,10 +5153,10 @@ const char *const destroy_strings[][3] = {
     { "catches fire and burns", "catch fire and burn", "burning scroll" },
     { "catches fire and burns", "", "burning book" },
     { "turns to dust and vanishes", "", "" },
-    { "breaks apart and explodes", "", "exploding wand" },
+    { "breaks apart and explodes", "", "exploding device" },
     { "resonates and explodes", "resonate and explode", "shattered potion"},
     { "resonates and shatters", "", "shattered item"},
-    { "resonates and explodes", "", "exploding wand"},
+    { "resonates and explodes", "", "exploding device"},
     { "explodes", "explode", "exploding landmine" },
 };
 

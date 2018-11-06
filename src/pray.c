@@ -2639,7 +2639,7 @@ static const char *hallu_gods[] = {
     "Armok",                        /* Dwarf Fortress */
     "the Iron General",             /* Jacek Dukaj */
     "the RNG",
-    "the gnome with the wand of death",
+    "the lemming with the death-ray",
 };
 
 /* hallucination handling for priest/minion names: select a random god

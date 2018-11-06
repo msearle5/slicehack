@@ -2467,22 +2467,22 @@ int chg; /* recharging */
         k = 12;
         break;
     case WAN_CANCELLATION:
-    case WAN_DEATH:
-    case WAN_POLYMORPH:
+    case WAN_DEATH_RAY:
+    case WAN_MUTATION:
     case WAN_UNDEAD_TURNING:
         k = 10;
         break;
-    case WAN_COLD:
-    case WAN_FIRE:
-    case WAN_ACID:
+    case WAN_FREEZE_RAY:
+    case WAN_FIRE_BLAST:
+    case WAN_ACID_STREAM:
     case WAN_LIGHTNING:
-    case WAN_MAGIC_MISSILE:
+    case WAN_MISSILE:
     case WAN_POISON_GAS:
-    case WAN_SONICS:
-    case WAN_PSIONICS:
+    case WAN_SONIC_BOOM:
+    case WAN_PSIONIC:
         k = 8;
         break;
-    case WAN_NOTHING:
+    case WAN_NON_FUNCTIONAL:
         k = 4;
         break;
     default:
@@ -2493,7 +2493,7 @@ int chg; /* recharging */
     dmg = d(n, k);
     obj->in_use = TRUE; /* in case losehp() is fatal (or --More--^C) */
     pline("%s %s explodes!", Yname2(obj), expl);
-    losehp(Maybe_Half_Phys(dmg), "exploding wand", KILLED_BY_AN);
+    losehp(Maybe_Half_Phys(dmg), "exploding device", KILLED_BY_AN);
     useup(obj);
     /* obscure side-effect */
     exercise(A_STR, FALSE);

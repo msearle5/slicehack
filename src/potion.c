@@ -2686,7 +2686,7 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
             /* Most wands are valid, unless useless or too powerful
              * ...should spent wands still be usable?
              **/
-            if ((otyp != WAN_WISHING) && (otyp != WAN_NOTHING)) ok = TRUE;
+            if ((otyp != WAN_WISHING) && (otyp != WAN_NON_FUNCTIONAL)) ok = TRUE;
             break;
             
             case GEM_CLASS:
@@ -3363,7 +3363,7 @@ dodip()
     } else if (obj->otyp == POT_POLYMORPH || potion->otyp == POT_POLYMORPH) {
         /* some objects can't be polymorphed */
         if (obj->otyp == potion->otyp /* both POT_POLY */
-            || obj->otyp == WAN_POLYMORPH || obj->otyp == SPE_POLYMORPH
+            || obj->otyp == WAN_MUTATION || obj->otyp == SPE_POLYMORPH
             || obj == uball || obj == uskin
             || obj_resists(obj->otyp == POT_POLYMORPH ? potion : obj,
                            5, 95)) {
