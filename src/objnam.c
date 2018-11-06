@@ -201,7 +201,7 @@ static const char * const bogus_items[] = {
     "visored helmet",
     "plate mail",
     "late mail",
-    "mithril-coat",
+    "woolly-coat",
     "banded mail",
     "sanded mail",
     "splint mail",

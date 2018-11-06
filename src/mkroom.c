@@ -284,10 +284,8 @@ int x,y;
         /* Give him a sceptre to pound in judgment */
         switch(rn2(15)) {
             case 0:
-            mat = PLATINUM;
-            break;
             case 1:
-            mat = MITHRIL;
+            mat = PLATINUM;
             break;
             case 2:
             case 3:
