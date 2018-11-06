@@ -95,7 +95,7 @@ enum prop_types {
     LIFESAVED,
     QUICK,
 };
-#define LAST_PROP (LIFESAVED)
+#define LAST_PROP (QUICK)
 
 /*** Where the properties come from ***/
 /* Definitions were moved here from obj.h and you.h */
