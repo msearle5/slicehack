@@ -176,6 +176,8 @@
 #define M3_DISPLACES 0x0400 /* moves monsters out of its way */
 #define M3_SUMMONABLE 0x800 /* target of summoning (nasties - not the same as M2_NASTY) */
 #define M3_WIZAPP 0x1000    /* possible wizard appearance */ 
+#define M3_DRAGON 0x2000    /* a dragon (including babies, but not hydras) */
+#define M3_BAT    0x4000
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

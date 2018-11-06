@@ -121,9 +121,7 @@
 #define is_orc(ptr) (((ptr)->mflags2 & M2_ORC) != 0L)
 #define is_human(ptr) (((ptr)->mflags2 & M2_HUMAN) != 0L)
 #define your_race(ptr) (((ptr)->mflags2 & urace.selfmask) != 0L)
-#define is_bat(ptr)                                         \
-    ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
-     || (ptr) == &mons[PM_VAMPIRE_BAT])
+#define is_bat(ptr) (((ptr)->mflags3 & M3_BAT) != 0L)
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
 #define is_giant(ptr) (((ptr)->mflags2 & M2_GIANT) != 0L)
 #define is_marsupial(ptr) ((ptr) == &mons[PM_WALLABY] || \
@@ -152,10 +150,8 @@
 #define cantweararm(ptr) (breakarm(ptr) || sliparm(ptr))
 #define throws_rocks(ptr) (((ptr)->mflags2 & M2_ROCKTHROW) != 0L)
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
-#define is_dragon(ptr) ((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
-                        (ptr) <= &mons[PM_YELLOW_DRAGON])
-#define is_baby_dragon(ptr) ((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
-                        (ptr) <= &mons[PM_BABY_YELLOW_DRAGON])
+#define is_dragon(ptr) (((ptr)->mflags3 & M3_DRAGON) != 0L)
+#define is_baby_dragon(ptr) ((((ptr)->mflags3 & M3_DRAGON) != 0L) && (little_to_big(ptr-mons) != (ptr-mons)))
 #define is_feline(ptr) ((ptr)->mlet == S_FELINE)
 #define is_lord(ptr) (((ptr)->mflags2 & M2_LORD) != 0L)
 #define is_prince(ptr) (((ptr)->mflags2 & M2_PRINCE) != 0L)
@@ -256,7 +252,7 @@
 /* no corpse (ie, blank scrolls) if killed by fire */
 #define completelyburns(ptr) \
     ((ptr) == &mons[PM_PAPER_GOLEM] || (ptr) == &mons[PM_STRAW_GOLEM] \
-      || (ptr) == &mons[PM_WAX_GOLEM])
+      || (ptr) == &mons[PM_WAX_GOLEM] || (ptr) == &mons[PM_GREEN_SLIME])
 
 /* Used for conduct with corpses, tins, and digestion attacks */
 /* G_NOCORPSE monsters might still be swallowed as a purple worm */

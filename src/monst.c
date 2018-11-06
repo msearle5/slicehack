@@ -1477,20 +1477,20 @@ NEARDATA struct permonst mons[] = {
             | M2_COLLECT | M2_MAGIC,
         M3_INFRAVISIBLE | M3_INFRAVISION, HI_LORD),
     /*
-     * Bats
+     * Bats / Birds
      */
     MON("bat", S_BAT, LVL(0, 22, 8, 0, 0), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(20, 20, MS_SQEEK, MZ_TINY), 0, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, M2_WANDER,
-        M3_INFRAVISIBLE, CLR_BROWN),
+        M3_INFRAVISIBLE | M3_BAT, CLR_BROWN),
     MON("giant bat", S_BAT, LVL(2, 22, 7, 0, 0), (G_GENO | 2),
         A(ATTK(AT_BITE, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(30, 30, MS_SQEEK, MZ_SMALL), 0, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
-        M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE, CLR_RED),
+        M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE | M3_BAT, CLR_RED),
     MON("little bird", S_BAT, LVL(2, 22, 6, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -1520,13 +1520,13 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(30, 20, MS_SQEEK, MZ_SMALL), MR_SLEEP | MR_POISON, 0,
         M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_POIS | M1_REGEN | M1_OMNIVORE,
-        M2_HOSTILE, M3_INFRAVISIBLE, CLR_BLACK),
+        M2_HOSTILE, M3_INFRAVISIBLE | M3_BAT, CLR_BLACK),
     MON("hellbat", S_BAT, LVL(7, 22, 7, 0, 0),
       (G_HELL | G_GENO | G_SGROUP | G_NOCORPSE | 1),
     	A(ATTK(AT_BITE, AD_FIRE, 1, 12), NO_ATTK, NO_ATTK,
     	  NO_ATTK, NO_ATTK, NO_ATTK), SIZ(30, 30, MS_SQEEK, MZ_MEDIUM),
       MR_FIRE, MR_FIRE, M1_FLY | M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE,
-    	M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE, CLR_RED),
+    	M2_WANDER | M2_HOSTILE, M3_INFRAVISIBLE | M3_BAT, CLR_RED),
     MON("giant falcon", S_BAT, LVL(6, 21, 4, 0, 0), (G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 3), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
@@ -1602,69 +1602,69 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_GRAY),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_GRAY),
     MON("baby silver dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, DRAGON_SILVER),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, DRAGON_SILVER),
     MON("baby shimmering dragon", S_DRAGON,
         LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6),
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), 0, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_CYAN),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_CYAN),
     MON("baby red dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_FIRE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_INFRAVISIBLE,
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON | M3_INFRAVISIBLE,
         CLR_RED),
     MON("baby white dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_COLD, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_WHITE),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_WHITE),
     MON("baby orange dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_SLEEP, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_ORANGE),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_ORANGE),
     MON("baby purple dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_SONIC, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_BRIGHT_MAGENTA),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_BRIGHT_MAGENTA),
     MON("baby black dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_DISINT, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_BLACK),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_BLACK),
     MON("baby blue dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_ELEC, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_BLUE),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_BLUE),
     MON("baby green dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_POISON, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_POIS,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_GREEN),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_GREEN),
     MON("baby yellow dragon", S_DRAGON, LVL(12, 9, 2, 10, 0), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(1500, 500, MS_ROAR, MZ_HUGE), MR_ACID | MR_STONE, 0,
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_CARNIVORE | M1_ACID,
-        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, 0, CLR_YELLOW),
+        M2_HOSTILE | M2_STRONG | M2_GREEDY | M2_JEWELS, M3_DRAGON, CLR_YELLOW),
     MON("gray dragon", S_DRAGON, LVL(15, 9, -1, 20, 4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_MAGM, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1673,7 +1673,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_GRAY),
+        M3_DRAGON, CLR_GRAY),
     MON("silver dragon", S_DRAGON, LVL(15, 9, -1, 20, 4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_COLD, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1682,7 +1682,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-         M3_SUMMONABLE, DRAGON_SILVER),
+         M3_SUMMONABLE | M3_DRAGON, DRAGON_SILVER),
     MON("shimmering dragon", S_DRAGON,
         LVL(15, 9, -1, 20, 4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_MAGM, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1692,7 +1692,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
           | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_CYAN),
+        M3_DRAGON, CLR_CYAN),
     MON("red dragon", S_DRAGON, LVL(15, 9, -1, 20, -4), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_FIRE, 6, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1701,7 +1701,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_INFRAVISIBLE | M3_SUMMONABLE | M3_WIZAPP, CLR_RED),
+        M3_INFRAVISIBLE | M3_SUMMONABLE | M3_WIZAPP | M3_DRAGON, CLR_RED),
     MON("white dragon", S_DRAGON, LVL(15, 9, -1, 20, -5), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_COLD, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1710,7 +1710,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_WHITE),
+        M3_DRAGON, CLR_WHITE),
     MON("orange dragon", S_DRAGON, LVL(15, 9, -1, 20, 5), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_SLEE, 4, 25), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1719,7 +1719,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_SUMMONABLE, CLR_ORANGE),
+        M3_SUMMONABLE | M3_DRAGON, CLR_ORANGE),
     MON("purple dragon", S_DRAGON, LVL(15, 9, -1, 20, -5), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_LOUD, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1728,7 +1728,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_BRIGHT_MAGENTA),
+        M3_DRAGON, CLR_BRIGHT_MAGENTA),
     /* disintegration breath is actually all or nothing, not 1d255 */
     MON("black dragon", S_DRAGON, LVL(15, 9, -1, 20, -6), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_DISN, 1, 255), ATTK(AT_BITE, AD_PHYS, 3, 8),
@@ -1738,7 +1738,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_SUMMONABLE, CLR_BLACK),
+        M3_SUMMONABLE | M3_DRAGON, CLR_BLACK),
     MON("blue dragon", S_DRAGON, LVL(15, 9, -1, 20, -7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ELEC, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1747,7 +1747,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_BLUE),
+        M3_DRAGON, CLR_BLUE),
     MON("green dragon", S_DRAGON, LVL(15, 9, -1, 20, 6), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_DRST, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1756,7 +1756,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_OVIPAROUS
             | M1_CARNIVORE | M1_POIS,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_SUMMONABLE, CLR_GREEN),
+        M3_SUMMONABLE | M3_DRAGON, CLR_GREEN),
     /* If you see an elder dragon, run. These monsters were added to increase
        challenge in the late game, and all of them are extremely nasty. */
     /* Ooze dragons are a good reason to have acid resistance. Probably the
@@ -1769,7 +1769,7 @@ NEARDATA struct permonst mons[] = {
         MR_POISON, M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS |
                   M1_AMORPHOUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_BRIGHT_GREEN),
+        M3_DRAGON, CLR_BRIGHT_GREEN),
     /* Razor dragons have no breath weapon, but are incredibly fast and deal
        extremely large amounts of damage. */
     MON("razor dragon", S_DRAGON, LVL(25, 18, -10, 20, 7), (G_GENO | 1),
@@ -1779,7 +1779,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
             | M1_METALLIVORE,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_CYAN),
+        M3_DRAGON, CLR_CYAN),
     /* filth dragons are less mobile than the other elder dragons, but
        their illness attacks are highly dangerous. */
     MON("filth dragon", S_DRAGON, LVL(25, 9, -10, 20, -7), (G_GENO | 1),
@@ -1790,7 +1790,7 @@ NEARDATA struct permonst mons[] = {
         MR_POISON, M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS |
                   M1_CARNIVORE | M1_POIS | M1_REGEN,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_BROWN),
+        M3_DRAGON, CLR_BROWN),
     /* Hex dragons are powerful spellcasters, and can move around the map
        with teleportation and wall walking.*/
     MON("hex dragon", S_DRAGON, LVL(25, 9, -10, 80, -6), (G_GENO | 1),
@@ -1801,7 +1801,7 @@ NEARDATA struct permonst mons[] = {
         M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS | M1_WALLWALK
             | M1_CARNIVORE | M1_TPORT,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        0, CLR_BRIGHT_BLUE),
+        M3_DRAGON, CLR_BRIGHT_BLUE),
     /* Void dragons are essentially death on legs. Their void attacks are
        capable of eating through even the best-prepared character in only a few
        turns. They may need to be reduced in power at some point. */
@@ -1816,7 +1816,7 @@ NEARDATA struct permonst mons[] = {
             | M1_SEE_INVIS | M1_CARNIVORE | M1_BREATHLESS,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC |
         M2_NOPOLY,
-        0, HI_LORD),
+        M3_DRAGON, HI_LORD),
     MON("yellow dragon", S_DRAGON, LVL(15, 9, -1, 20, 7), (G_GENO | 1),
         A(ATTK(AT_BREA, AD_ACID, 4, 6), ATTK(AT_BITE, AD_PHYS, 3, 8),
           ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK,
@@ -1825,7 +1825,7 @@ NEARDATA struct permonst mons[] = {
         MR_STONE, M1_FLY | M1_THICK_HIDE | M1_NOHANDS | M1_SEE_INVIS
                       | M1_OVIPAROUS | M1_CARNIVORE | M1_ACID,
         M2_HOSTILE | M2_STRONG | M2_NASTY | M2_GREEDY | M2_JEWELS | M2_MAGIC,
-        M3_SUMMONABLE, CLR_YELLOW),
+        M3_SUMMONABLE | M3_DRAGON, CLR_YELLOW),
     /*
      * Elementals
      */
