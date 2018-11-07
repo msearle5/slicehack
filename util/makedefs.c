@@ -2755,6 +2755,10 @@ do_objs()
             Fprintf(ofp, "#define\tPOT_");
             prefix = 1;
             break;
+        case PILL_CLASS:
+            Fprintf(ofp, "#define\tPIL_");
+            prefix = 1;
+            break;
         case SPBOOK_CLASS:
             Fprintf(ofp, "#define\tSPE_");
             prefix = 1;

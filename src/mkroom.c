@@ -206,11 +206,12 @@ gottype:
         for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)
             continue;
 
-        /* big rooms cannot be wand or book shops,
+        /* big rooms cannot be wand or book or bottle shops,
          * - so make them general stores
          */
         if (isbig(sroom) && (shtypes[i].symb == WAND_CLASS
-                             || shtypes[i].symb == SPBOOK_CLASS))
+                             || shtypes[i].symb == SPBOOK_CLASS
+                             || shtypes[i].symb == POTION_CLASS))
             i = 0;
     }
     sroom->rtype = SHOPBASE + i;
