@@ -208,7 +208,7 @@ static struct {
     { "weapon shop", WEAPONSHOP },
     { "food shop", FOODSHOP },
     { "ring shop", RINGSHOP },
-    { "wand shop", WANDSHOP },
+    { "alien artefacts", WANDSHOP },
     { "tool shop", TOOLSHOP },
     { "book shop", BOOKSHOP },
     { "mask shop", MASKSHOP },
