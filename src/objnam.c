@@ -271,7 +271,7 @@ static const char * const bogus_items[] = {
     "onion ring",
     "tuxedo",
     "breath mint",
-    "potion of antacid",
+    "bottle of antacid",
     "traffic cone",
     "chainsaw",
     "Klein bottle",
@@ -280,7 +280,7 @@ static const char * const bogus_items[] = {
     "intercontinental ballistic missile",
     "doomsday device",
     "infernal device",
-    "potion of Wow-Wow sauce",
+    "bottle of Wow-Wow sauce",
     "dyson sphere",
     "Demon Core",
     "zeppelin",
@@ -348,7 +348,7 @@ static const char * const bogus_items[] = {
 #ifdef BRITHACK
     "bum bag",
     "blessed tin of marmite",
-    "tesco value potion",
+    "tesco value food ration",
     "ringtone of drawbridge opening",
     "burberry cap",
     "potion of bitter",
@@ -370,16 +370,16 @@ static const char * const bogus_items[] = {
     "heavy machine gun",                /* SLASH'EM */
     "gauntlets of swimming",            /* SLASH'EM */
     "amulet versus stone",              /* SLASH'EM */
-    "potion of clairvoyance",           /* SLASH'EM */
-    "potion of invulnerability",        /* SLASH'EM */
+    "clairvoyance pill",                /* SLASH'EM */
+    "invulnerability pill",             /* SLASH'EM */
     "spellbook of enchant armor",       /* SLASH'EM */
     "map of The Great Adamantine Space Elevator", /*Dwarf Fortress*/
     "rat blood barrel",                 /* Dwarf Fortress */
     "fly ichor barrel",                 /* Dwarf Fortress */
     "cat tallow roast",                 /* Dwarf Fortress */
     "si",                               /* ADOM, it means "strange item" */
-    "omnipotence card",            /* ADOM */
-    "vermin control card",         /* ADOM */
+    "omnipotence card",                 /* ADOM */
+    "vermin control card",              /* ADOM */
     "potion of cure dianthroritis",     /* Larn */
     "Eye of Spam",                      /* Larn sent you mail if you won */
     "long sword named Ringil",          /* Angband */
@@ -418,11 +418,11 @@ static const char * const bogus_items[] = {
     "lowest unoccupied molecular orbital",
     "mammoth corpse",
     "morsel of existential dread",
-    "potion of motor oil",
-    "potion of coffee",
-    "potion of nuclear waste",
-    "potion of genocide",
-    "potion of mana",
+    "bottle of motor oil",
+    "bottle of coffee",
+    "bottle of nuclear waste",
+    "genocide pill",
+    "mana pill",
     "preserved head",
     "radioactive orb",
     "Recursive RRF Fruit",
@@ -503,12 +503,12 @@ static const char * const bogus_items[] = {
     "bandaged mail",
     "splintered mail",
     "scale-reinforced banded-splint mail with chain joints",
-    "potion of rebigulation",           /* Simpsons */
-    "cromulent potion",                 /* the same potion when unIDed */
-    "potion of score doubling",
+    "rebigulation pill",           /* Simpsons */
+    "cromulent pill",                 /* the same potion when unIDed */
+    "score doubling card",
     "gold duplication card",
-    "potion of gain divinity",
-    "potion of bad breath",
+    "gain divinity card",
+    "bad breath pill",
     "card labelled ED AWK YACC",      /* the standard scroll */
     "card labelled MR YUCK",
     "card labelled RTFM",
@@ -783,6 +783,9 @@ register int otyp;
         break;
     case POTION_CLASS:
         Strcpy(buf, "bottle");
+        break;
+    case PILL_CLASS:
+        Strcpy(buf, "pill");
         break;
     case SCROLL_CLASS:
         Strcpy(buf, "card");

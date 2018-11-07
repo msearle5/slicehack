@@ -5148,13 +5148,13 @@ register struct obj *obj;
 const char *const destroy_strings[][3] = {
     /* also used in trap.c */
     { "freezes and shatters", "freeze and shatter", "shattered potion" },
-    { "boils and explodes", "boil and explode", "boiling potion" },
-    { "ignites and explodes", "ignite and explode", "exploding potion" },
+    { "boils and explodes", "boil and explode", "boiling bottle" },
+    { "ignites and explodes", "ignite and explode", "exploding bottle" },
     { "melts away", "melt away", "melting card" },
     { "catches fire and burns", "", "burning book" },
     { "turns to dust and vanishes", "", "" },
     { "breaks apart and explodes", "", "exploding device" },
-    { "resonates and explodes", "resonate and explode", "shattered potion"},
+    { "resonates and explodes", "resonate and explode", "shattered bottle"},
     { "resonates and shatters", "", "shattered item"},
     { "resonates and explodes", "", "exploding device"},
     { "explodes", "explode", "exploding landmine" },
@@ -5588,7 +5588,7 @@ int triesleft;
         wishinfo[] = {
   "Wish details:",
   "",
-  "Enter the name of an object, such as \"potion of monster detection\",",
+  "Enter the name of an object, such as \"full healing pill\",",
   "\"card labeled README\", \"death ray device\", or \"Grimtooth\"",
   "(without the quotes).",
   "",
