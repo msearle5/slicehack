@@ -75,6 +75,7 @@ enum roomtype_types {
     ARMORSHOP,  /* specific shop defines for level compiler */
     SCROLLSHOP,
     POTIONSHOP,
+    PILLSHOP,
     WEAPONSHOP,
     FOODSHOP,
     RINGSHOP,
