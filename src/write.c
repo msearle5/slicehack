@@ -22,33 +22,33 @@ ink_cost(short otyp)
     case SCR_MAIL:
         return 2;
 #endif
-    case SCR_LIGHT:
+    case SCR_LIGHTING:
     case SCR_GOLD_DETECTION:
     case SCR_FOOD_DETECTION:
-    case SCR_MAGIC_MAPPING:
+    case SCR_MAPPING:
     case SCR_AMNESIA:
     case SCR_FIRE:
     case SCR_EARTH:
     case SCR_WEB:
         return 8;
     case SCR_DESTROY_ARMOR:
-    case SCR_CREATE_MONSTER:
+    case SCR_SUMMONING:
     case SCR_PUNISHMENT:
         return 10;
     case SCR_CONFUSE_MONSTER:
         return 12;
-    case SCR_IDENTIFY:
-    case SCR_WARDING_WORDS:
+    case SCR_IDENTIFICATION:
+    case SCR_WARDING:
         return 14;
-    case SCR_ENCHANT_ARMOR:
+    case SCR_ENHANCE_ARMOR:
     case SCR_WARP_ARMOR:
     case SCR_REMOVE_CURSE:
-    case SCR_ENCHANT_WEAPON:
+    case SCR_ENHANCE_WEAPON:
     case SCR_WARP_WEAPON:
     case SCR_CHARGING:
         return 16;
     case SCR_SCARE_MONSTER:
-    case SCR_STINKING_CLOUD:
+    case SCR_POISON_GAS:
     case SCR_TAMING:
     case SCR_CLONING:
     case SCR_AIR:
@@ -58,9 +58,9 @@ ink_cost(short otyp)
     case SCR_GENOCIDE:
     case SCR_DIVINITY:
         return 30;
-    case SCR_BLANK_PAPER:
+    case SCR_UNPROGRAMMED:
     default:
-        impossible("You can't write such a weird scroll!");
+        impossible("You can't write such a weird card!");
     }
     return 1000;
 }
@@ -132,7 +132,7 @@ register struct obj *pen;
                   ? "book"
                   : (paper->oclass == SPBOOK_CLASS)
                      ? "spellbook"
-                     : "scroll";
+                     : "card";
     if (Blind) {
         if (!paper->dknown) {
             You("don't know if that %s is blank or not.", typeword);
@@ -145,7 +145,7 @@ register struct obj *pen;
         }
     }
     paper->dknown = 1;
-    if (paper->otyp != SCR_BLANK_PAPER && paper->otyp != SPE_BLANK_PAPER) {
+    if (paper->otyp != SCR_UNPROGRAMMED && paper->otyp != SPE_BLANK_PAPER) {
         pline("That %s is not blank!", typeword);
         exercise(A_WIS, FALSE);
         return 1;
@@ -158,7 +158,7 @@ register struct obj *pen;
     if (namebuf[0] == '\033' || !namebuf[0])
         return 1;
     nm = namebuf;
-    if (!strncmpi(nm, "scroll ", 7))
+    if (!strncmpi(nm, "card ", 7))
         nm += 7;
     else if (!strncmpi(nm, "spellbook ", 10))
         nm += 10;
@@ -216,7 +216,7 @@ register struct obj *pen;
     return 1;
 found:
 
-    if (i == SCR_BLANK_PAPER || i == SPE_BLANK_PAPER) {
+    if (i == SCR_UNPROGRAMMED || i == SPE_BLANK_PAPER) {
         You_cant("write that!");
         pline("It's obscene!");
         return 1;
@@ -273,7 +273,7 @@ found:
             pline_The("spellbook is left unfinished and your writing fades.");
             update_inventory(); /* pen charges */
         } else {
-            pline_The("scroll is now useless and disappears!");
+            pline_The("card fails its integrity check and self-destructs.");
             useup(paper);
         }
         obfree(new_obj, (struct obj *) 0);
@@ -318,11 +318,16 @@ found:
             update_inventory(); /* pen charges */
         } else {
             if (by_descr) {
-                Strcpy(namebuf, OBJ_DESCR(objects[new_obj->otyp]));
+                Sprintf(namebuf, "try %s", OBJ_DESCR(objects[new_obj->otyp]));
                 wipeout_text(namebuf, (6 + MAXULEV - u.ulevel) / 6, 0);
-            } else
-                Sprintf(namebuf, "%s was here!", plname);
-            You("write \"%s\" and the scroll disappears.", namebuf);
+            } else {
+                const char *badpwds[] = {
+                    "123456", "password1", "letmein",
+                    "override", "default", "0000", "backdoor"
+                };
+                Sprintf(namebuf, "guess '%s'", badpwds[rn2(sizeof(badpwds)/sizeof(badpwds[0]))]);
+            }
+            You("%s, but it fails and the card disintegrates.", namebuf);
             useup(paper);
         }
         obfree(new_obj, (struct obj *) 0);
@@ -336,7 +341,7 @@ found:
            have passed the write-an-unknown scroll test
            above we can still fail this one, so it's doubly
            hard to write an unknown scroll while blind */
-        You("fail to write the scroll correctly and it disappears.");
+        You("miss a keypress and the card turns to dust.");
         useup(paper);
         obfree(new_obj, (struct obj *) 0);
         return 1;

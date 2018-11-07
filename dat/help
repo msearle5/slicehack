@@ -27,7 +27,7 @@ on.
         %        Something edible (not necessarily healthy).
         /        A wand.
         =        A ring.
-        ?        A scroll.
+        ?        A card.
         !        A potion.
         (        Some other useful object (pick-axe, key, lamp...)
         $        A pile of gold.
@@ -135,7 +135,7 @@ Commands:
                 The behavior can be varied via the msg_window option.
         q       Drink (quaff) something (potion, water, etc).
         Q       Select ammunition for quiver.
-        r       Read a scroll or spellbook.
+        r       Read a card or spellbook.
         R       Remove an accessory (ring, amulet, etc).
         ^R      Redraw the screen.
         s       Search for secret doors and traps around you.

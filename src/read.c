@@ -268,7 +268,7 @@ doread()
             "Yendorian Express - Copper Card",
             "Yendorian Express - Silver Card",
             "Yendorian Express - Gold Card",
-            "Yendorian Express - Mithril Card",
+            "Yendorian Express - Latinum Card",
             "Yendorian Express - Platinum Card", /* must be last */
         };
 
@@ -366,17 +366,17 @@ doread()
 
         if (scroll->oclass == SPBOOK_CLASS)
             what = "mystic runes";
-        else if (!scroll->dknown) {
-            if (Role_if(PM_CARTOMANCER))
-                what = "text on the card";
-            else
-                what = "formula on the scroll";
-        } if (what) {
+        if (what) {
             pline("Being blind, you cannot read the %s.", what);
             return 0;
         }
+    } else if ((scroll->oclass == SCROLL_CLASS) && (nohands(youmonst.data)) && (scroll->otyp != SCR_UNPROGRAMMED)) {
+        pline("With no fingers, you have no way to activate the card.");
+        return 0;
+    } else if ((scroll->oclass == SCROLL_CLASS) && Upolyd && (scroll->otyp == SCR_MAIL)) {
+        pline("You touch the pad, but it just buzzes angrily.");
+        return 0;
     }
-
     confused = (Confusion != 0);
 #ifdef MAIL
     if (scroll->otyp == SCR_MAIL) {
@@ -400,12 +400,12 @@ doread()
     /* Actions required to win the game aren't counted towards conduct */
     /* Novel conduct is handled in read_tribute so exclude it too*/
     if (scroll->otyp != SPE_BOOK_OF_THE_DEAD
-        && scroll->otyp != SPE_BLANK_PAPER && scroll->otyp != SCR_BLANK_PAPER
+        && scroll->otyp != SPE_BLANK_PAPER && scroll->otyp != SCR_UNPROGRAMMED
         && scroll->otyp != SPE_NOVEL)
         if(!u.uconduct.literate++)
             livelog_printf(LL_CONDUCT, "became literate by reading %s",
                     scroll->oclass == SPBOOK_CLASS ? "a book" :
-                    scroll->oclass == SCROLL_CLASS ? "a scroll" : "something");
+                    scroll->oclass == SCROLL_CLASS ? "a card" : "something");
 
     if (scroll->oclass == SPBOOK_CLASS) {
         return study_book(scroll);
@@ -418,7 +418,7 @@ doread()
      			  return 0;
      		}
      		pline("You examine %s.", the(xname(scroll)));
-    } else if(scroll->otyp != SCR_BLANK_PAPER) {
+    } else if(scroll->otyp != SCR_UNPROGRAMMED) {
         boolean silently = !can_chant(&youmonst);
 
         /* a few scroll feedback messages describe something happening
@@ -426,21 +426,18 @@ doread()
         nodisappear = (scroll->otyp == SCR_FIRE
                        || (scroll->otyp == SCR_REMOVE_CURSE
                            && scroll->cursed));
-        if (Blind) {
-            if (Role_if(PM_CARTOMANCER))
-                pline(nodisappear
-                          ? "You %s the text on the card."
-                          : "As you %s the text on it, the card disappears.",
-                      silently ? "cogitate" : "pronounce");
-            else
-                pline(nodisappear
-                          ? "You %s the formula on the scroll."
-                          : "As you %s the formula on it, the scroll disappears.",
-                      silently ? "cogitate" : "pronounce");
-        } else {
-            pline(nodisappear ? "You read the scroll."
-                              : "As you read the scroll, it disappears.");
-        } if (confused) {
+
+        if (Role_if(PM_CARTOMANCER))
+            pline(nodisappear
+                      ? "You %s the text on the card."
+                      : "As you %s the text on it, the card disappears.",
+                  silently ? "cogitate" : "pronounce");
+        else
+            pline(nodisappear
+                      ? "You touch the fingerpad on the card."
+                      : "As you touch the card's fingerpad, it disintegrates.");
+
+        if (confused) {
             if (Hallucination)
                 pline("Being so trippy, you screw up...");
             else {
@@ -448,9 +445,8 @@ doread()
                     pline("Being confused, you %s the rules text...",
                           silently ? "misunderstand" : "misread");
                 else
-                    pline("Being confused, you %s the magic words...",
-                          silently ? "misunderstand" : "mispronounce");
-                  }
+                    pline("Being confused, you enter an alternate mode...");
+            }
         }
     }
     if (!seffects(scroll)) {
@@ -461,7 +457,7 @@ doread()
                 docall(scroll);
         }
         scroll->in_use = FALSE;
-        if (scroll->otyp != SCR_BLANK_PAPER  && !scroll->oartifact) {
+        if (scroll->otyp != SCR_UNPROGRAMMED  && !scroll->oartifact) {
             /* Cartomancers occasionally keep cards they play. */
             if (Role_if(PM_CARTOMANCER) && !rn2(10)) {
                 pline("But wait, the card didn't vanish after all!");
@@ -1097,12 +1093,12 @@ scrollname(void)
 {
     static const char *hscrollnames[] = {
         "postcard", "letter", "envelope", "booklet", "flyer", "ticket",
-        "poster", "newspaper", "magazine",
+        "poster", "newspaper", "magazine", "phone", "tablet"
     };
 
     if (Hallucination)
         return hscrollnames[rn2(SIZE(hscrollnames))];
-    return (Role_if(PM_CARTOMANCER)) ? "card" : "scroll";
+    return "card";
 }
 
 STATIC_PTR void
@@ -1278,7 +1274,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 pline("The rules on this card read \"postage due\".");
             else
                 /* "stamped scroll" created via magic marker--without a stamp */
-                pline("This scroll is marked \"postage due\".");
+                pline("This card contains an empty email from yourself.");
         } else if (sobj->spe)
             /* scroll of mail obtained from bones file or from wishing;
              * note to the puzzled: the game Larn actually sends you junk
@@ -1290,7 +1286,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             readmail(sobj);
         break;
 #endif
-    case SCR_ENCHANT_ARMOR: {
+    case SCR_ENHANCE_ARMOR: {
         register schar s;
         boolean special_armor;
         boolean same_color;
@@ -1528,13 +1524,13 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                      !ct ? "in the distance" : "close by");
         break;
     }
-    case SCR_BLANK_PAPER:
+    case SCR_UNPROGRAMMED:
         if (Blind)
-            You("don't remember there being any magic words on this item.");
+            You("don't remember there being any chip on this card.");
         else if(Role_if(PM_CARTOMANCER))
             pline("This card is useless!");
         else
-            pline("This scroll seems to be blank.");
+            pline("This card seems to be blank.");
         known = TRUE;
         break;
     case SCR_REMOVE_CURSE:
@@ -1548,7 +1544,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                                   : "the power of the Force against you!"));
 
         if (scursed) {
-            pline_The("scroll disintegrates.");
+            pline_The("card disintegrates.");
         } else {
             for (obj = invent; obj; obj = obj->nobj) {
                 long wornmask;
@@ -1614,7 +1610,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         update_inventory();
         break;
     }
-    case SCR_CREATE_MONSTER:
+    case SCR_SUMMONING:
     case SPE_CREATE_MONSTER:
         if (create_critters(1 + ((confused || scursed) ? 12 : 0)
                                 + ((sblessed || rn2(73)) ? 0 : rnd(4)),
@@ -1626,7 +1622,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
          * monsters are not visible
          */
         break;
-    case SCR_ENCHANT_WEAPON:
+    case SCR_ENHANCE_WEAPON:
         /* [What about twoweapon mode?  Proofing/repairing/enchanting both
            would be too powerful, but shouldn't we choose randomly between
            primary and secondary instead of always acting on primary?] */
@@ -1710,7 +1706,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             if (Role_if(PM_CARTOMANCER))
                 You("have found a forbidden spell card!");
             else
-                You("have found a scroll of genocide!");
+                You("have found a genocide card!");
         }
         known = TRUE;
         if (sblessed)
@@ -1718,7 +1714,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         else
             do_genocide((!scursed) | (2 * !!Confusion));
         break;
-    case SCR_LIGHT:
+    case SCR_LIGHTING:
         if (!confused || rn2(5)) {
             if (!Blind)
                 known = TRUE;
@@ -1734,7 +1730,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                                    TRUE);
         }
         break;
-    case SCR_WARDING_WORDS:
+    case SCR_WARDING:
         /* handle places where it is impossible to engrave */
         if (is_lava(u.ux, u.uy) || is_pool(u.ux, u.uy) || is_lava(u.ux, u.uy)
             || Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)
@@ -1793,7 +1789,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 known = FALSE;
         } else {
             if (!already_known) {
-                pline("This is a scroll of web!");
+                pline("This is a web card!");
             }
             cc.x = u.ux;
             cc.y = u.uy;
@@ -1835,7 +1831,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         useup(sobj);
         sobj = 0;
         if (confused)
-            You("know this to be a knowledge scroll.");
+            You("know this to be a knowledge card.");
         else {
             specified_id();
             if (sblessed)
@@ -1845,20 +1841,20 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (!already_known)
             (void) learnscrolltyp(SCR_KNOWLEDGE);
         break;
-    case SCR_IDENTIFY:
+    case SCR_IDENTIFICATION:
         /* known = TRUE; -- handled inline here */
         /* use up the scroll first, before makeknown() performs a
            perm_invent update; also simplifies empty invent check */
         useup(sobj);
         sobj = 0; /* it's gone */
         if (confused)
-            You("identify this as an identify scroll.");
+            You("identify this as an identification card.");
         else if (!already_known || !invent) {
             /* force feedback now if invent became
                empty after using up this scroll */
-            pline("This is an identify %s.", scrollname());
+            pline("This is an identification %s.", scrollname());
         } if (!already_known)
-            (void) learnscrolltyp(SCR_IDENTIFY);
+            (void) learnscrolltyp(SCR_IDENTIFICATION);
         /*FALLTHRU*/
     case SPE_IDENTIFY:
         cval = 1;
@@ -1923,7 +1919,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             if (!breathless(youmonst.data)) {
                 known = TRUE;
                 The("air is sucked from your lungs!");
-                losehp(d(3, 4), "scroll of air", KILLED_BY_AN);
+                losehp(d(3, 4), "air card", KILLED_BY_AN);
             } else {
                 strange_feeling(sobj, "You feel oddly breathless.");
             }
@@ -2010,7 +2006,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         }
         /* known = TRUE; -- handled inline here */
         if (!already_known) {
-            pline("This is a charging %s.", scrollname());
+            pline("This is a %s %s.", Hallucination ? "charge" : "charging", scrollname());
             learnscroll(sobj);
         }
         /* use it up now to prevent it from showing in the
@@ -2022,7 +2018,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (otmp)
             recharge(otmp, scursed ? -1 : sblessed ? 1 : 0);
         break;
-    case SCR_MAGIC_MAPPING:
+    case SCR_MAPPING:
         if (level.flags.nommap) {
             Your("mind is filled with crazy lines!");
             if (Hallucination)
@@ -2045,7 +2041,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         /*FALLTHRU*/
     case SPE_MAGIC_MAPPING:
         if (level.flags.nommap) {
-            Your("%s spins as %s blocks the spell!", body_part(HEAD),
+            Your("%s spins as %s blocks the signal!", body_part(HEAD),
                  something);
             make_confused(HConfusion + rnd(30), FALSE);
             break;
@@ -2113,7 +2109,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 } else {
                     pline_The("%s catches fire and you burn your %s.", scrollname(),
                                   makeplural(body_part(HAND)));
-                    losehp(1, "scroll of fire", KILLED_BY_AN);
+                    losehp(1, "fire card", KILLED_BY_AN);
                 }
             }
             break;
@@ -2123,7 +2119,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         } else {
             if (sblessed) {
                 if (!already_known) {
-                    pline("This is a scroll of fire!");
+                    pline("This is a fire card!");
                 }
                 dam *= 5;
                 pline("Where do you want to center the explosion?");
@@ -2137,7 +2133,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                 }
             }
             if (cc.x == u.ux && cc.y == u.uy) {
-                pline_The("scroll erupts in a tower of flame!");
+                pline("A tower of flame erupts around you!");
                 iflags.last_msg = PLNMSG_TOWER_OF_FLAME; /* for explode() */
                 burn_away_slime();
             }
@@ -2248,15 +2244,15 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             mtmp->mtame = mtmp->mpeaceful = 0;
         break;
     }
-    case SCR_STINKING_CLOUD: {
+    case SCR_POISON_GAS: {
         coord cc;
 
         if (!already_known) {
-            You("have found a scroll of stinking cloud!");
+            You("have found a poison gas card!");
         }
         known = TRUE;
         pline("Where do you want to center the %scloud?",
-              already_known ? "stinking " : "");
+              already_known ? "gas " : "");
         cc.x = u.ux;
         cc.y = u.uy;
         getpos_sethilite(display_stinking_cloud_positions,
@@ -2369,7 +2365,7 @@ boolean confused, helmet_protects, byu, skip_uswallow;
         newsym(u.ux, u.uy);
     }
     if (dmg)
-        losehp(Maybe_Half_Phys(dmg), "scroll of earth", KILLED_BY_AN);
+        losehp(Maybe_Half_Phys(dmg), "earth card", KILLED_BY_AN);
 }
 
 boolean
@@ -2829,7 +2825,7 @@ do_class_genocide()
         }
         if (gameover || u.uhp == -1) {
             killer.format = KILLED_BY_AN;
-            Strcpy(killer.name, "scroll of genocide");
+            Strcpy(killer.name, "genocide card");
             if (gameover)
                 done(GENOCIDED);
         }

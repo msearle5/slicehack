@@ -1622,7 +1622,7 @@ register const char *let, *word;
                  && inaccessible_equipment(otmp, (const char *) 0,
                                       (boolean) (otmp->oclass == RING_CLASS)))
              || (!strcmp(word, "write on")
-                 && (!(otyp == SCR_BLANK_PAPER || otyp == SPE_BLANK_PAPER)
+                 && (!(otyp == SCR_UNPROGRAMMED || otyp == SPE_BLANK_PAPER)
                      || !otmp->dknown || !objects[otyp].oc_name_known))
              ) {
                 /* acceptable but not listed as likely candidate */
@@ -3868,12 +3868,12 @@ long numused;
  */
 STATIC_VAR NEARDATA const char *names[] = {
     0, "Illegal objects", "Weapons", "Armor", "Rings", "Amulets", "Tools",
-    "Comestibles", "Potions", "Scrolls", "Spellbooks", "Devices", "Coins",
+    "Comestibles", "Potions", "Cards", "Spellbooks", "Devices", "Coins",
     "Gems/Stones", "Boulders/Statues", "Iron balls", "Chains", "Venoms"
 };
 STATIC_VAR NEARDATA const char *carnames[] = {
     0, "Illegal objects", "Weapons", "Armor", "Rings", "Amulets", "Tools",
-    "Comestibles", "Potions", "Spell Cards", "Spellbooks", "Devices",
+    "Comestibles", "Potions", "Cards", "Spellbooks", "Devices",
     "Victory Tokens", "Gems/Stones", "Boulders/Statues", "Iron balls", "Chains",
     "Venoms"
 };

@@ -288,8 +288,8 @@ CONTAINER:('`',"statue"),random { }
 LOOP [8] {
   OBJECT:random,random
 }
-OBJECT:('?',"blank paper"),(48,18)
-OBJECT:('?',"blank paper"),(48,18)
+OBJECT:('?',"unprogrammed"),(48,18)
+OBJECT:('?',"unprogrammed"),(48,18)
 #
 TRAP:"rust",random
 TRAP:"rust",random

@@ -2846,7 +2846,7 @@ int rtype;
         str = "armor shop";
         break;
     case SCROLLSHOP:
-        str = "scroll shop";
+        str = "card shop";
         break;
     case POTIONSHOP:
         str = "potion shop";

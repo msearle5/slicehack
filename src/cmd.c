@@ -3232,7 +3232,7 @@ struct ext_func_tab extcmdlist[] = {
     { M('q'), "quit", "exit without saving current game",
             done2, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
     { 'Q', "quiver", "select ammunition for quiver", dowieldquiver, 0, NULL },
-    { 'r', "read", "read a scroll or spellbook", doread, 0, NULL },
+    { 'r', "read", "read a card or spellbook", doread, 0, NULL },
     { C('r'), "redraw", "redraw screen", doredraw, IFBURIED | GENERALCMD, NULL },
     { 'R', "remove", "remove an accessory (ring, amulet, etc)", doremring, 0, NULL },
     { M('R'), "ride", "mount or dismount a saddled steed",

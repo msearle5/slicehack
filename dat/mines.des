@@ -147,8 +147,8 @@ OBJECT:('(',"oil lamp"),$place[2]
 OBJECT:('/',"striking"),$place[1],uncursed,0
 OBJECT:('/',"striking"),$place[3],uncursed,0
 OBJECT:('/',"striking"),$place[4],uncursed,0
-OBJECT:('/',"magic missile"),$place[4],uncursed,0
-OBJECT:('/',"magic missile"),$place[0],uncursed,0
+OBJECT:('/',"missile"),$place[4],uncursed,0
+OBJECT:('/',"missile"),$place[0],uncursed,0
 
 # the Orcish Army
 

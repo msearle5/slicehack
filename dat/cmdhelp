@@ -76,7 +76,7 @@ P	Put on an accessory (ring, amulet, etc; will work for armor too)
 ^P	Toggle through previously displayed game messages
 q	Quaff (drink) something (potion, water, etc)
 Q	Select ammunition for quiver (use '#quit' to quit)
-r	Read a scroll or spellbook
+r	Read a card or spellbook
 R	Remove an accessory (ring, amulet, etc; will work for armor too)
 ^R	Redraw screen
 s	Search all immediately adjacent locations for traps and secret doors

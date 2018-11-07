@@ -1018,40 +1018,40 @@ POTION("vampire blood",     "blood-red",  1, 0, 0,  350, CLR_RED),
 /* scrolls ... */
 #define SCROLL(name,text,mgc,prob,cost) \
     OBJECT(OBJ(name, text),                                           \
-           BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, P_NONE, PAPER),    \
-           0, SCROLL_CLASS, prob, 0, 5, cost, 0, 0, 0, 0, 6, HI_PAPER)
-SCROLL("enchant armor",              "ZELGO MER",  1,  63,  80),
+           BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, P_NONE, PLASTIC),    \
+           0, SCROLL_CLASS, prob, 0, 1, cost, 0, 0, 0, 0, 6, HI_PAPER)
+SCROLL("enhance armor",              "ZELGO MER",  1,  63,  80),
 SCROLL("destroy armor",         "JUYED AWK YACC",  1,  25, 100),
 SCROLL("confuse monster",                 "NR 9",  1,  53, 100),
 SCROLL("scare monster",   "XIXAXA XOXAXA XUXAXA",  1,  35, 100),
 SCROLL("remove curse",             "PRATYAVAYAH",  1,  60,  80),
-SCROLL("enchant weapon",         "DAIYEN FOOELS",  1,  80,  60),
-SCROLL("create monster",       "LEP GEX VEN ZEA",  1,  45, 200),
+SCROLL("enhance weapon",         "DAIYEN FOOELS",  1,  80,  60),
+SCROLL("summoning",            "LEP GEX VEN ZEA",  1,  45, 200),
 SCROLL("taming",                   "PRIRUTSENIE",  1,  10, 200),
 SCROLL("genocide",                  "ELBIB YLOH",  1,  10, 300),
-SCROLL("light",                 "VERR YED HORRE",  1,  30,  50),
-SCROLL("warding words",         "DO NOT READ ME",  1,  40,  50),
+SCROLL("lighting",              "VERR YED HORRE",  1,  30,  50),
+SCROLL("warding",               "DO NOT READ ME",  1,  40,  50),
 SCROLL("time",                   "TEMP USF UGIT",  1,  20, 100), /* tempus fugit */
 SCROLL("web",                     "OCTAHEXAOCTA",  1,  20,  50), /* 868 */
 SCROLL("teleportation",        "VENZAR BORGAVVE",  1,  55, 100),
 SCROLL("gold detection",                 "THARR",  1,  33, 100),
 SCROLL("food detection",               "YUM YUM",  1,  25, 100),
 SCROLL("knowledge",                   "POTESTAS",  1,  20,  20), /* power */
-SCROLL("identify",                  "KERNOD WEL",  1, 160,  20),
+SCROLL("identification",            "KERNOD WEL",  1, 160,  20),
 SCROLL("divinity",                "ACCIO CACCIO",  1,   5, 200),
 SCROLL("air",                        "TRATS ARL",  1,   5, 200), /* LRA START */
 SCROLL("warp armor",              "TWAS BRILLIG",  1,   5, 200), /* Jabberwocky */
 SCROLL("warp weapon",               "TLON UQBAR",  1,   5, 200), /* Tlon Uqbar */
-SCROLL("magic mapping",              "ELAM EBOW",  1,  45, 100),
+SCROLL("mapping",                    "ELAM EBOW",  1,  45, 100),
 SCROLL("amnesia",                   "DUAM XNAHT",  1,  30, 200),
 SCROLL("fire",                  "ANDOVA BEGARIN",  1,  25, 100),
 SCROLL("earth",                          "KIRJE",  1,  18, 200),
 SCROLL("punishment",            "VE FORBRYDERNE",  1,  15, 300),
 SCROLL("charging",                "HACKEM MUCHE",  1,  15, 300),
 SCROLL("cloning",             "TOIL AND TROUBLE",  1,  10, 300), /* Macbeth */
-SCROLL("stinking cloud",             "VELOX NEB",  1,  15, 300),
+SCROLL("poison gas",                 "VELOX NEB",  1,  15, 300),
     /* Extra descriptions, shuffled into use at start of new game.
-     * Code in win/share/tilemap.c depends on SCR_STINKING_CLOUD preceding
+     * Code in win/share/tilemap.c depends on SCR_POISON_GAS preceding
      * these and on how many of them there are.  If a real scroll gets added
      * after stinking cloud or the number of extra descriptions changes,
      * tilemap.c must be modified to match.
@@ -1062,7 +1062,7 @@ SCROLL(None,      "ELPHE MONATER",  1,   0, 100), /* famous mistranslation */
 SCROLL(None,               "ABAJ",  1,   0, 100), /* famous mistranslation */
 SCROLL(None,     "CONGLATURATION",  1,   0, 100), /* famous mistranslation */
 SCROLL(None,       "DESUM TETRAL",  1,   0, 100), /* dal aos */
-SCROLL(None,            "NHINRL",   1,   0, 100), /* meta */
+SCROLL(None,             "NHINRL",   1,   0, 100), /* meta */
 SCROLL(None,          "ISAY INAY",  1,   0, 100), /* meta */
 SCROLL(None,              "TEMOV",  1,   0, 100),
 SCROLL(None,         "GARVEN DEH",  1,   0, 100),
@@ -1086,12 +1086,17 @@ SCROLL(None,  "VAS CORP BET MANI",  1,   0, 100), /* Ultima */
 SCROLL(None,            "XOR OTA",  1,   0, 100), /* Aarne Haapakoski */
 SCROLL(None, "STRC PRST SKRZ KRK",  1,   0, 100), /* Czech and Slovak
                                                         tongue-twister */
+SCROLL(None,         "CROW SNASH",  1,   0, 100), /* Snow Crash */
+SCROLL(None,          "DBL DG DR",  1,   0, 100), /* double dog dare */
+SCROLL(None,      "XTRMNT XTRMNT",  1,   0, 100), /* Exterminate! Exterminate! */
+SCROLL(None,      "ALTUM VIDETUR",  1,   0, 100), /* "Quidquid latine dictum sit, altum videtur"
+                                                     (whatever is said in Latin, sounds profound) */
     /* These must come last because they have special fixed descriptions.
      */
 #ifdef MAIL
-SCROLL("mail",          "stamped",  0,   0,   0),
+SCROLL("mail",         "addressed",  0,   0,   0),
 #endif
-SCROLL("blank paper", "unlabeled",  0,  28,  60),
+SCROLL("unprogrammed", "unlabeled",  0,  28,  60),
 #undef SCROLL
 
 /* spellbooks ... */

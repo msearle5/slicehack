@@ -1078,14 +1078,14 @@ register struct obj *otmp;
     switch (otmp->otyp) {
     case POT_RESTORE_ABILITY:
     case SPE_RESTORE_ABILITY:
-    case SCR_ENCHANT_ARMOR:
+    case SCR_ENHANCE_ARMOR:
         unkn++;
         if (otmp->cursed) {
             pline("Ulch!  This makes you feel mediocre!");
             break;
         } else {
             /* unlike unicorn horn, overrides Fixed_abil */
-            if (otmp->otyp == SCR_ENCHANT_ARMOR) {
+            if (otmp->otyp == SCR_ENHANCE_ARMOR) {
                 pline("You feel %s!", (otmp->blessed)
                           ? (unfixable_trouble_count(TRUE) ? "better" : "as good as new")
                           : "good");

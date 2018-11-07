@@ -1109,7 +1109,7 @@ register struct obj *obj;
         switch (obj->oclass) {
         case SCROLL_CLASS:
             costly_alteration(obj, COST_CANCEL);
-            obj->otyp = SCR_BLANK_PAPER;
+            obj->otyp = SCR_UNPROGRAMMED;
             obj->spe = 0;
             break;
         case SPBOOK_CLASS:
@@ -5150,7 +5150,7 @@ const char *const destroy_strings[][3] = {
     { "freezes and shatters", "freeze and shatter", "shattered potion" },
     { "boils and explodes", "boil and explode", "boiling potion" },
     { "ignites and explodes", "ignite and explode", "exploding potion" },
-    { "catches fire and burns", "catch fire and burn", "burning scroll" },
+    { "melts away", "melt away", "melting card" },
     { "catches fire and burns", "", "burning book" },
     { "turns to dust and vanishes", "", "" },
     { "breaks apart and explodes", "", "exploding device" },
@@ -5589,7 +5589,7 @@ int triesleft;
   "Wish details:",
   "",
   "Enter the name of an object, such as \"potion of monster detection\",",
-  "\"scroll labeled README\", \"death ray device\", or \"Grimtooth\"",
+  "\"card labeled README\", \"death ray device\", or \"Grimtooth\"",
   "(without the quotes).",
   "",
   "For object types which come in stacks, you may specify a plural name",
