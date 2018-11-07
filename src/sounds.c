@@ -906,7 +906,7 @@ register struct monst *mtmp;
                 t->tseen = 1;
             verbl_msg = "I'm trapped!";
         } else if (mtmp->mhp < mtmp->mhpmax / 2)
-            pline_msg = "asks for a potion of healing.";
+            pline_msg = "asks for a healing pill.";
         else if (mtmp->mtame && !mtmp->isminion
                  && moves > EDOG(mtmp)->hungrytime)
             verbl_msg = "I'm hungry.";

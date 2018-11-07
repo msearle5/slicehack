@@ -2426,7 +2426,7 @@ find_smoky()
         if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "smoky"))
             return i;
 
-    impossible("smoky potion not found?");
+    impossible("smoky bottle not found?");
     return -1; /* not 0, or caller would try again each move */
 }
 

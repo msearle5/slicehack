@@ -1021,7 +1021,11 @@ add_obj_info(winid datawin, short otyp)
     }
     if (olet == POTION_CLASS) {
         /* nothing special */
-        OBJPUTSTR("Potion.");
+        OBJPUTSTR("Bottle.");
+    }
+    if (olet == PILL_CLASS) {
+        /* nothing special */
+        OBJPUTSTR("Pill.");
     }
     if (olet == SCROLL_CLASS) {
         /* nothing special (ink is covered below) */

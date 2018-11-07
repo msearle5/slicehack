@@ -465,9 +465,9 @@ struct obj *otmp UNUSED;
         "Please find enclosed a small token to represent your Owlbear",
         "**FR33 P0T10N 0F FULL H34L1NG**",
         "Please return to sender (Asmodeus)",
-        "Buy a potion of gain level for only $19.99! Guaranteed to be blessed!",
+        "Buy a hallucination pill for only $19.99! Guaranteed to be blessed!",
         "Invitation: Visit the NetHack web site at http://www.nethack.org!",
-        "Contribute to SliceHack at https://github.com/NullCGT/SliceHack!"
+        "Contribute to SliceHack at https://github.com/msearle5/slicehack.git/!"
     };
 
     /* XXX replace with more general substitution code and add local

@@ -1300,12 +1300,11 @@ register struct obj *otmp;
         if (otmp->blessed) {
             if (!Role_if(PM_HEALER)) {
                 /* NB: blessed otmp->fromsink is not possible */
-                losehp(1, "mildly toxic potion", KILLED_BY_AN);
+                losehp(1, "mildly toxic pill", KILLED_BY_AN);
             }
         } else {
             if (Poison_resistance)
-                pline("(But in fact it was biologically contaminated %s.)",
-                      fruitname(TRUE));
+                pline("(But in fact it was biologically contaminated.)");
             if (Role_if(PM_HEALER)) {
                 pline("Fortunately, you have been immunized.");
             } else {
@@ -1357,7 +1356,7 @@ register struct obj *otmp;
         break;
     case PIL_ABILITY:
         if (otmp->cursed) {
-            pline("Ulch!  That potion tasted foul!");
+            pline("Ulch!  That pill tasted foul!");
             unkn++;
         } else if (Fixed_abil) {
             nothing++;
@@ -1580,7 +1579,7 @@ register struct obj *otmp;
             } else {
                 You("burn your %s.", body_part(FACE));
                 /* fire damage */
-                losehp(d(Fire_resistance ? 1 : 3, 4), "burning potion of oil",
+                losehp(d(Fire_resistance ? 1 : 3, 4), "burning bottle of oil",
                        KILLED_BY_AN);
             }
         } else if (otmp->cursed)
@@ -1601,7 +1600,7 @@ register struct obj *otmp;
                   otmp->blessed ? " a little" : otmp->cursed ? " a lot"
                                                              : " like acid");
             dmg = d(otmp->cursed ? 2 : 1, otmp->blessed ? 4 : 8);
-            losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
+            losehp(Maybe_Half_Phys(dmg), "bottle of acid", KILLED_BY_AN);
             exercise(A_CON, FALSE);
         }
         if (Stoned)
@@ -1662,7 +1661,7 @@ register struct obj *otmp;
     		}
     		break;
     default:
-        impossible("What a funny potion! (%u)", otmp->otyp);
+        impossible("What a funny liquid! (%u)", otmp->otyp);
         return 0;
     }
     return -1;
@@ -1719,11 +1718,11 @@ const char *txt;
     if(!(obj->oartifact)) useup(obj);
 }
 
-const char *bottlenames[] = { "bottle", "phial", "flagon", "carafe",
+const char *bottlenames[] = { "bottle", "phial", "carafe",
                               "flask",  "jar",   "vial" };
 
 const char *hbottlenames[] = {
-    "jug", "pitcher", "barrel", "tin", "bag", "box", "glass", "beaker", "tumbler", "vase", "flowerpot", "pan",
+    "jug", "pitcher", "barrel", "flagon", "tin", "bag", "box", "glass", "beaker", "tumbler", "vase", "flowerpot", "pan",
     "thingy", "mug", "teacup", "teapot", "keg", "bucket", "thermos", "amphora", "wineskin", "parcel", "bowl", "ampoule"
 };
 
@@ -1837,7 +1836,7 @@ int how;
         } else {
             pline_The("%s crashes on your %s and breaks into shards.", botlnam,
                       body_part(HEAD));
-            losehp(Maybe_Half_Phys(rnd(2)), (how == POTHIT_OTHER_THROW) ? "propelled potion" /* scatter */
+            losehp(Maybe_Half_Phys(rnd(2)), (how == POTHIT_OTHER_THROW) ? "propelled bottle" /* scatter */
                 : "thrown bottle", KILLED_BY_AN);
         }
     } else {
@@ -2258,7 +2257,7 @@ register struct obj *obj;
         if (!Free_action) {
             pline("%s seems to be holding you.", Something);
             nomul(-rnd(5));
-            multi_reason = "frozen by a potion";
+            multi_reason = "frozen by a pill";
             nomovemsg = You_can_move_again;
             exercise(A_DEX, FALSE);
         } else
