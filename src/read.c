@@ -1892,7 +1892,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         if (!already_known)
             (void) learnscrolltyp(SCR_KNOWLEDGE);
         break;
-    case SCR_IDENTIFICATION:
+    case SCR_IDENTITY:
         /* known = TRUE; -- handled inline here */
         /* use up the scroll first, before makeknown() performs a
            perm_invent update; also simplifies empty invent check */
@@ -1905,7 +1905,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
                empty after using up this scroll */
             pline("This is an identification %s.", scrollname());
         } if (!already_known)
-            (void) learnscrolltyp(SCR_IDENTIFICATION);
+            (void) learnscrolltyp(SCR_IDENTITY);
         /*FALLTHRU*/
     case SPE_IDENTIFY:
         cval = 1;

@@ -1074,7 +1074,7 @@ SCROLL("teleportation",        "VENZAR BORGAVVE",  1,  55, 100),
 SCROLL("gold detection",                 "THARR",  1,  33, 100),
 SCROLL("food detection",               "YUM YUM",  1,  25, 100),
 SCROLL("knowledge",                   "POTESTAS",  1,  20,  20), /* power */
-SCROLL("identification",            "KERNOD WEL",  1, 160,  20),
+SCROLL("identity",            "KERNOD WEL",  1, 160,  20),
 SCROLL("divinity",                "ACCIO CACCIO",  1,   5, 200),
 SCROLL("air",                        "TRATS ARL",  1,   5, 200), /* LRA START */
 SCROLL("warp armor",              "TWAS BRILLIG",  1,   5, 200), /* Jabberwocky */
