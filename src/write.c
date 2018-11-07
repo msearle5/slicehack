@@ -37,7 +37,7 @@ ink_cost(short otyp)
         return 10;
     case SCR_CONFUSE_MONSTER:
         return 12;
-    case SCR_IDENTIFICATION:
+    case SCR_IDENTITY:
     case SCR_WARDING:
         return 14;
     case SCR_ENHANCE_ARMOR:
