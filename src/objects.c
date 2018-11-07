@@ -1002,6 +1002,7 @@ PILL("lifting",          "stripy green",  1, LEVITATION, 42, 200, CLR_BRIGHT_GRE
 PILL("invisibility",             "tiny",  1, INVIS, 40, 150, CLR_WHITE),
 PILL("vision",        "green and white",  1, SEE_INVIS, 42, 50, CLR_BRIGHT_GREEN),
 PILL("mutagen",               "printed",  1, 0, 10, 200, CLR_WHITE),
+PILL("sugar",                    "oval",  0, 0, 10, 50, CLR_WHITE),
 
 PILL(None,                   "embossed",  0, 0,  0, 100, CLR_WHITE),
 PILL(None,                  "yellowish",  0, 0,  0, 100, CLR_YELLOW),

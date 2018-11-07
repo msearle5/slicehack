@@ -2282,7 +2282,7 @@ register struct monst *shkp; /* if angry, impose a surcharge */
 
     if (Is_blackmarket(&u.uz)) {
     	  if (obj->oclass==RING_CLASS    || obj->oclass==AMULET_CLASS   ||
-    	      obj->oclass==POTION_CLASS  || obj->oclass==SCROLL_CLASS   ||
+    	      obj->oclass==POTION_CLASS  || obj->oclass==PILL_CLASS     || obj->oclass==SCROLL_CLASS   ||
     	      obj->oclass==SPBOOK_CLASS  || obj->oclass==WAND_CLASS     ||
     	      obj->otyp==LUCKSTONE       || obj->otyp==LOADSTONE ||
             objects[obj->otyp].oc_magic) {
@@ -4380,7 +4380,7 @@ long cost;
             if (objects[itm->otyp].oc_name_known
                     ? objects[itm->otyp].oc_magic
                     : (o == AMULET_CLASS || o == RING_CLASS || o == WAND_CLASS
-                       || o == POTION_CLASS || o == SCROLL_CLASS
+                       || o == POTION_CLASS || o == PILL_CLASS || o == SCROLL_CLASS
                        || o == SPBOOK_CLASS))
                 return ", painstakingly developed!";
             return ", superb craftsmanship!";
