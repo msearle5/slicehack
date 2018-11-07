@@ -1124,7 +1124,7 @@ register struct obj *otmp;
             }
         }
         break;
-    case POT_HALLUCINATION:
+    case PIL_HALLUCINATION:
         if (Hallucination || Halluc_resistance)
             nothing++;
         (void) make_hallucinated(
@@ -1287,7 +1287,7 @@ register struct obj *otmp;
         }
         break;
     }
-    case POT_PARALYSIS:
+    case PIL_PARALYSIS:
         if (Free_action) {
             You("stiffen momentarily.");
         } else {
@@ -1304,7 +1304,7 @@ register struct obj *otmp;
             exercise(A_DEX, FALSE);
         }
         break;
-    case POT_SLEEPING:
+    case PIL_SLEEPING:
         if (Sleep_resistance || Free_action) {
             You("yawn.");
         } else {
@@ -1351,7 +1351,7 @@ register struct obj *otmp;
             return 1; /* nothing detected */
         exercise(A_WIS, TRUE);
         break;
-    case POT_SICKNESS:
+    case PIL_POISON:
         pline("Yecch!  This stuff tastes like poison.");
         if (otmp->blessed) {
             pline("(But in fact it was mildly stale %s.)", fruitname(TRUE));
@@ -1399,7 +1399,7 @@ register struct obj *otmp;
             (void) make_hallucinated(0L, FALSE, 0L);
         }
         break;
-    case POT_CONFUSION:
+    case PIL_CONFUSION:
         if (!Confusion) {
             if (Hallucination) {
                 pline("What a trippy feeling!");
@@ -1469,7 +1469,7 @@ register struct obj *otmp;
         exercise(A_DEX, TRUE);
         incr_itimeout(&HFast, rn1(10, 100 + 60 * bcsign(otmp)));
         break;
-    case POT_BLINDNESS:
+    case PIL_BLINDNESS:
         if (Blind)
             nothing++;
         make_blinded(itimeout_incr(Blinded,
@@ -2036,7 +2036,7 @@ int how;
             if (cureblind)
                 mcureblindness(mon, canseemon(mon));
             break;
-        case POT_SICKNESS:
+        case PIL_POISON:
             if (mon->data == &mons[PM_PESTILENCE])
                 goto do_healing;
             if (dmgtype(mon->data, AD_DISE)
@@ -2058,7 +2058,7 @@ int how;
             if (canseemon(mon))
                 pline("%s looks rather ill.", Monnam(mon));
             break;
-        case POT_CONFUSION:
+        case PIL_HALLUCINATION:
         case POT_BOOZE:
             if (!resist(mon, POTION_CLASS, 0, NOTELL))
                 mon->mconf = TRUE;
@@ -2072,14 +2072,14 @@ int how;
                 map_invisible(mon->mx, mon->my);
             break;
         }
-        case POT_SLEEPING:
+        case PIL_SLEEPING:
             /* wakeup() doesn't rouse victims of temporary sleep */
             if (sleep_monst(mon, rnd(12), POTION_CLASS)) {
                 pline("%s falls asleep.", Monnam(mon));
                 slept_monst(mon);
             }
             break;
-        case POT_PARALYSIS:
+        case PIL_PARALYSIS:
             if (mon->mcanmove) {
                 /* really should be rnd(5) for consistency with players
                  * breathing potions, but...
@@ -2097,7 +2097,7 @@ int how;
             angermon = FALSE;
             mon_adjust_speed(mon, 1, obj);
             break;
-        case POT_BLINDNESS:
+        case PIL_BLINDNESS:
             if (haseyes(mon->data)) {
                 int btmp = 64 + rn2(32)
                             + rn2(32) * !resist(mon, POTION_CLASS, 0, NOTELL);
@@ -2276,7 +2276,7 @@ register struct obj *obj;
             make_blinded(0L, !u.ucreamed);
         exercise(A_CON, TRUE);
         break;
-    case POT_SICKNESS:
+    case PIL_POISON:
         if (!Role_if(PM_HEALER)) {
             if (Upolyd) {
                 if (u.mh <= 5)
@@ -2293,10 +2293,10 @@ register struct obj *obj;
             exercise(A_CON, FALSE);
         }
         break;
-    case POT_HALLUCINATION:
+    case PIL_HALLUCINATION:
         You("have a momentary vision.");
         break;
-    case POT_CONFUSION:
+    case PIL_CONFUSION:
     case POT_BOOZE:
         if (!Confusion)
             You_feel("somewhat dizzy.");
@@ -2310,7 +2310,7 @@ register struct obj *obj;
                                 : "couldn't see yourself");
         }
         break;
-    case POT_PARALYSIS:
+    case PIL_PARALYSIS:
         kn++;
         if (!Free_action) {
             pline("%s seems to be holding you.", Something);
@@ -2321,7 +2321,7 @@ register struct obj *obj;
         } else
             You("stiffen momentarily.");
         break;
-    case POT_SLEEPING:
+    case PIL_SLEEPING:
         kn++;
         if (!Free_action && !Sleep_resistance) {
             You_feel("rather tired.");
@@ -2338,7 +2338,7 @@ register struct obj *obj;
         incr_itimeout(&HFast, rnd(5));
         exercise(A_DEX, TRUE);
         break;
-    case POT_BLINDNESS:
+    case PIL_BLINDNESS:
         if (!Blind && !Unaware) {
             kn++;
             pline("It suddenly gets dark.");
@@ -2435,11 +2435,11 @@ register struct obj *o1, *o2;
         break;
     case UNICORN_HORN:
         switch (o2->otyp) {
-        case POT_SICKNESS:
+        case PIL_POISON:
             return POT_FRUIT_JUICE;
-        case POT_HALLUCINATION:
-        case POT_BLINDNESS:
-        case POT_CONFUSION:
+        case PIL_HALLUCINATION:
+        case PIL_BLINDNESS:
+        case PIL_CONFUSION:
         case POT_BLOOD:
         case POT_VAMPIRE_BLOOD:
             return POT_WATER;
@@ -2452,7 +2452,7 @@ register struct obj *o1, *o2;
     case POT_GAIN_LEVEL:
     case POT_GAIN_ENERGY:
         switch (o2->otyp) {
-        case POT_CONFUSION:
+        case PIL_HALLUCINATION:
             return (rn2(3) ? POT_BOOZE : POT_ENLIGHTENMENT);
         case POT_HEALING:
             return POT_EXTRA_HEALING;
@@ -2463,7 +2463,7 @@ register struct obj *o1, *o2;
         case POT_FRUIT_JUICE:
             return POT_SEE_INVISIBLE;
         case POT_BOOZE:
-            return POT_HALLUCINATION;
+            return PIL_HALLUCINATION;
         }
         break;
     case POT_FRUIT_JUICE:
@@ -2472,8 +2472,8 @@ register struct obj *o1, *o2;
             return POT_BLOOD;
         case POT_VAMPIRE_BLOOD:
             return POT_VAMPIRE_BLOOD;
-        case POT_SICKNESS:
-            return POT_SICKNESS;
+        case PIL_POISON:
+            return PIL_POISON;
         case POT_ENLIGHTENMENT:
         case POT_SPEED:
             return POT_BOOZE;
@@ -2491,7 +2491,7 @@ register struct obj *o1, *o2;
         case POT_FRUIT_JUICE:
             return POT_BOOZE;
         case POT_BOOZE:
-            return POT_CONFUSION;
+            return PIL_HALLUCINATION;
         }
         break;
     }
@@ -2772,7 +2772,7 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                         case POT_EXTRA_HEALING:
                             v = 80;
                             break;
-                        case POT_PARALYSIS:
+                        case PIL_PARALYSIS:
                         case POT_OIL:
                         case POT_ENLIGHTENMENT:
                         case POT_HEALING:
@@ -2782,14 +2782,14 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                         case POT_INVISIBILITY:
                         case POT_MONSTER_DETECTION:
                         case POT_RESTORE_ABILITY:
-                        case POT_SICKNESS:
+                        case PIL_POISON:
                             v = 20;
                             break;
                         case POT_SEE_INVISIBLE:
-                        case POT_CONFUSION:
-                        case POT_BLINDNESS:
-                        case POT_SLEEPING:
-                        case POT_HALLUCINATION:
+                        case PIL_HALLUCINATION:
+                        case PIL_BLINDNESS:
+                        case PIL_SLEEPING:
+                        case PIL_CONFUSION:
                         case POT_OBJECT_DETECTION:
                             v = 10;
                             break;
@@ -3618,7 +3618,7 @@ dodip()
                 break;
             case 2:
             case 3:
-                obj->otyp = POT_SICKNESS;
+                obj->otyp = PIL_POISON;
                 break;
             case 4: {
                 struct obj *otmp = mkobj(POTION_CLASS, FALSE);
@@ -3679,7 +3679,7 @@ dodip()
     }
 
     if (is_poisonable(obj) && !obj->oartifact) {
-        if (potion->otyp == POT_SICKNESS && !obj->opoisoned) {
+        if (potion->otyp == PIL_POISON && !obj->opoisoned) {
             char buf[BUFSZ];
 
             if (potion->quan > 1L)

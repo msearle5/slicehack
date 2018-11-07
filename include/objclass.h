@@ -149,6 +149,7 @@ enum obj_class_types {
     TOOL_CLASS,
     FOOD_CLASS,
     POTION_CLASS,
+    PILL_CLASS,
     SCROLL_CLASS,
     SPBOOK_CLASS, /* actually SPELL-book */
     WAND_CLASS,
@@ -190,6 +191,7 @@ extern uchar oc_syms[MAXOCLASSES];      /* current class symbols */
 #define TOOL_SYM '('
 #define FOOD_SYM '%'
 #define POTION_SYM '!'
+#define PILL_SYM '\''
 #define SCROLL_SYM '?'
 #define SPBOOK_SYM '+'
 #define WAND_SYM '/'

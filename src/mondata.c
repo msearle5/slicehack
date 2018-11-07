@@ -222,7 +222,7 @@ struct obj *obj; /* aatyp == AT_WEAP, AT_SPIT */
             if (is_you && (ublindf || u.ucreamed))
                 return FALSE;
             check_visor = TRUE;
-        } else if (obj && (obj->otyp == POT_BLINDNESS)) {
+        } else if (obj && (obj->otyp == PIL_BLINDNESS)) {
             return TRUE; /* no defense */
         } else
             return FALSE; /* other objects cannot cause blindness yet */

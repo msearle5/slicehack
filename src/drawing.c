@@ -45,6 +45,7 @@ const struct class_sym def_oc_syms[MAXOCLASSES] = {
     { TOOL_SYM, "tools", "useful item (pick-axe, key, lamp...)" },
     { FOOD_SYM, "food", "piece of food" },
     { POTION_SYM, "potions", "potion" },
+    { PILL_SYM, "pills", "pill" },
     { SCROLL_SYM, "cards", "card" },
     { SPBOOK_SYM, "spellbooks", "spellbook" },
     { WAND_SYM, "devices", "device" },

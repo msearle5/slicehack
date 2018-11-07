@@ -166,7 +166,7 @@ static struct trobj Rogue[] = {
     { SHORT_SWORD, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
     { DAGGER, 0, WEAPON_CLASS, 10, 0 }, /* quan is variable */
     { LIGHT_ARMOR, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { POT_SICKNESS, 0, POTION_CLASS, 1, 0 },
+    { PIL_POISON, 0, POTION_CLASS, 1, 0 },
     { LOCK_PICK, 0, TOOL_CLASS, 1, 0 },
     { SACK, 0, TOOL_CLASS, 1, 0 },
     { 0, 0, 0, 0, 0 }
@@ -787,9 +787,9 @@ unsigned short *others;
         id_extra_healing = alchemy_otyp_id(POT_EXTRA_HEALING);
         id_full_healing = alchemy_otyp_id(POT_FULL_HEALING);
         id_gain_ability = alchemy_otyp_id(POT_GAIN_ABILITY);
-        id_confusion = alchemy_otyp_id(POT_CONFUSION);
+        id_confusion = alchemy_otyp_id(PIL_HALLUCINATION);
         id_fruit_juice = alchemy_otyp_id(POT_FRUIT_JUICE);
-        id_hallucination = alchemy_otyp_id(POT_HALLUCINATION);
+        id_hallucination = alchemy_otyp_id(PIL_HALLUCINATION);
         id_booze = alchemy_otyp_id(POT_BOOZE);
         id_enlightenment = alchemy_otyp_id(POT_ENLIGHTENMENT);
         id_see_invisible = alchemy_otyp_id(POT_SEE_INVISIBLE);
@@ -942,20 +942,20 @@ ini_alchemy()
          */
 
         /* Basic */
-        ini_potion(POT_SICKNESS,            BASIC(5));
+        ini_potion(PIL_POISON,            BASIC(5));
         ini_potion(POT_BOOZE,               BASIC(10));
         ini_potion(POT_SEE_INVISIBLE,       BASIC(13));
         ini_potion(POT_HEALING,             BASIC(15));
 
         /* Skilled */
-        ini_potion(POT_CONFUSION,           SKILLED(5));
-        ini_potion(POT_HALLUCINATION,       SKILLED(7));
-        ini_potion(POT_SLEEPING,            SKILLED(8));
+        ini_potion(PIL_HALLUCINATION,           SKILLED(5));
+        ini_potion(PIL_HALLUCINATION,       SKILLED(7));
+        ini_potion(PIL_SLEEPING,            SKILLED(8));
         ini_potion(POT_RESTORE_ABILITY,     SKILLED(13));
         ini_potion(POT_EXTRA_HEALING,       SKILLED(15));
 
         /* Expert */
-        ini_potion(POT_BLINDNESS,           EXPERT(5));
+        ini_potion(PIL_BLINDNESS,           EXPERT(5));
         ini_potion(POT_OBJECT_DETECTION,    EXPERT(8));
         ini_potion(POT_MONSTER_DETECTION,   EXPERT(10));
         ini_potion(POT_INVISIBILITY,        EXPERT(16));
@@ -970,7 +970,7 @@ ini_alchemy()
         ini_potion(POT_FULL_HEALING,        MASTER(20));
 
         /* Grand Master */
-        ini_potion(POT_PARALYSIS,           GRAND(5));
+        ini_potion(PIL_PARALYSIS,           GRAND(5));
         ini_potion(POT_REFLECTION,          GRAND(12));
         ini_potion(POT_GAIN_LEVEL,          GRAND(15));
         ini_potion(POT_GAIN_ABILITY,        GRAND(20));
@@ -1728,7 +1728,7 @@ register struct trobj *trop;
                    || otyp == nocreate4 || otyp == RIN_LEVITATION
                    || otyp == SCR_CLONING
                    /* 'useless' items */
-                   || otyp == POT_HALLUCINATION
+                   || otyp == PIL_HALLUCINATION
                    || otyp == POT_ACID
                    || ((Subrole_if(SR_ALCHEMIST)) && (otyp == POT_WATER))
                    || ((Subrole_if(SR_ALCHEMIST)) && (otyp == POT_FRUIT_JUICE))

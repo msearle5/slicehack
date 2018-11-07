@@ -634,7 +634,7 @@ boolean force;
         		}
         } else { /* Pestilence */
             nomore(MUSE_POT_FULL_HEALING);
-            if (obj->otyp == POT_SICKNESS) {
+            if (obj->otyp == PIL_POISON) {
                 m.defensive = obj;
                 m.has_defense = MUSE_POT_FULL_HEALING;
             }
@@ -1044,10 +1044,10 @@ struct monst *mtmp;
         return 2;
     case MUSE_POT_FULL_HEALING:
         mquaffmsg(mtmp, otmp);
-        if (otmp->otyp == POT_SICKNESS)
+        if (otmp->otyp == PIL_POISON)
             unbless(otmp); /* Pestilence */
         mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 8 : 4));
-        if (!mtmp->mcansee && otmp->otyp != POT_SICKNESS)
+        if (!mtmp->mcansee && otmp->otyp != PIL_POISON)
             mcureblindness(mtmp, vismon);
         if (vismon)
             pline("%s looks completely healed.", Monnam(mtmp));
@@ -1119,7 +1119,7 @@ try_again:
         return POT_EXTRA_HEALING;
     case 5:
         return (mtmp->data != &mons[PM_PESTILENCE]) ? POT_FULL_HEALING
-                                                    : POT_SICKNESS;
+                                                    : PIL_POISON;
     case 7:
         if (is_floater(pm) || mtmp->isshk || mtmp->isgd || mtmp->ispriest)
             return 0;
@@ -1138,18 +1138,18 @@ try_again:
 #define MUSE_WAN_MISSILE 6
 #define MUSE_WAN_STRIKING 7
 #define MUSE_SCR_FIRE 8
-#define MUSE_POT_PARALYSIS 9
-#define MUSE_POT_BLINDNESS 10
-#define MUSE_POT_CONFUSION 11
+#define MUSE_PIL_PARALYSIS 9
+#define MUSE_PIL_BLINDNESS 10
+#define MUSE_PIL_CONFUSION 11
 #define MUSE_FROST_HORN 12
 #define MUSE_FIRE_HORN 13
 #define MUSE_POT_ACID 14
 /*#define MUSE_WAN_TELEPORTATION 15*/
-#define MUSE_POT_SLEEPING 16
+#define MUSE_PIL_SLEEPING 16
 #define MUSE_SCR_EARTH 17
 #define MUSE_WAN_CANCELLATION 18
 /* #define MUSE_POT_POLYMORPH_THROW 19 */
-#define MUSE_POT_HALLUCINATION 20
+#define MUSE_PIL_HALLUCINATION 20
 #define MUSE_WAN_ACID_STREAM 21
 #define MUSE_WAN_POISON_GAS 22
 #define MUSE_WAN_SONIC_BOOM 23
@@ -1283,35 +1283,35 @@ struct monst *mtmp;
             m.has_offense = MUSE_WAN_TELEPORTATION;
         }
 #endif
-        nomore(MUSE_POT_HALLUCINATION);
-        if (obj->otyp == POT_HALLUCINATION && multi >= 0) {
+        nomore(MUSE_PIL_HALLUCINATION);
+        if (obj->otyp == PIL_HALLUCINATION && multi >= 0) {
             m.offensive = obj;
-            m.has_offense = MUSE_POT_HALLUCINATION;
+            m.has_offense = MUSE_PIL_HALLUCINATION;
         }
         /* nomore(MUSE_POT_POLYMORPH_THROW);
         if (obj->otyp == POT_POLYMORPH) {
             m.offensive = obj;
             m.has_offense = MUSE_POT_POLYMORPH_THROW;
         }*/
-        nomore(MUSE_POT_PARALYSIS);
-        if (obj->otyp == POT_PARALYSIS && multi >= 0) {
+        nomore(MUSE_PIL_PARALYSIS);
+        if (obj->otyp == PIL_PARALYSIS && multi >= 0) {
             m.offensive = obj;
-            m.has_offense = MUSE_POT_PARALYSIS;
+            m.has_offense = MUSE_PIL_PARALYSIS;
         }
-        nomore(MUSE_POT_BLINDNESS);
-        if (obj->otyp == POT_BLINDNESS && !attacktype(mtmp->data, AT_GAZE)) {
+        nomore(MUSE_PIL_BLINDNESS);
+        if (obj->otyp == PIL_BLINDNESS && !attacktype(mtmp->data, AT_GAZE)) {
             m.offensive = obj;
-            m.has_offense = MUSE_POT_BLINDNESS;
+            m.has_offense = MUSE_PIL_BLINDNESS;
         }
-        nomore(MUSE_POT_CONFUSION);
-        if (obj->otyp == POT_CONFUSION) {
+        nomore(MUSE_PIL_CONFUSION);
+        if (obj->otyp == PIL_CONFUSION) {
             m.offensive = obj;
-            m.has_offense = MUSE_POT_CONFUSION;
+            m.has_offense = MUSE_PIL_CONFUSION;
         }
-        nomore(MUSE_POT_SLEEPING);
-        if (obj->otyp == POT_SLEEPING) {
+        nomore(MUSE_PIL_SLEEPING);
+        if (obj->otyp == PIL_SLEEPING) {
             m.offensive = obj;
-            m.has_offense = MUSE_POT_SLEEPING;
+            m.has_offense = MUSE_PIL_SLEEPING;
         }
         nomore(MUSE_MGC_FLUTE);
         if (obj->otyp == MAGIC_FLUTE && !u.usleep && !rn2(3)
@@ -1776,14 +1776,14 @@ struct monst *mtmp;
         m_useup(mtmp, otmp);
         return 1;
     }
-    case MUSE_POT_PARALYSIS:
-    case MUSE_POT_BLINDNESS:
-    case MUSE_POT_CONFUSION:
-    case MUSE_POT_SLEEPING:
+    case MUSE_PIL_PARALYSIS:
+    case MUSE_PIL_BLINDNESS:
+    case MUSE_PIL_CONFUSION:
+    case MUSE_PIL_SLEEPING:
     case MUSE_POT_ACID:
     case MUSE_POT_BLOOD_THROW:
     /* case MUSE_POT_POLYMORPH_THROW: */
-    case MUSE_POT_HALLUCINATION:
+    case MUSE_PIL_HALLUCINATION:
         /* Note: this setting of dknown doesn't suffice.  A monster
          * which is out of sight might throw and it hits something _in_
          * sight, a problem not existing with wands because wand rays
@@ -1832,13 +1832,13 @@ struct monst *mtmp;
     case 2:
         return POT_ACID;
     case 3:
-        return POT_CONFUSION;
+        return PIL_CONFUSION;
     case 4:
-        return POT_BLINDNESS;
+        return PIL_BLINDNESS;
     case 5:
-        return POT_SLEEPING;
+        return PIL_SLEEPING;
     case 6:
-        return POT_PARALYSIS;
+        return PIL_PARALYSIS;
     case 7:
     case 8:
         return WAN_MISSILE;
@@ -2457,11 +2457,11 @@ struct obj *obj;
             return is_pirate(mon->data);
         if (typ == POT_HEALING || typ == POT_EXTRA_HEALING
             || typ == POT_FULL_HEALING || typ == POT_POLYMORPH
-            || typ == POT_GAIN_LEVEL || typ == POT_PARALYSIS
-            || typ == POT_SLEEPING || typ == POT_ACID || typ == POT_CONFUSION
-            || typ == POT_HALLUCINATION || typ == POT_BLOOD)
+            || typ == POT_GAIN_LEVEL || typ == PIL_PARALYSIS
+            || typ == PIL_SLEEPING || typ == POT_ACID || typ == PIL_CONFUSION
+            || typ == PIL_HALLUCINATION || typ == POT_BLOOD)
             return TRUE;
-        if (typ == POT_BLINDNESS && !attacktype(mon->data, AT_GAZE))
+        if (typ == PIL_BLINDNESS && !attacktype(mon->data, AT_GAZE))
             return TRUE;
         break;
     case SCROLL_CLASS:
