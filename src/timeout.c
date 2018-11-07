@@ -1128,10 +1128,10 @@ long timeout;
                 need_invupdate = TRUE;
                 /*FALLTHRU*/
             case OBJ_MINVENT:
-                pline("%spotion of oil has burnt away.", whose);
+                pline("%sbottle of oil has burnt away.", whose);
                 break;
             case OBJ_FLOOR:
-                You_see("a burning potion of oil go out.");
+                You_see("a burning bottle of oil go out.");
                 need_newsym = TRUE;
                 break;
             }

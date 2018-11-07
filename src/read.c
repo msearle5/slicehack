@@ -1286,6 +1286,57 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             readmail(sobj);
         break;
 #endif
+    case SCR_ENLIGHTENMENT:
+        if (scursed) {
+            You("have an uneasy feeling...");
+            exercise(A_WIS, FALSE);
+        } else {
+            if (sblessed) {
+                (void) adjattrib(A_INT, 1, FALSE);
+                (void) adjattrib(A_WIS, 1, FALSE);
+            }
+            You_feel("self-knowledgeable...");
+            display_nhwindow(WIN_MESSAGE, FALSE);
+            enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
+            pline_The("feeling subsides.");
+            exercise(A_WIS, TRUE);
+        }
+        break;
+    case SCR_MONSTER_DETECTION:
+    case SPE_DETECT_MONSTERS:
+        if (sblessed) {
+            int x, y, i;
+            int unkn = 1;
+
+            /* after a while, repeated uses become less effective */
+            if ((HDetect_monsters & TIMEOUT) >= 300L)
+                i = 1;
+            else
+                i = rn1(40, 21);
+            incr_itimeout(&HDetect_monsters, i);
+            for (x = 1; x < COLNO; x++) {
+                for (y = 0; y < ROWNO; y++) {
+                    if (levl[x][y].glyph == GLYPH_INVISIBLE) {
+                        unmap_object(x, y);
+                        newsym(x, y);
+                    }
+                    if (MON_AT(x, y))
+                        unkn = 0;
+                }
+            }
+            see_monsters();
+            if (unkn)
+                You_feel("lonely.");
+            break;
+        }
+        if (!monster_detect(sobj, 0))
+            exercise(A_WIS, TRUE);
+        break;
+    case SCR_OBJECT_DETECTION:
+    case SPE_DETECT_TREASURE:
+        if (!object_detect(sobj, 0))
+            exercise(A_WIS, TRUE);
+        break;
     case SCR_ENHANCE_ARMOR: {
         register schar s;
         boolean special_armor;

@@ -258,7 +258,7 @@ shuffle_all()
 {
     /* entire classes; obj_shuffle_range() handles their exceptions */
     static char shuffle_classes[] = {
-        AMULET_CLASS, POTION_CLASS, RING_CLASS,  SCROLL_CLASS,
+        AMULET_CLASS, POTION_CLASS, PILL_CLASS, RING_CLASS,  SCROLL_CLASS,
         SPBOOK_CLASS, WAND_CLASS,
     };
     /* sub-class type ranges (one item from each group) */

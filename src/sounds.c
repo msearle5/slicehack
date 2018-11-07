@@ -670,7 +670,7 @@ register struct monst *mtmp;
                 Sprintf(verbuf, "How nice to hear you, child of the night!");
                 verbl_msg = verbuf;
             } else
-                verbl_msg = "I only drink... potions.";
+                verbl_msg = "I only drink... booze.";
         } else {
             int vampindex;
             static const char *const vampmsg[] = {

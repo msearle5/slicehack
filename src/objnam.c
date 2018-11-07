@@ -731,7 +731,7 @@ char *buf;
         
         switch (objects[otyp].oc_class) {
             case POTION_CLASS:
-                Strcpy(buf, "a potion");
+                Strcpy(buf, "a bottle");
                 break;
             case WAND_CLASS:
                 Strcpy(buf, "a device");
@@ -782,7 +782,7 @@ register int otyp;
         Strcpy(buf, "coin");
         break;
     case POTION_CLASS:
-        Strcpy(buf, "potion");
+        Strcpy(buf, "bottle");
         break;
     case SCROLL_CLASS:
         Strcpy(buf, "card");
@@ -1278,26 +1278,45 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 (obj->owt > ocl->oc_weight) ? "very " : "");
         break;
     case POTION_CLASS:
-        if (dknown && obj->odiluted)
-            Strcpy(buf, "diluted ");
         if (nn || un || !dknown) {
-            Strcat(buf, "potion");
+            Strcat(buf, "bottle");
             if (!dknown)
                 break;
             if (nn) {
                 Strcat(buf, " of ");
+                if (dknown && obj->odiluted)
+                    Strcpy(buf, "diluted ");
                 if (typ == POT_WATER && bknown
                     && (obj->blessed || obj->cursed)) {
                     Strcat(buf, obj->blessed ? "holy " : "unholy ");
                 }
                 Strcat(buf, actualn);
             } else {
-                Strcat(buf, " called ");
+                Strcat(buf, " of liquid called ");
+                Strcat(buf, un);
+            }
+        } else {
+            Strcat(buf, "bottle of ");
+            Strcat(buf, dn);
+            Strcat(buf, " liquid");
+        }
+        break;
+    case PILL_CLASS:
+        if (nn || un || !dknown) {
+            if (!dknown) {
+                Strcat(buf, "pill");
+                break;
+            }
+            if (nn) {
+                Strcat(buf, actualn);
+                Strcat(buf, " pill");
+            } else {
+                Strcat(buf, "pill called ");
                 Strcat(buf, un);
             }
         } else {
             Strcat(buf, dn);
-            Strcat(buf, " potion");
+            Strcat(buf, " pill");
         }
         break;
     case SCROLL_CLASS:
@@ -2682,12 +2701,13 @@ struct obj *obj;
 }
 
 static const char *wrp[] = {
-    "device",   "ring",      "potion",     "card", "gem",
+    "device",   "ring",      "potion",     "bottle", "pill", "card", "gem",
     "amulet", "spellbook", "spell book",
     /* for non-specific wishes */
     "weapon", "armor",     "tool",       "food",   "comestible",
 };
 static const char wrpsym[] = { WAND_CLASS,   RING_CLASS,   POTION_CLASS,
+                               POTION_CLASS, PILL_CLASS,
                                SCROLL_CLASS, GEM_CLASS,    AMULET_CLASS,
                                SPBOOK_CLASS, SPBOOK_CLASS, WEAPON_CLASS,
                                ARMOR_CLASS,  TOOL_CLASS,   FOOD_CLASS,
@@ -3473,7 +3493,7 @@ static struct alt_spellings {
     { "brass lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
-    { "potion of sleep", PIL_SLEEPING },
+    { "sleep pill", PIL_SLEEPING },
     { "stone", ROCK },
     { "camera", EXPENSIVE_CAMERA },
     { "tee shirt", T_SHIRT },

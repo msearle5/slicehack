@@ -1076,7 +1076,7 @@ register struct obj *otmp;
     register int i, ii, lim;
 
     switch (otmp->otyp) {
-    case POT_RESTORE_ABILITY:
+    case PIL_RESTORATION:
     case SPE_RESTORE_ABILITY:
     case SCR_ENHANCE_ARMOR:
         unkn++;
@@ -1158,7 +1158,7 @@ register struct obj *otmp;
                         you_unwere(FALSE);
                     set_ulycn(NON_PM); /* cure lycanthropy */
                 }
-                losehp(Maybe_Half_Phys(d(2, 6)), "potion of holy water",
+                losehp(Maybe_Half_Phys(d(2, 6)), "bottle of holy water",
                        KILLED_BY_AN);
             } else if (otmp->cursed) {
                 You_feel("quite proud of yourself.");
@@ -1179,7 +1179,7 @@ register struct obj *otmp;
             } else {
                 if (u.ualign.type == A_LAWFUL) {
                     pline("This burns like %s!", hliquid("acid"));
-                    losehp(Maybe_Half_Phys(d(2, 6)), "potion of unholy water",
+                    losehp(Maybe_Half_Phys(d(2, 6)), "bottle of unholy water",
                            KILLED_BY_AN);
                 } else
                     You_feel("full of dread.");
@@ -1209,23 +1209,6 @@ register struct obj *otmp;
             nomovemsg = "You awake with a headache.";
         }
         break;
-    case POT_ENLIGHTENMENT:
-        if (otmp->cursed) {
-            unkn++;
-            You("have an uneasy feeling...");
-            exercise(A_WIS, FALSE);
-        } else {
-            if (otmp->blessed) {
-                (void) adjattrib(A_INT, 1, FALSE);
-                (void) adjattrib(A_WIS, 1, FALSE);
-            }
-            You_feel("self-knowledgeable...");
-            display_nhwindow(WIN_MESSAGE, FALSE);
-            enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS);
-            pline_The("feeling subsides.");
-            exercise(A_WIS, TRUE);
-        }
-        break;
     case SPE_INVISIBILITY:
         /* spell cannot penetrate mummy wrapping */
         if (BInvis && uarmc->otyp == MUMMY_WRAPPING) {
@@ -1233,7 +1216,7 @@ register struct obj *otmp;
             break;
         }
         /* FALLTHRU */
-    case POT_INVISIBILITY:
+    case PIL_INVISIBILITY:
         if (Invis || Blind || BInvis) {
             nothing++;
         } else {
@@ -1249,7 +1232,7 @@ register struct obj *otmp;
             aggravate();
         }
         break;
-    case POT_SEE_INVISIBLE: /* tastes like fruit juice in Rogue */
+    case PIL_VISION: /* tastes like fruit juice in Rogue */
     case POT_FRUIT_JUICE: {
         int msg = Invisible && !Blind;
 
@@ -1299,7 +1282,7 @@ register struct obj *otmp;
                 Your("%s are frozen to the %s!", makeplural(body_part(FOOT)),
                      surface(u.ux, u.uy));
             nomul(-(rn1(10, 25 - 12 * bcsign(otmp))));
-            multi_reason = "frozen by a potion";
+            multi_reason = "frozen by a pill";
             nomovemsg = You_can_move_again;
             exercise(A_DEX, FALSE);
         }
@@ -1312,52 +1295,12 @@ register struct obj *otmp;
             fall_asleep(-rn1(10, 25 - 12 * bcsign(otmp)), TRUE);
         }
         break;
-    case POT_MONSTER_DETECTION:
-    case SPE_DETECT_MONSTERS:
-        if (otmp->blessed) {
-            int x, y;
-
-            if (Detect_monsters)
-                nothing++;
-            unkn++;
-            /* after a while, repeated uses become less effective */
-            if ((HDetect_monsters & TIMEOUT) >= 300L)
-                i = 1;
-            else
-                i = rn1(40, 21);
-            incr_itimeout(&HDetect_monsters, i);
-            for (x = 1; x < COLNO; x++) {
-                for (y = 0; y < ROWNO; y++) {
-                    if (levl[x][y].glyph == GLYPH_INVISIBLE) {
-                        unmap_object(x, y);
-                        newsym(x, y);
-                    }
-                    if (MON_AT(x, y))
-                        unkn = 0;
-                }
-            }
-            see_monsters();
-            if (unkn)
-                You_feel("lonely.");
-            break;
-        }
-        if (monster_detect(otmp, 0))
-            return 1; /* nothing detected */
-        exercise(A_WIS, TRUE);
-        break;
-    case POT_OBJECT_DETECTION:
-    case SPE_DETECT_TREASURE:
-        if (object_detect(otmp, 0))
-            return 1; /* nothing detected */
-        exercise(A_WIS, TRUE);
-        break;
     case PIL_POISON:
-        pline("Yecch!  This stuff tastes like poison.");
+        pline("Yecch!  This pill tastes like poison.");
         if (otmp->blessed) {
-            pline("(But in fact it was mildly stale %s.)", fruitname(TRUE));
             if (!Role_if(PM_HEALER)) {
                 /* NB: blessed otmp->fromsink is not possible */
-                losehp(1, "mildly contaminated potion", KILLED_BY_AN);
+                losehp(1, "mildly toxic potion", KILLED_BY_AN);
             }
         } else {
             if (Poison_resistance)
@@ -1372,7 +1315,7 @@ register struct obj *otmp;
                 Sprintf(contaminant, "%s%s",
                         (Poison_resistance) ? "mildly " : "",
                         (otmp->fromsink) ? "contaminated tap water"
-                                         : "contaminated potion");
+                                         : "poisonous pill");
                 if (!Fixed_abil) {
                     poisontell(typ, FALSE);
                     (void) adjattrib(typ, Poison_resistance ? -1 : -rn1(4, 3),
@@ -1412,7 +1355,7 @@ register struct obj *otmp;
                                     rn1(7, 16 - 8 * bcsign(otmp))),
                       FALSE);
         break;
-    case POT_GAIN_ABILITY:
+    case PIL_ABILITY:
         if (otmp->cursed) {
             pline("Ulch!  That potion tasted foul!");
             unkn++;
@@ -1438,7 +1381,7 @@ register struct obj *otmp;
             }
         }
         break;
-    case POT_REFLECTION:
+    case PIL_REFLECTION:
         if (otmp->cursed) {
             pline("It\'s like drinking glue!");
             unkn++;
@@ -1451,7 +1394,7 @@ register struct obj *otmp;
             }
         }
         break;
-    case POT_SPEED:
+    case PIL_SPEED:
         if (Wounded_legs && !otmp->cursed && !u.usteed) {
             /* heal_legs() would heal steeds legs */
             heal_legs();
@@ -1476,7 +1419,7 @@ register struct obj *otmp;
                                    rn1(200, 250 - 125 * bcsign(otmp))),
                      (boolean) !Blind);
         break;
-    case POT_GAIN_LEVEL:
+    case PIL_LEARNING:
         if (otmp->cursed) {
             unkn++;
             /* they went up a level */
@@ -1509,13 +1452,13 @@ register struct obj *otmp;
         if (otmp->blessed)
             u.uexp = rndexp(TRUE);
         break;
-    case POT_HEALING:
+    case PIL_HEALING:
         You_feel("better.");
         healup(d(6 + 2 * bcsign(otmp), 4), !otmp->cursed ? 1 : 0,
                !!otmp->blessed, !otmp->cursed);
         exercise(A_CON, TRUE);
         break;
-    case POT_EXTRA_HEALING:
+    case PIL_EXTRA_HEALING:
         You_feel("much better.");
         healup(d(6 + 2 * bcsign(otmp), 8),
                otmp->blessed ? 5 : !otmp->cursed ? 2 : 0, !otmp->cursed,
@@ -1524,7 +1467,7 @@ register struct obj *otmp;
         exercise(A_CON, TRUE);
         exercise(A_STR, TRUE);
         break;
-    case POT_FULL_HEALING:
+    case PIL_FULL_HEALING:
         You_feel("completely healed.");
         healup(400, 4 + 4 * bcsign(otmp), !otmp->cursed, TRUE);
         /* Restore one lost level if blessed */
@@ -1538,7 +1481,7 @@ register struct obj *otmp;
         exercise(A_STR, TRUE);
         exercise(A_CON, TRUE);
         break;
-    case POT_LEVITATION:
+    case PIL_LIFTING:
     case SPE_LEVITATION:
         /*
          * BLevitation will be set if levitation is blocked due to being
@@ -1595,7 +1538,7 @@ register struct obj *otmp;
         /* levitating blocks flying */
         float_vs_flight();
         break;
-    case POT_GAIN_ENERGY: { /* M. Stephenson */
+    case PIL_ENERGY: { /* M. Stephenson */
         int num;
 
         if (otmp->cursed)
@@ -1665,7 +1608,7 @@ register struct obj *otmp;
             fix_petrification();
         unkn++; /* holy/unholy water can burn like acid too */
         break;
-    case POT_POLYMORPH:
+    case PIL_MUTAGEN:
         You_feel("a little %s.", Hallucination ? "normal" : "strange");
         if (!Unchanging)
             polyself(0);
@@ -1895,7 +1838,7 @@ int how;
             pline_The("%s crashes on your %s and breaks into shards.", botlnam,
                       body_part(HEAD));
             losehp(Maybe_Half_Phys(rnd(2)), (how == POTHIT_OTHER_THROW) ? "propelled potion" /* scatter */
-                : "thrown potion", KILLED_BY_AN);
+                : "thrown bottle", KILLED_BY_AN);
         }
     } else {
         tx = mon->mx, ty = mon->my;
@@ -1956,7 +1899,7 @@ int how;
             if (obj->lamplit)
                 explode_oil(obj, u.ux, u.uy);
             break;
-        case POT_POLYMORPH:
+        case PIL_MUTAGEN:
             You_feel("a little %s.", Hallucination ? "normal" : "strange");
             if (!Unchanging && !Antimagic)
                 polyself(0);
@@ -1983,7 +1926,7 @@ int how;
                       obj->blessed ? " a little"
                                    : obj->cursed ? " a lot" : "");
                 dmg = d(obj->cursed ? 2 : 1, obj->blessed ? 4 : 8);
-                losehp(Maybe_Half_Phys(dmg), "potion of acid", KILLED_BY_AN);
+                losehp(Maybe_Half_Phys(dmg), "bottle of acid", KILLED_BY_AN);
             }
             break;
         }
@@ -2001,7 +1944,7 @@ int how;
             Sprintf(saddle_glows, "%s %s", buf, aobjnam(saddle, "glow"));
             affected = H2Opotion_dip(obj, saddle, useeit, saddle_glows);
             break;
-        case POT_POLYMORPH:
+        case PIL_MUTAGEN:
             /* Do we allow the saddle to polymorph? */
             break;
         }
@@ -2011,21 +1954,21 @@ int how;
         boolean angermon = your_fault, cureblind = FALSE;
 
         switch (obj->otyp) {
-        case POT_FULL_HEALING:
+        case PIL_FULL_HEALING:
             cureblind = TRUE;
             /*FALLTHRU*/
-        case POT_EXTRA_HEALING:
+        case PIL_EXTRA_HEALING:
             if (!obj->cursed)
                 cureblind = TRUE;
             /*FALLTHRU*/
-        case POT_HEALING:
+        case PIL_HEALING:
             if (obj->blessed)
                 cureblind = TRUE;
             if (mon->data == &mons[PM_PESTILENCE])
                 goto do_illness;
             /*FALLTHRU*/
-        case POT_RESTORE_ABILITY:
-        case POT_GAIN_ABILITY:
+        case PIL_RESTORATION:
+        case PIL_ABILITY:
         do_healing:
             angermon = FALSE;
             if (mon->mhp < mon->mhpmax) {
@@ -2063,7 +2006,7 @@ int how;
             if (!resist(mon, POTION_CLASS, 0, NOTELL))
                 mon->mconf = TRUE;
             break;
-        case POT_INVISIBILITY: {
+        case PIL_INVISIBILITY: {
             boolean sawit = canspotmon(mon);
 
             angermon = FALSE;
@@ -2093,7 +2036,7 @@ int how;
             if (is_vampire(mon->data))
                 pline("%s seems to enjoy the blood bath.", Monnam(mon));
             break;
-        case POT_SPEED:
+        case PIL_SPEED:
             angermon = FALSE;
             mon_adjust_speed(mon, 1, obj);
             break;
@@ -2163,15 +2106,15 @@ int how;
                 }
             }
             break;
-        case POT_POLYMORPH:
+        case PIL_MUTAGEN:
             (void) bhitm(mon, obj);
             break;
         /*
-        case POT_GAIN_LEVEL:
-        case POT_LEVITATION:
+        case PIL_LEARNING:
+        case PIL_LIFTING:
         case POT_FRUIT_JUICE:
-        case POT_MONSTER_DETECTION:
-        case POT_OBJECT_DETECTION:
+        case SCR_MONSTER_DETECTION:
+        case SCR_OBJECT_DETECTION:
             break;
         */
         }
@@ -2223,11 +2166,11 @@ register struct obj *obj;
     obj->in_use = 1;
 
     switch (obj->otyp) {
-    case POT_RESTORE_ABILITY:
-    case POT_GAIN_ABILITY:
+    case PIL_RESTORATION:
+    case PIL_ABILITY:
         if (obj->cursed) {
             if (!breathless(youmonst.data))
-                pline("Ulch!  That potion smells terrible!");
+                pline("Ulch!  That stuff smells terrible!");
             else if (haseyes(youmonst.data)) {
                 const char *eyes = body_part(EYE);
 
@@ -2250,14 +2193,14 @@ register struct obj *obj;
             }
         }
         break;
-    case POT_FULL_HEALING:
+    case PIL_FULL_HEALING:
         if (Upolyd && u.mh < u.mhmax)
             u.mh++, context.botl = 1;
         if (u.uhp < u.uhpmax)
             u.uhp++, context.botl = 1;
         cureblind = TRUE;
         /*FALLTHRU*/
-    case POT_EXTRA_HEALING:
+    case PIL_EXTRA_HEALING:
         if (Upolyd && u.mh < u.mhmax)
             u.mh++, context.botl = 1;
         if (u.uhp < u.uhpmax)
@@ -2265,7 +2208,7 @@ register struct obj *obj;
         if (!obj->cursed)
             cureblind = TRUE;
         /*FALLTHRU*/
-    case POT_HEALING:
+    case PIL_HEALING:
         if (Upolyd && u.mh < u.mhmax)
             u.mh++, context.botl = 1;
         if (u.uhp < u.uhpmax)
@@ -2302,7 +2245,7 @@ register struct obj *obj;
             You_feel("somewhat dizzy.");
         make_confused(itimeout_incr(HConfusion, rnd(5)), FALSE);
         break;
-    case POT_INVISIBILITY:
+    case PIL_INVISIBILITY:
         if (!Blind && !Invis) {
             kn++;
             pline("For an instant you %s!",
@@ -2332,7 +2275,7 @@ register struct obj *obj;
         } else
             You("yawn.");
         break;
-    case POT_SPEED:
+    case PIL_SPEED:
         if (!Fast)
             Your("knees seem more flexible now.");
         incr_itimeout(&HFast, rnd(5));
@@ -2360,7 +2303,7 @@ register struct obj *obj;
         }
         break;
     case POT_ACID:
-    case POT_POLYMORPH:
+    case PIL_MUTAGEN:
         exercise(A_CON, FALSE);
         break;
     case POT_BLOOD:
@@ -2373,11 +2316,11 @@ register struct obj *obj;
   		    exercise(A_CON, FALSE);
       break;
     /*
-    case POT_GAIN_LEVEL:
-    case POT_LEVITATION:
+    case PIL_LEARNING:
+    case PIL_LIFTING:
     case POT_FRUIT_JUICE:
-    case POT_MONSTER_DETECTION:
-    case POT_OBJECT_DETECTION:
+    case SCR_MONSTER_DETECTION:
+    case SCR_OBJECT_DETECTION:
     case POT_OIL:
         break;
      */
@@ -2399,9 +2342,9 @@ register struct obj *o1, *o2;
 {
     /* cut down on the number of cases below */
     if (o1->oclass == POTION_CLASS
-        && (o2->otyp == POT_GAIN_LEVEL || o2->otyp == POT_GAIN_ENERGY
-            || o2->otyp == POT_HEALING || o2->otyp == POT_EXTRA_HEALING
-            || o2->otyp == POT_FULL_HEALING || o2->otyp == POT_ENLIGHTENMENT
+        && (o2->otyp == PIL_LEARNING || o2->otyp == PIL_ENERGY
+            || o2->otyp == PIL_HEALING || o2->otyp == PIL_EXTRA_HEALING
+            || o2->otyp == PIL_FULL_HEALING || o2->otyp == SCR_ENLIGHTENMENT
             || o2->otyp == POT_FRUIT_JUICE)) {
         struct obj *swp;
 
@@ -2411,26 +2354,26 @@ register struct obj *o1, *o2;
     }
 
     switch (o1->otyp) {
-    case POT_HEALING:
+    case PIL_HEALING:
         switch (o2->otyp) {
-        case POT_SPEED:
-        case POT_GAIN_LEVEL:
-        case POT_GAIN_ENERGY:
-            return POT_EXTRA_HEALING;
+        case PIL_SPEED:
+        case PIL_LEARNING:
+        case PIL_ENERGY:
+            return PIL_EXTRA_HEALING;
         }
         break;
-    case POT_EXTRA_HEALING:
+    case PIL_EXTRA_HEALING:
         switch (o2->otyp) {
-        case POT_GAIN_LEVEL:
-        case POT_GAIN_ENERGY:
-            return POT_FULL_HEALING;
+        case PIL_LEARNING:
+        case PIL_ENERGY:
+            return PIL_FULL_HEALING;
         }
         break;
-    case POT_FULL_HEALING:
+    case PIL_FULL_HEALING:
         switch (o2->otyp) {
-        case POT_GAIN_LEVEL:
-        case POT_GAIN_ENERGY:
-            return POT_GAIN_ABILITY;
+        case PIL_LEARNING:
+        case PIL_ENERGY:
+            return PIL_ABILITY;
         }
         break;
     case UNICORN_HORN:
@@ -2449,19 +2392,19 @@ register struct obj *o1, *o2;
         if (o2->otyp == POT_BOOZE)
             return POT_FRUIT_JUICE;
         break;
-    case POT_GAIN_LEVEL:
-    case POT_GAIN_ENERGY:
+    case PIL_LEARNING:
+    case PIL_ENERGY:
         switch (o2->otyp) {
         case PIL_HALLUCINATION:
-            return (rn2(3) ? POT_BOOZE : POT_ENLIGHTENMENT);
-        case POT_HEALING:
-            return POT_EXTRA_HEALING;
-        case POT_EXTRA_HEALING:
-            return POT_FULL_HEALING;
-        case POT_FULL_HEALING:
-            return POT_GAIN_ABILITY;
+            return (rn2(3) ? POT_BOOZE : SCR_ENLIGHTENMENT);
+        case PIL_HEALING:
+            return PIL_EXTRA_HEALING;
+        case PIL_EXTRA_HEALING:
+            return PIL_FULL_HEALING;
+        case PIL_FULL_HEALING:
+            return PIL_ABILITY;
         case POT_FRUIT_JUICE:
-            return POT_SEE_INVISIBLE;
+            return PIL_VISION;
         case POT_BOOZE:
             return PIL_HALLUCINATION;
         }
@@ -2474,19 +2417,19 @@ register struct obj *o1, *o2;
             return POT_VAMPIRE_BLOOD;
         case PIL_POISON:
             return PIL_POISON;
-        case POT_ENLIGHTENMENT:
-        case POT_SPEED:
+        case SCR_ENLIGHTENMENT:
+        case PIL_SPEED:
             return POT_BOOZE;
-        case POT_GAIN_LEVEL:
-        case POT_GAIN_ENERGY:
-            return POT_SEE_INVISIBLE;
+        case PIL_LEARNING:
+        case PIL_ENERGY:
+            return PIL_VISION;
         }
         break;
-    case POT_ENLIGHTENMENT:
+    case SCR_ENLIGHTENMENT:
         switch (o2->otyp) {
-        case POT_LEVITATION:
+        case PIL_LIFTING:
             if (rn2(3))
-                return POT_GAIN_LEVEL;
+                return PIL_LEARNING;
             break;
         case POT_FRUIT_JUICE:
             return POT_BOOZE;
@@ -2506,7 +2449,7 @@ register struct obj *o1, *o2;
 int alchemy_failrate(int otyp)
 {
     static const int divi[] = { 1, 3, 10, 40, 160, 800, 4000 };
-    struct recipe *r = u.alchemy + (otyp - POT_GAIN_ABILITY);
+    struct recipe *r = u.alchemy + (otyp - PIL_ABILITY);
     int difficulty = r->difficulty; // %
     int min = u.ulevel+(2*ACURR(A_INT))+(3*Luck);
     
@@ -2752,45 +2695,45 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                  */
                 case POTION_CLASS:
                     switch(otyp) {
-                        case POT_GAIN_ABILITY:
+                        case PIL_ABILITY:
                             v = 180;
                             break;
-                        case POT_GAIN_LEVEL:
-                        case POT_REFLECTION:
+                        case PIL_LEARNING:
+                        case PIL_REFLECTION:
                         case POT_VAMPIRE_BLOOD:
                             v = 170;
                             break;
-                        case POT_FULL_HEALING:
-                        case POT_GAIN_ENERGY:
+                        case PIL_FULL_HEALING:
+                        case PIL_ENERGY:
                             v = 160;
                             break;
                         case POT_BLOOD:
                             v = 120;
                             break;
-                        case POT_POLYMORPH:
-                        case POT_SPEED:
-                        case POT_EXTRA_HEALING:
+                        case PIL_MUTAGEN:
+                        case PIL_SPEED:
+                        case PIL_EXTRA_HEALING:
                             v = 80;
                             break;
                         case PIL_PARALYSIS:
                         case POT_OIL:
-                        case POT_ENLIGHTENMENT:
-                        case POT_HEALING:
+                        case SCR_ENLIGHTENMENT:
+                        case PIL_HEALING:
                             v = 40;
                             break;
-                        case POT_LEVITATION:
-                        case POT_INVISIBILITY:
-                        case POT_MONSTER_DETECTION:
-                        case POT_RESTORE_ABILITY:
+                        case PIL_LIFTING:
+                        case PIL_INVISIBILITY:
+                        case SCR_MONSTER_DETECTION:
+                        case PIL_RESTORATION:
                         case PIL_POISON:
                             v = 20;
                             break;
-                        case POT_SEE_INVISIBLE:
+                        case PIL_VISION:
                         case PIL_HALLUCINATION:
                         case PIL_BLINDNESS:
                         case PIL_SLEEPING:
                         case PIL_CONFUSION:
-                        case POT_OBJECT_DETECTION:
+                        case SCR_OBJECT_DETECTION:
                             v = 10;
                             break;
                         case POT_BOOZE:
@@ -3340,7 +3283,7 @@ dodip()
     if (!potion)
         return 0;
     if (potion == obj && potion->quan == 1L) {
-        pline("That is a potion bottle, not a Klein bottle!");
+        pline("That is a bottle, not a Klein bottle!");
         return 0;
     }
     potion->in_use = TRUE; /* assume it will be used up */
@@ -3350,12 +3293,12 @@ dodip()
 
         if (H2Opotion_dip(potion, obj, useeit, obj_glows))
             goto poof;
-    } else if (obj->otyp == POT_POLYMORPH || potion->otyp == POT_POLYMORPH) {
+    } else if (obj->otyp == PIL_MUTAGEN || potion->otyp == PIL_MUTAGEN) {
         /* some objects can't be polymorphed */
         if (obj->otyp == potion->otyp /* both POT_POLY */
             || obj->otyp == WAN_MUTATION || obj->otyp == SPE_POLYMORPH
             || obj == uball || obj == uskin
-            || obj_resists(obj->otyp == POT_POLYMORPH ? potion : obj,
+            || obj_resists(obj->otyp == PIL_MUTAGEN ? potion : obj,
                            5, 95)) {
             pline1(nothing_happens);
         } else {
@@ -3373,11 +3316,11 @@ dodip()
              * if obj->otyp is worn amulet and becomes AMULET_OF_CHANGE.
              */
             if (!obj) {
-                makeknown(POT_POLYMORPH);
+                makeknown(PIL_MUTAGEN);
                 use_skill(P_ALCHEMY, 1);
                 return 1;
             } else if (obj->otyp != save_otyp) {
-                makeknown(POT_POLYMORPH);
+                makeknown(PIL_MUTAGEN);
                 use_skill(P_ALCHEMY, 1);
                 useup(potion);
                 prinv((char *) 0, obj, 0L);
@@ -3447,7 +3390,7 @@ dodip()
                             /* It's matched the recipe. But do you succeed in producing the
                              * potion?
                              */
-                            failrate = alchemy_failrate(i + POT_GAIN_ABILITY);
+                            failrate = alchemy_failrate(i + PIL_ABILITY);
                             if (rn2(1000) < failrate)
                                 kaboom = TRUE;
                             else
@@ -3458,7 +3401,7 @@ dodip()
                     if (success >= 0) {
                         /* Success! */
                         potion->ovar1 = 0;
-                        potion->otyp = success + POT_GAIN_ABILITY;
+                        potion->otyp = success + PIL_ABILITY;
                         pline_The("mixture looks %s.", hcolor(OBJ_DESCR(objects[potion->otyp])));
                         useup(obj);
 
@@ -3581,16 +3524,16 @@ dodip()
              * the recipe isn't guaranteed to succeed.
              */
             switch(mixture) {
-                case POT_GAIN_LEVEL:
+                case PIL_LEARNING:
                     skill = 3;
                     break;
-                case POT_GAIN_ABILITY:
-                case POT_FULL_HEALING:
-                case POT_ENLIGHTENMENT:
+                case PIL_ABILITY:
+                case PIL_FULL_HEALING:
+                case SCR_ENLIGHTENMENT:
                     skill = 2;
                     break;
-                case POT_EXTRA_HEALING:
-                case POT_SEE_INVISIBLE:
+                case PIL_EXTRA_HEALING:
+                case PIL_VISION:
                     skill = 1;
                     break;
                 default:
@@ -3689,9 +3632,9 @@ dodip()
             pline("%s forms a coating on %s.", buf, the(xname(obj)));
             obj->opoisoned = TRUE;
             goto poof;
-        } else if (obj->opoisoned && (potion->otyp == POT_HEALING
-                                      || potion->otyp == POT_EXTRA_HEALING
-                                      || potion->otyp == POT_FULL_HEALING)) {
+        } else if (obj->opoisoned && (potion->otyp == PIL_HEALING
+                                      || potion->otyp == PIL_EXTRA_HEALING
+                                      || potion->otyp == PIL_FULL_HEALING)) {
             pline("A coating wears off %s.", the(xname(obj)));
             obj->opoisoned = 0;
             goto poof;
@@ -3709,7 +3652,7 @@ dodip()
         if (potion->lamplit) { /* burning */
             fire_damage(obj, TRUE, u.ux, u.uy);
         } else if (potion->cursed) {
-            pline_The("potion spills and covers your %s with oil.",
+            pline_The("bottle spills and covers your %s with oil.",
                       makeplural(body_part(FINGER)));
             incr_itimeout(&Glib, d(2, 10));
         } else if (obj->oclass != WEAPON_CLASS && !is_weptool(obj)) {
@@ -3812,7 +3755,7 @@ more_dips:
             else
                 Sprintf(newbuf, "turns %s",
                         hcolor(OBJ_DESCR(objects[mixture])));
-            pline_The("%spotion%s %s.", oldbuf,
+            pline_The("%sbottle%s %s.", oldbuf,
                       more_than_one ? " that you dipped into" : "", newbuf);
             if (!objects[old_otyp].oc_uname
                 && !objects[old_otyp].oc_name_known && old_dknown) {

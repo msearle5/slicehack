@@ -258,7 +258,7 @@ struct obj *otmp;
         break;
     case WAN_MUTATION:
     case SPE_POLYMORPH:
-    case POT_POLYMORPH:
+    case PIL_MUTAGEN:
         if (mtmp->data == &mons[PM_LONG_WORM] && has_mcorpsenm(mtmp)) {
             /* if a long worm has mcorpsenm set, it was polymophed by
                the current zap and shouldn't be affected if hit again */
@@ -268,7 +268,7 @@ struct obj *otmp;
                it guard against involuntary polymorph attacks too... */
             shieldeff(mtmp->mx, mtmp->my);
         } else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
-            boolean polyspot = (otyp != POT_POLYMORPH),
+            boolean polyspot = (otyp != PIL_MUTAGEN),
                     give_msg = (!Hallucination
                                 && (canseemon(mtmp)
                                     || (u.uswallow && mtmp == u.ustuck)));
@@ -1124,7 +1124,7 @@ register struct obj *obj;
                               (otyp != POT_WATER)
                                   ? COST_CANCEL
                                   : obj->cursed ? COST_UNCURS : COST_UNBLSS);
-            if (otyp == PIL_POISON || otyp == POT_SEE_INVISIBLE) {
+            if (otyp == PIL_POISON || otyp == PIL_VISION) {
                 /* sickness is "biologically contaminated" fruit juice;
                    cancel it and it just becomes fruit juice...
                    whereas see invisible tastes like "enchanted" fruit
@@ -1621,8 +1621,8 @@ int id;
         break;
 
     case POTION_CLASS:
-        while (otmp->otyp == POT_POLYMORPH)
-            otmp->otyp = rnd_class(POT_GAIN_ABILITY, POT_WATER);
+        while (otmp->otyp == PIL_MUTAGEN)
+            otmp->otyp = rnd_class(PIL_ABILITY, POT_WATER);
         break;
 
     case SPBOOK_CLASS:
@@ -1959,7 +1959,7 @@ struct obj *obj, *otmp;
         case WAN_MUTATION:
         case SPE_POLYMORPH:
             if (obj->otyp == WAN_MUTATION || obj->otyp == SPE_POLYMORPH
-                || obj->otyp == POT_POLYMORPH || obj_resists(obj, 5, 95)) {
+                || obj->otyp == PIL_MUTAGEN || obj_resists(obj, 5, 95)) {
                 res = 0;
                 break;
             }
@@ -5593,7 +5593,7 @@ int triesleft;
   "(without the quotes).",
   "",
   "For object types which come in stacks, you may specify a plural name",
-  "such as \"potions of healing\", or specify a count, such as \"1000 gold",
+  "such as \"sleeping pills\", or specify a count, such as \"1000 gold",
   "pieces\", although that aspect of your wish might not be granted.",
   "",
   "You may also specify various prefix values which might be used to",

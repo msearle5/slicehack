@@ -798,7 +798,7 @@ int alter_type;
     }
 }
 
-static const char dknowns[] = { WAND_CLASS,   RING_CLASS, POTION_CLASS,
+static const char dknowns[] = { WAND_CLASS,   RING_CLASS, POTION_CLASS, PILL_CLASS,
                                 SCROLL_CLASS, GEM_CLASS,  SPBOOK_CLASS,
                                 WEAPON_CLASS, TOOL_CLASS, 0 };
 
@@ -1052,6 +1052,7 @@ boolean artif;
         case BALL_CLASS:
             break;
         case POTION_CLASS: /* note: potions get some additional init below */
+        case PILL_CLASS:
         case SCROLL_CLASS:
 #ifdef MAIL
             if (otmp->otyp != SCR_MAIL)
@@ -1163,7 +1164,7 @@ boolean artif;
     }
     
     /* some things must get done (corpsenm, timers) even if init = 0 */
-    switch ((otmp->oclass == POTION_CLASS && otmp->otyp != POT_OIL)
+    switch ((((otmp->oclass == POTION_CLASS) || (otmp->oclass == PILL_CLASS)) && otmp->otyp != POT_OIL)
             ? POT_WATER
             : otmp->otyp) {
     case CORPSE:
@@ -2421,7 +2422,7 @@ find_smoky()
     register int i;
     register const char *s;
 
-    for (i = POT_GAIN_ABILITY; i <= POT_WATER; i++)
+    for (i = PIL_ABILITY; i <= POT_WATER; i++)
         if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "smoky"))
             return i;
 
@@ -2451,14 +2452,15 @@ boolean tipping; /* caller emptying entire contents; affects shop handling */
 
         consume_obj_charge(horn, !tipping);
         if (!rn2(13)) {
-            obj = mkobj(POTION_CLASS, FALSE);
-            if (objects[obj->otyp].oc_magic)
-                do {
-                    obj->otyp = rnd_class(POT_BOOZE, POT_WATER);
-                } while (obj->otyp == PIL_POISON);
-            if (smoky == obj->otyp)
-                obj->otyp = POT_WATER;
-            what = (obj->quan > 1L) ? "Some potions" : "A potion";
+            if (!rn2(4)) {
+                obj = mkobj(POTION_CLASS, FALSE);
+                if (smoky == obj->otyp)
+                    obj->otyp = POT_WATER;
+                what = (obj->quan > 1L) ? "Some bottles" : "A bottle";
+            } else {
+                obj = mkobj(PILL_CLASS, FALSE);
+                what = (obj->quan > 1L) ? "Some pills" : "A pill";
+            }
         } else {
             obj = mkobj(FOOD_CLASS, FALSE);
             if (obj->otyp == FOOD_RATION && !rn2(7))

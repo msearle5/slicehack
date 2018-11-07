@@ -1037,7 +1037,7 @@ OBJECT:('!',"booze"),(10,08)
 OBJECT:'!',(10,08)
 OBJECT:('!',"booze"),(10,09)
 OBJECT:('!',"booze"),(10,09)
-OBJECT:('!',"object detection"),(10,09)
+OBJECT:('!',"fruit juice"),(10,09)
 # Objects
 # The Treasure chamber...
 OBJECT:('*',"diamond"),(69,04)

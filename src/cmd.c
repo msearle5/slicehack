@@ -554,7 +554,7 @@ doalchemy(VOID_ARGS)
         putstr(datawin, 0, "Known alchemical recipes. Dip the ingredients below in any order into acid.");
         putstr(datawin, 0, "");
         for(i=0; i<(int)(sizeof(u.alchemy)/sizeof(u.alchemy[0])); i++) {
-            int otyp = POT_GAIN_ABILITY + i;
+            int otyp = PIL_ABILITY + i;
             if ((u.alchemy[i].base) && (objects[otyp].oc_name_known)) {
                 int failrate = alchemy_failrate(otyp);
                 if (failrate < 1000) {
@@ -3232,7 +3232,7 @@ struct ext_func_tab extcmdlist[] = {
     { M('q'), "quit", "exit without saving current game",
             done2, IFBURIED | AUTOCOMPLETE | GENERALCMD, NULL },
     { 'Q', "quiver", "select ammunition for quiver", dowieldquiver, 0, NULL },
-    { 'r', "read", "read a card or spellbook", doread, 0, NULL },
+    { 'r', "read", "read a scroll or spellbook", doread, 0, NULL },
     { C('r'), "redraw", "redraw screen", doredraw, IFBURIED | GENERALCMD, NULL },
     { 'R', "remove", "remove an accessory (ring, amulet, etc)", doremring, 0, NULL },
     { M('R'), "ride", "mount or dismount a saddled steed",
