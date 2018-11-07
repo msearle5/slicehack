@@ -3473,7 +3473,7 @@ static struct alt_spellings {
     { "brass lantern", LANTERN },
     { "mattock", DWARVISH_MATTOCK },
     { "amulet of poison resistance", AMULET_VERSUS_POISON },
-    { "potion of sleep", POT_SLEEPING },
+    { "potion of sleep", PIL_SLEEPING },
     { "stone", ROCK },
     { "camera", EXPENSIVE_CAMERA },
     { "tee shirt", T_SHIRT },

@@ -1668,7 +1668,7 @@ int mmflags;
         mitem = BELL_OF_OPENING;
     } else if (mndx == PM_PESTILENCE) {
         register struct obj *otmp;
-        mitem = POT_SICKNESS;
+        mitem = PIL_POISON;
         (void) mongets(mtmp, BOW);
         otmp = mksobj(ARROW, TRUE, FALSE);
         otmp->quan = d(5,10);

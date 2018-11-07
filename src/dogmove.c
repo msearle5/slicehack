@@ -136,10 +136,10 @@ boolean check_if_better;
         otmp->otyp == POT_HEALING ||
         otmp->otyp == POT_EXTRA_HEALING ||
         otmp->otyp == POT_FULL_HEALING ||
-        otmp->otyp == POT_PARALYSIS ||
-        otmp->otyp == POT_BLINDNESS ||
-        otmp->otyp == POT_CONFUSION ||
-        otmp->otyp == POT_HALLUCINATION ||
+        otmp->otyp == PIL_PARALYSIS ||
+        otmp->otyp == PIL_BLINDNESS ||
+        otmp->otyp == PIL_HALLUCINATION ||
+        otmp->otyp == PIL_HALLUCINATION ||
         otmp->otyp == POT_ACID ||
         otmp->otyp == FROST_HORN ||
         otmp->otyp == FIRE_HORN ||

@@ -972,6 +972,19 @@ FOOD("C-ration",              0,  1, 10, 0, VEGGY, 300, HI_ORGANIC),
 FOOD("tin",                  75,  0, 10, 1, METAL,   0, HI_METAL),
 #undef FOOD
 
+/* pills ... */
+#define PILL(name,desc,mgc,power,prob,cost,color) \
+    OBJECT(OBJ(name, desc),                                             \
+           BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, P_NONE, VEGGY),      \
+           power, PILL_CLASS, prob, 0, 1, cost, 0, 0, 0, 0, 10, color)
+
+PILL("confusion",            "orange",  1, CONFUSION, 42, 100, CLR_ORANGE),
+PILL("blindness",            "yellow",  1, BLINDED, 40, 150, CLR_YELLOW),
+PILL("hallucination",      "sky blue",  1, HALLUC, 40, 100, CLR_CYAN),
+PILL("sleeping",       "effervescent",  1, 0, 42, 100, CLR_GRAY),
+PILL("poison",                "fizzy",  0, 0, 42,  50, CLR_CYAN),
+PILL("paralysis",           "emerald",  1, 0, 42, 300, CLR_BRIGHT_GREEN),
+
 /* potions ... */
 #define POTION(name,desc,mgc,power,prob,cost,color) \
     OBJECT(OBJ(name, desc),                                             \
@@ -980,12 +993,8 @@ FOOD("tin",                  75,  0, 10, 1, METAL,   0, HI_METAL),
 POTION("gain ability",           "ruby",  1, 0, 42, 300, CLR_RED),
 POTION("reflection",         "metallic",  1, REFLECTING, 10, 300, CLR_GRAY),
 POTION("restore ability",        "pink",  1, 0, 40, 100, CLR_BRIGHT_MAGENTA),
-POTION("confusion",            "orange",  1, CONFUSION, 42, 100, CLR_ORANGE),
-POTION("blindness",            "yellow",  1, BLINDED, 40, 150, CLR_YELLOW),
-POTION("paralysis",           "emerald",  1, 0, 42, 300, CLR_BRIGHT_GREEN),
 POTION("speed",            "dark green",  1, FAST, 42, 200, CLR_GREEN),
 POTION("levitation",             "cyan",  1, LEVITATION, 42, 200, CLR_CYAN),
-POTION("hallucination",      "sky blue",  1, HALLUC, 40, 100, CLR_CYAN),
 POTION("invisibility", "brilliant blue",  1, INVIS, 40, 150, CLR_BRIGHT_BLUE),
 POTION("see invisible",       "magenta",  1, SEE_INVIS, 42, 50, CLR_MAGENTA),
 POTION("healing",          "purple-red",  1, 0, 57, 100, CLR_MAGENTA),
@@ -995,19 +1004,23 @@ POTION("enlightenment",        "swirly",  1, 0, 20, 200, CLR_BROWN),
 POTION("monster detection",    "bubbly",  1, 0, 40, 150, CLR_WHITE),
 POTION("object detection",      "smoky",  1, 0, 42, 150, CLR_GRAY),
 POTION("gain energy",          "cloudy",  1, 0, 42, 150, CLR_WHITE),
-POTION("sleeping",       "effervescent",  1, 0, 42, 100, CLR_GRAY),
 POTION("full healing",          "black",  1, 0, 10, 200, CLR_BLACK),
 POTION("polymorph",            "golden",  1, 0, 10, 200, CLR_YELLOW),
 POTION("booze",                 "brown",  0, 0, 42,  50, CLR_BROWN),
-POTION("sickness",              "fizzy",  0, 0, 42,  50, CLR_CYAN),
 POTION("fruit juice",            "dark",  0, 0, 42,  50, CLR_BLACK),
 POTION("acid",                  "white",  0, 0, 10, 250, CLR_WHITE),
 POTION("oil",                   "murky",  0, 0, 20, 250, CLR_BROWN),
-POTION(None,               "iridescent", 0, 0,  0, 100, CLR_BRIGHT_CYAN),
-POTION(None,                   "creamy", 0, 0,  0, 100, CLR_WHITE),
-POTION(None,                    "thick", 0, 0,  0, 100, CLR_GREEN),
-POTION(None,                 "stinking", 0, 0,  0, 100, CLR_BROWN),
-POTION(None,                    "slimy", 0, 0,  0, 100, CLR_BRIGHT_GREEN),
+POTION(None,               "iridescent",  0, 0,  0, 100, CLR_BRIGHT_CYAN),
+POTION(None,                   "creamy",  0, 0,  0, 100, CLR_WHITE),
+POTION(None,                    "thick",  0, 0,  0, 100, CLR_GREEN),
+POTION(None,                 "stinking",  0, 0,  0, 100, CLR_BROWN),
+POTION(None,                    "slimy",  0, 0,  0, 100, CLR_BRIGHT_GREEN),
+POTION(None,                   "orange",  0, 0,  0, 100, CLR_ORANGE),
+POTION(None,                   "yellow",  0, 0,  0, 100, CLR_YELLOW),
+POTION(None,                 "sky blue",  0, 0,  0, 100, CLR_CYAN),
+POTION(None,             "effervescent",  0, 0,  0, 100, CLR_GRAY),
+POTION(None,                    "fizzy",  0, 0,  0, 100, CLR_CYAN),
+POTION(None,                  "emerald",  0, 0,  0, 100, CLR_BRIGHT_GREEN),
 /* fixed description
  */
 POTION("water",                 "clear",  0, 0, 92, 100, CLR_CYAN),
@@ -1234,8 +1247,7 @@ OBJECT(OBJ("Book of the Dead", "papyrus"),
            BITS(0, 0, 1, 0, mgc, 1, 0, 0, 0, 0, dir, P_NONE, metal),    \
            0, WAND_CLASS, prob, 0, 7, cost, 0, 0, 0, 0, 30, color)
 WAND("lighting",            "coiled",       95, 100, 1, NODIR, COPPER, HI_COPPER),
-WAND("detection",
-                            "polished",     50, 150, 1, NODIR, METAL, HI_METAL),
+WAND("detection",           "polished",     50, 150, 1, NODIR, METAL, HI_METAL),
 WAND("enlightenment",       "glossy white", 15, 150, 1, NODIR, PLASTIC, CLR_WHITE),
 WAND("summoning",           "shiny",        45, 200, 1, NODIR, METAL, HI_METAL),
 WAND("wishing",             "pointed",       5, 500, 1, NODIR, METAL, HI_METAL),
