@@ -79,8 +79,8 @@ static struct trobj Healer[] = {
     { GLOVES, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { STETHOSCOPE, 0, TOOL_CLASS, 1, 0 },
     { MEDICAL_KIT, 0, TOOL_CLASS, 1, 0 },
-    { POT_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
-    { POT_EXTRA_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
+    { PIL_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
+    { PIL_EXTRA_HEALING, 0, POTION_CLASS, 4, UNDEF_BLESS },
     { WAN_SLEEP_RAY, UNDEF_SPE, WAND_CLASS, 1, UNDEF_BLESS },
     /* always blessed, so it's guaranteed readable */
     { SPE_HEALING, 0, SPBOOK_CLASS, 1, 1 },
@@ -113,7 +113,7 @@ static struct trobj Monk[] = {
     { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
-    { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
+    { PIL_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
     { FOOD_RATION, 0, FOOD_CLASS, 3, 0 },
     { APPLE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
     { ORANGE, 0, FOOD_CLASS, 5, UNDEF_BLESS },
@@ -184,7 +184,7 @@ static struct trobj Tourist[] = {
 #define T_DARTS 0
     { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS }, /* quan is variable */
     { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
-    { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, UNDEF_BLESS },
+    { PIL_EXTRA_HEALING, 0, POTION_CLASS, 2, UNDEF_BLESS },
     { SCR_MAPPING, 0, SCROLL_CLASS, 4, UNDEF_BLESS },
     { HAWAIIAN_SHIRT, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { EXPENSIVE_CAMERA, UNDEF_SPE, TOOL_CLASS, 1, 0 },
@@ -783,17 +783,17 @@ unsigned short *others;
     /* First time, get the number of IDs */
     if (nids == -1) {
         alchemy_max_id(&nmons, &nids);
-        id_gain_level = alchemy_otyp_id(POT_GAIN_LEVEL);
-        id_extra_healing = alchemy_otyp_id(POT_EXTRA_HEALING);
-        id_full_healing = alchemy_otyp_id(POT_FULL_HEALING);
-        id_gain_ability = alchemy_otyp_id(POT_GAIN_ABILITY);
+        id_gain_level = alchemy_otyp_id(PIL_LEARNING);
+        id_extra_healing = alchemy_otyp_id(PIL_EXTRA_HEALING);
+        id_full_healing = alchemy_otyp_id(PIL_FULL_HEALING);
+        id_gain_ability = alchemy_otyp_id(PIL_ABILITY);
         id_confusion = alchemy_otyp_id(PIL_HALLUCINATION);
         id_fruit_juice = alchemy_otyp_id(POT_FRUIT_JUICE);
         id_hallucination = alchemy_otyp_id(PIL_HALLUCINATION);
         id_booze = alchemy_otyp_id(POT_BOOZE);
-        id_enlightenment = alchemy_otyp_id(POT_ENLIGHTENMENT);
-        id_see_invisible = alchemy_otyp_id(POT_SEE_INVISIBLE);
-        id_healing = alchemy_otyp_id(POT_HEALING);
+        id_enlightenment = alchemy_otyp_id(SCR_ENLIGHTENMENT);
+        id_see_invisible = alchemy_otyp_id(PIL_VISION);
+        id_healing = alchemy_otyp_id(PIL_HEALING);
     }
     
     /* A random ingredient is picked by ID.
@@ -847,7 +847,7 @@ ini_potion(target, difficulty)
 int target;
 int difficulty;
 {
-    struct recipe *r = u.alchemy + (target - POT_GAIN_ABILITY);
+    struct recipe *r = u.alchemy + (target - PIL_ABILITY);
     unsigned short id[5];
     int objects, rarity, monsters, bound, targetid;
     static int nmons = -1;
@@ -944,36 +944,36 @@ ini_alchemy()
         /* Basic */
         ini_potion(PIL_POISON,            BASIC(5));
         ini_potion(POT_BOOZE,               BASIC(10));
-        ini_potion(POT_SEE_INVISIBLE,       BASIC(13));
-        ini_potion(POT_HEALING,             BASIC(15));
+        ini_potion(PIL_VISION,       BASIC(13));
+        ini_potion(PIL_HEALING,             BASIC(15));
 
         /* Skilled */
         ini_potion(PIL_HALLUCINATION,           SKILLED(5));
         ini_potion(PIL_HALLUCINATION,       SKILLED(7));
         ini_potion(PIL_SLEEPING,            SKILLED(8));
-        ini_potion(POT_RESTORE_ABILITY,     SKILLED(13));
-        ini_potion(POT_EXTRA_HEALING,       SKILLED(15));
+        ini_potion(PIL_RESTORATION,     SKILLED(13));
+        ini_potion(PIL_EXTRA_HEALING,       SKILLED(15));
 
         /* Expert */
         ini_potion(PIL_BLINDNESS,           EXPERT(5));
-        ini_potion(POT_OBJECT_DETECTION,    EXPERT(8));
-        ini_potion(POT_MONSTER_DETECTION,   EXPERT(10));
-        ini_potion(POT_INVISIBILITY,        EXPERT(16));
-        ini_potion(POT_LEVITATION,          EXPERT(18));
+        ini_potion(SCR_OBJECT_DETECTION,    EXPERT(8));
+        ini_potion(SCR_MONSTER_DETECTION,   EXPERT(10));
+        ini_potion(PIL_INVISIBILITY,        EXPERT(16));
+        ini_potion(PIL_LIFTING,          EXPERT(18));
 
         /* Master */
         ini_potion(POT_OIL,                 MASTER(5));
-        ini_potion(POT_ENLIGHTENMENT,       MASTER(7));
-        ini_potion(POT_SPEED,               MASTER(9));
-        ini_potion(POT_GAIN_ENERGY,         MASTER(12));
-        ini_potion(POT_POLYMORPH,           MASTER(17));
-        ini_potion(POT_FULL_HEALING,        MASTER(20));
+        ini_potion(SCR_ENLIGHTENMENT,       MASTER(7));
+        ini_potion(PIL_SPEED,               MASTER(9));
+        ini_potion(PIL_ENERGY,         MASTER(12));
+        ini_potion(PIL_MUTAGEN,           MASTER(17));
+        ini_potion(PIL_FULL_HEALING,        MASTER(20));
 
         /* Grand Master */
         ini_potion(PIL_PARALYSIS,           GRAND(5));
-        ini_potion(POT_REFLECTION,          GRAND(12));
-        ini_potion(POT_GAIN_LEVEL,          GRAND(15));
-        ini_potion(POT_GAIN_ABILITY,        GRAND(20));
+        ini_potion(PIL_REFLECTION,          GRAND(12));
+        ini_potion(PIL_LEARNING,          GRAND(15));
+        ini_potion(PIL_ABILITY,        GRAND(20));
 
         /* Ensure that no potions are unbrewable due to there being no way
          * to add the listed ingredients without passing through another
@@ -1212,7 +1212,7 @@ u_init()
         ini_inv(Healer);
         if (!rn2(25))
             ini_inv(Lamp);
-        knows_object(POT_FULL_HEALING);
+        knows_object(PIL_FULL_HEALING);
         skill_init(Skill_H);
         break;
     case PM_KNIGHT:
@@ -1770,13 +1770,13 @@ register struct trobj *trop;
             switch (otyp) {
             case WAN_MUTATION:
             case RIN_POLYMORPH:
-            case POT_POLYMORPH:
+            case PIL_MUTAGEN:
                 nocreate = RIN_POLYMORPH_CONTROL;
                 break;
             case RIN_POLYMORPH_CONTROL:
                 nocreate = RIN_POLYMORPH;
                 nocreate2 = SPE_POLYMORPH;
-                nocreate3 = POT_POLYMORPH;
+                nocreate3 = PIL_MUTAGEN;
             }
             /* Don't have 2 of the same ring or spellbook */
             if (obj->oclass == RING_CLASS || obj->oclass == SPBOOK_CLASS)

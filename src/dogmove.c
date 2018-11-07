@@ -133,9 +133,9 @@ boolean check_if_better;
         otmp->otyp == WAN_MISSILE ||
         otmp->otyp == WAN_STRIKING ||
         otmp->otyp == WAN_TELEPORTATION ||
-        otmp->otyp == POT_HEALING ||
-        otmp->otyp == POT_EXTRA_HEALING ||
-        otmp->otyp == POT_FULL_HEALING ||
+        otmp->otyp == PIL_HEALING ||
+        otmp->otyp == PIL_EXTRA_HEALING ||
+        otmp->otyp == PIL_FULL_HEALING ||
         otmp->otyp == PIL_PARALYSIS ||
         otmp->otyp == PIL_BLINDNESS ||
         otmp->otyp == PIL_HALLUCINATION ||

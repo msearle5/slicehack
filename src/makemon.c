@@ -371,7 +371,7 @@ register struct monst *mtmp;
                 if (rn2(3))
                     (void) mongets(mtmp, rn2(3) ? LOW_BOOTS : HIGH_BOOTS);
                 if (rn2(3))
-                    (void) mongets(mtmp, POT_HEALING);
+                    (void) mongets(mtmp, PIL_HEALING);
                 break;
             case PM_CHIEFTAIN:
             case PM_PAGE:
@@ -938,10 +938,10 @@ register struct monst *mtmp;
                 (void) mongets(mtmp, WAN_MISSILE);
                 /*FALLTHRU*/
             case 1:
-                (void) mongets(mtmp, POT_EXTRA_HEALING);
+                (void) mongets(mtmp, PIL_EXTRA_HEALING);
                 /*FALLTHRU*/
             case 2:
-                (void) mongets(mtmp, POT_HEALING);
+                (void) mongets(mtmp, PIL_HEALING);
                 /*FALLTHRU*/
             case 3:
                 (void) mongets(mtmp, WAN_STRIKING);
@@ -1004,7 +1004,7 @@ register struct monst *mtmp;
         if (!rn2(2))
             (void) mongets(mtmp, MIRROR);
         if (!rn2(2))
-            (void) mongets(mtmp, POT_OBJECT_DETECTION);
+            (void) mongets(mtmp, SCR_OBJECT_DETECTION);
         break;
     case S_GIANT:
         if (ptr == &mons[PM_MINOTAUR]) {
@@ -1057,7 +1057,7 @@ register struct monst *mtmp;
         }
         if (ptr == &mons[PM_MAD_ALCHEMIST]) {
             for (cnt = 1 + rn2(2); cnt; cnt--) {
-                otmp = mksobj(rnd_class(POT_REFLECTION, POT_OIL),
+                otmp = mksobj(rnd_class(PIL_REFLECTION, POT_OIL),
                               FALSE, FALSE);
                 (void) mpickobj(mtmp, otmp);
             }
@@ -2526,7 +2526,7 @@ struct monst *mtmp;
 
 static NEARDATA char syms[] = {
     MAXOCLASSES,  MAXOCLASSES + 1, RING_CLASS,   WAND_CLASS,   WEAPON_CLASS,
-    FOOD_CLASS,   COIN_CLASS,      SCROLL_CLASS, POTION_CLASS, ARMOR_CLASS,
+    FOOD_CLASS,   COIN_CLASS,      SCROLL_CLASS, POTION_CLASS, PILL_CLASS, ARMOR_CLASS,
     AMULET_CLASS, TOOL_CLASS,      ROCK_CLASS,   GEM_CLASS,    SPBOOK_CLASS,
     S_MIMIC_DEF,  S_MIMIC_DEF,
 };

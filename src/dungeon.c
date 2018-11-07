@@ -2849,7 +2849,7 @@ int rtype;
         str = "card shop";
         break;
     case POTIONSHOP:
-        str = "potion shop";
+        str = "liquor store";
         break;
     case WEAPONSHOP:
         str = "weapon shop";

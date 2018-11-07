@@ -1605,7 +1605,7 @@ struct obj **optr;
     }
 
     if (obj->lamplit) {
-        You("snuff the lit potion.");
+        You("snuff the lit oil.");
         end_burn(obj, TRUE);
         /*
          * Free & add to re-merge potion.  This will average the
@@ -1624,7 +1624,7 @@ struct obj **optr;
     if (split1off)
         obj = splitobj(obj, 1L);
 
-    You("light %spotion.%s", shk_your(buf, obj),
+    You("light %s bottle.%s", shk_your(buf, obj),
         Blind ? "" : "  It gives off a dim light.");
 
     if (obj->unpaid && costly_spot(u.ux, u.uy)) {
@@ -1632,7 +1632,7 @@ struct obj **optr;
          * for an item, but (Yendorian Fuel) Taxes are inevitable...
          */
         check_unpaid(obj);
-        verbalize("That's in addition to the cost of the potion, of course.");
+        verbalize("That's in addition to the cost of the oil, of course.");
         bill_dummy_object(obj);
     }
     makeknown(obj->otyp);

@@ -949,7 +949,7 @@ int propidx; /* special cases can have negative values */
                 Strcpy(buf, " from current creature form");
             else if (propidx == FAST && Very_fast)
                 Sprintf(buf, because_of,
-                        ((HFast & TIMEOUT) != 0L) ? "a potion or spell"
+                        ((HFast & TIMEOUT) != 0L) ? "a pill or spell"
                           : ((EFast & W_ARMF) != 0L && uarmf->dknown
                              && objects[uarmf->otyp].oc_name_known)
                               ? ysimple_name(uarmf) /* speed boots */

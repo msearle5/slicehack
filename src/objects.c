@@ -978,34 +978,40 @@ FOOD("tin",                  75,  0, 10, 1, METAL,   0, HI_METAL),
            BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, P_NONE, VEGGY),      \
            power, PILL_CLASS, prob, 0, 1, cost, 0, 0, 0, 0, 10, color)
 
-PILL("confusion",            "orange",  1, CONFUSION, 42, 100, CLR_ORANGE),
-PILL("blindness",            "yellow",  1, BLINDED, 40, 150, CLR_YELLOW),
-PILL("hallucination",      "sky blue",  1, HALLUC, 40, 100, CLR_CYAN),
-PILL("sleeping",       "effervescent",  1, 0, 42, 100, CLR_GRAY),
-PILL("poison",                "fizzy",  0, 0, 42,  50, CLR_CYAN),
-PILL("paralysis",           "emerald",  1, 0, 42, 300, CLR_BRIGHT_GREEN),
+/* healing / restoring / gain */
+PILL("ability",           "long yellow",  1, 0, 42, 300, CLR_YELLOW),
+PILL("healing",                   "red",  1, 0, 57, 100, CLR_RED),
+PILL("extra healing",            "blue",  1, 0, 47, 100, CLR_BRIGHT_BLUE),
+PILL("full healing",        "pale grey",  1, 0, 10, 200, CLR_GRAY),
+PILL("learning",                "green",  1, 0, 20, 300, CLR_BRIGHT_GREEN),
+PILL("energy",            "rough white",  1, 0, 42, 150, CLR_WHITE),
+PILL("restoration",              "pink",  1, 0, 40, 100, CLR_BRIGHT_MAGENTA),
+
+/* bad statuses */
+PILL("confusion",         "small round",  1, CONFUSION, 42, 100, CLR_WHITE),
+PILL("blindness",               "white",  1, BLINDED, 40, 150, CLR_WHITE),
+PILL("hallucination",            "pink",  1, HALLUC, 40, 100, CLR_BRIGHT_MAGENTA),
+PILL("sleeping",        "red and white",  1, 0, 42, 100, CLR_RED),
+PILL("poison",                 "orange",  0, 0, 42,  50, CLR_ORANGE),
+PILL("paralysis",               "large",  1, 0, 42, 300, CLR_WHITE),
+
+/* Other internal properties */
+PILL("reflection",     "blue and white",  1, REFLECTING, 10, 300, CLR_BRIGHT_BLUE),
+PILL("speed",            "square white",  1, FAST, 42, 200, CLR_WHITE),
+PILL("lifting",          "stripy green",  1, LEVITATION, 42, 200, CLR_BRIGHT_GREEN),
+PILL("invisibility",             "tiny",  1, INVIS, 40, 150, CLR_WHITE),
+PILL("vision",        "green and white",  1, SEE_INVIS, 42, 50, CLR_BRIGHT_GREEN),
+PILL("mutagen",               "printed",  1, 0, 10, 200, CLR_WHITE),
+
+PILL(None,                   "embossed",  0, 0,  0, 100, CLR_WHITE),
+PILL(None,                  "yellowish",  0, 0,  0, 100, CLR_YELLOW),
+PILL(None,                   "chewable",  0, 0,  0, 100, CLR_WHITE),
 
 /* potions ... */
 #define POTION(name,desc,mgc,power,prob,cost,color) \
     OBJECT(OBJ(name, desc),                                             \
            BITS(0, 1, 0, 0, mgc, 0, 0, 0, 0, 0, 0, P_NONE, GLASS),      \
            power, POTION_CLASS, prob, 0, 20, cost, 0, 0, 0, 0, 10, color)
-POTION("gain ability",           "ruby",  1, 0, 42, 300, CLR_RED),
-POTION("reflection",         "metallic",  1, REFLECTING, 10, 300, CLR_GRAY),
-POTION("restore ability",        "pink",  1, 0, 40, 100, CLR_BRIGHT_MAGENTA),
-POTION("speed",            "dark green",  1, FAST, 42, 200, CLR_GREEN),
-POTION("levitation",             "cyan",  1, LEVITATION, 42, 200, CLR_CYAN),
-POTION("invisibility", "brilliant blue",  1, INVIS, 40, 150, CLR_BRIGHT_BLUE),
-POTION("see invisible",       "magenta",  1, SEE_INVIS, 42, 50, CLR_MAGENTA),
-POTION("healing",          "purple-red",  1, 0, 57, 100, CLR_MAGENTA),
-POTION("extra healing",          "puce",  1, 0, 47, 100, CLR_RED),
-POTION("gain level",            "milky",  1, 0, 20, 300, CLR_WHITE),
-POTION("enlightenment",        "swirly",  1, 0, 20, 200, CLR_BROWN),
-POTION("monster detection",    "bubbly",  1, 0, 40, 150, CLR_WHITE),
-POTION("object detection",      "smoky",  1, 0, 42, 150, CLR_GRAY),
-POTION("gain energy",          "cloudy",  1, 0, 42, 150, CLR_WHITE),
-POTION("full healing",          "black",  1, 0, 10, 200, CLR_BLACK),
-POTION("polymorph",            "golden",  1, 0, 10, 200, CLR_YELLOW),
 POTION("booze",                 "brown",  0, 0, 42,  50, CLR_BROWN),
 POTION("fruit juice",            "dark",  0, 0, 42,  50, CLR_BLACK),
 POTION("acid",                  "white",  0, 0, 10, 250, CLR_WHITE),
@@ -1021,6 +1027,23 @@ POTION(None,                 "sky blue",  0, 0,  0, 100, CLR_CYAN),
 POTION(None,             "effervescent",  0, 0,  0, 100, CLR_GRAY),
 POTION(None,                    "fizzy",  0, 0,  0, 100, CLR_CYAN),
 POTION(None,                  "emerald",  0, 0,  0, 100, CLR_BRIGHT_GREEN),
+POTION(None,               "purple-red",  0, 0,  0, 100, CLR_MAGENTA),
+POTION(None,                     "puce",  0, 0,  0, 100, CLR_RED),
+POTION(None,                    "black",  0, 0,  0, 100, CLR_BLACK),
+POTION(None,                    "milky",  0, 0,  0, 100, CLR_WHITE),
+POTION(None,                   "cloudy",  0, 0,  0, 100, CLR_WHITE),
+POTION(None,                     "ruby",  0, 0,  0, 100, CLR_RED),
+POTION(None,                     "pink",  0, 0,  0, 100, CLR_BRIGHT_MAGENTA),
+
+POTION(None,                 "metallic",  0, 0,  0, 100, CLR_GRAY),
+POTION(None,               "dark green",  0, 0,  0, 100, CLR_GREEN),
+POTION(None,                     "cyan",  0, 0,  0, 100, CLR_CYAN),
+POTION(None,           "brilliant blue",  0, 0,  0, 100, CLR_BRIGHT_BLUE),
+POTION(None,                  "magenta",  0, 0,  0, 100, CLR_MAGENTA),
+POTION(None,                   "swirly",  0, 0,  0, 100, CLR_BROWN),
+POTION(None,                   "bubbly",  0, 0,  0, 100, CLR_WHITE),
+POTION(None,                    "smoky",  0, 0,  0, 100, CLR_GRAY),
+POTION(None,                   "golden",  0, 0,  0, 100, CLR_YELLOW),
 /* fixed description
  */
 POTION("water",                 "clear",  0, 0, 92, 100, CLR_CYAN),
@@ -1063,6 +1086,11 @@ SCROLL("punishment",            "VE FORBRYDERNE",  1,  15, 300),
 SCROLL("charging",                "HACKEM MUCHE",  1,  15, 300),
 SCROLL("cloning",             "TOIL AND TROUBLE",  1,  10, 300), /* Macbeth */
 SCROLL("poison gas",                 "VELOX NEB",  1,  15, 300),
+/* detection / self-knowledge, moved from potions */
+SCROLL("enlightenment",                 "BURRRP",  1,  20, 200), /* purple worm */
+SCROLL("monster detection",             "YSKNAB",  1,  40, 150),
+SCROLL("object detection",    "POP ELKCARC PANS",  1,  42, 150),
+
     /* Extra descriptions, shuffled into use at start of new game.
      * Code in win/share/tilemap.c depends on SCR_POISON_GAS preceding
      * these and on how many of them there are.  If a real scroll gets added

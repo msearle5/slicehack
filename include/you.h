@@ -456,7 +456,7 @@ struct you {
     int skills_advanced;     /* # of advances made so far */
     xchar skill_record[P_SKILL_LIMIT]; /* skill advancements */
     struct skills weapon_skills[P_NUM_SKILLS];
-    struct recipe alchemy[POT_WATER - POT_GAIN_ABILITY];   /* alchemy recipes */
+    struct recipe alchemy[POT_WATER - PIL_ABILITY];   /* alchemy recipes */
     boolean twoweap;         /* KMH -- Using two-weapon combat */
 
 }; /* end of `struct you' */

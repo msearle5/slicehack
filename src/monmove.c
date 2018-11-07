@@ -757,7 +757,7 @@ toofar:
 
 static NEARDATA const char practical[] = { WEAPON_CLASS, ARMOR_CLASS,
                                            GEM_CLASS, FOOD_CLASS, 0 };
-static NEARDATA const char magical[] = { AMULET_CLASS, POTION_CLASS,
+static NEARDATA const char magical[] = { AMULET_CLASS, POTION_CLASS, PILL_CLASS,
                                          SCROLL_CLASS, WAND_CLASS,
                                          RING_CLASS,   SPBOOK_CLASS, 0 };
 static NEARDATA const char indigestion[] = { BALL_CLASS, ROCK_CLASS, 0 };
