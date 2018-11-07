@@ -976,7 +976,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
         } else if(ptr == &mons[PM_DAL_ZETHIRE]) {
             for (cnt = rn2(3); cnt < 4; cnt++) {
-                otmp = mksobj(SCR_CREATE_MONSTER, FALSE, FALSE);
+                otmp = mksobj(SCR_SUMMONING, FALSE, FALSE);
                 curse(otmp);
                 (void) mpickobj(mtmp, otmp);
             }

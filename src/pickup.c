@@ -1470,7 +1470,7 @@ boolean telekinesis; /* not picking it up directly by hand */
         else if (!obj->spe && !obj->cursed)
             obj->spe = 1;
         else {
-            pline_The("scroll%s %s to dust as you %s %s up.", plur(obj->quan),
+            pline_The("card%s %s to dust as you %s %s up.", plur(obj->quan),
                       otense(obj, "turn"), telekinesis ? "raise" : "pick",
                       (obj->quan == 1L) ? "it" : "them");
             if (!(objects[SCR_SCARE_MONSTER].oc_name_known)

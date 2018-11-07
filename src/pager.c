@@ -1025,7 +1025,7 @@ add_obj_info(winid datawin, short otyp)
     }
     if (olet == SCROLL_CLASS) {
         /* nothing special (ink is covered below) */
-        OBJPUTSTR("Scroll.");
+        OBJPUTSTR("Card.");
     }
     if (olet == SPBOOK_CLASS) {
         Sprintf(buf, "Level %d spellbook, in the %s school. %s spell.",

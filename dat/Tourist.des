@@ -256,9 +256,6 @@ OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
 OBJECT:random,random
-# Toilet paper
-OBJECT:('?',"blank paper"),(71,12)
-OBJECT:('?',"blank paper"),(71,12)
 # Random traps
 TRAP:random,random
 TRAP:random,random

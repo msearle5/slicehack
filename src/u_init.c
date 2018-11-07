@@ -55,7 +55,7 @@ static struct trobj Cartomancer[] = {
     { DAGGER, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SHURIKEN, 0, GEM_CLASS, 60, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 4, UNDEF_BLESS },
-    { SCR_CREATE_MONSTER, 0, SCROLL_CLASS, 3, UNDEF_BLESS },
+    { SCR_SUMMONING, 0, SCROLL_CLASS, 3, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Cave_man[] = {
@@ -185,7 +185,7 @@ static struct trobj Tourist[] = {
     { DART, 2, WEAPON_CLASS, 25, UNDEF_BLESS }, /* quan is variable */
     { UNDEF_TYP, UNDEF_SPE, FOOD_CLASS, 10, 0 },
     { POT_EXTRA_HEALING, 0, POTION_CLASS, 2, UNDEF_BLESS },
-    { SCR_MAGIC_MAPPING, 0, SCROLL_CLASS, 4, UNDEF_BLESS },
+    { SCR_MAPPING, 0, SCROLL_CLASS, 4, UNDEF_BLESS },
     { HAWAIIAN_SHIRT, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { EXPENSIVE_CAMERA, UNDEF_SPE, TOOL_CLASS, 1, 0 },
     { CREDIT_CARD, 0, TOOL_CLASS, 1, 0 },
@@ -1734,7 +1734,7 @@ register struct trobj *trop;
                    || ((Subrole_if(SR_ALCHEMIST)) && (otyp == POT_FRUIT_JUICE))
                    || otyp == SCR_AMNESIA
                    || otyp == SCR_FIRE
-                   || otyp == SCR_BLANK_PAPER
+                   || otyp == SCR_UNPROGRAMMED
                    || otyp == SPE_BLANK_PAPER
                    || otyp == RIN_AGGRAVATE_MONSTER
                    || otyp == RIN_HUNGER
@@ -1742,7 +1742,7 @@ register struct trobj *trop;
                    /* orcs start with poison resistance */
                    || (otyp == RIN_POISON_RESISTANCE && Race_if(PM_ORC))
                    /* Monks don't use weapons */
-                   || (otyp == SCR_ENCHANT_WEAPON && Role_if(PM_MONK))
+                   || (otyp == SCR_ENHANCE_WEAPON && Role_if(PM_MONK))
                    /* wizard patch -- they already have one */
                    || (otyp == SPE_FORCE_BOLT && Role_if(PM_WIZARD))
                    /* powerful spells are either useless to

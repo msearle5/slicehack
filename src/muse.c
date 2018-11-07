@@ -264,7 +264,7 @@ struct obj *otmp;
 #define MUSE_UPSTAIRS 8
 #define MUSE_DOWNSTAIRS 9
 #define MUSE_WAN_SUMMONING 10
-#define MUSE_SCR_CREATE_MONSTER 11
+#define MUSE_SCR_SUMMONING 11
 #define MUSE_UP_LADDER 12
 #define MUSE_DN_LADDER 13
 #define MUSE_SSTAIRS 14
@@ -644,10 +644,10 @@ boolean force;
                 m.has_defense = MUSE_WAN_SUMMONING;
             }
         }
-        nomore(MUSE_SCR_CREATE_MONSTER);
-        if (obj->otyp == SCR_CREATE_MONSTER) {
+        nomore(MUSE_SCR_SUMMONING);
+        if (obj->otyp == SCR_SUMMONING) {
             m.defensive = obj;
-            m.has_defense = MUSE_SCR_CREATE_MONSTER;
+            m.has_defense = MUSE_SCR_SUMMONING;
         }
     }
 botm:
@@ -842,7 +842,7 @@ struct monst *mtmp;
             makeknown(WAN_SUMMONING);
         return 2;
     }
-    case MUSE_SCR_CREATE_MONSTER: {
+    case MUSE_SCR_SUMMONING: {
         coord cc;
         struct permonst *pm = 0, *fish = 0;
         int cnt = 1;
@@ -873,9 +873,9 @@ struct monst *mtmp;
          * the monster to know it teleported.
          */
         if (known)
-            makeknown(SCR_CREATE_MONSTER);
-        else if (!objects[SCR_CREATE_MONSTER].oc_name_known
-                 && !objects[SCR_CREATE_MONSTER].oc_uname)
+            makeknown(SCR_SUMMONING);
+        else if (!objects[SCR_SUMMONING].oc_name_known
+                 && !objects[SCR_SUMMONING].oc_uname)
             docall(otmp);
         m_useup(mtmp, otmp);
         return 2;
@@ -1112,7 +1112,7 @@ try_again:
             return WAN_SUMMONING;
         /*FALLTHRU*/
     case 2:
-        return SCR_CREATE_MONSTER;
+        return SCR_SUMMONING;
     case 3:
         return POT_HEALING;
     case 4:
@@ -1720,7 +1720,7 @@ struct monst *mtmp;
             int num;
 
             if (vis)
-                pline_The("scroll erupts in a tower of flame!");
+                pline_The("A tower of flame erupts around %s!", Monnam(mtmp));
             shieldeff(mtmp->mx, mtmp->my);
             pline("%s is uninjured.", Monnam(mtmp));
             (void) destroy_mitem(mtmp, SCROLL_CLASS, AD_FIRE);
@@ -1733,7 +1733,7 @@ struct monst *mtmp;
             if (Half_spell_damage)
                 num = (num + 1) / 2;
             else
-                losehp(num, "scroll of fire", KILLED_BY_AN);
+                losehp(num, "fire card", KILLED_BY_AN);
             for (mtmp2 = fmon; mtmp2; mtmp2 = mtmp2->nmon) {
                 if (DEADMONSTER(mtmp2))
                     continue;
@@ -2465,7 +2465,7 @@ struct obj *obj;
             return TRUE;
         break;
     case SCROLL_CLASS:
-        if (typ == SCR_TELEPORTATION || typ == SCR_CREATE_MONSTER
+        if (typ == SCR_TELEPORTATION || typ == SCR_SUMMONING
             || typ == SCR_EARTH || typ == SCR_FIRE || typ == SCR_REMOVE_CURSE
             || typ == SCR_WEB)
             return TRUE;

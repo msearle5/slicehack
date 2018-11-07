@@ -608,7 +608,7 @@ unsigned corpseflags;
             if (!valid_obj_material(obj, PAPER) || obj->oclass == SCROLL_CLASS
                 || obj->oclass == SPBOOK_CLASS) {
                 delobj(obj);
-                obj = mksobj_at(SCR_BLANK_PAPER, x, y, TRUE, FALSE);
+                obj = mksobj_at(SCR_UNPROGRAMMED, x, y, TRUE, FALSE);
             }
             set_material(obj, PAPER);
         }

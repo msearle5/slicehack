@@ -2280,7 +2280,7 @@ eatspecial()
         vault_gd_watching(GD_EATGOLD);
         return;
     }
-    if (otmp->material == PAPER) {
+    if (otmp->material == PLASTIC) {
 #ifdef MAIL
         if (otmp->otyp == SCR_MAIL)
             /* no nutrition */

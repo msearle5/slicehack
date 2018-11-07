@@ -3669,8 +3669,8 @@ struct obj *obj;
 
     if (obj->greased) {
         grease_protect(obj, (char *) 0, victim);
-    } else if (obj->oclass == SCROLL_CLASS && obj->otyp != SCR_BLANK_PAPER) {
-        if (obj->otyp != SCR_BLANK_PAPER && !obj->oartifact
+    } else if (obj->oclass == SCROLL_CLASS && obj->otyp != SCR_UNPROGRAMMED) {
+        if (obj->otyp != SCR_UNPROGRAMMED && !obj->oartifact
 #ifdef MAIL
             && obj->otyp != SCR_MAIL
 #endif
@@ -3683,7 +3683,7 @@ struct obj *obj;
                           aobjnam(obj, "fade"));
             }
         }
-        obj->otyp = SCR_BLANK_PAPER;
+        obj->otyp = SCR_UNPROGRAMMED;
         obj->spe = 0;
         obj->dknown = 0;
     } else
@@ -3754,7 +3754,7 @@ boolean force;
             */
         return ER_NOTHING;
     } else if (obj->oclass == SCROLL_CLASS && !obj->oartifact) {
-        if (obj->otyp == SCR_BLANK_PAPER
+        if (obj->otyp == SCR_UNPROGRAMMED
 #ifdef MAIL
             || obj->otyp == SCR_MAIL
 #endif
@@ -3762,7 +3762,7 @@ boolean force;
         if (carried(obj))
             pline("Your %s %s.", ostr, vtense(ostr, "fade"));
 
-        obj->otyp = SCR_BLANK_PAPER;
+        obj->otyp = SCR_UNPROGRAMMED;
         obj->dknown = 0;
         obj->spe = 0;
         if (carried(obj))

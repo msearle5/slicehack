@@ -378,8 +378,8 @@ static const char * const bogus_items[] = {
     "fly ichor barrel",                 /* Dwarf Fortress */
     "cat tallow roast",                 /* Dwarf Fortress */
     "si",                               /* ADOM, it means "strange item" */
-    "scroll of omnipotence",            /* ADOM */
-    "scroll of vermin control",         /* ADOM */
+    "omnipotence card",            /* ADOM */
+    "vermin control card",         /* ADOM */
     "potion of cure dianthroritis",     /* Larn */
     "Eye of Spam",                      /* Larn sent you mail if you won */
     "long sword named Ringil",          /* Angband */
@@ -426,13 +426,13 @@ static const char * const bogus_items[] = {
     "preserved head",
     "radioactive orb",
     "Recursive RRF Fruit",
-    "scroll labeled EAT ME",
-    "scroll labeled NO WAY",
+    "card labeled EAT ME",
+    "card labeled NO WAY",
     "sentient slime mold",
     "sinister omen of imminent doom",
     "syntax error",
     "thoroughly useless object",
-    "scroll of perfection",
+    "perfection card",
 
     /* Fantasy */
     "Necronomicon",                     /* Lovecraft */
@@ -506,20 +506,20 @@ static const char * const bogus_items[] = {
     "potion of rebigulation",           /* Simpsons */
     "cromulent potion",                 /* the same potion when unIDed */
     "potion of score doubling",
-    "scroll of gold duplication",
+    "gold duplication card",
     "potion of gain divinity",
     "potion of bad breath",
-    "scroll labelled ED AWK YACC",      /* the standard scroll */
-    "scroll labelled MR YUCK",
-    "scroll labelled RTFM",
-    "scroll labelled KLAATU BARADA NIKTO", /* Evil Dead 3 */
-    "scroll of omniscience",
-    "scroll of mash keyboard",
-    "scroll of plot detection",
-    "scroll of detect box text",
-    "scroll of RNG taming",
-    "scroll of fungicide",
-    "scroll of stupidity",
+    "card labelled ED AWK YACC",      /* the standard scroll */
+    "card labelled MR YUCK",
+    "card labelled RTFM",
+    "card labelled KLAATU BARADA NIKTO", /* Evil Dead 3 */
+    "omniscience card",
+    "mash keyboard card",
+    "plot detection card",
+    "detect box text card",
+    "RNG taming card",
+    "fungicide card",
+    "stupidity card",
     "spellbook of detect foot",
     "spellbook of detect evil",
     "spellbook of wishing", /* http://www.alt.org/nethack/addmsgs/viewmsgs.php */
@@ -785,10 +785,7 @@ register int otyp;
         Strcpy(buf, "potion");
         break;
     case SCROLL_CLASS:
-        if (Role_if(PM_CARTOMANCER))
-            Strcpy(buf, "spell card");
-        else
-            Strcpy(buf, "scroll");
+        Strcpy(buf, "card");
         break;
     case WAND_CLASS:
         Strcpy(buf, "device");
@@ -1309,9 +1306,9 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
                 Strcpy(buf, Cartomancer_rarity(typ));
                 break;
             } else
-                Strcpy(buf, "spell card");
+                Strcpy(buf, "card");
         } else
-            Strcpy(buf, "scroll");
+            Strcpy(buf, "card");
         if (!dknown)
             break;
         if (nn) {
@@ -1325,7 +1322,7 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             Strcat(buf, dn);
         } else {
             Strcpy(buf, dn);
-            Strcat(buf, " scroll");
+            Strcat(buf, " card");
         }
         break;
     case WAND_CLASS:
@@ -2685,7 +2682,7 @@ struct obj *obj;
 }
 
 static const char *wrp[] = {
-    "device",   "ring",      "potion",     "scroll", "gem",
+    "device",   "ring",      "potion",     "card", "gem",
     "amulet", "spellbook", "spell book",
     /* for non-specific wishes */
     "weapon", "armor",     "tool",       "food",   "comestible",
@@ -4145,8 +4142,8 @@ int extra;
             blessed = 1;
         goto typfnd;
     }
-    if (unlabeled && !BSTRCMPI(bp, p - 6, "scroll")) {
-        typ = SCR_BLANK_PAPER;
+    if (unlabeled && !BSTRCMPI(bp, p - 6, "card")) {
+        typ = SCR_UNPROGRAMMED;
         goto typfnd;
     }
     if (unlabeled && !BSTRCMPI(bp, p - 9, "spellbook")) {

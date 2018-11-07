@@ -62,7 +62,7 @@ p       pay     pay your bill (in a shop)
 P       puton   put on an accessory (ring, amulet, etc)
 q       quaff   drink something (potion, water, etc)
 Q       quiver  select ammunition for quiver (use '#quit' to quit)
-r       read    read a scroll or spellbook
+r       read    read a card or spellbook
 R       remove  remove an accessory (ring, amulet, etc)
 s       search  search for secret doors, hidden traps and monsters
 t       throw   throw or shoot a weapon
