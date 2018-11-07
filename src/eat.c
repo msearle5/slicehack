@@ -100,7 +100,7 @@ register struct obj *obj;
         return TRUE;
 
     /* return (boolean) !!index(comestibles, obj->oclass); */
-    return (boolean) (obj->oclass == FOOD_CLASS);
+    return (boolean) ((obj->oclass == FOOD_CLASS) || (obj->oclass == PILL_CLASS));
 }
 
 void
@@ -2696,6 +2696,14 @@ doeat()
         }
         return 1;
     }
+
+    if (otmp->oclass == PILL_CLASS) {
+        pline("You swallow the %s.", xname(otmp));
+        peffects(otmp);
+        freeinv(otmp);
+        return 1;
+    }
+
     /* KMH -- Slow digestion is... indigestible */
     if (otmp->otyp == RIN_SLOW_DIGESTION) {
         pline("This ring is indigestible!");

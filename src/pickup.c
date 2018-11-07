@@ -1516,6 +1516,7 @@ boolean telekinesis; /* not picking it up directly by hand */
                         case POTION_CLASS:
                             time = 200;
                             break;
+                        case PILL_CLASS:
                         case SCROLL_CLASS:
                         case FOOD_CLASS:
                             time = 400;

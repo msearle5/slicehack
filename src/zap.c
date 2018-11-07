@@ -1124,14 +1124,10 @@ register struct obj *obj;
                               (otyp != POT_WATER)
                                   ? COST_CANCEL
                                   : obj->cursed ? COST_UNCURS : COST_UNBLSS);
-            if (otyp == PIL_POISON || otyp == PIL_VISION) {
-                /* sickness is "biologically contaminated" fruit juice;
-                   cancel it and it just becomes fruit juice...
-                   whereas see invisible tastes like "enchanted" fruit
-                   juice, it similarly cancels */
-                obj->otyp = POT_FRUIT_JUICE;
-            } else {
-                obj->otyp = POT_WATER;
+        case PILL_CLASS:
+            if (otyp != PIL_SUGAR) {
+                costly_alteration(obj, COST_CANCEL);
+                obj->otyp = PIL_SUGAR;
                 obj->odiluted = 0; /* same as any other water */
             }
             break;
