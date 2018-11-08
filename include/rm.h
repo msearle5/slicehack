@@ -395,7 +395,7 @@ extern struct symsetentry symset[NUM_GRAPHICS]; /* from drawing.c */
 #define W_NONPASSWALL 0x10
 
 /*
- * Ladders (in Vlad's tower) may be up or down.
+ * Ladders may be up or down.
  */
 #define LA_UP 1
 #define LA_DOWN 2

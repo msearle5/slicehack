@@ -237,14 +237,6 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       CLR_MAGENTA), */
 
     /*
-    *        Just for fun.
-    */
-    A("Vladsbane", FOOD_RATION,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_UNDEAD,
-      PHYS(-5, -5), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 200L,
-      CLR_MAGENTA),
-
-    /*
     *        Summons a superboss.
     */
     A("The King in Yellow", SPE_FINGER_OF_DEATH,

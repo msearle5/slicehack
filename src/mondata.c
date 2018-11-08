@@ -103,7 +103,7 @@ struct monst *mon;
     if (is_undead(ptr) || is_demon(ptr) || is_were(ptr)
         /* is_were() doesn't handle hero in human form */
         || (mon == &youmonst && u.ulycn >= LOW_PM)
-        || ptr == &mons[PM_DEATH] || is_vampshifter(mon))
+        || ptr == &mons[PM_DEATH])
         return TRUE;
     wep = (mon == &youmonst) ? uwep : MON_WEP(mon);
     return (boolean) (wep && wep->oartifact && defends(AD_DRLI, wep));
@@ -303,9 +303,6 @@ int material;
 {
     if (hates_material(mon->data, material))
         return TRUE;
-    /* extra case: shapeshifted vampires still hate silver */
-    if (material == SILVER && is_vampshifter(mon))
-        return TRUE;
     return FALSE;
 }
 
@@ -322,7 +319,7 @@ int material;
             if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_LEPRECHAUN])
                 return FALSE;
         }
-        return (is_were(ptr) || ptr->mlet == S_VAMPIRE
+        return (is_were(ptr)
                 || is_demon(ptr) || ptr == &mons[PM_SHADE]
                 || (ptr->mlet == S_IMP));
     }
@@ -648,8 +645,6 @@ struct permonst *pm1, *pm2;
             return (let2 == S_ZOMBIE);
         if (let1 == S_MUMMY)
             return (let2 == S_MUMMY);
-        if (let1 == S_VAMPIRE)
-            return (let2 == S_VAMPIRE);
         if (let1 == S_LICH)
             return (let2 == S_LICH);
         if (let1 == S_WRAITH)
@@ -1019,7 +1014,6 @@ static const short grownups[][2] = {
     { PM_LICH, PM_DEMILICH },
     { PM_DEMILICH, PM_MASTER_LICH },
     { PM_MASTER_LICH, PM_ARCH_LICH },
-    { PM_VAMPIRE, PM_VAMPIRE_LORD },
     { PM_BAT, PM_GIANT_BAT },
     { PM_BABY_GRAY_DRAGON, PM_GRAY_DRAGON },
     { PM_BABY_SILVER_DRAGON, PM_SILVER_DRAGON },

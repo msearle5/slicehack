@@ -74,10 +74,6 @@ struct monst *mtmp;
     case S_DRAGON:
         Your("thoughts are whited out by an overwhelming presence!");
         break;
-    case S_VAMPIRE:
-        pline("Suddenly, %s streams from your %s and %s!", body_part(BLOOD),
-            body_part(FACE), makeplural(body_part(EYE)));
-        break;
     case S_NAGA:
         You("are being crushed by telekinetic coils!");
         break;

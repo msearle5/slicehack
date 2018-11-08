@@ -968,7 +968,7 @@ struct monst *mtmp;
         }
     }
     if (mtmp->cham >= LOW_PM && mtmp->data != &mons[mtmp->cham])
-        /* don't reveal the innate form (chameleon, vampire, &c),
+        /* don't reveal the innate form (chameleon, &c),
            just expose the fact that this current form isn't it */
         Strcat(info, ", shapechanger");
     /* pets eating mimic corpses mimic while eating, so this comes first */

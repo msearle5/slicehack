@@ -201,11 +201,6 @@ static const struct innate_tech
 		       {   0, 0, 0} },
   mer_tech[] = { {   1, T_PULL_UNDER, 1},
 		       {   0, 0, 0} };
-	#if 0
-	vam_tech[] = { {   1, T_DAZZLE, 1},
-		       {   1, T_DRAW_BLOOD, 1},
-		       {   0, 0, 0} };
-	#endif
 	/* Orc */
 
 /* Local Macros
@@ -1469,43 +1464,6 @@ tamedog(mtmp, (struct obj *) 0);
             	if (!blitz_spirit_bomb()) return(0);
 		t_timeout = rn1(1000,500);
 		break;
-	    case T_DRAW_BLOOD:
-		if (!maybe_polyd(is_vampire(youmonst.data),
-		  Race_if(PM_VAMPIRE))) {
-		    /* ALI
-		     * Otherwise we get problems with what we create:
-		     * potions of vampire blood would no longer be
-		     * appropriate.
-		     */
-		    You("must be in your natural form to draw blood.");
-		    return(0);
-		}
-		obj = use_medical_kit(PHIAL, TRUE, "draw blood with");
-		if (!obj)
-		    return 0;
-		if (u.ulevel <= 1) {
-		    You_cant("seem to find a vein.");
-		    return 0;
-		}
-		check_unpaid(obj);
-		if (obj->quan > 1L)
-		    obj->quan--;
-		else {
-		    obj_extract_self(obj);
-		    obfree(obj, (struct obj *)0);
-		}
-		pline("Using your medical kit, you draw off a phial of your blood.");
-		losexp("drawing blood");
-		if (u.uexp > 0)
-		    u.uexp = newuexp(u.ulevel - 1);
-		otmp = mksobj(POT_VAMPIRE_BLOOD, FALSE, FALSE);
-		otmp->cursed = obj->cursed;
-		otmp->blessed = obj->blessed;
-		(void) hold_another_object(otmp,
-			"You fill, but have to drop, %s!", doname(otmp),
-			(const char *)0);
-		t_timeout = rn1(1000, 500);
-		break;
 		case T_DRAGON_CALL:
 				if (!rn2(13))
 						mtmp = makemon(mkclass(S_DRAGON, 0), 0, 0, NO_MM_FLAGS);
@@ -1814,7 +1772,6 @@ race_tech()
 		case PM_DOPPELGANGER:	return (dop_tech);
 		case PM_DROW:		return (elf_tech);
 		case PM_HOBBIT:		return (hob_tech);
-    case PM_VAMPIRE:	return (vam_tech);
     #endif
 		case PM_MERFOLK:	return (mer_tech);
 		case PM_GNOME:		return (gno_tech);

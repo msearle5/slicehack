@@ -290,7 +290,7 @@ SHUFFLE: $object
 $place = { (09,08),(09,09),(09,10),(52,03),(52,15) }
 SHUFFLE: $place
 
-$monster = monster: { 'L','N','E','V','M','O','R','T','X','Z' }
+$monster = monster: { 'L','N','E','M','O','R','T','X','Z' }
 
 
 TELEPORT_REGION:(64,03,75,20),(07,01,54,17),down
@@ -432,9 +432,9 @@ IF [25%] {
   MONSTER:('H',"titan"),(23,09),hostile,asleep
 }
 IF [50%] {
-  MONSTER:'V',(23,09),asleep
+  MONSTER:'Z',(23,09),asleep
 }
-MONSTER:'V',(23,09),asleep
+MONSTER:'Z',(23,09),asleep
 
 # monsters in the water around the castle
 MONSTER:(';',"shark"),random

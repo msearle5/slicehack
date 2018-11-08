@@ -592,7 +592,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
             if (DEADMONSTER(mtmp)) {
                 if (vis || (verbose && !target))
                     pline("%s is %s!", Monnam(mtmp),
-                          (nonliving(mtmp->data) || is_vampshifter(mtmp)
+                          (nonliving(mtmp->data)
                            || !canspotmon(mtmp)) ? "destroyed" : "killed");
                 /* don't blame hero for unknown rolling boulder trap */
                 if (!context.mon_moving && (otmp->otyp != BOULDER

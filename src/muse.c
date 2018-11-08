@@ -274,7 +274,6 @@ struct obj *otmp;
 #define MUSE_PIL_FULL_HEALING 18
 #define MUSE_LIZARD_CORPSE 19
 #define MUSE_WAN_MEDICAL 20
-#define MUSE_POT_VAMPIRE_BLOOD 21
 /*
 #define MUSE_INNATE_TPT 9999
  * We cannot use this.  Since monsters get unlimited teleportation, if they
@@ -310,12 +309,6 @@ struct monst *mtmp;
             return TRUE;
         }
     }
-    if (is_vampire(mtmp->data) &&
-		  (obj = m_carrying(mtmp, POT_VAMPIRE_BLOOD)) !=0) {
-		    m.defensive = obj;
-		    m.has_defense = MUSE_POT_VAMPIRE_BLOOD;
-		    return TRUE;
-		}
     return FALSE;
 }
 
@@ -627,11 +620,6 @@ boolean force;
                 m.defensive = obj;
                 m.has_defense = MUSE_WAN_MEDICAL;
             }
-            nomore(MUSE_POT_VAMPIRE_BLOOD);
-        		if(is_vampire(mtmp->data) && obj->otyp == POT_VAMPIRE_BLOOD) {
-        			m.defensive = obj;
-        			m.has_defense = MUSE_POT_VAMPIRE_BLOOD;
-        		}
         } else { /* Pestilence */
             nomore(MUSE_PIL_FULL_HEALING);
             if (obj->otyp == PIL_POISON) {
@@ -1059,19 +1047,6 @@ struct monst *mtmp;
         /* not actually called for its unstoning effect */
         mon_consume_unstone(mtmp, otmp, FALSE, FALSE);
         return 2;
-    case MUSE_POT_VAMPIRE_BLOOD:
-    		mquaffmsg(mtmp, otmp);
-    		if (!otmp->cursed) {
-    		    i = rnd(8) + rnd(2);
-    		    mtmp->mhp += i;
-    		    mtmp->mhpmax += i;
-    		    if (vismon) pline("%s looks full of life.", Monnam(mtmp));
-    		}
-    		else if (vismon)
-    		    pline("%s discards the congealed blood in disgust.", Monnam(mtmp));
-    		if (oseen) makeknown(POT_VAMPIRE_BLOOD);
-    		m_useup(mtmp, otmp);
-    		return 2;
     case 0:
         return 0; /* i.e. an exploded wand */
     default:
@@ -1326,7 +1301,7 @@ struct monst *mtmp;
             m.has_offense = MUSE_POT_ACID;
         }
         nomore(MUSE_POT_BLOOD_THROW);
-        if (obj->otyp == POT_BLOOD && !is_vampire(mtmp->data)) {
+        if (obj->otyp == POT_BLOOD) {
             m.offensive = obj;
             m.has_offense = MUSE_POT_BLOOD_THROW;
         }
@@ -2389,7 +2364,7 @@ struct monst *mtmp;
     if (difficulty < 6 && !rn2(30))
         return rn2(6) ? PIL_MUTAGEN : WAN_MUTATION;
 
-    if (!rn2(40) && !nonliving(pm) && !is_vampshifter(mtmp))
+    if (!rn2(40) && !nonliving(pm))
         return AMULET_OF_LIFE_SAVING;
 
     /* This is considerably rarer as it won't be destroyed, and also
@@ -2451,8 +2426,6 @@ struct obj *obj;
             return TRUE;
         break;
     case POTION_CLASS:
-        if (typ == POT_VAMPIRE_BLOOD)
-            return is_vampire(mon->data);
         if (typ == POT_BOOZE)
             return is_pirate(mon->data);
         if (typ == PIL_HEALING || typ == PIL_EXTRA_HEALING
@@ -2472,7 +2445,7 @@ struct obj *obj;
         break;
     case AMULET_CLASS:
         if (typ == AMULET_OF_LIFE_SAVING)
-            return (boolean) !(nonliving(mon->data) || is_vampshifter(mon));
+            return (boolean) !(nonliving(mon->data));
         if (typ == AMULET_OF_REFLECTION)
             return TRUE;
         break;

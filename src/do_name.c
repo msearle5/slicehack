@@ -1308,7 +1308,7 @@ struct obj * wpn;
         "Chaos %s",       "Void %s",       "Sick %s",        "Bloody %s",
         "Shiny %s",       "Super %s",      "Awesome %s",
         "Transfer of Ownership",
-        "Due Process",   "Puddingbane",    "Vladsbane",
+        "Due Process",   "Puddingbane",
         "Newtsbane",      "Aggressive Negotiation",
         "Orphan Maker",   "Monster Slayer",
         "Astral Caller",

@@ -761,19 +761,6 @@ register struct attack *mattk;
     for (obj = mdef->minvent; obj; obj = obj->nobj)
         (void) snuff_lit(obj);
 
-    if (is_vampshifter(mdef)
-        && newcham(mdef, &mons[mdef->cham], FALSE, FALSE)) {
-        if (vis) {
-            /* 'it' -- previous form is no longer available and
-               using that would be excessively verbose */
-            pline("%s expels %s.", Monnam(magr),
-                  canspotmon(mdef) ? "it" : something);
-            if (canspotmon(mdef))
-                pline("It turns into %s.", a_monnam(mdef));
-        }
-        return MM_HIT; /* bypass mdamagem() */
-    }
-
     /*
      *  All of this manipulation is needed to keep the display correct.
      *  There is a flush at the next pline().

@@ -1710,7 +1710,6 @@ int x, y;
  * even if ptr passed as well, but ptr is always used for
  * the corpse type (corpsenm). That allows the corpse type
  * to be different from the original monster,
- *      i.e.  vampire -> human corpse
  * yet still allow restoration of the original monster upon
  * resurrection.
  */

@@ -56,7 +56,7 @@ register boolean clumsy;
     if (mon->data == &mons[PM_SHADE])
         dmg = 0;
 
-    if ((is_undead(mon->data) || is_demon(mon->data) || is_vampshifter(mon))
+    if ((is_undead(mon->data) || is_demon(mon->data))
         && uarmf && uarmf->blessed)
         blessed_foot_damage = 1;
 

@@ -971,7 +971,7 @@ genericptr_t p2;
 
         /* Non living and non breathing monsters are not concerned;
            adult green dragon is not affected by gas cloud, baby one is */
-        if (!(nonliving(mtmp->data) || is_vampshifter(mtmp))
+        if (!(nonliving(mtmp->data))
             && !breathless(mtmp->data)
             /* exclude monsters with poison gas breath attack:
                adult green dragon and Chromatic Dragon (and iron golem,

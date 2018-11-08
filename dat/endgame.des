@@ -633,9 +633,9 @@ MONSTER:('A',"Angel"),(63,13),neutral,peaceful
 MONSTER:'L',random,hostile
 MONSTER:'L',random,hostile
 MONSTER:'L',random,hostile
-MONSTER:'V',random,hostile
-MONSTER:'V',random,hostile
-MONSTER:'V',random,hostile
+MONSTER:'M',random,hostile
+MONSTER:'M',random,hostile
+MONSTER:'M',random,hostile
 MONSTER:'D',random,hostile
 MONSTER:'D',random,hostile
 MONSTER:'D',random,hostile

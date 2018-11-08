@@ -17,8 +17,6 @@ STATIC_DCL void FDECL(distfleeck, (struct monst *, int *, int *, int *));
 STATIC_DCL int FDECL(m_arrival, (struct monst *));
 STATIC_DCL int FDECL(count_webbing_walls, (XCHAR_P, XCHAR_P));
 STATIC_DCL boolean FDECL(stuff_prevents_passage, (struct monst *));
-STATIC_DCL int FDECL(vamp_shift, (struct monst *, struct permonst *,
-                                  BOOLEAN_P));
 
 #define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
 
@@ -166,13 +164,6 @@ struct monst *mtmp;
     /* <0,0> is used by musical scaring to check for the above;
      * it doesn't care about scrolls or engravings or dungeon branch */
     if (x == 0 && y == 0)
-        return TRUE;
-
-    /* should this still be true for defiled/molochian altars?
-       the holy symbol is similar */
-    if ((IS_ALTAR(levl[x][y].typ) ||
-        sobj_at(HOLY_SYMBOL, x, y))
-        && (mtmp->data->mlet == S_VAMPIRE || is_vampshifter(mtmp)))
         return TRUE;
 
     /* the scare monster scroll doesn't have any of the below
@@ -1250,7 +1241,7 @@ not_special:
         flag |= ALLOW_DIG;
     if (is_human(ptr) || ptr == &mons[PM_MINOTAUR])
         flag |= ALLOW_SSM;
-    if ((is_undead(ptr) && ptr->mlet != S_GHOST) || is_vampshifter(mtmp))
+    if ((is_undead(ptr) && ptr->mlet != S_GHOST))
         flag |= NOGARLIC;
     if (throws_rocks(ptr))
         flag |= ALLOW_ROCK;
@@ -1430,7 +1421,7 @@ postmov:
 
                 /* if mon has MKoT, disarm door trap; no message given */
                 if (btrapped && has_magic_key(mtmp)) {
-                    /* BUG: this lets a vampire or blob or a doorbuster
+                    /* BUG: this lets a blob or a doorbuster
                        holding the Key disarm the trap even though it isn't
                        using that Key when squeezing under or smashing the
                        door.  Not significant enough to worry about; perhaps
@@ -1439,11 +1430,7 @@ postmov:
                     btrapped = FALSE;
                 }
                 if ((here->doormask & (D_LOCKED | D_CLOSED)) != 0
-                    && (amorphous(ptr)
-                        || (can_fog(mtmp)
-                            && vamp_shift(mtmp, &mons[PM_FOG_CLOUD],
-                                          sawmon)))) {
-                    /* update cached value for vamp_shift() case */
+                    && (amorphous(ptr))) {
                     ptr = mtmp->data;
                     if (flags.verbose && canseemon(mtmp))
                         pline("%s %s under the door.", Monnam(mtmp),
@@ -1742,7 +1729,7 @@ register struct monst *mtmp;
                  || ((mx != u.ux || my != u.uy) && !passes_walls(mtmp->data)
                      && !(accessible(mx, my)
                           || (closed_door(mx, my)
-                              && (can_ooze(mtmp) || can_fog(mtmp)))))
+                              && (can_ooze(mtmp)))))
                  || !couldsee(mx, my));
     } else {
     found_you:
@@ -1790,7 +1777,7 @@ xchar x, y;
 
 /*
  * Inventory prevents passage under door.
- * Used by can_ooze() and can_fog().
+ * Used by can_ooze().
  */
 STATIC_OVL boolean
 stuff_prevents_passage(mtmp)
@@ -1837,46 +1824,6 @@ struct monst *mtmp;
     if (!amorphous(mtmp->data) || stuff_prevents_passage(mtmp))
         return FALSE;
     return TRUE;
-}
-
-/* monster can change form into a fog if necessary */
-boolean
-can_fog(mtmp)
-struct monst *mtmp;
-{
-    if (!(mvitals[PM_FOG_CLOUD].mvflags & G_GENOD) && is_vampshifter(mtmp)
-        && !Protection_from_shape_changers && !stuff_prevents_passage(mtmp))
-        return TRUE;
-    return FALSE;
-}
-
-STATIC_OVL int
-vamp_shift(mon, ptr, domsg)
-struct monst *mon;
-struct permonst *ptr;
-boolean domsg;
-{
-    int reslt = 0;
-    char oldmtype[BUFSZ];
-
-    /* remember current monster type before shapechange */
-    Strcpy(oldmtype, domsg ? noname_monnam(mon, ARTICLE_THE) : "");
-
-    if (mon->data == ptr) {
-        /* already right shape */
-        reslt = 1;
-        domsg = FALSE;
-    } else if (is_vampshifter(mon)) {
-        reslt = newcham(mon, ptr, FALSE, FALSE);
-    }
-
-    if (reslt && domsg) {
-        pline("You %s %s where %s was.",
-              !canseemon(mon) ? "now detect" : "observe",
-              noname_monnam(mon, ARTICLE_A), oldmtype);
-    }
-
-    return reslt;
 }
 
 /*monmove.c*/

@@ -449,33 +449,24 @@ int how;
     if (imitator) {
         char shape[BUFSZ];
         const char *realnm = champtr->mname, *fakenm = mptr->mname;
-        boolean alt = is_vampshifter(mtmp);
 
         if (mimicker) {
             /* realnm is already correct because champtr==mptr;
                set up fake mptr for type_is_pname/the_unique_pm */
             mptr = &mons[mtmp->mappearance];
             fakenm = mptr->mname;
-        } else if (alt && strstri(realnm, "vampire")
-                   && !strcmp(fakenm, "vampire bat")) {
-            /* special case: use "vampire in bat form" in preference
-               to redundant looking "vampire in vampire bat form" */
-            fakenm = "bat";
         }
         /* for the alternate format, always suppress any article;
            pname and the_unique should also have s_suffix() applied,
-           but vampires don't take on any shapes which warrant that */
-        if (alt || type_is_pname(mptr)) /* no article */
+           but nothing takes on any shapes which warrant that */
+        if (type_is_pname(mptr)) /* no article */
             Strcpy(shape, fakenm);
         else if (the_unique_pm(mptr)) /* "the"; don't use the() here */
             Sprintf(shape, "the %s", fakenm);
         else /* "a"/"an" */
             Strcpy(shape, an(fakenm));
         /* omit "called" to avoid excessive verbosity */
-        Sprintf(eos(buf),
-                alt ? "%s in %s form"
-                    : mimicker ? "%s disguised as %s"
-                               : "%s imitating %s",
+        Sprintf(eos(buf), mimicker ? "%s disguised as %s" : "%s imitating %s",
                 realnm, shape);
         mptr = mtmp->data; /* reset for mimicker case */
     } else if (mptr == &mons[PM_GHOST]) {
@@ -504,8 +495,6 @@ int how;
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
-    else if (mptr->mlet == S_VAMPIRE && Race_if(PM_HUMAN))
-        u.ugrave_arise = PM_VAMPIRE;
     else if (mptr == &mons[PM_GHOUL])
         u.ugrave_arise = PM_GHOUL;
     else if (mptr == &mons[PM_BANSHEE])
@@ -517,8 +506,8 @@ int how;
 		u.ugrave_arise = zombie_target(youmonst.data);
     else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 15)
         u.ugrave_arise = PM_SPECTRE;
-    /* this could happen if a high-end vampire kills the hero
-       when ordinary vampires are genocided; ditto for wraiths */
+    /* this could happen if a Nazgul kills the hero
+       when ordinary wraiths are genocided */
     if (u.ugrave_arise >= LOW_PM
         && (mvitals[u.ugrave_arise].mvflags & G_GENOD))
         u.ugrave_arise = NON_PM;

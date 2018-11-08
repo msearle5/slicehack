@@ -1072,7 +1072,7 @@ register struct attack *mattk;
 
     /*  First determine the base damage done */
     dmg = d((int) mattk->damn, (int) mattk->damd);
-    if ((is_undead(mdat) || is_vampshifter(mtmp)) && midnight())
+    if ((is_undead(mdat)) && midnight())
         dmg += d((int) mattk->damn, (int) mattk->damd); /* extra damage */
 
     /*  Next a cancellation factor.
@@ -2084,8 +2084,7 @@ register struct attack *mattk;
         if (Half_physical_damage
             /* Mitre of Holiness */
             || (Role_if(PM_PRIEST) && uarmh && is_quest_artifact(uarmh)
-                && (is_undead(mtmp->data) || is_demon(mtmp->data)
-                    || is_vampshifter(mtmp))))
+                && (is_undead(mtmp->data) || is_demon(mtmp->data))))
             dmg = (dmg + 1) / 2;
 
         if (permdmg) { /* Death's life force drain */
@@ -2632,15 +2631,6 @@ struct attack *mattk;
                     nomul(-prlys);
                     nomovemsg = 0;	/* default: "you can move again" */
 
-                    if(!mtmp->cham && mtmp->data == &mons[PM_NOSFERATU] &&
-                        !mtmp->mcan && !rn2(3)){
-                        numhelp = were_summon(mtmp->data, FALSE, &numseen, 0);
-                        pline("%s summons help!", Monnam(mtmp));
-                        if (numhelp > 0) {
-                            if (numseen == 0)
-                                You_feel("hemmed in.");
-                        } else pline("But none comes.");
-                    }
                     mtmp->mspec_used += prlys*3/2 + rn2(prlys);
                 }
             }

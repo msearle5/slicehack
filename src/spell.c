@@ -319,7 +319,7 @@ struct obj *book2;
             if (DEADMONSTER(mtmp))
                 continue;
 
-            if ((is_undead(mtmp->data) || is_vampshifter(mtmp))
+            if ((is_undead(mtmp->data))
                 && cansee(mtmp->mx, mtmp->my)) {
                 mtmp->mpeaceful = TRUE;
                 if (sgn(mtmp->data->maligntyp) == sgn(u.ualign.type)

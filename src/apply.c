@@ -1062,8 +1062,7 @@ struct obj *obj;
                     }
                     nomovemsg = 0; /* default, "you can move again" */
                 }
-            } else if (youmonst.data->mlet == S_VAMPIRE)
-                You("don't have a reflection.");
+            }
             else if (u.umonnum == PM_UMBER_HULK) {
                 pline("Huh?  That doesn't look like you!");
                 make_confused(HConfusion + d(3, 4), FALSE);
@@ -1128,7 +1127,7 @@ struct obj *obj;
             pline("%s is too far away to see %sself in the dark.",
                   Monnam(mtmp), mhim(mtmp));
         /* some monsters do special things */
-    } else if (mlet == S_VAMPIRE || mlet == S_GHOST || is_vampshifter(mtmp)) {
+    } else if (mlet == S_GHOST) {
         if (vis)
             pline("%s doesn't have a reflection.", Monnam(mtmp));
     } else if (monable && mtmp->data == &mons[PM_MEDUSA]) {

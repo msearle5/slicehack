@@ -125,8 +125,6 @@ Substance warpers can change the material of your items.
 Rings of blood magic allow you to convert hit points to power.
 Merfolk have poor abilities, but begin the game with one of the most powerful techniques.
 You can encounter the big room up to three times.
-Vlad's castle has a large courtyard.
-Vlad is accompanied by his son Alucard, a powerful vampire in his own right.
 Luckless Folly grows more powerful the more unlucky you are.
 Monsters can counter the cards played by cartomancers with their own cards.
 One-Eyed Sam does not take kindly to attempts to steal from her.

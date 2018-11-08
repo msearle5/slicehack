@@ -132,7 +132,7 @@ MONSTER:('Z',"zombie dragon"),random,hostile
 MONSTER:('Z',"zombie dragon"),random,hostile
 MONSTER:('Z',"zombie dragon"),random,hostile
 MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:'V' ,random,hostile
+MONSTER:'Z' ,random,hostile
 MONSTER:('q',"chimera"),random,hostile
 
 #
@@ -240,7 +240,7 @@ MONSTER:('Z',"zombie dragon"),random,hostile
 MONSTER:('Z',"zombie dragon"),random,hostile
 MONSTER:'Z' ,random,hostile
 MONSTER:'Z' ,random,hostile
-MONSTER:'V' ,random,hostile
+MONSTER:'Z' ,random,hostile
 
 MAZE: "Dra-filb" , ' '
 INIT_MAP: mines, '.' , ' ' , true , true , unlit , true
@@ -274,5 +274,5 @@ MONSTER:'Z' ,random,hostile
 MONSTER:'Z' ,random,hostile
 MONSTER:'Z' ,random,hostile
 MONSTER:'Z' ,random,hostile
-MONSTER:'V' ,random,hostile
-MONSTER:'V' ,random,hostile
+MONSTER:'Z' ,random,hostile
+MONSTER:'Z' ,random,hostile

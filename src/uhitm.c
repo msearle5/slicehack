@@ -765,7 +765,7 @@ int dieroll;
         valid_weapon_attack = (tmp > 1);
         /* blessed gloves give bonuses when fighting 'bare-handed' */
         if (uarmg && uarmg->blessed
-            && (is_undead(mdat) || is_demon(mdat) || is_vampshifter(mon)))
+            && (is_undead(mdat) || is_demon(mdat)))
             tmp += rnd(4);
 
         /* So do silver rings.  Note: rings are worn under gloves, so you
@@ -1216,7 +1216,7 @@ int dieroll;
 #undef useup_eggs
                 }
                 case CLOVE_OF_GARLIC: /* no effect against demons */
-                    if (is_undead(mdat) || is_vampshifter(mon)) {
+                    if (is_undead(mdat)) {
                         monflee(mon, d(2, 4), FALSE, TRUE);
                     }
                     tmp = 1;
@@ -2561,21 +2561,6 @@ register struct attack *mattk;
     if (u.uhunger < 1500 && !u.uswallow) {
         for (otmp = mdef->minvent; otmp; otmp = otmp->nobj)
             (void) snuff_lit(otmp);
-
-        /* force vampire in bat, cloud, or wolf form to revert back to
-           vampire form now instead of dealing with that when it dies */
-        if (is_vampshifter(mdef)
-            && newcham(mdef, &mons[mdef->cham], FALSE, FALSE)) {
-            if (has_head(youmonst.data))
-                You("swallow it, then spit it out.");
-            else
-                You("engulf it, then expel it.");
-            if (canspotmon(mdef))
-                pline("It turns into %s.", a_monnam(mdef));
-            else
-                map_invisible(mdef->mx, mdef->my);
-            return 1;
-        }
 
         /* engulfing a cockatrice or digesting a Rider or Medusa */
         fatal_gulp = (touch_petrifies(pd) && !Stone_resistance)

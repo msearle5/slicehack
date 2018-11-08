@@ -1665,7 +1665,7 @@ struct mkroom *croom;
          */
         if (m->appear_as.str
             && ((mtmp->data->mlet == S_MIMIC)
-                /* shapechanger (chameleons, et al, and vampires) */
+                /* shapechanger (chameleons, et al) */
                 || (mtmp->cham >= LOW_PM && m->appear == M_AP_MONSTER))
             && !Protection_from_shape_changers) {
             int i;
@@ -1732,16 +1732,13 @@ struct mkroom *croom;
                 else
                     mndx = name_to_mon(m->appear_as.str);
 
-                if (mndx == NON_PM || (is_vampshifter(mtmp)
-                                       && !validvamp(mtmp, &mndx, S_HUMAN))) {
+                if (mndx == NON_PM) {
                     impossible("create_monster: invalid %s (\"%s\")",
                                (mtmp->data->mlet == S_MIMIC)
                                  ? "mimic appearance"
                                  : (mtmp->data == &mons[PM_WIZARD_OF_YENDOR])
                                      ? "Wizard appearance"
-                                     : is_vampshifter(mtmp)
-                                         ? "vampire shape"
-                                         : "chameleon shape",
+                                     : "chameleon shape",
                                m->appear_as.str);
                 } else if (&mons[mndx] == mtmp->data) {
                     /* explicitly forcing a mimic to appear as itself */
@@ -1753,7 +1750,7 @@ struct mkroom *croom;
                        and hasn't been exhaustively tested for mimics */
                     mtmp->m_ap_type = M_AP_MONSTER;
                     mtmp->mappearance = mndx;
-                } else { /* chameleon or vampire */
+                } else { /* chameleon */
                     struct permonst *mdat = &mons[mndx];
                     struct permonst *olddata = mtmp->data;
 
