@@ -873,7 +873,7 @@ register struct obj *obj;
             else
                 return carni ? CADAVER : MANFOOD;
         case CLOVE_OF_GARLIC:
-            return (is_undead(mptr) || is_vampshifter(mon))
+            return (is_undead(mptr))
                       ? TABU
                       : (herbi || starving)
                          ? ACCFOOD

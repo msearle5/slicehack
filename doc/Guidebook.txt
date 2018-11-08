@@ -5170,7 +5170,7 @@
              u    S_unicorn              (unicorn or horse)
              <    S_upladder             (ladder up)
              <    S_upstair              (staircase up)
-             V    S_vampire              (vampire)
+             V    S_v                    (?)
              |    S_vbeam                (vertical beam [zap animation])
              #    S_vcdbridge            (vertical raised drawbridge)
              +    S_vcdoor               (closed door in vertical wall)

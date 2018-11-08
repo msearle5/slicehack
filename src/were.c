@@ -177,8 +177,7 @@ char *genbuf;
     for (i = rnd(5); i > 0; i--) {
         switch (pm) {
         case PM_WERERAT:
-        case PM_HUMAN_WERERAT:
-        case PM_NOSFERATU: /* the rats _should_ appear around the Nosferatu*/
+        case PM_HUMAN_WERERAT: /* the rats _should_ appear around the Nosferatu*/
             typ = rn2(3) ? PM_SEWER_RAT
                          : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
             cap = near_capacity();

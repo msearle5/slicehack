@@ -553,9 +553,6 @@ morguemon()
         }
     }
 
-    if (hd > 8 && i > 85)
-        return mkclass(S_VAMPIRE, 0);
-
     return ((i < 20) ? &mons[PM_GHOST]
                      : (i < 40) ? &mons[PM_WRAITH]
                                 : mkclass(S_ZOMBIE, 0));

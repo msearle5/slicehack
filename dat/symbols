@@ -553,7 +553,7 @@ start: Blank
         S_unicorn: \032
         S_upladder: \032
         S_upstair: \032
-        S_vampire: \032
+        S_v: \032
         S_vbeam: \032
         S_vcdbridge: \032
         S_vcdoor: \032

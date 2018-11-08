@@ -410,7 +410,7 @@ int psflags;
     int old_light, new_light, mntmp, class, tryct;
     boolean forcecontrol = (psflags == 1), monsterpoly = (psflags == 2),
             draconian = (uarm && Is_dragon_armor(uarm)),
-            iswere = (u.ulycn >= LOW_PM), isvamp = is_vampire(youmonst.data),
+            iswere = (u.ulycn >= LOW_PM),
             controllable_poly = Polymorph_control && !(Stunned || Unaware),
             yourrace;
 
@@ -424,8 +424,7 @@ int psflags;
         return;
     }
     /* being Stunned|Unaware doesn't negate this aspect of Poly_control */
-    if (!Polymorph_control && !forcecontrol && !draconian && !iswere
-        && !isvamp) {
+    if (!Polymorph_control && !forcecontrol && !draconian && !iswere) {
         if (rn2(20) > ACURR(A_CON)) {
             You1(shudder_for_moment);
             losehp(rnd(30), "system shock", KILLED_BY_AN);
@@ -435,9 +434,6 @@ int psflags;
     }
     old_light = emits_light(youmonst.data);
     mntmp = NON_PM;
-
-    if (monsterpoly && isvamp)
-        goto do_vampyr;
 
     if (controllable_poly || forcecontrol) {
         tryct = 5;
@@ -509,10 +505,7 @@ int psflags;
         /* allow skin merging, even when polymorph is controlled */
         if (draconian && (tryct <= 0 || mntmp == armor_to_dragon(uarm->otyp)))
             goto do_merge;
-        if (isvamp && (tryct <= 0 || mntmp == PM_WOLF || mntmp == PM_FOG_CLOUD
-                       || is_bat(&mons[mntmp])))
-            goto do_vampyr;
-    } else if (draconian || iswere || isvamp) {
+    } else if (draconian || iswere) {
         /* special changes that don't require polyok() */
         if (draconian) {
         do_merge:
@@ -555,17 +548,6 @@ int psflags;
                 mntmp = PM_HUMAN; /* Illegal; force newman() */
             else
                 mntmp = u.ulycn;
-        } else if (isvamp) {
-        do_vampyr:
-            if (mntmp < LOW_PM || (mons[mntmp].geno & G_UNIQ))
-                mntmp = (youmonst.data != &mons[PM_VAMPIRE] && !rn2(10))
-                            ? PM_WOLF
-                            : !rn2(4) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
-            if (controllable_poly) {
-                Sprintf(buf, "Become %s?", an(mons[mntmp].mname));
-                if (yn(buf) != 'y')
-                    return;
-            }
         }
         /* if polymon fails, "you feel" message has been given
            so don't follow up with another polymon or newman;
@@ -818,10 +800,8 @@ int mntmp;
             pline(use_thec, monsterc, "jump");
         if (youmonst.data->msound == MS_SHRIEK) /* worthless, actually */
             pline(use_thec, monsterc, "shriek");
-        if (is_vampire(youmonst.data))
-            pline(use_thec, monsterc, "change shape");
         if (attacktype(youmonst.data, AT_MAGC))
-         		pline(use_thec, monsterc,"cast monster spells");
+            pline(use_thec, monsterc,"cast monster spells");
         if (lays_eggs(youmonst.data) && flags.female)
             pline(use_thec, "sit", "lay an egg");
     }
@@ -1558,21 +1538,6 @@ dohide()
 }
 
 int
-dopoly()
-{
-    struct permonst *savedat = youmonst.data;
-
-    if (is_vampire(youmonst.data)) {
-        polyself(2);
-        if (savedat != youmonst.data) {
-            You("transform into %s.", an(youmonst.data->mname));
-            newsym(u.ux, u.uy);
-        }
-    }
-    return 1;
-}
-
-int
 domindblast()
 {
     struct monst *mtmp, *nmon;
@@ -1914,11 +1879,6 @@ polysense()
     case PM_PURPLE_WORM:
         warnidx = PM_SHRIEKER;
         break;
-    case PM_VAMPIRE:
-    case PM_VAMPIRE_LORD:
-        context.warntype.polyd = M2_HUMAN | M2_ELF;
-        HWarn_of_mon |= FROMRACE;
-        return;
     }
     if (warnidx >= LOW_PM) {
         context.warntype.speciesidx = warnidx;

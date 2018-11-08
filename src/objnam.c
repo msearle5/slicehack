@@ -4997,10 +4997,6 @@ typfnd:
                     if (otmp->spe < 5) otmp->spe += 3;
                     pm=PM_ROCK_TROLL;
                     break;
-                case ART_VLADSBANE:
-                    pm=PM_VAMPIRE_LORD;
-                    voice="Vlad the Impaler";
-                    break;
                 case ART_KING_IN_YELLOW:
                     pm=PM_SHADE;
                     break;

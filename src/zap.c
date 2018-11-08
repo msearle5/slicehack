@@ -241,7 +241,7 @@ struct obj *otmp;
         wake = FALSE;
         if (unturn_dead(mtmp))
             wake = TRUE;
-        if (is_undead(mtmp->data) || is_vampshifter(mtmp)) {
+        if (is_undead(mtmp->data)) {
             reveal_invis = TRUE;
             wake = TRUE;
             dmg = rnd(8);
@@ -294,8 +294,8 @@ struct obj *otmp;
             } else if (newcham(mtmp, (struct permonst *) 0,
                                polyspot, give_msg) != 0
                        /* if shapechange failed because there aren't
-                          enough eligible candidates (most likely for
-                          vampshifter), try reverting to original form */
+                          enough eligible candidates, try reverting
+                          to original form */
                        || (mtmp->cham >= LOW_PM
                            && newcham(mtmp, &mons[mtmp->cham],
                                       polyspot, give_msg) != 0)) {
@@ -3933,7 +3933,7 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
                 break;
             }
             if (nonliving(mon->data) || is_demon(mon->data)
-                || is_vampshifter(mon) || resists_magm(mon)) {
+                || resists_magm(mon)) {
                 /* similar to player */
                 sho_shieldeff = TRUE;
                 break;

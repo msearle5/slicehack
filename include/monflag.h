@@ -39,7 +39,7 @@
 #define MS_DJINNI 27    /* "Thank you for freeing me!" */
 #define MS_NURSE 28     /* "Take off your shirt, please." */
 #define MS_SEDUCE 29    /* "Hello, sailor." (Nymphs) */
-#define MS_VAMPIRE 30   /* vampiric seduction, Vlad's exclamations */
+/* 30 free */
 #define MS_BRIBE 31     /* asks for money, or berates you */
 #define MS_CUSS 32      /* berates (demons) or intimidates (Wiz) */
 #define MS_RIDER 33     /* astral level special monsters */

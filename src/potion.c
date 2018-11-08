@@ -1613,52 +1613,11 @@ register struct obj *otmp;
             polyself(0);
         break;
     case POT_BLOOD:
-    case POT_VAMPIRE_BLOOD:
         unkn++;
         u.uconduct.unvegan++;
-        if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) {
-            violated_vegetarian();
-            if (otmp->cursed)
-                  pline("Yecch!  This %s.", Hallucination ?
-            "liquid could do with a good stir" : "blood has congealed");
-            else pline(Hallucination ?
-              "The %s liquid stirs memories of home." :
-              "The %s blood tastes delicious.",
-              otmp->odiluted ? "watery" : "thick");
-            if (!otmp->cursed)
-                lesshungry((otmp->odiluted ? 1 : 2) *
-                  (otmp->otyp == POT_VAMPIRE_BLOOD ? 400 :
-                  otmp->blessed ? 15 : 10));
-            if (otmp->otyp == POT_VAMPIRE_BLOOD && otmp->blessed) {
-                int num = newhp();
-                if (Upolyd) {
-                    u.mhmax += num;
-                    u.mh += num;
-                } else {
-                    u.uhpmax += num;
-                    u.uhp += num;
-                }
-            }
-        } else if (otmp->otyp == POT_VAMPIRE_BLOOD) {
-            /* [CWC] fix conducts for potions of (vampire) blood -
-               doesn't use violated_vegetarian() to prevent
-               duplicated "you feel guilty" messages */
-            u.uconduct.unvegetarian++;
-            if (u.ualign.type == A_LAWFUL || Role_if(PM_MONK)) {
-                You_feel("%sguilty about drinking such a vile liquid.",
-                    Role_if(PM_MONK) ? "especially " : "");
-                u.ugangr++;
-                adjalign(-15);
-            } else if (u.ualign.type == A_NEUTRAL)
-                  adjalign(-3);
-            exercise(A_CON, FALSE);
-            if (!Unchanging && polymon(PM_VAMPIRE))
-              u.mtimedone = 0;	/* "Permanent" change */
-        } else {
-            violated_vegetarian();
-            pline("Ugh.  That was vile.");
-            make_vomiting(Vomiting+d(10,8), TRUE);
-        }
+        violated_vegetarian();
+        pline("Ugh.  That was vile.");
+        make_vomiting(Vomiting+d(10,8), TRUE);
         break;
     case PIL_SUGAR:
         pline("Nothing happens.");
@@ -1907,7 +1866,6 @@ int how;
                 polyself(0);
             break;
         case POT_BLOOD:
-        case POT_VAMPIRE_BLOOD:
             if (Blind)
                 You_feel("sticky!");
             else if (Race_if(PM_INFERNAL)) {
@@ -2033,10 +1991,7 @@ int how;
             }
             break;
         case POT_BLOOD:
-        case POT_VAMPIRE_BLOOD:
             pline("%s is covered in blood!", Monnam(mon));
-            if (is_vampire(mon->data))
-                pline("%s seems to enjoy the blood bath.", Monnam(mon));
             break;
         case PIL_SPEED:
             angermon = FALSE;
@@ -2054,7 +2009,7 @@ int how;
             break;
         case POT_WATER:
             if (is_undead(mon->data) || is_demon(mon->data)
-                || is_were(mon->data) || is_vampshifter(mon)) {
+                || is_were(mon->data)) {
                 if (obj->blessed) {
                     pline("%s %s in pain!", Monnam(mon),
                           is_silent(mon->data) ? "writhes" : "shrieks");
@@ -2305,18 +2260,10 @@ register struct obj *obj;
         }
         break;
     case POT_ACID:
+    case POT_BLOOD:
     case PIL_MUTAGEN:
         exercise(A_CON, FALSE);
         break;
-    case POT_BLOOD:
-  	case POT_VAMPIRE_BLOOD:
-  		if (maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) {
-  		    exercise(A_WIS, FALSE);
-  		    You_feel("a %ssense of loss.",
-  		      obj->otyp == POT_VAMPIRE_BLOOD ? "terrible " : "");
-  		} else
-  		    exercise(A_CON, FALSE);
-      break;
     /*
     case PIL_LEARNING:
     case PIL_LIFTING:
@@ -2386,7 +2333,6 @@ register struct obj *o1, *o2;
         case PIL_BLINDNESS:
         case PIL_CONFUSION:
         case POT_BLOOD:
-        case POT_VAMPIRE_BLOOD:
             return POT_WATER;
         }
         break;
@@ -2415,8 +2361,6 @@ register struct obj *o1, *o2;
         switch (o2->otyp) {
         case POT_BLOOD:
             return POT_BLOOD;
-        case POT_VAMPIRE_BLOOD:
-            return POT_VAMPIRE_BLOOD;
         case PIL_POISON:
             return PIL_POISON;
         case SCR_ENLIGHTENMENT:
@@ -2704,7 +2648,6 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                             break;
                         case PIL_LEARNING:
                         case PIL_REFLECTION:
-                        case POT_VAMPIRE_BLOOD:
                             v = 170;
                             break;
                         case PIL_FULL_HEALING:

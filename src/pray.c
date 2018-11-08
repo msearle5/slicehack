@@ -2212,10 +2212,10 @@ struct obj *obj;
             static const int mclasses[] = {
                 S_ZOMBIE,   S_ZOMBIE,   S_ZOMBIE,
                 S_MUMMY,    S_MUMMY,    S_IMP,
-                S_VAMPIRE,  S_VAMPIRE,  S_GHOST,
+                S_ZOMBIE,   S_ZOMBIE,  S_GHOST,
                 S_DEMON,    S_LICH
             };
-            int mclass = S_VAMPIRE;
+            int mclass = S_ZOMBIE;
             int mindex = min(u.ulevel, rn2((i+1)*2));
             if (mindex < sizeof(mclasses)/sizeof(mclasses[0]))
                 mclass = mclasses[mindex];
@@ -2490,7 +2490,7 @@ int once, range, xlev;
             continue;
 
         if (!mtmp->mpeaceful
-            && (is_undead(mtmp->data) || is_vampshifter(mtmp)
+            && (is_undead(mtmp->data)
                 || (is_demon(mtmp->data) && (u.ulevel > (MAXULEV / 2))))) {
             mtmp->msleeping = 0;
             if (Confusion) {
@@ -2511,9 +2511,7 @@ int once, range, xlev;
                 case S_LICH:
                     xlev += 2; /*FALLTHRU*/
                 case S_GHOST:
-                    xlev += 2; /*FALLTHRU*/
-                case S_VAMPIRE:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 4; /*FALLTHRU*/
                 case S_WRAITH:
                     xlev += 2; /*FALLTHRU*/
                 case S_MUMMY:

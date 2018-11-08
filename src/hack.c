@@ -675,7 +675,7 @@ struct monst *mon;
     /* too big? */
     if (bigmonst(ptr)
         && !(amorphous(ptr) || is_whirly(ptr) || noncorporeal(ptr)
-             || slithy(ptr) || can_fog(mon)))
+             || slithy(ptr)))
         return 1;
 
     /* lugging too much junk? */
@@ -2065,7 +2065,7 @@ struct monst *mon;
     boolean wounded = ((!nonliving(mon->data) ||
             /* Zombies and mummies (but not skeletons) have flesh */
             ((mon->data->mlet == S_ZOMBIE && mon->data != &mons[PM_SKELETON])
-              || mon->data->mlet == S_MUMMY || mon->data->mlet == S_VAMPIRE
+              || mon->data->mlet == S_MUMMY
               || mon->data == &mons[PM_FLESH_GOLEM]))
             && !vegetarian(mon->data));
 

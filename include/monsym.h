@@ -61,7 +61,7 @@ enum mon_class_types {
     S_SNAKE,
     S_TROLL,
     S_UMBER,
-    S_VAMPIRE,
+    S_V,
     S_WRAITH,
     S_XORN,
     S_YETI,
@@ -132,7 +132,7 @@ enum mon_class_types {
 #define DEF_SNAKE       'S'
 #define DEF_TROLL       'T'
 #define DEF_UMBER       'U'
-#define DEF_VAMPIRE     'V'
+#define DEF_V           'V'
 #define DEF_WRAITH      'W'
 #define DEF_XORN        'X'
 #define DEF_YETI        'Y'

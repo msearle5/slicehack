@@ -245,8 +245,7 @@ int expltype;
                     case AD_DISN:
                         explmask[i][j] |= (olet == WAND_CLASS)
                                               ? (nonliving(mtmp->data)
-                                                 || is_demon(mtmp->data)
-                                                 || is_vampshifter(mtmp))
+                                                 || is_demon(mtmp->data))
                                               : resists_disint(mtmp);
                         break;
                     case AD_ELEC:

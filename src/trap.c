@@ -680,7 +680,7 @@ int *fail_reason;
                         ? "disappears"
                         : golem_xform
                               ? "turns into flesh"
-                              : (nonliving(mon->data) || is_vampshifter(mon))
+                              : (nonliving(mon->data))
                                     ? "moves"
                                     : "comes to life";
     if ((x == u.ux && y == u.uy) || cause == ANIMATE_SPELL) {
@@ -2955,8 +2955,6 @@ boolean byplayer;
         mon_to_stone(mon);
         return;
     }
-    if (!vamp_stone(mon))
-        return;
 
     /* give a "<mon> is slowing down" message and also remove
        intrinsic speed (comparable to similar effect on the hero) */

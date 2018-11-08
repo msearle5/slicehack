@@ -190,11 +190,9 @@
 
 #define is_mind_flayer(ptr) (((ptr)->mflags3 & M3_MINDFLAYER) != 0L)
 
-#define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
 #define is_pirate(ptr) (((ptr)->mflags3 & M3_PIRATE) != 0L)
 
-#define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] \
-      || (ptr) == &mons[PM_NOSFERATU])
+#define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN])
 
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)

@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <assert.h>
 
-STATIC_VAR boolean vamp_rise_msg, disintegested;
+STATIC_VAR boolean disintegested;
 
 STATIC_DCL void FDECL(sanity_check_single_mon, (struct monst *, BOOLEAN_P,
                                                 const char *));
@@ -23,7 +23,6 @@ STATIC_DCL boolean FDECL(restrap, (struct monst *));
 STATIC_DCL long FDECL(mm_displacement, (struct monst *, struct monst *));
 STATIC_DCL int NDECL(pick_animal);
 STATIC_DCL void FDECL(kill_eggs, (struct obj *));
-STATIC_DCL int FDECL(pickvampshape, (struct monst *));
 STATIC_DCL boolean FDECL(isspecmon, (struct monst *));
 STATIC_DCL boolean FDECL(validspecmon, (struct monst *, int));
 STATIC_DCL struct permonst *FDECL(accept_newcham_form, (int));
@@ -254,10 +253,6 @@ int mndx;
     case PM_ELF_MUMMY:
         mndx = PM_ELF;
         break;
-    case PM_VAMPIRE:
-    case PM_VAMPIRE_LORD:
-    case PM_VAMPIRE_MAGE:
-    case PM_NOSFERATU:
     case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
     case PM_DRAUGR:
@@ -471,16 +466,6 @@ unsigned corpseflags;
     case PM_LONG_WORM:
         (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE);
         goto default_1;
-    case PM_VAMPIRE:
-    case PM_VAMPIRE_LORD:
-    case PM_NOSFERATU:
-    case PM_VAMPIRE_MAGE:
-        /* include mtmp in the mkcorpstat() call */
-        num = undead_to_corpse(mndx);
-        corpstatflags |= CORPSTAT_INIT;
-        obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
-        obj->age -= 100; /* this is an *OLD* corpse */
-        break;
     case PM_KOBOLD_MUMMY:
     case PM_DWARF_MUMMY:
     case PM_GNOME_MUMMY:
@@ -1593,7 +1578,7 @@ long flag;
               || (is_swimmer(mdat) && !wantpool));
     lavaok = (is_flyer(mdat) || is_clinger(mdat) || likes_lava(mdat));
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
-    poisongas_ok = ((nonliving(mdat) || is_vampshifter(mon)
+    poisongas_ok = ((nonliving(mdat)
                      || breathless(mdat)) || resists_poison(mon));
     in_poisongas = ((gas_reg = visible_region_at(x,y)) != 0
                     && gas_reg->glyph == gas_glyph);
@@ -1645,7 +1630,7 @@ nexttry: /* eels prefer the water, but if there is no water nearby,
                         && (dmgtype(mdat, AD_RUST)
                             || dmgtype(mdat, AD_CORR)))))
                 continue;
-            if (IS_DOOR(ntyp) && !(amorphous(mdat) || can_fog(mon))
+            if (IS_DOOR(ntyp) && !(amorphous(mdat))
                 && (((levl[nx][ny].doormask & D_CLOSED) && !(flag & OPENDOOR))
                     || ((levl[nx][ny].doormask & D_LOCKED)
                         && !(flag & UNLOCKDOOR))) && !thrudoor)
@@ -2186,7 +2171,7 @@ struct obj *
 mlifesaver(mon)
 struct monst *mon;
 {
-    if (!nonliving(mon->data) || is_vampshifter(mon)) {
+    if (!nonliving(mon->data)) {
         struct obj *otmp = which_armor(mon, W_AMUL);
 
         if (otmp && otmp->otyp == AMULET_OF_LIFE_SAVING)
@@ -2269,68 +2254,6 @@ register struct monst *magr;
     lifesaved_monster(mtmp);
     if (!DEADMONSTER(mtmp))
         return;
-
-    if (is_vampshifter(mtmp)) {
-        int mndx = mtmp->cham;
-        int x = mtmp->mx, y = mtmp->my;
-
-        /* this only happens if shapeshifted */
-        if (mndx >= LOW_PM && mndx != monsndx(mtmp->data)
-            && !(mvitals[mndx].mvflags & G_GENOD)) {
-            char buf[BUFSZ];
-            boolean in_door = (amorphous(mtmp->data)
-                               && closed_door(mtmp->mx, mtmp->my)),
-                /* alternate message phrasing for some monster types */
-                spec_mon = (nonliving(mtmp->data)
-                            || noncorporeal(mtmp->data)
-                            || amorphous(mtmp->data)),
-                spec_death = (disintegested /* disintegrated or digested */
-                              || noncorporeal(mtmp->data)
-                              || amorphous(mtmp->data));
-
-            /* construct a format string before transformation;
-               will be capitalized when used, expects one %s arg */
-            Sprintf(buf, "%s suddenly %s and rises as %%s!",
-                    x_monnam(mtmp, ARTICLE_THE,
-                             spec_mon ? (char *) 0 : "seemingly dead",
-                             SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
-                                 | SUPPRESS_INVISIBLE | SUPPRESS_IT,
-                             FALSE),
-                    spec_death ? "reconstitutes" : "transforms");
-            mtmp->mcanmove = 1;
-            mtmp->mfrozen = 0;
-            if (mtmp->mhpmax <= 0)
-                mtmp->mhpmax = 10;
-            mtmp->mhp = mtmp->mhpmax;
-            /* this can happen if previously a fog cloud */
-            if (u.uswallow && (mtmp == u.ustuck))
-                expels(mtmp, mtmp->data, FALSE);
-            if (in_door) {
-                coord new_xy;
-
-                if (enexto(&new_xy, mtmp->mx, mtmp->my, &mons[mndx])) {
-                    rloc_to(mtmp, new_xy.x, new_xy.y);
-                }
-            }
-            newcham(mtmp, &mons[mndx], FALSE, FALSE);
-            if (mtmp->data == &mons[mndx])
-                mtmp->cham = NON_PM;
-            else
-                mtmp->cham = mndx;
-            if (canspotmon(mtmp)) {
-                const char *whom = mtmp->data->mname;
-
-                /* was using a_monnam(mtmp) but that's weird if mtmp is named:
-                   "Dracula suddenly transforms and rises as Dracula" */
-                if (!type_is_pname(mtmp->data))
-                    whom = an(whom);
-                pline(upstart(buf), whom);
-                vamp_rise_msg = TRUE;
-            }
-            newsym(x, y);
-            return;
-        }
-    }
 
     /* dead vault guard is actually kept at coordinate <0,0> until
        his temporary corridor to/from the vault has been removed;
@@ -2458,7 +2381,7 @@ int mtyp;
     int i;
 
     /* Various reasons for not leaving a corpse */
-    if (mdat == &mons[PM_WORM_THAT_WALKS] || mdat == &mons[PM_LORD_OF_WORMS] || mdat == &mons[PM_FUSION_ELEMENTAL] || mdat == &mons[PM_MASTER_OF_CATS] || mdat == &mons[PM_VLAD_THE_IMPALER] || mdat->mlet == S_LICH || mdat == &mons[PM_MAGMA_ELEMENTAL]) return 0;
+    if (mdat == &mons[PM_WORM_THAT_WALKS] || mdat == &mons[PM_LORD_OF_WORMS] || mdat == &mons[PM_FUSION_ELEMENTAL] || mdat == &mons[PM_MASTER_OF_CATS] || mdat->mlet == S_LICH || mdat == &mons[PM_MAGMA_ELEMENTAL]) return 0;
 
     /* Gas spores always explode upon death */
     for (i = 0; i < NATTK; i++)
@@ -2530,8 +2453,7 @@ boolean was_swallowed; /* digestion */
             return FALSE;
         }
     }
-    if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat == &mons[PM_ALUCARD]
-          || mdat->mlet == S_LICH) {
+    if (mdat->mlet == S_LICH) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
         return FALSE;
@@ -2679,9 +2601,6 @@ struct monst *mdef;
     struct obj *otmp, *obj, *oldminvent;
     xchar x = mdef->mx, y = mdef->my;
     boolean wasinside = FALSE;
-
-    if (!vamp_stone(mdef)) /* vampshifter reverts to vampire */
-        return;
 
     /* we have to make the statue before calling mondead, to be able to
      * put inventory in it, and we have to check for lifesaving before
@@ -2875,8 +2794,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         thrownobj = 0;
     }
 
-    vamp_rise_msg = FALSE; /* might get set in mondead(); only checked below */
-    disintegested = nocorpse; /* alternate vamp_rise message needed if true */
+    disintegested = nocorpse;
     /* dispose of monster and make cadaver */
     if (stoned)
         monstone(mtmp);
@@ -2890,7 +2808,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
          * kill it (as opposed to visible lifesaving which always appears).
          */
         stoned = FALSE;
-        if (!cansee(x, y) && !vamp_rise_msg)
+        if (!cansee(x, y))
             pline("Maybe not...");
         return;
     }
@@ -3034,65 +2952,6 @@ struct monst *mtmp;
         }
     } else
         impossible("Can't polystone %s!", a_monnam(mtmp));
-}
-
-boolean
-vamp_stone(mtmp)
-struct monst *mtmp;
-{
-    if (is_vampshifter(mtmp)) {
-        int mndx = mtmp->cham;
-        int x = mtmp->mx, y = mtmp->my;
-
-        /* this only happens if shapeshifted */
-        if (mndx >= LOW_PM && mndx != monsndx(mtmp->data)
-            && !(mvitals[mndx].mvflags & G_GENOD)) {
-            char buf[BUFSZ];
-            boolean in_door = (amorphous(mtmp->data)
-                               && closed_door(mtmp->mx, mtmp->my));
-
-            /* construct a format string before transformation */
-            Sprintf(buf, "The lapidifying %s %s %s",
-                    x_monnam(mtmp, ARTICLE_NONE, (char *) 0,
-                             (SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION
-                              | SUPPRESS_INVISIBLE | SUPPRESS_IT), FALSE),
-                    amorphous(mtmp->data) ? "coalesces on the"
-                       : is_flyer(mtmp->data) ? "drops to the"
-                          : "writhes on the",
-                    surface(x,y));
-            mtmp->mcanmove = 1;
-            mtmp->mfrozen = 0;
-            if (mtmp->mhpmax <= 0)
-                mtmp->mhpmax = 10;
-            mtmp->mhp = mtmp->mhpmax;
-            /* this can happen if previously a fog cloud */
-            if (u.uswallow && (mtmp == u.ustuck))
-                expels(mtmp, mtmp->data, FALSE);
-            if (in_door) {
-                coord new_xy;
-
-                if (enexto(&new_xy, mtmp->mx, mtmp->my, &mons[mndx])) {
-                    rloc_to(mtmp, new_xy.x, new_xy.y);
-                }
-            }
-            if (canspotmon(mtmp)) {
-                pline("%s!", buf);
-                display_nhwindow(WIN_MESSAGE, FALSE);
-            }
-            newcham(mtmp, &mons[mndx], FALSE, FALSE);
-            if (mtmp->data == &mons[mndx])
-                mtmp->cham = NON_PM;
-            else
-                mtmp->cham = mndx;
-            if (canspotmon(mtmp)) {
-                pline("%s rises from the %s with renewed agility!",
-                      Amonnam(mtmp), surface(mtmp->mx, mtmp->my));
-            }
-            newsym(mtmp->mx, mtmp->my);
-            return FALSE;   /* didn't petrify */
-        }
-    }
-    return TRUE;
 }
 
 /* drop monster into "limbo" - that is, migrate to the current level */
@@ -3722,87 +3581,13 @@ int shiftflags;
         || ((shiftflags & SHIFT_SEENMSG) && sensemon(mon)))
         msg = TRUE;
 
-    if (!is_vampshifter(mon)) {
-        /* regular shapeshifter */
-        if (!rn2(6))
-            dochng = TRUE;
-    } else {
-        /* The vampire has to be in good health (mhp) to maintain
-         * its shifted form.
-         *
-         * If we're shifted and getting low on hp, maybe shift back, or
-         * if we're a fog cloud at full hp, maybe pick a different shape.
-         * If we're not already shifted and in good health, maybe shift.
-         */
-        if (mon->data->mlet != S_VAMPIRE) {
-            if ((mon->mhp <= (mon->mhpmax + 5) / 6) && rn2(4)
-                && mon->cham >= LOW_PM) {
-                ptr = &mons[mon->cham];
-                dochng = TRUE;
-            } else if (mon->data == &mons[PM_FOG_CLOUD]
-                     && mon->mhp == mon->mhpmax && !rn2(4)
-                     && (!canseemon(mon)
-                         || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM)) {
-                /* if a fog cloud, maybe change to wolf or vampire bat;
-                   those are more likely to take damage--at least when
-                   tame--and then switch back to vampire; they'll also
-                   switch to fog cloud if they encounter a closed door */
-                mndx = pickvampshape(mon);
-                if (mndx >= LOW_PM) {
-                    ptr = &mons[mndx];
-                    dochng = (ptr != mon->data);
-                }
-            }
-        } else {
-            if (mon->mhp >= 9 * mon->mhpmax / 10 && !rn2(6)
-                && (!canseemon(mon)
-                    || distu(mon->mx, mon->my) > BOLT_LIM * BOLT_LIM))
-                dochng = TRUE; /* 'ptr' stays Null */
-        }
-    }
+    /* regular shapeshifter */
+    if (!rn2(6))
+        dochng = TRUE;
+
     if (dochng) {
-        if (newcham(mon, ptr, FALSE, msg) && is_vampshifter(mon)) {
-            /* for vampshift, override the 10% chance for sex change */
-            ptr = mon->data;
-            if (!is_male(ptr) && !is_female(ptr) && !is_neuter(ptr))
-                mon->female = was_female;
-        }
+        newcham(mon, ptr, FALSE, msg);
     }
-}
-
-STATIC_OVL int
-pickvampshape(mon)
-struct monst *mon;
-{
-    int mndx = mon->cham, wolfchance = 10;
-    /* avoid picking monsters with lowercase display symbols ('d' for wolf
-       and 'v' for fog cloud) on rogue level*/
-    boolean uppercase_only = Is_rogue_level(&u.uz);
-
-    switch (mndx) {
-    case PM_VLAD_THE_IMPALER:
-        /* ensure Vlad can keep carrying the Candelabrum */
-        if (mon_has_special(mon))
-            break; /* leave mndx as is */
-        wolfchance = 3;
-    /*FALLTHRU*/
-    case PM_ALUCARD:
-        if (!rn2(wolfchance) && !uppercase_only) {
-            mndx = PM_BARGHEST;
-            break;
-        }
-    case PM_VAMPIRE_MAGE:
-    case PM_VAMPIRE_LORD: /* vampire lord or Vlad can become wolf */
-        if (!rn2(wolfchance) && !uppercase_only) {
-            mndx = PM_WOLF;
-            break;
-        }
-    /*FALLTHRU*/
-    case PM_VAMPIRE: /* any vampire can become fog or bat */
-        mndx = (!rn2(4) && !uppercase_only) ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
-        break;
-    }
-    return mndx;
 }
 
 /* nonshapechangers who warrant special polymorph handling */
@@ -3840,58 +3625,6 @@ int mndx;
     return TRUE; /* potential new form is ok */
 }
 
-/* prevent wizard mode user from specifying invalid vampshifter shape */
-boolean
-validvamp(mon, mndx_p, monclass)
-struct monst *mon;
-int *mndx_p, monclass;
-{
-    /* simplify caller's usage */
-    if (!is_vampshifter(mon))
-        return validspecmon(mon, *mndx_p);
-
-    if (*mndx_p == PM_VAMPIRE || *mndx_p == PM_VAMPIRE_LORD
-        || *mndx_p == PM_VLAD_THE_IMPALER || *mndx_p == PM_ALUCARD) {
-        /* player picked some type of vampire; use mon's self */
-        *mndx_p = mon->cham;
-        return TRUE;
-    }
-    if (mon->cham == PM_VLAD_THE_IMPALER && mon_has_special(mon)) {
-        /* Vlad with Candelabrum; override choice, then accept it */
-        *mndx_p = PM_VLAD_THE_IMPALER;
-        return TRUE;
-    }
-    /* basic vampires can't become wolves; any can become fog or bat
-       (we don't enforce upper-case only for rogue level here) */
-    if (*mndx_p == PM_WOLF)
-        return (boolean) (mon->cham != PM_VAMPIRE);
-    if (*mndx_p == PM_FOG_CLOUD || *mndx_p == PM_VAMPIRE_BAT)
-        return TRUE;
-
-    /* if we get here, specific type was no good; try by class */
-    switch (monclass) {
-    case S_VAMPIRE:
-        *mndx_p = mon->cham;
-        break;
-    case S_BAT:
-        *mndx_p = PM_VAMPIRE_BAT;
-        break;
-    case S_VORTEX:
-        *mndx_p = PM_FOG_CLOUD;
-        break;
-    case S_DOG:
-        if (mon->cham != PM_VAMPIRE) {
-            *mndx_p = PM_WOLF;
-            break;
-        }
-    /*FALLTHRU*/
-    default:
-        *mndx_p = NON_PM;
-        break;
-    }
-    return (boolean) (*mndx_p != NON_PM);
-}
-
 int
 select_newcham_form(mon)
 struct monst *mon;
@@ -3927,13 +3660,6 @@ struct monst *mon;
     case PM_CHAMELEON:
         if (!rn2(3))
             mndx = pick_animal();
-        break;
-    case PM_ALUCARD:
-    case PM_VLAD_THE_IMPALER:
-    case PM_VAMPIRE_LORD:
-    case PM_VAMPIRE_MAGE:
-    case PM_VAMPIRE:
-        mndx = pickvampshape(mon);
         break;
     case NON_PM: /* ordinary */
       {
@@ -3979,9 +3705,6 @@ struct monst *mon;
                     mndx = mkclass_poly(monclass);
             }
             if (mndx >= LOW_PM) {
-                /* got a specific type of monster; use it if we can */
-                if (validvamp(mon, &mndx, monclass))
-                    break;
                 /* can't; revert to random in case we exhaust tryct */
                 mndx = NON_PM;
             }
@@ -3990,8 +3713,6 @@ struct monst *mon;
         } while (--tryct > 0);
         if (!tryct)
             pline1(thats_enough_tries);
-        if (is_vampshifter(mon) && !validvamp(mon, &mndx, monclass))
-            mndx = pickvampshape(mon); /* don't resort to arbitrary */
     }
 
     /* if no form was specified above, pick one at random now */
@@ -4176,10 +3897,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
                     && !is_whirly(mdat) && (mdat != &mons[PM_YELLOW_LIGHT])) {
                     char msgtrail[BUFSZ];
 
-                    if (is_vampshifter(mtmp)) {
-                        Sprintf(msgtrail, " which was a shapeshifted %s",
-                                noname_monnam(mtmp, ARTICLE_NONE));
-                    } else if (is_animal(mdat)) {
+                    if (is_animal(mdat)) {
                         Strcpy(msgtrail, "'s stomach");
                     } else {
                         msgtrail[0] = '\0';
@@ -4233,12 +3951,6 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
                 pline("%s turns into %s!", oldname, newname);
         }
     }
-
-    /* when polymorph trap/wand/potion produces a vampire, turn in into
-       a full-fledged vampshifter unless shape-changing is blocked */
-    if (mtmp->cham == NON_PM && mdat->mlet == S_VAMPIRE
-        && !Protection_from_shape_changers)
-        mtmp->cham = pm_to_cham(monsndx(mdat));
 
     possibly_unwield(mtmp, polyspot); /* might lose use of weapon */
     mon_break_armor(mtmp, polyspot);

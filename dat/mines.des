@@ -1191,13 +1191,13 @@ MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:('M',"ettin mummy"),random
-MONSTER:'V',random
 MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
-MONSTER:'V',random
+MONSTER:'Z',random
+MONSTER:'Z',random
 MONSTER:'e',random
 MONSTER:'e',random
 MONSTER:'e',random
