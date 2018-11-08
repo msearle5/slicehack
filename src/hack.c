@@ -2552,8 +2552,8 @@ register boolean newlev;
         case COURT:
             You("enter an opulent throne room!");
             break;
-        case LEPREHALL:
-            You("enter a leprechaun hall!");
+        case LEMMHALL:
+            You("enter a lemming-house!");
             break;
         case MORGUE:
             if (midnight()) {

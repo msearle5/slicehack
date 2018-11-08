@@ -154,6 +154,8 @@
 #define is_mplayer(ptr) (((ptr)->mflags3 & M3_MPLAYER) != 0L)
 #define is_watch(ptr) (((ptr)->mflags3 & M3_WATCH) != 0L)
 #define is_rider(ptr) (((ptr)->mflags3 & M3_RIDER) != 0L)
+/* Steals gold, like a leprechaun */
+#define steal_gold(ptr) (0)
 /* Rider corpses are treated as non-rotting so that attempting to eat one
    will be sure to reach the stage of eating where that meal is fatal */
 #define nonrotting_corpse(mnum) ((mons[mnum].mflags3 & M3_NONROTTING) != 0L)

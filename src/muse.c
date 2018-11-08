@@ -2975,7 +2975,6 @@ struct monst *mon;
     case PM_GREMLIN:
     case PM_HOMUNCULUS:
     case PM_JUIBLEX:
-    case PM_LEPRECHAUN:
     case PM_LICHEN:
     case PM_LIZARD:
     case PM_WOOD_NYMPH:

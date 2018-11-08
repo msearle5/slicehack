@@ -736,9 +736,9 @@ NEARDATA struct permonst mons[] = {
         M1_HUMANOID | M1_POIS | M1_OMNIVORE, M2_HOSTILE | M2_MAGIC,
         M3_INFRAVISIBLE | M3_INFRAVISION, HI_ZAP),
     /*
-     * leprechauns
+     * lemmings
      */
-    MON("leprechaun", S_LEPRECHAUN, LVL(5, 15, 8, 20, 0), (G_GENO | 4),
+    MON("green lemming", S_LEMMING, LVL(5, 15, 8, 20, 0), (G_GENO | 4),
         A(ATTK(AT_CLAW, AD_SGLD, 1, 2), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
           NO_ATTK),
         SIZ(60, 30, MS_LAUGH, MZ_TINY), 0, 0, M1_HUMANOID | M1_TPORT,

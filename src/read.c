@@ -256,7 +256,6 @@ doread()
         return 1;
     } else if (scroll->otyp == CREDIT_CARD) {
         static const char *card_msgs[] = {
-            "Leprechaun Gold Tru$t - Shamrock Card",
             "Magic Memory Vault Charge Card",
             "Larn National Bank",                /* Larn */
             "First Bank of Omega",               /* Omega */

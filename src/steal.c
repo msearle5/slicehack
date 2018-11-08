@@ -64,11 +64,11 @@ long lmoney;
 
 /*
  * Find the first gold object in a chain.
- * Used when leprechaun (or you as leprechaun) looks for
+ * Used when a gold thief (or you as a gold thief) looks for
  * someone else's gold.  Returns a pointer so the gold may
  * be seized without further searching.
  * May search containers too.
- * Deals in gold only, as leprechauns don't care for lesser materials.
+ * Deals in gold only, as gold thieves don't care for lesser materials.
  * If only_coins is FALSE, it will return the first actual gold object in this
  * chain, not just gold pieces. If it's TRUE, it will only look for gold
  * pieces.

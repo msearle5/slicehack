@@ -480,7 +480,7 @@ start: Blank
         S_kop: \032
         S_land_mine: \032
         S_lava: \032
-        S_leprechaun: \032
+        S_lemming: \032
         S_level_teleporter: \032
         S_lich: \032
         S_light: \032

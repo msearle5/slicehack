@@ -199,7 +199,7 @@ static struct {
     { "temple", TEMPLE },
     { "anthole", ANTHOLE },
     { "cocknest", COCKNEST },
-    { "leprehall", LEPREHALL },
+    { "lemmhall", LEMMHALL },
     { "lab", LAB },
     { "shop", SHOPBASE },
     { "armor shop", ARMORSHOP },

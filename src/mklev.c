@@ -863,8 +863,8 @@ makelevel()
         else if (u_depth > 4 && !rn2(6))
             mkroom(COURT);
         else if (u_depth > 5 && !rn2(9)
-                 && !(mvitals[PM_LEPRECHAUN].mvflags & G_GONE))
-            mkroom(LEPREHALL);
+                 && !(mvitals[PM_GREEN_LEMMING].mvflags & G_GONE))
+            mkroom(LEMMHALL);
         else if (u_depth > 6 && !rn2(7))
             mkroom(ZOO);
         else if (u_depth > 8 && !rn2(5))

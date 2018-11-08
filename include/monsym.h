@@ -23,7 +23,7 @@ enum mon_class_types {
     S_IMP,
     S_JELLY,
     S_KOBOLD,
-    S_LEPRECHAUN,
+    S_LEMMING,
     S_MIMIC,
     S_NYMPH,
     S_ORC,
@@ -95,7 +95,7 @@ enum mon_class_types {
 #define DEF_IMP         'i'
 #define DEF_JELLY       'j'
 #define DEF_KOBOLD      'k'
-#define DEF_LEPRECHAUN  'l'
+#define DEF_LEMMING     'l'
 #define DEF_MIMIC       'm'
 #define DEF_NYMPH       'n'
 #define DEF_ORC         'o'

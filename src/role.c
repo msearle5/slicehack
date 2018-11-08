@@ -479,7 +479,7 @@ const struct Role roles[] = {
       PM_MASTER_OF_THIEVES,
       PM_THUG,
       PM_MASTER_ASSASSIN,
-      PM_LEPRECHAUN,
+      PM_COBRA,
       PM_GUARDIAN_NAGA,
       S_NYMPH,
       S_NAGA,

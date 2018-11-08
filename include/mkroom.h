@@ -66,7 +66,7 @@ enum roomtype_types {
     ZOO,        /* floor covered with treasure and monsters */
     DELPHI,     /* contains Oracle and peripherals */
     TEMPLE,     /* contains a shrine */
-    LEPREHALL,  /* leprechaun hall (Tom Proudfoot) */
+    LEMMHALL,   /* lemming-house */
     COCKNEST,   /* cockatrice nest (Tom Proudfoot) */
     STOREROOM,	/* boxes and rats */
     ANTHOLE,    /* ants (Tom Proudfoot) */
