@@ -2251,11 +2251,6 @@ struct permonst *ptr;
         n += ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23);
     }
 
-    /*  Leprechauns are special cases.  They have many hit dice so they can
-        hit and are hard to kill, but they don't really do much damage. */
-    if (!strcmp(ptr->mname, "leprechaun"))
-        n -= 2;
-
     /*  Finally, adjust the monster level  0 <= n <= 24 (approx.) */
     if (n == 0)
         tmp--;

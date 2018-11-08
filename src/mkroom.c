@@ -27,6 +27,7 @@ STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
 STATIC_DCL struct permonst *NDECL(storemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
+STATIC_DCL struct permonst *NDECL(lemmmon);
 STATIC_DCL void FDECL(save_room, (int, struct mkroom *));
 STATIC_DCL void FDECL(rest_room, (int, struct mkroom *));
 
@@ -80,8 +81,8 @@ int roomtype;
         case TEMPLE:
             mktemple();
             break;
-        case LEPREHALL:
-            mkzoo(LEPREHALL);
+        case LEMMHALL:
+            mkzoo(LEMMHALL);
             break;
         case STOREROOM:
             mkzoo(STOREROOM);
@@ -150,7 +151,7 @@ mkshop()
                 return;
             }
             if (*ep == 'l' || *ep == 'L') {
-                mkzoo(LEPREHALL);
+                mkzoo(LEMMHALL);
                 return;
             }
             if (*ep == '_') {
@@ -346,7 +347,6 @@ struct mkroom *sroom;
         }
         break;
     case ZOO:
-    case LEPREHALL:
         goldlim = 500 * level_difficulty();
         break;
     }
@@ -384,8 +384,8 @@ struct mkroom *sroom;
                                              ? (sx == tx && sy == ty
                                                  ? &mons[PM_BAD_CLONE]
                                                  : &mons[PM_AMALGAMATION])
-                                           : (type == LEPREHALL)
-                                               ? &mons[PM_LEPRECHAUN]
+                                           : (type == LEMMHALL)
+                                               ? lemmmon()
                                                : (type == COCKNEST)
                                                    ? &mons[PM_COCKATRICE]
                                                    : (type == DEN)
@@ -404,7 +404,6 @@ struct mkroom *sroom;
             }
             switch (type) {
             case ZOO:
-            case LEPREHALL:
                 if (sroom->doorct) {
                     int distval = dist2(sx, sy, doors[sh].x, doors[sh].y);
                     i = sq(distval);
@@ -911,6 +910,17 @@ squadmon()
     }
     mndx = squadprob[rn2(NSTYPES)].pm;
 gotone:
+    if (!(mvitals[mndx].mvflags & G_GONE))
+        return &mons[mndx];
+    else
+        return (struct permonst *) 0;
+}
+
+/* they say that a lemming is like a mimic. */
+STATIC_OVL struct permonst *
+lemmmon()
+{
+    int mndx = PM_GREEN_LEMMING;
     if (!(mvitals[mndx].mvflags & G_GONE))
         return &mons[mndx];
     else

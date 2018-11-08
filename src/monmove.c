@@ -224,13 +224,13 @@ register struct monst *mtmp;
 {
     /*
      * + Ettins are hard to surprise.
-     * + Nymphs, jabberwocks, and leprechauns do not easily wake up.
+     * + Nymphs and jabberwocks do not easily wake up.
      *
      * Wake up if:
      *  in direct LOS                                           AND
      *  within 10 squares                                       AND
      *  not stealthy or (mon is an ettin and 9/10)              AND
-     *  (mon is not a nymph, jabberwock, or leprechaun) or 1/50 AND
+     *  (mon is not a nymph or jabberwock) or 1/50 AND
      *  Aggravate or mon is (dog or human) or
      *      (1/7 and mon is not mimicing furniture or object)
      */
@@ -239,7 +239,7 @@ register struct monst *mtmp;
         && (!(mtmp->data->mlet == S_NYMPH
               || mtmp->data == &mons[PM_JABBERWOCK]
               || mtmp->data == &mons[PM_VORPAL_JABBERWOCK]
-              || mtmp->data->mlet == S_LEPRECHAUN) || !rn2(50))
+              || !rn2(50)))
         && (Aggravate_monster
             || (mtmp->data->mlet == S_DOG || mtmp->data->mlet == S_HUMAN)
             || (!rn2(7) && mtmp->m_ap_type != M_AP_FURNITURE
@@ -645,7 +645,7 @@ toofar:
 
     if (!nearby || mtmp->mflee || scared || mtmp->mconf || mtmp->mstun
         || (mtmp->minvis && !rn2(3))
-        || (mdat->mlet == S_LEPRECHAUN && !findgold(invent, FALSE)
+        || (steal_gold(mdat) && !findgold(invent, FALSE)
             && (findgold(mtmp->minvent, FALSE) || rn2(2)))
         || (is_wanderer(mdat) && !rn2(4)) || (Conflict && !mtmp->iswiz)
         || (!mtmp->mcansee && !rn2(4)) || mtmp->mpeaceful) {
@@ -925,7 +925,7 @@ register int after;
     set_apparxy(mtmp);
     /* where does mtmp think you are? */
     /* Not necessary if m_move called from this file, but necessary in
-     * other calls of m_move (ex. leprechauns dodging)
+     * other calls of m_move (ex. dodging)
      */
     if (!Is_rogue_level(&u.uz))
         can_tunnel = tunnels(ptr);
@@ -1060,7 +1060,7 @@ not_special:
                  || ptr->mlet == S_LIGHT) && !rn2(3)))
             appr = 0;
 
-        if (monsndx(ptr) == PM_LEPRECHAUN && (appr == 1)
+        if (steal_gold(ptr) && (appr == 1)
             && ((lepgold = findgold(mtmp->minvent, TRUE))
                 && (lepgold->quan
                     > ((ygold = findgold(invent, TRUE)) ? ygold->quan : 0L))))

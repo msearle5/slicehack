@@ -110,7 +110,7 @@ Did you know? You could be the first known player to ascend SliceHack!
 Reading a scroll of cloning while polymorphed can be a frightful combination.
 Cheshire cats are difficult to pinpoint.
 Not sure what a monster does? Use ":" while hovering over them to look up all of their stats.
-Leprechauns love all types of gold, not just gold pieces.
+Thieves love all types of gold, not just gold pieces.
 SliceHack inherits many monsters from SLASH'EM.
 A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
 Zouthern monsters are slightly less tough in SliceHack than in other variants.

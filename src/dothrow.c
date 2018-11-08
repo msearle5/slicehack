@@ -60,7 +60,7 @@ int shotlimit;
 
     /*
      * Throwing money is usually for getting rid of it when
-     * a leprechaun approaches, or for bribing an oncoming
+     * a thief approaches, or for bribing an oncoming
      * angry monster.  So throw the whole object.
      *
      * If the money is in quiver, throw one coin at a time,

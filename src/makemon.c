@@ -1047,9 +1047,6 @@ register struct monst *mtmp;
             (void) mongets(mtmp, POT_ACID);
         }
         break;
-    case S_LEPRECHAUN:
-        mkmonmoney(mtmp, (long) d(level_difficulty(), 30));
-        break;
     case S_DEMON:
         /* moved here from m_initweap() because these don't
            have AT_WEAP so m_initweap() is not called for them */
@@ -1578,10 +1575,6 @@ int mmflags;
         break;
     case S_EEL:
         (void) hideunder(mtmp);
-        break;
-    case S_LEPRECHAUN:
-        if (!u.uhave.amulet)
-            mtmp->msleeping = 1;
         break;
     case S_JABBERWOCK:
         if (rn2(5) && !u.uhave.amulet)

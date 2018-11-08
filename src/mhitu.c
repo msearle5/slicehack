@@ -3184,7 +3184,7 @@ struct monst *mon;
     } else if (rn2(20) < ACURR(A_CHA)) {
         pline("%s demands that you pay %s, but you refuse...",
               noit_Monnam(mon), noit_mhim(mon));
-    } else if (u.umonnum == PM_LEPRECHAUN) {
+    } else if (steal_gold(u.umonnum)) {
         pline("%s tries to take your money, but fails...", noit_Monnam(mon));
     } else {
         long cost;

@@ -2469,7 +2469,7 @@ boolean prefilled;
         case DEN:
         case ANTHOLE:
         case COCKNEST:
-        case LEPREHALL:
+        case LEMMHALL:
         case MORGUE:
         case BARRACKS:
             fill_zoo(croom);

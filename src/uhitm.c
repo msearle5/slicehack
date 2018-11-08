@@ -427,7 +427,7 @@ register struct monst *mtmp;
     u_wipe_engr(3);
 
     /* Is the "it died" check actually correct? */
-    if (mdat->mlet == S_LEPRECHAUN && !mtmp->mfrozen && !mtmp->msleeping
+    if (steal_gold(mdat) && !mtmp->mfrozen && !mtmp->msleeping
         && !mtmp->mconf && mtmp->mcansee && !rn2(7)
         && (m_move(mtmp, 0) == 2 /* it died */
             || mtmp->mx != u.ux + u.dx
@@ -2096,7 +2096,7 @@ register struct attack *mattk;
         tmp = 0;
         break;
     case AD_SGLD:
-        /* This you as a leprechaun, so steal
+        /* This you as a thief, so steal
            real gold only, no lesser coins */
         {
             struct obj *mongold = findgold(mdef->minvent, FALSE);

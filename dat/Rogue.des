@@ -140,21 +140,21 @@ TRAP:random,random
 # Monsters to get in the way.
 #
 # West exit
-MONSTER: ('l',"leprechaun"),(01,12),hostile
+MONSTER: (':',"chameleon"),(01,12),hostile
 MONSTER: ('n',"water nymph"),(02,12),hostile
 # North exit
 MONSTER: ('n',"water nymph"),(33,01),hostile
-MONSTER: ('l',"leprechaun"),(33,02),hostile
+MONSTER: (':',"chameleon"),(33,02),hostile
 # East exit
 MONSTER: ('n',"water nymph"),(74,05),hostile
-MONSTER: ('l',"leprechaun"),(74,04),hostile
+MONSTER: (':',"chameleon"),(74,04),hostile
 # South exit
-MONSTER: ('l',"leprechaun"),(25,19),hostile
+MONSTER: (':',"chameleon"),(25,19),hostile
 MONSTER: ('n',"water nymph"),(25,18),hostile
 # Wandering the streets.
 LOOP [ 4 + 1d3 ] {
   MONSTER: ('n',"water nymph"),rndcoord($streets),hostile
-  MONSTER: ('l',"leprechaun"),rndcoord($streets),hostile
+  MONSTER: (':',"chameleon"),rndcoord($streets),hostile
 }
 LOOP [ 7 + 1d3 ] {
   MONSTER: (':',"chameleon"),rndcoord($streets),hostile
@@ -227,23 +227,23 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
 MONSTER:'l',random,hostile
 MONSTER:('N',"guardian naga"),random,hostile
 MONSTER:('N',"guardian naga"),random,hostile
@@ -336,22 +336,22 @@ TRAP:random,random
 TRAP:random,random
 # Random monsters.
 MONSTER:('@',"Master Assassin"),(38,10),hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
-MONSTER:('l',"leprechaun"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
+MONSTER:(':',"chameleon"),random,hostile
 MONSTER:'l',random,hostile
 MONSTER:'l',random,hostile
 MONSTER:('N',"guardian naga"),random,hostile
@@ -386,13 +386,13 @@ LEVEL: "Rog-fila"
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, up
   OBJECT: random,random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
 }
 
 ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   OBJECT: random,random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
   MONSTER: ('N', "guardian naga"), random, hostile
 }
 
@@ -418,14 +418,14 @@ ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   TRAP: random, random
   TRAP: random, random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
 }
 
 ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   TRAP: random, random
   TRAP: random, random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
   MONSTER: ('n', "water nymph"), random, hostile
 }
 
@@ -439,13 +439,13 @@ LEVEL: "Rog-filb"
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, up
   OBJECT: random,random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
 }
 
 ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   OBJECT: random,random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
   MONSTER: ('N', "guardian naga"), random, hostile
 }
 
@@ -471,14 +471,14 @@ ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   TRAP: random, random
   TRAP: random, random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
 }
 
 ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   TRAP: random, random
   TRAP: random, random
-  MONSTER: ('l', "leprechaun"), random, hostile
+  MONSTER: (':',"chameleon"), random, hostile
   MONSTER: ('n', "water nymph"), random, hostile
 }
 

@@ -58,7 +58,7 @@ OBJECT:'/',random \
 // zoo. The zoo includes a lot of gold on the floor - so stick some piles of gold in the corners
 // of the room for beehive etc. (Barracks/morgue might have something extra,
 // but then they are harder than the zoo. Throne rooms don't get any extra cash as the throne
-// is the reward. Leprehalls contain gold as well.) 
+// is the reward. Lemming-houses don't contain anything much.)
 #define ZOO(XA,YA,XB,YB) $i = 1d27 \
 	IF [$i == 1] { \
 		REGION:(XA,YA,XB,YB),lit,"beehive",filled \
@@ -79,18 +79,18 @@ OBJECT:'/',random \
 		REGION:(XA,YA,XB,YB),lit,"lab",filled \
 	} \
 	IF [$i == 7] { \
-		REGION:(XA,YA,XB,YB),lit,"den",filled \
+		REGION:(XA,YA,XB,YB),lit,"lemmhall",filled \
 	} \
 	IF [$i == 8] { \
-		REGION:(XA,YA,XB,YB),lit,"throne",filled \
+		REGION:(XA,YA,XB,YB),lit,"den",filled \
 	} \
 	IF [$i == 9] { \
-		REGION:(XA,YA,XB,YB),lit,"leprehall",filled \
+		REGION:(XA,YA,XB,YB),lit,"throne",filled \
 	} \
 	IF [$i > 9] { \
 		REGION:(XA,YA,XB,YB),lit,"zoo",filled \
 	} \
-	IF [$i < 8] { \
+	IF [$i < 9] { \
 		GOLD:10d100, (XA,YA) \
 		GOLD:10d100, (XA,YB) \
 		GOLD:10d100, (XB,YA) \
