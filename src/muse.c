@@ -2622,11 +2622,6 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
             lizard = food && obj->corpsenm == PM_LIZARD;
     int nutrit = food ? dog_nutrition(mon, obj) : 0; /* also sets meating */
 
-    /* give a "<mon> is slowing down" message and also remove
-       intrinsic speed (comparable to similar effect on the hero) */
-    if (stoning)
-        mon_adjust_speed(mon, -3, (struct obj *) 0);
-
     if (vis) {
         long save_quan = obj->quan;
 
@@ -2666,7 +2661,7 @@ boolean stoning; /* True: stop petrification, False: cure stun && confusion */
             pline("What a pity - %s just ruined a future piece of art!",
                   mon_nam(mon));
         else
-            pline("%s seems limber!", Monnam(mon));
+            pline("%s seems in good health again!", Monnam(mon));
     }
     if (lizard && (mon->mconf || mon->mstun)) {
         mon->mconf = 0;

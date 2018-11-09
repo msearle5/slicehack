@@ -1457,7 +1457,7 @@ wiz_intrinsic(VOID_ARGS)
                 break;
             case STONED:
                 Sprintf(buf, fmt,
-                        !Stoned ? "" : " still", "turning into stone");
+                        !Stoned ? "" : " still", "poisoned");
                 make_stoned(newtimeout, buf, KILLED_BY, wizintrinsic);
                 break;
             case STUNNED:
@@ -2128,7 +2128,7 @@ int final;
 
     /* internal troubles, mostly in the order that prayer ranks them */
     if (Stoned)
-        you_are("turning to stone", "");
+        you_are("poisoned", "");
     if (Slimed)
         you_are("turning into slime", "");
     if (Strangled) {
@@ -2398,14 +2398,16 @@ int final;
         you_are("shock resistant", from_what(SHOCK_RES));
     if (Poison_resistance)
         you_are("poison resistant", from_what(POISON_RES));
+    if (Stone_resistance && Poison_resistance)
+        you_are("also immune to contact beasts' venom", from_what(STONE_RES));
+    if (Stone_resistance && !Poison_resistance)
+        you_are("immune to contact beasts' venom only", from_what(STONE_RES));
     if (Acid_resistance)
         you_are("acid resistant", from_what(ACID_RES));
     if (Drain_resistance)
         you_are("level-drain resistant", from_what(DRAIN_RES));
     if (Sick_resistance)
         you_are("immune to sickness", from_what(SICK_RES));
-    if (Stone_resistance)
-        you_are("petrification resistant", from_what(STONE_RES));
     if (Psychic_resistance)
         you_are("psionic resistant", from_what(PSYCHIC_RES));
     if (Sonic_resistance)

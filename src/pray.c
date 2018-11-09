@@ -533,7 +533,7 @@ int trouble;
 
     switch (trouble) {
     case TROUBLE_STONED:
-        make_stoned(0L, "You feel more limber.", 0, (char *) 0);
+        make_stoned(0L, "You feel in good health again.", 0, (char *) 0);
         break;
     case TROUBLE_SLIMED:
         make_slimed(0L, "The slime disappears.");
@@ -541,6 +541,7 @@ int trouble;
     case TROUBLE_STRANGLED:
         if (uamul && uamul->otyp == AMULET_OF_STRANGULATION) {
             Your("amulet vanishes!");
+            useup(uamul);
             useup(uamul);
         }
         You("can breathe again.");

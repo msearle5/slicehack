@@ -27,6 +27,7 @@ STATIC_DCL coord *FDECL(shrine_pos, (int));
 STATIC_DCL struct permonst *NDECL(morguemon);
 STATIC_DCL struct permonst *NDECL(storemon);
 STATIC_DCL struct permonst *NDECL(squadmon);
+STATIC_DCL struct permonst *NDECL(contactmon);
 STATIC_DCL struct permonst *NDECL(lemmmon);
 STATIC_DCL void FDECL(save_room, (int, struct mkroom *));
 STATIC_DCL void FDECL(rest_room, (int, struct mkroom *));
@@ -387,7 +388,7 @@ struct mkroom *sroom;
                                            : (type == LEMMHALL)
                                                ? lemmmon()
                                                : (type == COCKNEST)
-                                                   ? &mons[PM_COCKATRICE]
+                                                   ? contactmon()
                                                    : (type == DEN)
                                                        ? denmon()
                                                        : (type == ANTHOLE)
@@ -454,15 +455,9 @@ struct mkroom *sroom;
                                      TRUE, FALSE);
                 break;
             case COCKNEST:
-                if (!rn2(3)) {
-                    struct obj *sobj = mk_tt_object(STATUE, sx, sy);
-
-                    if (sobj) {
-                        for (i = rn2(5); i; i--)
-                            (void) add_to_container(
-                                sobj, mkobj(RANDOM_CLASS, FALSE));
-                        sobj->owt = weight(sobj);
-                    }
+                if (!rn2(6)) {
+                    struct obj *sobj = mk_tt_object(CORPSE, sx, sy);
+                    curse(sobj);
                 }
                 break;
             case ANTHOLE:
@@ -946,6 +941,13 @@ STATIC_OVL struct permonst *
 lemmmon()
 {
     return classmon(S_LEMMING);
+}
+
+/* they say that a contact beast is nothing like a cockatrice */
+STATIC_OVL struct permonst *
+contactmon()
+{
+    return classmon(S_CONTACT);
 }
 
 /*

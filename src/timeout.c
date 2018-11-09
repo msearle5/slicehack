@@ -26,7 +26,7 @@ const struct propname {
     const char *prop_name;
 } propertynames[] = {
     { INVULNERABLE, "invulnerable" },
-    { STONED, "petrifying" },
+    { STONED, "poisoned" },
     { LARVACARRIER, "hosting monster eggs" },
     { SLIMED, "becoming slime" },
     { STRANGLED, "strangling" },
@@ -104,13 +104,13 @@ const struct propname {
     {  0, 0 },
 };
 
-/* He is being petrified - dialogue by inmet!tower */
+/* He is being poisoned - dialogue by inmet!tower */
 static NEARDATA const char *const stoned_texts[] = {
-    "You are slowing down.",            /* 5 */
-    "Your limbs are stiffening.",       /* 4 */
-    "Your limbs have turned to stone.", /* 3 */
-    "You have turned to stone.",        /* 2 */
-    "You are a statue."                 /* 1 */
+    "You feel unhealthy.",              /* 5 */
+    "Your limbs are shaking.",          /* 4 */
+    "Your limbs are paralyzed.", /* 3 */
+    "You are unable to move.",        /* 2 */
+    "You are suffocating."                 /* 1 */
 };
 
 STATIC_OVL void
@@ -127,12 +127,12 @@ stoned_dialogue()
         pline1(buf);
     }
     switch ((int) i) {
-    case 5: /* slowing down */
-        HFast = 0L;
+    case 5: /* unhealthy */
+        HPoison_resistance = 0L;
         if (multi > 0)
             nomul(0);
         break;
-    case 4: /* limbs stiffening */
+    case 4: /* limbs shaking */
         /* just one move left to save oneself so quit fiddling around;
            don't stop attempt to eat tin--might be lizard or acidic */
         if (!Popeye(STONED))
@@ -140,10 +140,10 @@ stoned_dialogue()
         if (multi > 0)
             nomul(0);
         break;
-    case 3: /* limbs turned to stone */
+    case 3: /* limbs paralyzed */
         stop_occupation();
         nomul(-3); /* can't move anymore */
-        multi_reason = "getting stoned";
+        multi_reason = "getting poisoned";
         nomovemsg = You_can_move_again; /* not unconscious */
         break;
     case 2:
@@ -485,7 +485,7 @@ nh_timeout()
                     Strcpy(killer.name, kptr->name);
                 } else {
                     killer.format = NO_KILLER_PREFIX;
-                    Strcpy(killer.name, "killed by petrification");
+                    Strcpy(killer.name, "killed by poison");
                 }
                 dealloc_killer(kptr);
                 /* (unlike sliming, you aren't changing form here) */

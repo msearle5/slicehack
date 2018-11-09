@@ -979,7 +979,7 @@ struct monst *mtmp;
 }
 
 static const short grownups[][2] = {
-    { PM_CHICKATRICE, PM_COCKATRICE },
+    { PM_CONTACT_BEASTLING, PM_CONTACT_BEAST },
     { PM_LITTLE_DOG, PM_DOG },
     { PM_DOG, PM_LARGE_DOG },
     { PM_LITTLE_BIRD, PM_FALCON },

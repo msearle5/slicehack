@@ -1016,9 +1016,7 @@ boolean hitsroof;
         obj = 0; /* it's now gone */
         switch (otyp) {
         case EGG:
-            if (petrifier && !Stone_resistance
-                && !(poly_when_stoned(youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+            if (petrifier && !Stone_resistance) {
                 /* egg ends up "all over your face"; perhaps
                    visored helmet should still save you here */
                 if (uarmh)
@@ -1078,13 +1076,11 @@ boolean hitsroof;
                 if (flags.verbose)
                     Your("%s does not protect you.", helm_simple_name(uarmh));
             }
-        } else if (petrifier && !Stone_resistance
-                   && !(poly_when_stoned(youmonst.data)
-                        && polymon(PM_STONE_GOLEM))) {
+        } else if (petrifier && !Stone_resistance) {
         petrify:
             killer.format = KILLED_BY;
             Strcpy(killer.name, "elementary physics"); /* "what goes up..." */
-            You("turn to stone.");
+            pline("The poison was deadly...");
             if (obj)
                 dropy(obj); /* bypass most of hitfloor() */
             thrownobj = 0;  /* now either gone or on floor */

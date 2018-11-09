@@ -166,7 +166,7 @@ do_statusline2()
      * unusual for more than one of them to apply at a time.]
      */
     if (Stoned)
-        Strcpy(nb = eos(nb), " Stone");
+        Strcpy(nb = eos(nb), " Poison");
     if (Slimed)
         Strcpy(nb = eos(nb), " Slime");
     if (Strangled)
@@ -2103,7 +2103,7 @@ boolean from_configfile;
 }
 
 const struct condmap valid_conditions[] = {
-    {"stone",    BL_MASK_STONE},
+    {"poison",   BL_MASK_STONE},
     {"slime",    BL_MASK_SLIME},
     {"strngl",   BL_MASK_STRNGL},
     {"foodPois", BL_MASK_FOODPOIS},

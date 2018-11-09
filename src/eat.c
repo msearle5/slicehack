@@ -526,8 +526,8 @@ int *dmg_p; /* for dishing out extra damage in lieu of Int loss */
             /* no need to check for poly_when_stoned or Stone_resistance;
                mind flayers don't have those capabilities */
             if (visflag && canseemon(magr))
-                pline("%s turns to stone!", Monnam(magr));
-            monstone(magr);
+                pline("%s collapses, poisoned!", Monnam(magr));
+            mondead(magr, mdef);
             if (!DEADMONSTER(magr)) {
                 /* life-saved; don't continue eating the brains */
                 return MM_MISS;
@@ -707,12 +707,10 @@ register int pm;
 {
     (void) maybe_cannibal(pm, TRUE);
     if (flesh_petrifies(&mons[pm])) {
-        if (!Stone_resistance
-            && !(poly_when_stoned(youmonst.data)
-                 && polymon(PM_STONE_GOLEM))) {
+        if (!Stone_resistance) {
             Sprintf(killer.name, "tasting %s meat", mons[pm].mname);
             killer.format = KILLED_BY;
-            You("turn to stone.");
+            You("are poisoned on contact.");
             done(STONING);
             if (context.victual.piece)
                 context.victual.eating = FALSE;
@@ -772,7 +770,7 @@ fix_petrification()
         Sprintf(buf, "What a pity--you just ruined a future piece of %sart!",
                 ACURR(A_CHA) > 15 ? "fine " : "");
     else
-        Strcpy(buf, "You feel limber!");
+        Strcpy(buf, "You feel healthy!");
     make_stoned(0L, buf, 0, (char *) 0);
 }
 
@@ -1412,11 +1410,7 @@ const char *mesg;
         }
 
         which = 0; /* 0=>plural, 1=>as-is, 2=>"the" prefix */
-        if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE)
-            && (Stone_resistance || Hallucination)) {
-            what = "chicken";
-            which = 1; /* suppress pluralization */
-        } else if (Hallucination) {
+        if (Hallucination) {
             what = rndmonnam(NULL);
         } else {
             what = mons[mnum].mname;
@@ -1684,8 +1678,7 @@ struct obj *otmp;
     int retcode = 0, tp = 0, mnum = otmp->corpsenm;
     long rotted = 0L;
     int ll_conduct = 0;
-    boolean stoneable = (flesh_petrifies(&mons[mnum]) && !Stone_resistance
-                         && !poly_when_stoned(youmonst.data)),
+    boolean stoneable = (flesh_petrifies(&mons[mnum])),
             slimeable = (mnum == PM_GREEN_SLIME && !Slimed && !Unchanging
                          && !slimeproof(youmonst.data)),
             glob = otmp->globby ? TRUE : FALSE;
@@ -1795,9 +1788,6 @@ struct obj *otmp;
 
         if (!retcode)
             consume_oeaten(otmp, 2); /* oeaten >>= 2 */
-    } else if ((mnum == PM_COCKATRICE || mnum == PM_CHICKATRICE)
-               && (Stone_resistance || Hallucination)) {
-        pline("This tastes just like chicken!");
     } else if (mnum == PM_FLOATING_EYE && u.umonnum == PM_RAVEN) {
         You("peck the eyeball with delight.");
     } else {
@@ -2402,9 +2392,7 @@ struct obj *otmp;
         break;
     case EGG:
         if (flesh_petrifies(&mons[otmp->corpsenm])) {
-            if (!Stone_resistance
-                && !(poly_when_stoned(youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+            if (!Stone_resistance) {
                 if (!Stoned) {
                     Sprintf(killer.name, "%s egg",
                             mons[otmp->corpsenm].mname);

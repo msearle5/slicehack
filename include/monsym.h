@@ -14,7 +14,7 @@
 enum mon_class_types {
     S_ANT = 1,
     S_BLOB,
-    S_COCKATRICE,
+    S_CONTACT,
     S_DOG,
     S_EYE,
     S_FELINE,
@@ -86,7 +86,7 @@ enum mon_class_types {
 /* clang-format off */
 #define DEF_ANT         'a'
 #define DEF_BLOB        'b'
-#define DEF_COCKATRICE  'c'
+#define DEF_CONTACT     'c'
 #define DEF_DOG         'd'
 #define DEF_EYE         'e'
 #define DEF_FELINE      'f'

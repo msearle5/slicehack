@@ -2068,15 +2068,11 @@ struct obj *obj;
         && !uarmg) {
         char kbuf[BUFSZ];
 
-        if (poly_when_stoned(youmonst.data))
-            You("tin %s without wearing gloves.",
+        pline("Tinning %s without wearing gloves is a fatal mistake...",
+              an(mons[corpse->corpsenm].mname));
+        Sprintf(kbuf, "trying to tin %s without gloves",
                 an(mons[corpse->corpsenm].mname));
-        else {
-            pline("Tinning %s without wearing gloves is a fatal mistake...",
-                  an(mons[corpse->corpsenm].mname));
-            Sprintf(kbuf, "trying to tin %s without gloves",
-                    an(mons[corpse->corpsenm].mname));
-        }
+
         instapetrify(kbuf);
     }
     if (is_rider(&mons[corpse->corpsenm])) {
@@ -3080,9 +3076,7 @@ struct obj *obj;
                     You("snatch %s!", yname(otmp));
                     if (otmp->otyp == CORPSE
                         && touch_petrifies(&mons[otmp->corpsenm]) && !uarmg
-                        && !Stone_resistance
-                        && !(poly_when_stoned(youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                        && !Stone_resistance) {
                         char kbuf[BUFSZ];
 
                         Sprintf(kbuf, "%s corpse",

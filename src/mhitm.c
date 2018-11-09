@@ -257,8 +257,7 @@ boolean quietly;
                 return MM_HIT; /* no damage during the polymorph */
             }
             if (!quietly && canspotmon(magr))
-                pline("%s turns to stone!", Monnam(magr));
-            monstone(magr);
+                pline("%s falls, dead!", Monnam(magr));
             if (!DEADMONSTER(magr))
                 return MM_HIT; /* lifesaved */
             else if (magr->mtame && !vis)
@@ -695,7 +694,7 @@ struct attack *mattk;
             }
             if (canseemon(magr))
                 pline("%s is turned to stone!", Monnam(magr));
-            monstone(magr);
+            mondied(mdef, magr);
             if (!DEADMONSTER(magr))
                 return MM_MISS;
             return MM_AGR_DIED;
@@ -895,17 +894,13 @@ register struct attack *mattk;
 
         if (protector == 0L
             || (protector != ~0L && (wornitems & protector) != protector)) {
-            if (poly_when_stoned(pa)) {
-                mon_to_stone(magr);
-                return MM_HIT; /* no damage during the polymorph */
-            }
             if (vis && canspotmon(magr))
-                pline("%s turns to stone!", Monnam(magr));
-            monstone(magr);
+                pline("%s is poisoned!", Monnam(magr));
             if (!DEADMONSTER(magr))
                 return MM_HIT; /* lifesaved */
             else if (magr->mtame && !vis)
                 You(brief_feeling, "peculiarly sad");
+            mondied(mdef, magr);
             return MM_AGR_DIED;
         }
     }
@@ -1209,15 +1204,10 @@ register struct attack *mattk;
         /* may die from the acid if it eats a stone-curing corpse */
         if (munstone(mdef, FALSE))
             goto post_stone;
-        if (poly_when_stoned(pd)) {
-            mon_to_stone(mdef);
-            tmp = 0;
-            break;
-        }
         if (!resists_ston(mdef)) {
             if (vis && canseemon(mdef))
-                pline("%s turns to stone!", Monnam(mdef));
-            monstone(mdef);
+                pline("%s is killed!", Monnam(mdef));
+            mondied(mdef, magr);
         post_stone:
             if (!DEADMONSTER(mdef))
                 return 0;

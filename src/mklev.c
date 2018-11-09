@@ -889,7 +889,8 @@ makelevel()
         else if (u_depth > 15 && !rn2(6))
             mkroom(SWAMP);
         else if (u_depth > 16 && !rn2(8)
-                 && !(mvitals[PM_COCKATRICE].mvflags & G_GONE))
+                 && !((mvitals[PM_CONTACT_BEAST].mvflags & G_GONE) && 
+                      (mvitals[PM_CONTACT_BEASTLING].mvflags & G_GONE)))
             mkroom(COCKNEST);
         else if (u_depth > 1 && !rn2(6))
             mkroom(STOREROOM);

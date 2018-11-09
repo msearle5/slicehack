@@ -534,14 +534,11 @@ xchar x, y;
         You("kick %s with your bare %s.",
             corpse_xname(kickedobj, (const char *) 0, CXN_PFX_THE),
             makeplural(body_part(FOOT)));
-        if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM)) {
-            ; /* hero has been transformed but kick continues */
-        } else {
-            /* normalize body shape here; foot, not body_part(FOOT) */
-            Sprintf(killer.name, "kicking %s barefoot",
-                    killer_xname(kickedobj));
-            instapetrify(killer.name);
-        }
+
+        /* normalize body shape here; foot, not body_part(FOOT) */
+        Sprintf(killer.name, "kicking %s barefoot",
+                killer_xname(kickedobj));
+        instapetrify(killer.name);
     }
 
     /* range < 2 means the object will not move.  */

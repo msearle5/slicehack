@@ -559,7 +559,7 @@ static const char * damagetypes[] = {
     "level drain",
     "energy drain",
     "wound leg",
-    "petrify",
+    "poison",
     "sticky",
     "steal gold",
     "steal item",
@@ -680,7 +680,7 @@ struct permonst * pm;
     ADDRESIST(pm_resistance(pm, MR_ELEC), "shock");
     ADDRESIST(pm_resistance(pm, MR_POISON), "poison");
     ADDRESIST(pm_resistance(pm, MR_ACID), "acid");
-    ADDRESIST(pm_resistance(pm, MR_STONE), "petrification");
+    ADDRESIST(pm_resistance(pm, MR_STONE), "contact venom");
     ADDRESIST(pm_resistance(pm, MR_SONIC), "sonic");
     ADDRESIST(pm_resistance(pm, MR_PSYCHIC), "psionics");
 
@@ -789,7 +789,7 @@ struct permonst * pm;
     if (is_domestic(pm))
         MONPUTSTR("Is treated as domestic.");
     if (touch_petrifies(pm))
-        MONPUTSTR("Petrifies by touch.");
+        MONPUTSTR("Poisons by touch or spit.");
     if (perceives(pm))
         MONPUTSTR("Can see invisible.");
     if (control_teleport(pm))

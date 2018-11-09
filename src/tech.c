@@ -1323,9 +1323,7 @@ tamedog(mtmp, (struct obj *) 0);
 				    xname(obj));
 			    if (obj->otyp == CORPSE &&
 				    touch_petrifies(&mons[obj->corpsenm]) &&
-				    !uarmg && !Stone_resistance &&
-				    !(poly_when_stoned(youmonst.data) &&
-					polymon(PM_STONE_GOLEM))) {
+				    !uarmg && !Stone_resistance) {
 				char kbuf[BUFSZ];
 
 				Sprintf(kbuf, "%s corpse",

@@ -3457,9 +3457,7 @@ boolean picked_some;
                               ? "They're"
                               : "It's",
                       corpse_xname(otmp, (const char *) 0, CXN_ARTICLE),
-                      poly_when_stoned(youmonst.data)
-                          ? ""
-                          : ", unfortunately");
+                      ", unfortunately");
                 feel_cockatrice(otmp, FALSE);
                 break;
             }
@@ -3541,11 +3539,7 @@ boolean force_touch;
         /* "the <cockatrice> corpse" */
         Strcpy(kbuf, corpse_xname(otmp, (const char *) 0, CXN_PFX_THE));
 
-        if (poly_when_stoned(youmonst.data))
-            You("touched %s with your bare %s.", kbuf,
-                makeplural(body_part(HAND)));
-        else
-            pline("Touching %s is a fatal mistake...", kbuf);
+        pline("Touching %s is a fatal mistake...", kbuf);
         /* normalize body shape here; hand, not body_part(HAND) */
         Sprintf(kbuf, "touching %s bare-handed", killer_xname(otmp));
         /* will call polymon() for the poly_when_stoned() case */

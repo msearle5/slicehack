@@ -832,9 +832,7 @@ register boolean verbose;
                 }
             }
             if (hitu && singleobj->otyp == EGG) {
-                if (!Stoned && !Stone_resistance
-                    && !(poly_when_stoned(youmonst.data)
-                         && polymon(PM_STONE_GOLEM))) {
+                if (!Stoned && !Stone_resistance) {
                     make_stoned(5L, (char *) 0, KILLED_BY, "");
                 }
             }

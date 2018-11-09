@@ -813,7 +813,7 @@ Amulet_on()
                 pline("The amulet glows black as you wear it...");
                 uamul->cursed = TRUE;
             }
-            make_stoned(0L, "You feel more limber.", 0, (char *) 0);
+            make_stoned(0L, "You feel more healthy.", 0, (char *) 0);
         }
         break;
     case AMULET_OF_UNCHANGING:

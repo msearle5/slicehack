@@ -16,7 +16,7 @@ ROOM: "ordinary" , random, random, random, random {
 ROOM: "ordinary" , random, random, random, random {
   STAIR: random, down
   OBJECT: random, random
-  MONSTER: ('c',"cockatrice"),random
+  MONSTER: random, random
   TRAP: "statue", random
   TRAP: "statue", random
 }

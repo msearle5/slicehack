@@ -1177,7 +1177,7 @@ int dieroll;
                               mon_nam(mon),
                               obj->known ? "the" : cnt > 1L ? "some" : "a",
                               obj->known ? mons[obj->corpsenm].mname
-                                         : "petrifying",
+                                         : "poisonous",
                               plur(cnt));
                         obj->known = 1; /* (not much point...) */
                         useup_eggs(obj);
@@ -1796,13 +1796,6 @@ struct obj *otmp;
     if (uarmg || otmp->otyp != CORPSE
         || !touch_petrifies(&mons[otmp->corpsenm]) || Stone_resistance)
         return FALSE;
-
-#if 0   /* no poly_when_stoned() critter has theft capability */
-    if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM)) {
-        display_nhwindow(WIN_MESSAGE, FALSE);   /* --More-- */
-        return TRUE;
-    }
-#endif
 
     /* stealing this corpse is fatal... */
     instapetrify(corpse_xname(otmp, "stolen", CXN_ARTICLE));
@@ -3075,9 +3068,7 @@ boolean wep_was_destroyed;
                 || (protector == W_ARMF && !uarmf)
                 || (protector == W_ARMH && !uarmh)
                 || (protector == (W_ARMC | W_ARMG) && (!uarmc || !uarmg))) {
-                if (!Stone_resistance
-                    && !(poly_when_stoned(youmonst.data)
-                         && polymon(PM_STONE_GOLEM))) {
+                if (!Stone_resistance) {
                     done_in_by(mon, STONING); /* "You turn to stone..." */
                     return 2;
                 }

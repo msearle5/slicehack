@@ -101,7 +101,7 @@ boolean incl_helpless;
         /* DROWNING, BURNING, DISSOLVED, CRUSHING, */
         "drowned in ", "burned by ", "dissolved in ", "crushed to death by ",
         /* STONING, TURNED_SLIME, GENOCIDED, */
-        "petrified by ", "turned to slime by ", "killed by ",
+        "poisoned by ", "turned to slime by ", "killed by ",
         /* PANICKED, TRICKED, QUIT, ESCAPED, ASCENDED */
         "", "", "", "", ""
     };
@@ -886,8 +886,6 @@ boolean so;
             Strcat(linebuf, "was poisoned");
         } else if (!strncmp(t1->death, "crushed", 7)) {
             Strcat(linebuf, "was crushed to death");
-        } else if (!strncmp(t1->death, "petrified by ", 13)) {
-            Strcat(linebuf, "turned to stone");
         } else
             Strcat(linebuf, "died");
 

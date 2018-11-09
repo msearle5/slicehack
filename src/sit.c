@@ -84,11 +84,10 @@ dosit()
                 } else {
                     You("sit on %s... Splat!", the(xname(obj)));
                     
-                    if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance && !(poly_when_stoned(youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+                    if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance) {
                         killer.format = KILLED_BY;
                         Strcpy(killer.name, "sitting on an egg");
-                        You("turn to stone.");
+                        You("are poisoned on contact.");
                         done(STONING);
                     }
                     costly_alteration(obj, COST_SPLAT);
@@ -96,11 +95,10 @@ dosit()
                     delobj(obj);
                 }
             } else if (obj->otyp == CORPSE) {
-                if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance && !(poly_when_stoned(youmonst.data)
-                     && polymon(PM_STONE_GOLEM))) {
+                if (touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance) {
                     killer.format = KILLED_BY;
-                    Strcpy(killer.name, "sitting on a cockatrice corpse");
-                    You("turn to stone.");
+                    Strcpy(killer.name, "sitting on a contact-beast corpse");
+                    You("collapse, poisoned.");
                     done(STONING);
                 }
             } else {

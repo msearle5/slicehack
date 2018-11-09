@@ -33,7 +33,7 @@ STATIC_DCL void NDECL(newman);
 STATIC_DCL void NDECL(polysense);
 
 STATIC_VAR const char no_longer_petrify_resistant[] =
-    "No longer petrify-resistant, you";
+    "No longer venom-resistant, you";
 
 /* controls whether taking on new form or becoming new man can also
    change sex (ought to be an arg to polymon() and newman() instead) */
@@ -672,12 +672,6 @@ int mntmp;
     Strcat(buf, mons[mntmp].mname);
     You("%s %s!", (u.umonnum != mntmp) ? "turn into" : "feel like", an(buf));
 
-    if (Stoned && poly_when_stoned(&mons[mntmp])) {
-        /* poly_when_stoned already checked stone golem genocide */
-        mntmp = PM_STONE_GOLEM;
-        make_stoned(0L, "You turn to stone!", 0, (char *) 0);
-    }
-
     u.mtimedone = rn1(500, 500);
     u.umonnum = mntmp;
     set_uasmon();
@@ -689,7 +683,7 @@ int mntmp;
         ABASE(A_STR) = AMAX(A_STR) = STR18(100);
 
     if (Stone_resistance && Stoned) { /* parnes@eniac.seas.upenn.edu */
-        make_stoned(0L, "You no longer seem to be petrifying.", 0,
+        make_stoned(0L, "You no longer seem to be poisoned.", 0,
                     (char *) 0);
     }
     if (Sick_resistance && Sick) {

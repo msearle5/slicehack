@@ -2935,9 +2935,7 @@ const char *str;
 {
     if (Stone_resistance)
         return;
-    if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM))
-        return;
-    You("turn to stone...");
+    You("collapse, poisoned...");
     killer.format = KILLED_BY;
     if (str != killer.name)
         Strcpy(killer.name, str ? str : "");
@@ -2956,17 +2954,14 @@ boolean byplayer;
         return;
     }
 
-    /* give a "<mon> is slowing down" message and also remove
-       intrinsic speed (comparable to similar effect on the hero) */
-    mon_adjust_speed(mon, -3, (struct obj *) 0);
-
-    if (cansee(mon->mx, mon->my))
-        pline("%s turns to stone.", Monnam(mon));
+    if (cansee(mon->mx, mon->my)) {
+        pline("%s collapses, poisoned.", Monnam(mon));
+    }
     if (byplayer) {
         stoned = TRUE;
         xkilled(mon, XKILL_NOMSG);
     } else
-        monstone(mon);
+        mondied(mon, mon);
 }
 
 void
@@ -4504,16 +4499,12 @@ struct trap *ttmp;
         You("grab the trapped %s using your bare %s.", mtmp->data->mname,
             makeplural(body_part(HAND)));
 
-        if (poly_when_stoned(youmonst.data) && polymon(PM_STONE_GOLEM)) {
-            display_nhwindow(WIN_MESSAGE, FALSE);
-        } else {
-            char kbuf[BUFSZ];
+        char kbuf[BUFSZ];
 
-            Sprintf(kbuf, "trying to help %s out of a pit",
-                    an(mtmp->data->mname));
-            instapetrify(kbuf);
-            return 1;
-        }
+        Sprintf(kbuf, "trying to help %s out of a pit",
+                an(mtmp->data->mname));
+        instapetrify(kbuf);
+        return 1;
     }
     /* need to do cockatrice check first if sleeping or paralyzed */
     if (uprob) {

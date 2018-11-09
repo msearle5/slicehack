@@ -211,9 +211,9 @@ NEARDATA struct permonst mons[] = {
             | M1_ACID,
         M2_WANDER | M2_HOSTILE | M2_NEUTER, 0, M4_VEGAN, CLR_CYAN),
     /*
-     * cockatrice
+     * contact critters
      */
-    MON4("chickatrice", S_COCKATRICE, LVL(4, 4, 8, 30, 0),
+    MON4("contact beastling", S_CONTACT, LVL(4, 4, 8, 30, 0),
         (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 1, 2), ATTK(AT_TUCH, AD_STON, 0, 0),
           ATTK(AT_NONE, AD_STON, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK),
@@ -221,20 +221,13 @@ NEARDATA struct permonst mons[] = {
         MR_POISON | MR_STONE, M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE,
         M2_HOSTILE, M3_INFRAVISIBLE | M3_SUMMONABLE | M3_WIZAPP,
         M4_PETRIFY, CLR_BROWN),
-    MON4("cockatrice", S_COCKATRICE, LVL(5, 6, 6, 30, 0), (G_GENO | 5),
+    MON4("contact beast", S_CONTACT, LVL(5, 6, 6, 30, 0), (G_GENO | 5),
         A(ATTK(AT_BITE, AD_PHYS, 1, 3), ATTK(AT_TUCH, AD_STON, 0, 0),
           ATTK(AT_NONE, AD_STON, 0, 0), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(30, 30, MS_HISS, MZ_SMALL), MR_POISON | MR_STONE,
         MR_POISON | MR_STONE,
         M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE | M1_OVIPAROUS, M2_HOSTILE,
         M3_INFRAVISIBLE, M4_PETRIFY, CLR_YELLOW),
-    MON("pyrolisk", S_COCKATRICE, LVL(6, 6, 6, 30, 0), (G_GENO | 1),
-        A(ATTK(AT_GAZE, AD_FIRE, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
-          NO_ATTK),
-        SIZ(30, 30, MS_HISS, MZ_SMALL), MR_POISON | MR_FIRE,
-        MR_POISON | MR_FIRE,
-        M1_ANIMAL | M1_NOHANDS | M1_OMNIVORE | M1_OVIPAROUS, M2_HOSTILE,
-        M3_INFRAVISIBLE, CLR_RED),
     /*
      * dogs & other canines
      */

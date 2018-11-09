@@ -1098,13 +1098,10 @@ register struct monst *mtmp;
                     } else if (grow) {
                         ptr = grow_up(mtmp, (struct monst *) 0);
                     } else if (mstone) {
-                        if (poly_when_stoned(ptr)) {
-                            mon_to_stone(mtmp);
-                            ptr = mtmp->data;
-                        } else if (!resists_ston(mtmp)) {
+                        if (!resists_ston(mtmp)) {
                             if (canseemon(mtmp))
-                                pline("%s turns to stone!", Monnam(mtmp));
-                            monstone(mtmp);
+                                pline("%s is instantly poisoned!", Monnam(mtmp));
+                            mondied(mtmp, mtmp);
                             ptr = (struct permonst *) 0;
                         }
                     } else if (heal) {
@@ -2812,10 +2809,7 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
 
     disintegested = nocorpse;
     /* dispose of monster and make cadaver */
-    if (stoned)
-        monstone(mtmp);
-    else
-        mondead(mtmp, &youmonst);
+    mondead(mtmp, &youmonst);
     disintegested = FALSE; /* reset */
 
     if (!DEADMONSTER(mtmp)) { /* monster lifesaved */
@@ -3971,7 +3965,7 @@ boolean msg;      /* "The oldmon turns into a newmon!" */
     possibly_unwield(mtmp, polyspot); /* might lose use of weapon */
     mon_break_armor(mtmp, polyspot);
     if (!(mtmp->misc_worn_check & W_ARMG))
-        mselftouch(mtmp, "No longer petrify-resistant, ",
+        mselftouch(mtmp, "No longer venom-resistant, ",
                    !context.mon_moving);
     m_dowear(mtmp, FALSE);
 

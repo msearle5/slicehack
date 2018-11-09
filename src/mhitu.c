@@ -1547,17 +1547,19 @@ register struct attack *mattk;
         hitmsg(mtmp, mattk);
         if (!rn2(3)) {
             if (mtmp->mcan) {
-                if (!Deaf)
+                if (!Blind)
+                    You_see("%s cough!", mon_nam(mtmp));
+                else if (!Deaf)
                     You_hear("a cough from %s!", mon_nam(mtmp));
             } else {
-                if (!Deaf)
-                    You_hear("%s hissing!", s_suffix(mon_nam(mtmp)));
+                if (!Blind)
+                    You_see("%s spit at you!", mon_nam(mtmp));
+                else if (!Deaf)
+                    You_hear("%s spitting!", s_suffix(mon_nam(mtmp)));
                 if (!rn2(10)
                     || (flags.moonphase == NEW_MOON && !have_lizard())) {
                 do_stone:
-                    if (!Stoned && !Stone_resistance
-                        && !(poly_when_stoned(youmonst.data)
-                             && polymon(PM_STONE_GOLEM))) {
+                    if (!Stoned && !Stone_resistance) {
                         int kformat = KILLED_BY_AN;
                         const char *kname = mtmp->data->mname;
 
@@ -3349,11 +3351,7 @@ struct attack *mattk;
             && (protector == 0L
                 || (protector != ~0L
                     && (wornitems & protector) != protector))) {
-            if (poly_when_stoned(mtmp->data)) {
-                mon_to_stone(mtmp);
-                return 1;
-            }
-            pline("%s turns to stone!", Monnam(mtmp));
+            pline("%s collapses, poisoned!", Monnam(mtmp));
             stoned = 1;
             xkilled(mtmp, XKILL_NOMSG);
             if (!DEADMONSTER(mtmp))

@@ -288,7 +288,7 @@ NH_panictrace_gdb()
 static NEARDATA const char *deaths[] = {
     /* the array of death */
     "died", "died", "choked", "poisoned", "starvation", "drowning", "burning",
-    "dissolving under the heat and pressure", "crushed", "turned to stone",
+    "dissolving under the heat and pressure", "crushed", "poisoned",
     "turned into slime", "genocided", "panic", "trickery", "quit",
     "escaped", "ascended"
 };
@@ -298,7 +298,7 @@ static NEARDATA const char *ends[] = {
     "died", "died", "choked", "were poisoned",
     "starved", "drowned", "burned",
     "dissolved in the lava",
-    "were crushed", "turned to stone",
+    "were crushed", "were poisoned",
     "turned into slime", "were genocided",
     "panicked", "were tricked", "quit",
     "escaped", "ascended"
@@ -424,7 +424,7 @@ int how;
             mimicker = (mtmp->m_ap_type == M_AP_MONSTER),
             imitator = (mptr != champtr || mimicker);
 
-    You((how == STONING) ? "turn to stone..." : "die...");
+    You("die...");
     mark_synch(); /* flush buffered screen output */
     buf[0] = '\0';
     killer.format = KILLED_BY_AN;
@@ -524,7 +524,7 @@ static const struct {
     /* "petrified by <foo>, while getting stoned" -- "while getting stoned"
        prevented any last-second recovery, but it was not the cause of
        "petrified by <foo>" */
-    { STONING, 1, "getting stoned", (char *) 0 },
+    { STONING, 1, "poisoned", (char *) 0 },
     /* "died of starvation, while fainted from lack of food" is accurate
        but sounds a fairly silly (and doesn't actually appear unless you
        splice together death and while-helpless from xlogfile) */
@@ -1146,8 +1146,6 @@ int how;
         u.ugrave_arise = (NON_PM - 3); /* no corpse, no grave */
     else if (how == BURNING || how == DISSOLVED) /* corpse burns up too */
         u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
-    else if (how == STONING)
-        u.ugrave_arise = (NON_PM - 1); /* statue instead of corpse */
     else if (how == TURNED_SLIME) {
         u.ugrave_arise = PM_GREEN_SLIME;
         if (Hallucination)

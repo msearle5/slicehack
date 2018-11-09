@@ -251,7 +251,7 @@ int adjust;      /* positive => increase speed, negative => decrease */
 struct obj *obj; /* item to make known if effect can be seen */
 {
     struct obj *otmp;
-    boolean give_msg = !in_mklev, petrify = FALSE;
+    boolean give_msg = !in_mklev;
     unsigned int oldspeed = mon->mspeed;
 
     switch (adjust) {
@@ -277,17 +277,13 @@ struct obj *obj; /* item to make known if effect can be seen */
         mon->permspeed = MSLOW;
         give_msg = FALSE; /* (not currently used) */
         break;
-    case -3: /* petrification */
-        /* take away intrinsic speed but don't reduce normal speed */
-        if (mon->permspeed == MFAST)
-            mon->permspeed = 0;
-        petrify = TRUE;
-        break;
     case -4: /* green slime */
         if (mon->permspeed == MFAST)
             mon->permspeed = 0;
         give_msg = FALSE;
         break;
+    default:
+        impossible("unknown mon_adjust_speed");
     }
 
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
@@ -299,18 +295,13 @@ struct obj *obj; /* item to make known if effect can be seen */
         mon->mspeed = mon->permspeed;
 
     /* no message if monster is immobile (temp or perm) or unseen */
-    if (give_msg && (mon->mspeed != oldspeed || petrify) && mon->data->mmove
+    if (give_msg && (mon->mspeed != oldspeed) && mon->data->mmove
         && !(mon->mfrozen || mon->msleeping) && canseemon(mon)) {
         /* fast to slow (skipping intermediate state) or vice versa */
         const char *howmuch =
             (mon->mspeed + oldspeed == MFAST + MSLOW) ? "much " : "";
 
-        if (petrify) {
-            /* mimic the player's petrification countdown; "slowing down"
-               even if fast movement rate retained via worn speed boots */
-            if (flags.verbose)
-                pline("%s is slowing down.", Monnam(mon));
-        } else if (adjust > 0 || mon->mspeed == MFAST)
+        if (adjust > 0 || mon->mspeed == MFAST)
             pline("%s is suddenly moving %sfaster.", Monnam(mon), howmuch);
         else
             pline("%s seems to be moving %sslower.", Monnam(mon), howmuch);
