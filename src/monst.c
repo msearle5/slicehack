@@ -2785,26 +2785,6 @@ struct permonst _mons2[] = {
         M1_SWIM | M1_CONCEAL | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_POIS
             | M1_CARNIVORE | M1_OVIPAROUS | M1_NOTAKE,
         M2_HOSTILE, 0, CLR_BLUE),
-    MON("cerastes", S_SNAKE, LVL(7, 0, 15, 10, 0), (G_GENO | 2),
-        A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_BUTT, AD_PHYS, 1, 8), NO_ATTK,
-          NO_ATTK, NO_ATTK, NO_ATTK),
-        SIZ(600, 250, MS_SILENT, MZ_LARGE), 0, 0,
-        M1_ANIMAL | M1_SLITHY | M1_NOLIMBS | M1_CARNIVORE | M1_NOTAKE |
-        M1_CONCEAL, M2_HOSTILE, 0, CLR_YELLOW),
-    MON("lindorm", S_SNAKE, LVL(7, 7, 1, 20, -4), (G_GENO | 3),
-        A(ATTK(AT_BITE, AD_PHYS, 2, 4), ATTK(AT_CLAW, AD_PHYS, 1,4),
-          ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK),
-          SIZ(600, 250, MS_HISS, MZ_LARGE), 0, 0,
-          M1_ANIMAL | M1_SLITHY | M1_OVIPAROUS | M1_CARNIVORE | M1_SEE_INVIS,
-          M2_HOSTILE, M3_INFRAVISION, CLR_CYAN),
-    MON("amphisbaena", S_SNAKE, LVL(9, 3, 5, 0, -3), (G_GENO | 1),
-        A(ATTK(AT_BITE, AD_DRST, 2, 4), ATTK(AT_BITE, AD_DRST, 2, 4),
-          ATTK(AT_TUCH, AD_PHYS, 0, 0), ATTK(AT_HUGS, AD_PHYS, 2, 4), NO_ATTK,
-          NO_ATTK),
-        SIZ(250, 100, MS_HISS, MZ_LARGE), 0, 0,
-        M1_SWIM | M1_NOLIMBS | M1_ANIMAL | M1_SLITHY | M1_CARNIVORE
-            | M1_OVIPAROUS | M1_NOTAKE,
-        M2_HOSTILE | M2_STRONG, M3_INFRAVISION | M3_SUMMONABLE, CLR_ORANGE),
     /*
      * Trolls
      */
