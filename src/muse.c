@@ -1271,36 +1271,6 @@ struct monst *mtmp;
             m.has_offense = MUSE_WAN_TELEPORTATION;
         }
 #endif
-        nomore(MUSE_PIL_HALLUCINATION);
-        if (obj->otyp == PIL_HALLUCINATION && multi >= 0) {
-            m.offensive = obj;
-            m.has_offense = MUSE_PIL_HALLUCINATION;
-        }
-        /* nomore(MUSE_PIL_MUTAGEN_THROW);
-        if (obj->otyp == PIL_MUTAGEN) {
-            m.offensive = obj;
-            m.has_offense = MUSE_PIL_MUTAGEN_THROW;
-        }*/
-        nomore(MUSE_PIL_PARALYSIS);
-        if (obj->otyp == PIL_PARALYSIS && multi >= 0) {
-            m.offensive = obj;
-            m.has_offense = MUSE_PIL_PARALYSIS;
-        }
-        nomore(MUSE_PIL_BLINDNESS);
-        if (obj->otyp == PIL_BLINDNESS && !attacktype(mtmp->data, AT_GAZE)) {
-            m.offensive = obj;
-            m.has_offense = MUSE_PIL_BLINDNESS;
-        }
-        nomore(MUSE_PIL_CONFUSION);
-        if (obj->otyp == PIL_CONFUSION) {
-            m.offensive = obj;
-            m.has_offense = MUSE_PIL_CONFUSION;
-        }
-        nomore(MUSE_PIL_SLEEPING);
-        if (obj->otyp == PIL_SLEEPING) {
-            m.offensive = obj;
-            m.has_offense = MUSE_PIL_SLEEPING;
-        }
         nomore(MUSE_MGC_FLUTE);
         if (obj->otyp == MAGIC_FLUTE && !u.usleep && !rn2(3)
             && obj->spe > 0 && multi >= 0
@@ -1771,15 +1741,9 @@ struct monst *mtmp;
         m_useup(mtmp, otmp);
         return 1;
     }
-    case MUSE_PIL_PARALYSIS:
-    case MUSE_PIL_BLINDNESS:
-    case MUSE_PIL_CONFUSION:
-    case MUSE_PIL_SLEEPING:
     case MUSE_POT_ACID:
     case MUSE_POT_BLOOD_THROW:
     case MUSE_POT_WATER:
-    /* case MUSE_PIL_MUTAGEN_THROW: */
-    case MUSE_PIL_HALLUCINATION:
         /* Note: this setting of dknown doesn't suffice.  A monster
          * which is out of sight might throw and it hits something _in_
          * sight, a problem not existing with wands because wand rays
