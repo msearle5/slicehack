@@ -397,6 +397,7 @@ register struct monst *mtmp;
     case MS_BUZZ:
         ret = "buzz";
         break;
+    case MS_LEMMING:
     case MS_SQEEK:
         ret = "squeal";
         break;
@@ -477,6 +478,7 @@ register struct monst *mtmp;
         case MS_ROAR:
             yelp_verb = (!Deaf) ? "snarl" : "bluff";
             break;
+        case MS_LEMMING:
         case MS_SQEEK:
             yelp_verb = (!Deaf) ? "squeal" : "quiver";
             break;
@@ -518,6 +520,7 @@ register struct monst *mtmp;
         case MS_BARK:
             whimper_verb = "whine";
             break;
+        case MS_LEMMING:
         case MS_SQEEK:
             whimper_verb = "squeal";
             break;
@@ -717,6 +720,9 @@ register struct monst *mtmp;
         } else {
             pline_msg = "talks to you about the pirate code.";
         }
+        break;
+    case MS_LEMMING:
+        pline_msg = "squeaks \"Oh no!\"";
         break;
     case MS_GRUNT:
         pline_msg = "grunts.";

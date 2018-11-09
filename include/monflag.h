@@ -39,7 +39,7 @@
 #define MS_DJINNI 27    /* "Thank you for freeing me!" */
 #define MS_NURSE 28     /* "Take off your shirt, please." */
 #define MS_SEDUCE 29    /* "Hello, sailor." (Nymphs) */
-/* 30 free */
+#define MS_LEMMING 30   /* lemming-like comments */
 #define MS_BRIBE 31     /* asks for money, or berates you */
 #define MS_CUSS 32      /* berates (demons) or intimidates (Wiz) */
 #define MS_RIDER 33     /* astral level special monsters */
@@ -201,6 +201,9 @@
 #define M4_VEGAN     0x00000004 /* corpse is vegan (plants, etc) */
 #define M4_VEGETARIAN 0x00000008 /* corpse is vegetarian (puddings) */
 #define M4_WHIRLY    0x00000010 /* Vortices, air elemental, Taz */
+#define M4_SUMMONER  0x00000020 /* summons like a werewolf, but not a lycanthrope */
+#define M4_REVIVE    0x00000040 /* corpses revive, like a troll */
+#define M4_HATESLIGHT 0x00000080 /* hates light, like a gremlin */
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

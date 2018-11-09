@@ -54,6 +54,16 @@ STATIC_OVL xchar artidisco[NROFARTIFACTS];
 STATIC_DCL void NDECL(hack_artifacts);
 STATIC_DCL boolean FDECL(attacks, (int, struct obj *));
 
+/* return the object type of an artifact */
+int
+arti_type(artinum)
+int artinum;
+{
+    if (artinum <= 0 || artinum > NROFARTIFACTS)
+        return 0;
+    return artilist[artinum].otyp;
+}
+
 /* print a message on the first encounter with an artifact */
 STATIC_OVL boolean
 introduce_artifact(int art)
