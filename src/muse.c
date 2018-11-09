@@ -225,16 +225,16 @@ struct obj *otmp;
     otmp->bknown = savebknown;
 
     if (vismon)
-        pline("%s reads %s!", Monnam(mtmp), onambuf);
+        pline("%s activates %s!", Monnam(mtmp), onambuf);
     else
-        You_hear("%s reading %s.",
+        You_hear("%s activating %s.",
                  x_monnam(mtmp, ARTICLE_A, (char *) 0,
                           (SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_SADDLE),
                           FALSE),
                  onambuf);
 
     if (mtmp->mconf)
-        pline("Being confused, %s mispronounces the magic words...",
+        pline("Being confused, %s enters an alternate mode...",
               vismon ? mon_nam(mtmp) : mhe(mtmp));
 }
 
@@ -248,6 +248,18 @@ struct obj *otmp;
         pline("%s drinks %s!", Monnam(mtmp), singular(otmp, doname));
     } else if (!Deaf)
         You_hear("a chugging sound.");
+}
+
+STATIC_OVL void
+mpillmsg(mtmp, otmp)
+struct monst *mtmp;
+struct obj *otmp;
+{
+    if (canseemon(mtmp)) {
+        otmp->dknown = 1;
+        pline("%s swallows %s!", Monnam(mtmp), singular(otmp, doname));
+    } else if (!Deaf)
+        You_hear("a gulping sound.");
 }
 
 /* Defines for various types of stuff.  The order in which monsters prefer
@@ -991,7 +1003,7 @@ struct monst *mtmp;
 
         goto mon_tele;
     case MUSE_PIL_HEALING:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         i = d(6 + 2 * bcsign(otmp), 4);
         mtmp->mhp += i;
         if (mtmp->mhp > mtmp->mhpmax)
@@ -1017,7 +1029,7 @@ struct monst *mtmp;
         otmp->spe--;
         return 2;
     case MUSE_PIL_EXTRA_HEALING:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         i = d(6 + 2 * bcsign(otmp), 8);
         mtmp->mhp += i;
         if (mtmp->mhp > mtmp->mhpmax)
@@ -1031,7 +1043,7 @@ struct monst *mtmp;
         m_useup(mtmp, otmp);
         return 2;
     case MUSE_PIL_FULL_HEALING:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         if (otmp->otyp == PIL_POISON)
             unbless(otmp); /* Pestilence */
         mtmp->mhp = (mtmp->mhpmax += (otmp->blessed ? 8 : 4));
@@ -2079,7 +2091,7 @@ struct monst *mtmp;
         return 2;
     }
     case MUSE_PIL_LEARNING:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         if (otmp->cursed) {
             if (Can_rise_up(mtmp->mx, mtmp->my, &u.uz)) {
                 register int tolev = depth(&u.uz) - 1;
@@ -2127,7 +2139,7 @@ struct monst *mtmp;
             mzapmsg(mtmp, otmp, TRUE);
             otmp->spe--;
         } else
-            mquaffmsg(mtmp, otmp);
+            mpillmsg(mtmp, otmp);
         /* format monster's name before altering its visibility */
         Strcpy(nambuf, mon_nam(mtmp));
         mon_set_minvis(mtmp);
@@ -2156,7 +2168,7 @@ struct monst *mtmp;
         mon_adjust_speed(mtmp, 1, otmp);
         return 2;
     case MUSE_PIL_SPEED:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         /* note difference in potion effect due to substantially
            different methods of maintaining speed ratings:
            player's character becomes "very fast" temporarily;
@@ -2184,7 +2196,7 @@ struct monst *mtmp;
                 The(xname(otmp)), mon_nam(mtmp));
         return 2;
     case MUSE_POT_REFLECT:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         mtmp->mreflect = 1;
         if (canspotmon(mtmp) && !Blind)
             pline("%s is covered in a silvery sheen!", Monnam(mtmp));
@@ -2200,7 +2212,7 @@ struct monst *mtmp;
             makeknown(WAN_MUTATION);
         return 2;
     case MUSE_PIL_MUTAGEN:
-        mquaffmsg(mtmp, otmp);
+        mpillmsg(mtmp, otmp);
         if (vismon)
             pline("%s suddenly mutates!", Monnam(mtmp));
         (void) newcham(mtmp, muse_newcham_mon(mtmp), FALSE, FALSE);
