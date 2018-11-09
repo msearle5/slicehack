@@ -39,13 +39,13 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
-/* This definitely needs to become a flag, once reflagging takes place. */
 #define is_jumper(ptr) (((ptr)->mflags3 & M3_JUMPER) != 0L)
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
 #define grounded(ptr) (!is_flyer(ptr) && !is_floater(ptr) && !is_clinger(ptr))
 #define is_swimmer(ptr) (((ptr)->mflags1 & M1_SWIM) != 0L)
+#define is_lemming(ptr)	(((ptr)->mlet == S_LEMMING))
 #define breathless(ptr) (((ptr)->mflags1 & M1_BREATHLESS) != 0L)
 #define amphibious(ptr) \
     (((ptr)->mflags1 & (M1_AMPHIBIOUS | M1_BREATHLESS)) != 0L)
@@ -95,6 +95,10 @@
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
 #define is_undead(ptr) (((ptr)->mflags2 & M2_UNDEAD) != 0L)
 #define is_were(ptr) (((ptr)->mflags2 & M2_WERE) != 0L)
+#define is_summoner(ptr) (((ptr)->mflags4 & M4_SUMMONER) != 0L)
+#define is_lighthater(ptr) (((ptr)->mflags4 & M4_HATESLIGHT) != 0L)
+/* return TRUE if the monster tends to revive */
+#define is_reviver(ptr) (((ptr)->mflags4 & M4_REVIVE) != 0L)
 #define is_elf(ptr) (((ptr)->mflags2 & M2_ELF) != 0L)
 #define is_dwarf(ptr) (((ptr)->mflags2 & M2_DWARF) != 0L)
 #define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)
@@ -163,8 +167,6 @@
 #define is_silver(ptr) \
     ((ptr) == &mons[PM_SILVER_GOLEM])
 #define is_placeholder(ptr) (((ptr)->mflags3 & M3_PLACEHOLDER) != 0L)
-/* return TRUE if the monster tends to revive */
-#define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL)
 /* monsters whose corpses and statues need special handling;
    note that high priests and the Wizard of Yendor are flagged
    as unique even though they really aren't; that's ok here */

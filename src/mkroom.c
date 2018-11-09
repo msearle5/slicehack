@@ -916,15 +916,36 @@ gotone:
         return (struct permonst *) 0;
 }
 
+/* Return a random member of a given monster class, biased by level difficulty.
+ * Uniques and genocided monsters are avoided.
+ */
+STATIC_OVL struct permonst *
+classmon(mlet)
+int mlet;
+{
+    int first, last, lower, higher, diff, mndx;
+    first = 0;
+    while (mons[first].mlet != mlet)
+        first++;
+    last = first;
+    while (mons[last].mlet == mlet)
+        last++;
+    diff = level_difficulty();
+    for(higher = diff; higher <= diff + (diff / 2) + 2; higher++) {
+        for(lower = diff / 2; lower >= 0; lower--) {
+            mndx = rn2(last-first);
+            if ((!(mvitals[mndx].mvflags & G_GONE)) && (mons[mndx].mlevel <= higher) && (mons[mndx].mlevel >= lower))
+                return &mons[mndx];
+        }
+    }
+    return (struct permonst *) 0;
+}
+
 /* they say that a lemming is like a mimic. */
 STATIC_OVL struct permonst *
 lemmmon()
 {
-    int mndx = PM_GREEN_LEMMING;
-    if (!(mvitals[mndx].mvflags & G_GONE))
-        return &mons[mndx];
-    else
-        return (struct permonst *) 0;
+    return classmon(S_LEMMING);
 }
 
 /*

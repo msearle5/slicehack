@@ -662,6 +662,7 @@ struct permonst * pm;
                 hell ? "only appears in Gehennom" :
                 nohell ? "only appears outside Gehennom" :
                 "appears in any branch",
+                (gen & G_SGROUP|G_LGROUP) ? " in huge numbers" :
                 (gen & G_SGROUP) ? " in groups" :
                 (gen & G_LGROUP) ? " in large groups" : "",
                 freq >= 5 ? "very common" :
