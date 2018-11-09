@@ -1843,7 +1843,7 @@ struct monst *magr, /* monster that is currently deciding where to move */
         return ALLOW_M|ALLOW_TM;
 
     /* volcano lemmings vs. everything */
-    if(ma == &mons[PM_VOLCANO_LEMMING] && md != &mons[PM_VOLCAND_LEMMING])
+    if(ma == &mons[PM_VOLCANO_LEMMING] && md != &mons[PM_VOLCANO_LEMMING])
         return ALLOW_M|ALLOW_TM;
 
   	/* woodchucks vs. The Oracle */
