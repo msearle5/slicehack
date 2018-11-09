@@ -3537,7 +3537,6 @@ struct obj *obj;
     boolean fillmsg = FALSE;
     int expltype = EXPL_MAGICAL;
     char confirm[QBUFSZ], buf[BUFSZ];
-    boolean is_fragile = (!strcmp(OBJ_DESCR(objects[obj->otyp]), "balsa"));
 
     if (!paranoid_query(ParanoidBreakwand,
                        safe_qbuf(confirm,
@@ -3548,12 +3547,11 @@ struct obj *obj;
     if (nohands(youmonst.data)) {
         You_cant("break %s without hands!", yname(obj));
         return 0;
-    } else if (ACURR(A_STR) < (is_fragile ? 5 : 10)) {
+    } else if (ACURR(A_STR) < 10) {
         You("don't have the strength to break %s!", yname(obj));
         return 0;
     }
-    pline("Raising %s high above your %s, you %s it in two!", yname(obj),
-          body_part(HEAD), is_fragile ? "snap" : "break");
+    pline("Holding %s firmly, you smash it against the stone floor!", yname(obj));
 
     /* [ALI] Do this first so that wand is removed from bill. Otherwise,
      * the freeinv() below also hides it from setpaid() which causes problems.
