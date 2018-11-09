@@ -2538,7 +2538,7 @@ genericptr_t val;
 
     if (val) {
         levl[x][y].lit = 1;
-        if ((mtmp = m_at(x, y)) != 0 && mtmp->data == &mons[PM_GREMLIN]) {
+        if ((mtmp = m_at(x, y)) != 0 && hates_light(mtmp->data)) {
             gremlin = (struct litmon *) alloc(sizeof *gremlin);
             gremlin->mon = mtmp;
             gremlin->nxt = gremlins;

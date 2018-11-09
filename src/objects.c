@@ -1102,6 +1102,7 @@ SCROLL("stinking cloud",             "VELOX NEB",  1,  15, 300),
      * after stinking cloud or the number of extra descriptions changes,
      * tilemap.c must be modified to match.
      */
+SCROLL(None,      "SECAM NTSC",     1,   0, 100),
 SCROLL(None,      "FOOBIE BLETCH",  1,   0, 100),
 SCROLL(None,        "OMG LOL WTH",  1,   0, 100),
 SCROLL(None,       "HTH HAND GFY",  1,   0, 100),

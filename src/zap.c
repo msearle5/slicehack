@@ -845,7 +845,7 @@ boolean by_hero;
     }
 
     if ((mons[montype].mlet == S_EEL && !IS_POOL(levl[x][y].typ))
-        || (mons[montype].mlet == S_TROLL
+        || (is_reviver(&mons[montype])
             && uwep && uwep->oartifact == ART_TROLLSBANE)) {
         if (by_hero && cansee(x, y))
             pline("%s twitches feebly.",

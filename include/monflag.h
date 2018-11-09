@@ -24,7 +24,7 @@
 #define MS_MOO 14       /* cow */
 #define MS_CHIMERA 15   /* chimera */
 #define MS_ANT 16       /* ants */
-#define MS_PIG 17          /* boars */
+#define MS_PIG 17       /* boars */
 #define MS_ANIMAL 17    /* up to here are animal noises */
 #define MS_SHRIEK 18    /* wakes up others */
 #define MS_BONES 19     /* rattles bones (skeleton) */
@@ -59,6 +59,7 @@
 #define MS_GNOLL 47     /* gnolls */
 #define MS_YAWN 48      /* hippos yawn when angry */
 #define MS_SIN 49       /* seven deadly sins */
+#define MS_LEMMING 50   /* lemming-like comments */
 
 #define MR_FIRE 0x00000001L      /* resists fire */
 #define MR_COLD 0x00000002L      /* resists cold */
@@ -68,8 +69,8 @@
 #define MR_POISON 0x00000020L    /* resists poison */
 #define MR_ACID 0x00000040L      /* resists acid */
 #define MR_STONE 0x00000080L     /* resists petrification */
-#define MR_SONIC 0x00000100L   /* resists sonic */
-#define MR_PSYCHIC 0x00000200L /* resists psychic */
+#define MR_SONIC 0x00000100L     /* resists sonic */
+#define MR_PSYCHIC 0x00000200L   /* resists psychic */
 /* other resistances: magic, sickness */
 /* other conveyances: teleport, teleport control, telepathy */
 
@@ -160,26 +161,57 @@
 #define M2_MAGIC 0x80000000L /* picks up magic items */
 #endif
 
-#define M3_WANTSAMUL 0x0001 /* would like to steal the amulet */
-#define M3_WANTSBELL 0x0002 /* wants the bell */
-#define M3_WANTSBOOK 0x0004 /* wants the book */
-#define M3_WANTSCAND 0x0008 /* wants the candelabrum */
-#define M3_WANTSARTI 0x0010 /* wants the quest artifact */
-#define M3_WANTSALL 0x001f  /* wants any major artifact */
-#define M3_WAITFORU 0x0040  /* waits to see you or get attacked */
-#define M3_CLOSE 0x0080     /* lets you close unless attacked */
+#define M3_WANTSAMUL    0x0001 /* would like to steal the amulet */
+#define M3_WANTSBELL    0x0002 /* wants the bell */
+#define M3_WANTSBOOK    0x0004 /* wants the book */
+#define M3_WANTSCAND    0x0008 /* wants the candelabrum */
 
-#define M3_COVETOUS 0x001f /* wants something */
-#define M3_WAITMASK 0x00c0 /* waiting... */
+#define M3_WANTSARTI    0x0010 /* wants the quest artifact */
+#define M3_WANTSALL     0x001f /* wants any major artifact */
+#define M3_DISPLACES    0x0020 /* moves monsters out of its way */
+#define M3_WAITFORU     0x0040 /* waits to see you or get attacked */
+#define M3_CLOSE        0x0080 /* lets you close unless attacked */
+#define M3_COVETOUS     0x001f /* wants something */
+#define M3_WAITMASK     0x00c0 /* waiting... */
 
 /* Infravision is currently implemented for players only */
-#define M3_INFRAVISION 0x0100  /* has infravision */
+#define M3_INFRAVISION  0x0100 /* has infravision */
 #define M3_INFRAVISIBLE 0x0200 /* visible by infravision */
+#define M3_SUMMONABLE   0x0400 /* target of summoning (nasties - not the same as M2_NASTY) */
+#define M3_JUMPER       0x0800 /* is able to jump very far  e.g. kangaroo */
 
-#define M3_DISPLACES 0x0400 /* moves monsters out of its way */
+#define M3_WIZAPP 0x1000      /* possible wizard appearance */ 
+#define M3_DRAGON 0x2000      /* a dragon (including babies, but not hydras) */
+#define M3_BAT    0x4000      /* is a bat */
+#define M3_ORGANIZED 0x8000   /* uses group tactics */
 
-#define M3_ORGANIZED 0x0800 /* uses group tactics */
-#define M3_JUMPER 0x00001000L       /* is able to jump very far */
+#define M3_FLAMMABLE 0x10000  /* will burn completely if killed by fire, e.g. straw golem */
+#define M3_SLIME 0x20000      /* is a green slime, or something similar such as a colossal slime */
+#define M3_TELEPATHIC 0x40000 /* is telepathic, like a mind flayer */
+#define M3_ONEEYE 0x80000     /* has (and probably is) one eye */
+#define M3_DISPLACED 0x100000 /* is displaced, like a shimmering dragon */
+#define M3_WEBMAKER 0x200000  /* makes spider webs */
+#define M3_LONGWORM 0x400000  /* is a long worm (inc. babies & tails) */
+#define M3_WATCH 0x800000     /* is a Watch officer */
+#define M3_RIDER 0x1000000    /* is a Rider */
+#define M3_NONROTTING 0x2000000 /* corpses don't rot, like lizards */
+#define M3_FLAMING 0x4000000  /* is on fire (like a fire vortex) - not just having a fire attack (like a fire ant) */
+#define M3_ELDER 0x8000000    /* is an elder dragon */
+#define M3_MPLAYER 0x10000000 /* is a player-monster */
+#define M3_PIRATE 0x20000000  /* is a pirate */
+#define M3_MINDFLAYER 0x40000000  /* is a mindflayer, including the Ancient Brain */
+#define M3_PLACEHOLDER 0x80000000 /* is a placeholder for zombies */
+
+#define M4_INVISIBLE  0x00000001  /* invisible, like a stalker */
+#define M4_PETRIFY    0x00000002  /* petrifies on contact */
+#define M4_VEGAN      0x00000004  /* corpse is vegan (plants, etc) */
+#define M4_VEGETARIAN 0x00000008  /* corpse is vegetarian (puddings) */
+
+#define M4_WHIRLY     0x00000010  /* Vortices, air elemental, Taz */
+#define M4_SUMMONER   0x00000020  /* summons like a werewolf, but not a lycanthrope */
+#define M4_REVIVE     0x00000040  /* corpses revive, like a troll */
+#define M4_HATESLIGHT 0x00000080  /* hates light, like a gremlin */
+
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

@@ -454,6 +454,48 @@ struct attack *alt_attk_buf;
     return attk;
 }
 
+/* An attack has resulted in a lycanthrope or similar summoner calling for help */
+void
+do_were_summon(mtmp, youseeit)
+struct monst *mtmp;
+boolean youseeit;
+{
+    int numseen, numhelp;
+    struct permonst *mdat = mtmp->data;
+    char buf[BUFSZ], genericwere[BUFSZ];
+
+    Strcpy(genericwere, "creature");
+    numhelp = were_summon(mdat, FALSE, &numseen, genericwere);
+    if (youseeit) {
+        pline("%s summons help!", Monnam(mtmp));
+        if (numhelp > 0) {
+            if (numseen == 0)
+                You_feel("hemmed in.");
+        } else
+            pline("But none comes.");
+    } else {
+        const char *from_nowhere;
+
+        if (!Deaf) {
+            pline("%s %s!", Something, makeplural(growl_sound(mtmp)));
+            from_nowhere = "";
+        } else
+            from_nowhere = " from nowhere";
+        if (numhelp > 0) {
+            if (numseen < 1)
+                You_feel("hemmed in.");
+            else {
+                if (numseen == 1)
+                    Sprintf(buf, "%s appears", an(genericwere));
+                else
+                    Sprintf(buf, "%s appear",
+                            makeplural(genericwere));
+                pline("%s%s!", upstart(buf), from_nowhere);
+            }
+        } /* else no help came; but you didn't know it tried */
+    }
+}
+
 /*
  * mattacku: monster attacks you
  *      returns 1 if monster dies (e.g. "yellow light"), 0 otherwise
@@ -699,6 +741,14 @@ register struct monst *mtmp;
              (!mtmp->mcan && !rn2(4) && mtmp->data == &mons[PM_NALZOK]))
             (void) msummon(mtmp);
 
+    /* Summoners - not lycanthropes, so shouldn't be affected by form,
+     * night/day etc */
+    if (is_summoner(mdat) && !range2) {
+        if (!rn2(20)) {
+            do_were_summon(mtmp, youseeit);
+        }
+    }
+
     /*  Special lycanthrope handling code */
     if ((mtmp->cham == NON_PM) && is_were(mdat) && !range2) {
         if (is_human(mdat)) {
@@ -709,39 +759,7 @@ register struct monst *mtmp;
         mdat = mtmp->data;
 
         if (!rn2(10) && !mtmp->mcan) {
-            int numseen, numhelp;
-            char buf[BUFSZ], genericwere[BUFSZ];
-
-            Strcpy(genericwere, "creature");
-            numhelp = were_summon(mdat, FALSE, &numseen, genericwere);
-            if (youseeit) {
-                pline("%s summons help!", Monnam(mtmp));
-                if (numhelp > 0) {
-                    if (numseen == 0)
-                        You_feel("hemmed in.");
-                } else
-                    pline("But none comes.");
-            } else {
-                const char *from_nowhere;
-
-                if (!Deaf) {
-                    pline("%s %s!", Something, makeplural(growl_sound(mtmp)));
-                    from_nowhere = "";
-                } else
-                    from_nowhere = " from nowhere";
-                if (numhelp > 0) {
-                    if (numseen < 1)
-                        You_feel("hemmed in.");
-                    else {
-                        if (numseen == 1)
-                            Sprintf(buf, "%s appears", an(genericwere));
-                        else
-                            Sprintf(buf, "%s appear",
-                                    makeplural(genericwere));
-                        pline("%s%s!", upstart(buf), from_nowhere);
-                    }
-                } /* else no help came; but you didn't know it tried */
-            }
+            do_were_summon(mtmp, youseeit);
         }
     }
 

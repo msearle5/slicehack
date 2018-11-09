@@ -702,6 +702,7 @@ struct permonst * pm;
                 nohell ? "only appears outside Gehennom" :
                 noplanes ? "only appears outside the Planes" :
                 "appears in any branch",
+                (gen & G_SGROUP|G_LGROUP) ? " in huge numbers" :
                 (gen & G_SGROUP) ? " in groups" :
                 (gen & G_LGROUP) ? " in large groups" : "",
                 freq >= 5 ? "very common" :

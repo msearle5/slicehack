@@ -60,11 +60,13 @@
 
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
+#define is_jumper(ptr) (((ptr)->mflags3 & M3_JUMPER) != 0L)
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
 #define grounded(ptr) (!is_flyer(ptr) && !is_floater(ptr) && !is_clinger(ptr))
 #define is_swimmer(ptr) (((ptr)->mflags1 & M1_SWIM) != 0L)
+#define is_lemming(ptr)	(((ptr)->mlet == S_LEPRECHAUN) && ((ptr) != &mons[PM_LEPRECHAUN]))
 #define breathless(ptr) (((ptr)->mflags1 & M1_BREATHLESS) != 0L)
 #define amphibious(ptr) \
     (((ptr)->mflags1 & (M1_AMPHIBIOUS | M1_BREATHLESS)) != 0L)
@@ -129,18 +131,18 @@
 #define metallivorous(ptr) (((ptr)->mflags1 & M1_METALLIVORE) != 0L)
 #define polyok(ptr) (((ptr)->mflags2 & M2_NOPOLY) == 0L)
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
-#define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)
-#define is_were(ptr) (((ptr)->mhflags & MH_WERE) != 0L)
-#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
-#define is_dwarf(ptr) (((ptr)->mhflags & MH_DWARF) != 0L)
-#define is_gnome(ptr) (((ptr)->mhflags & MH_GNOME) != 0L)
-#define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
-#define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
-#define is_vampire(ptr)	(((ptr)->mhflags & MH_VAMPIRE) != 0L)
-#define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
-#define is_bat(ptr)                                         \
-    ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
-     || (ptr) == &mons[PM_VAMPIRE_BAT])
+#define is_undead(ptr) (((ptr)->mflags2 & M2_UNDEAD) != 0L)
+#define is_were(ptr) (((ptr)->mflags2 & M2_WERE) != 0L)
+#define is_summoner(ptr) (((ptr)->mflags4 & M4_SUMMONER) != 0L)
+/* return TRUE if the monster tends to revive */
+#define is_reviver(ptr) (((ptr)->mflags4 & M4_REVIVE) != 0L)
+#define is_elf(ptr) (((ptr)->mflags2 & M2_ELF) != 0L)
+#define is_dwarf(ptr) (((ptr)->mflags2 & M2_DWARF) != 0L)
+#define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)
+#define is_orc(ptr) (((ptr)->mflags2 & M2_ORC) != 0L)
+#define is_human(ptr) (((ptr)->mflags2 & M2_HUMAN) != 0L)
+#define your_race(ptr) (((ptr)->mflags2 & urace.selfmask) != 0L)
+#define is_bat(ptr) (((ptr)->mflags3 & M3_BAT) != 0L)
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
 # define is_rat(ptr)		((ptr) == &mons[PM_SEWER_RAT] || \
 				 (ptr) == &mons[PM_GIANT_RAT] || \
@@ -218,6 +220,7 @@
 #define is_rider(ptr)                                      \
     ((ptr) == &mons[PM_DEATH] || (ptr) == &mons[PM_FAMINE] \
      || (ptr) == &mons[PM_PESTILENCE])
+#define is_vampire(ptr)  (((ptr)->mhflags & MH_VAMPIRE) != 0L)
 /* Rider corpses are treated as non-rotting so that attempting to eat one
    will be sure to reach the stage of eating where that meal is fatal */
 #define nonrotting_corpse(mnum) \
@@ -227,13 +230,8 @@
 
 #define is_silver(ptr) \
     ((ptr) == &mons[PM_SILVER_GOLEM])
-#define is_placeholder(ptr)                             \
-    ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT] \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN] \
-     || (ptr) == &mons[PM_MINOR_ANGEL] || (ptr) == &mons[PM_INFERNAL])
-/* return TRUE if the monster tends to revive */
-#define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL \
-                         || (ptr) == &mons[PM_SLOTH])
+
+#define is_placeholder(ptr) (((ptr)->mflags3 & M3_PLACEHOLDER) != 0L)
 /* monsters whose corpses and statues need special handling;
    note that high priests and the Wizard of Yendor are flagged
    as unique even though they really aren't; that's ok here */
@@ -278,8 +276,7 @@
 #define is_shopkeeper(ptr) \
     ((ptr) == &mons[PM_SHOPKEEPER] || (ptr) == &mons[PM_EXTRAPLANAR_MERCHANT])
 
-#define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] \
-      || (ptr) == &mons[PM_NOSFERATU] || (ptr) == &mons[PM_DRAUGLIR])
+#define hates_light(ptr) (((ptr)->mflags4 & M4_HATESLIGHT) != 0L)
 
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)

@@ -1220,6 +1220,7 @@ struct monst *mtmp;
 #define MUSE_POT_BLOOD_THROW 28
 #define MUSE_CAMERA 29
 #define MUSE_WAN_WINDSTORM 30
+#define MUSE_POT_WATER 31
 
 /* Select an offensive item/action for a monster.  Returns TRUE iff one is
  * found.
@@ -1391,6 +1392,13 @@ struct monst *mtmp;
             m.offensive = obj;
             m.has_offense = MUSE_POT_ACID;
         }
+        if (is_lemming(mtmp->data)) {
+            nomore(MUSE_POT_WATER);
+            if (obj->otyp == POT_WATER) {
+                m.offensive = obj;
+                m.has_offense = MUSE_POT_WATER;
+            }
+        }
         nomore(MUSE_POT_BLOOD_THROW);
         if (obj->otyp == POT_BLOOD && !is_vampire(mtmp->data)) {
             m.offensive = obj;
@@ -1414,7 +1422,7 @@ struct monst *mtmp;
             m.has_offense = MUSE_SCR_EARTH;
         }   
         nomore(MUSE_SCR_FIRE);
-        if (obj->otyp == SCR_FIRE && resists_fire(mtmp)
+        if (obj->otyp == SCR_FIRE && (is_lemming(mtmp->data) || resists_fire(mtmp))
             && dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 2
             && mtmp->mcansee && haseyes(mtmp->data)) {
             m.offensive = obj;
@@ -1849,8 +1857,10 @@ struct monst *mtmp;
     case MUSE_POT_SLEEPING:
     case MUSE_POT_ACID:
     case MUSE_POT_BLOOD_THROW:
+
     /* case MUSE_POT_POLYMORPH_THROW: */
     case MUSE_POT_HALLUCINATION:
+    case MUSE_POT_WATER:
         /* Note: this setting of dknown doesn't suffice.  A monster
          * which is out of sight might throw and it hits something _in_
          * sight, a problem not existing with wands because wand rays

@@ -1496,7 +1496,8 @@ int after; /* this is extra fast monster movement */
                      * it has to pass one to follow the player...
                      */
                     if (trap->tseen && rn2(40))
-                        continue;
+                        if (!is_lemming(mtmp->data))
+                            continue;
                 }
             }
         }

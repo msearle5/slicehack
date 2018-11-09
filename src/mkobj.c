@@ -1265,7 +1265,7 @@ boolean artif;
  *     - ensure that you don't end up with some
  *       other corpse type which has no rot-away timer.
  *
- * If the object was a troll corpse:
+ * If the object was a reviver corpse:
  *     - ensure that you don't end up with some other
  *       corpse type which resurrects from the dead.
  *
@@ -1326,7 +1326,7 @@ struct obj *body;
     short action;
 
 #define TAINT_AGE (50L)        /* age when corpses go bad */
-#define TROLL_REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
+#define REVIVE_CHANCE 37 /* 1/37 chance for 50 turns ~ 75% chance */
 #define MOLDY_CHANCE 290       /* 1/290 chance for 200 turns ~ 50% chance */
 #define ROT_AGE (250L)         /* age when corpses rot away */
 
@@ -1354,10 +1354,10 @@ struct obj *body;
             if (!rn2(3))
                 break;
 
-    } else if (mons[body->corpsenm].mlet == S_TROLL && !body->norevive) {
+    } else if (is_reviver(&mons[body->corpsenm]) && !body->norevive) {
         long age;
         for (age = 2; age <= TAINT_AGE; age++)
-            if (!rn2(TROLL_REVIVE_CHANCE)) { /* troll revives */
+            if (!rn2(REVIVE_CHANCE)) { /* troll revives */
                 action = REVIVE_MON;
                 when = age;
                 break;
@@ -1780,11 +1780,12 @@ int x, y;
 }
 
 /* return TRUE if the corpse has special timing;
-   lizards and lichen don't rot, trolls and Riders auto-revive */
+   lizards and lichen don't rot, trolls and Riders etc. auto-revive
+   **/
 #define special_corpse(num) \
     (((num) == PM_LIZARD) || ((num) == PM_LICHEN) || ((num) == PM_LEGENDARY_LICHEN) \
      || ((num) == PM_SLOTH) \
-     || (is_rider(&mons[num])) || (mons[num].mlet == S_TROLL))
+     || (is_rider(&mons[num])) || (is_reviver(&mons[num])))
 
 /* mkcorpstat: make a corpse or statue; never returns Null.
  *

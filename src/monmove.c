@@ -280,8 +280,7 @@ struct monst *mon;
     }
 }
 
-#define flees_light(mon) ((mon)->data == &mons[PM_GREMLIN]     \
-                          && (uwep && artifact_light(uwep) && uwep->lamplit))
+#define flees_light(mon) (hates_light((mon)->data) && uwep && artifact_light(uwep) && uwep->lamplit)
 /* we could include this in the above macro, but probably overkill/overhead */
 /*      && (!(which_armor((mon), W_ARMC) != 0                               */
 /*            && which_armor((mon), W_ARMH) != 0))                          */
@@ -1207,8 +1206,8 @@ register int after;
                        water location accepts flyers, but they can't reach
                        underwater objects, so being able to move to a spot
                        is insufficient for deciding whether to do so */
-                    if ((is_pool(xx, yy) && !is_swimmer(ptr))
-                        || (is_lava(xx, yy) && !likes_lava(ptr)))
+                    if (((is_pool(xx, yy) && !is_swimmer(ptr))
+                        || (is_lava(xx, yy) && !likes_lava(ptr))) && !is_lemming(ptr))
                         continue;
                     /* changed behavior here to allow for monsters grabbing
                        corpses when there is an altar available. */
@@ -1836,14 +1835,14 @@ xchar x, y;
 
     if (is_pet) {
         /* Pets avoid a trap if you've seen it usually. */
-        if (trap && trap->tseen && rn2(40))
+        if (trap && trap->tseen && rn2(40) && !is_lemming(mtmp->data))
             return TRUE;
         /* Pets avoid cursed locations */
         if (cursed_object_at(x, y))
             return TRUE;
 
     /* Monsters avoid a trap if they've seen that type before */
-    } else if (trap && rn2(40)
+    } else if (trap && rn2(40) && !is_lemming(mtmp->data)
                && (mtmp->mtrapseen & (1 << (trap->ttyp - 1))) != 0) {
         if (!Is_stronghold(&u.uz) && !Is_knox(&u.uz) && !Is_nemesis(&u.uz)) return TRUE;
         if (mindless(mtmp->data) || (!humanoid(mtmp->data))) return TRUE;

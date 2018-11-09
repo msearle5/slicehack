@@ -46,9 +46,13 @@ void NDECL(monst_init);
  *      For AT_BREA attacks, '# sides' is ignored; 6 is used for most
  *      damage types, 25 for sleep, not applicable for death or poison.
  */
+#define MON4(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, flg4, mflg, d, col) \
+    {                                                                      \
+        nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, flg4, mflg, d, C(col)   \
+    }
 #define MON(nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, mflg, d, col) \
     {                                                                      \
-        nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, mflg, d, C(col)   \
+        nam, sym, lvl, gen, atk, siz, mr1, mr2, flg1, flg2, flg3, 0, mflg, d, C(col)   \
     }
 /* LVL() and SIZ() collect several fields to cut down on # of args for MON()
  */
@@ -371,13 +375,13 @@ NEARDATA struct permonst mons[] = {
         M1_NOHANDS | M1_POIS | M1_REGEN | M1_CARNIVORE,
         M2_NOPOLY | M2_HOSTILE, M3_INFRAVISIBLE, MH_WERE,
         16, CLR_BROWN),
-    MON("Drauglir", S_DOG, LVL(15, 15, 0, 40, 0), (G_UNIQ | G_NOGEN),
+    MON4("Drauglir", S_DOG, LVL(15, 15, 0, 40, 0), (G_UNIQ | G_NOGEN),
         A(ATTK(AT_BITE, AD_WERE, 5, 8), ATTK(AT_CLAW, AD_STCK, 1, 6), 
           NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1000, 350, MS_BARK, MZ_LARGE), 0, 0,
         M1_ANIMAL | M1_NOHANDS | M1_CARNIVORE, 
         M2_HOSTILE | M2_NOPOLY | M2_STRONG | M2_MALE | M2_PNAME | M2_LORD, 
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 17, CLR_MAGENTA),
+        M3_INFRAVISIBLE | M3_INFRAVISION, M4_HATESLIGHT, 0, 17, CLR_MAGENTA),
 #ifdef CHARON
     MON("Cerberus", S_DOG, LVL(12, 10, 2, 20, -7),
         (G_NOGEN | G_UNIQ | G_HELL),
@@ -573,13 +577,13 @@ NEARDATA struct permonst mons[] = {
     /*
      * gremlins and gargoyles
      */
-    MON("gremlin", S_GREMLIN, LVL(5, 12, 2, 25, -9), (G_GENO | 2),
+    MON4("gremlin", S_GREMLIN, LVL(5, 12, 2, 25, -9), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6),
           ATTK(AT_BITE, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_CURS, 0, 0), NO_ATTK,
           NO_ATTK),
         SIZ(100, 20, MS_LAUGH, MZ_SMALL), MR_POISON, MR_POISON,
-        M1_SWIM | M1_HUMANOID | M1_POIS, M2_STALK, M3_INFRAVISIBLE, 0,
-        8, CLR_GREEN),
+        M1_SWIM | M1_HUMANOID | M1_POIS, M2_STALK, M3_INFRAVISIBLE | M3_SUMMONABLE,
+        M4_HATESLIGHT, 0, 7, CLR_GREEN),
     MON("gargoyle", S_GREMLIN, LVL(6, 10, -4, 0, -9), (G_GENO | 2),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_CLAW, AD_PHYS, 2, 6),
           ATTK(AT_BITE, AD_PHYS, 2, 4), NO_ATTK, NO_ATTK, NO_ATTK),
@@ -817,6 +821,145 @@ NEARDATA struct permonst mons[] = {
           NO_ATTK),
         SIZ(60, 30, MS_LAUGH, MZ_TINY), 0, 0, M1_HUMANOID | M1_TPORT,
         M2_HOSTILE | M2_GREEDY, M3_INFRAVISIBLE, 0, 4, CLR_GREEN),
+    /*
+     * Lemmings.
+     * These are rodents, but roughly humanoid - sufficiently so to use most items (e.g. scrolls).
+     * They can move fairly fast, but should (mostly) have no AC and usually no MR. Alignment is
+     * neutral.
+     * There are a lot of them - quite similar, and with a few summoners and one large group, so
+     * they are rare.
+     * Jump in pits, etc?
+     * RL lemmings are herbivores, so (most of) these are too. RL lemmings can swim - but that
+     * would stop them from drowning, so these can't.
+     * They should not care about avoiding traps, water, lava etc.
+     * Ideally they would actively seek and jump into traps - see polytrap code?
+     * Break wands? If so, give them some? And fire scrolls (not just for volcano, but especially plains)
+     */
+    MON("green lemming", S_LEPRECHAUN, LVL(0, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 2), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(150, 50, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 0, CLR_GREEN),
+    MON("blue lemming", S_LEPRECHAUN, LVL(1, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 3), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(170, 60, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 1, CLR_BLUE),
+    /* These are supposed to steal stuff. Nymph-style doesn't make much sense, though.
+     * At the moment it will only go for artifacts
+     **/
+    MON("gully lemming", S_LEPRECHAUN, LVL(2, 10, 5, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 3), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(200, 70, MS_LEMMING, MZ_SMALL), 0, 0, M1_HIDE | M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE | M2_COLLECT | M2_GREEDY | M2_JEWELS, M3_INFRAVISIBLE | M3_WANTSALL, 0, 2, CLR_BLACK),
+    /* This is supposed to explode in some way - as a passive attack, or on death? */
+    MON("plains lemming", S_LEPRECHAUN, LVL(3, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(200, 70, MS_LEMMING, MZ_SMALL), 0, 0, M1_TUNNEL | M1_NEEDPICK | M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE | M2_STRONG, M3_INFRAVISIBLE, 0, 4, CLR_ORANGE),
+    MON4("lemming shaman", S_LEPRECHAUN, LVL(4, 12, 10, 40, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 3), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(170, 60, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, M4_SUMMONER, 0, 6, CLR_YELLOW),
+    MON("bungee lemming", S_LEPRECHAUN, LVL(4, 6, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(280, 100, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_OMNIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE | M3_JUMPER, 0, 4, CLR_GRAY),
+    MON("horde lemming", S_LEPRECHAUN, LVL(5, 12, 10, 0, 0), (G_GENO | G_LGROUP | G_SGROUP | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(170, 60, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 5, CLR_CYAN),
+    MON4("highland lemming", S_LEPRECHAUN, LVL(5, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(280, 100, MS_LEMMING, MZ_SMALL), 0, 0, M1_REGEN | M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, M4_REVIVE, 0, 6, CLR_BROWN),
+    MON("lemming aviator", S_LEPRECHAUN, LVL(6, 16, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(170, 60, MS_LEMMING, MZ_SMALL), 0, 0, M1_FLY | M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 7, CLR_BRIGHT_CYAN),
+    MON4("shadow lemming", S_LEPRECHAUN, LVL(6, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(200, 70, MS_LEMMING, MZ_SMALL), 0, 0, M1_HIDE | M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, M4_HATESLIGHT, 0, 6, CLR_BLACK),
+    MON("pit lemming", S_LEPRECHAUN, LVL(7, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 8), ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(200, 70, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 7, CLR_GRAY),
+    MON("hill lemming", S_LEPRECHAUN, LVL(9, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 12), ATTK(AT_CLAW, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 6), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(220, 75, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 9, CLR_GREEN),
+    MON("cliff lemming", S_LEPRECHAUN, LVL(10, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_CLAW, AD_PHYS, 1, 12), ATTK(AT_CLAW, AD_PHYS, 1, 12), NO_ATTK, NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(220, 75, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 10, CLR_BRIGHT_BLUE),
+    MON("ice lemming", S_LEPRECHAUN, LVL(11, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_COLD, 1, 12), ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_CLAW, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(220, 75, MS_LEMMING, MZ_SMALL), MR_COLD, MR_COLD, M1_HIDE | M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 11, CLR_WHITE),
+    MON4("master lemming", S_LEPRECHAUN, LVL(12, 12, 10, 40, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 6), ATTK(AT_CLAW, AD_PHYS, 1, 4), ATTK(AT_CLAW, AD_PHYS, 1, 4), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(170, 60, MS_LEMMING, MZ_SMALL), MR_SLEEP, MR_SLEEP, M1_HUMANOID | M1_HERBIVORE,
+        M2_LORD | M2_HOSTILE, M3_INFRAVISIBLE, M4_SUMMONER, 0, 14, CLR_MAGENTA),
+    MON("mountain lemming", S_LEPRECHAUN, LVL(13, 12, 10, 0, 0), (G_GENO | G_SGROUP | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 12), ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_WEAP, AD_PHYS, 1, 8), ATTK(AT_WEAP, AD_PHYS, 1, 8),
+        NO_ATTK, NO_ATTK),
+        SIZ(240, 90, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 13, CLR_GRAY),
+    MON("desert lemming", S_LEPRECHAUN, LVL(14, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 16), ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_CLAW, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(170, 60, MS_LEMMING, MZ_SMALL), 0, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 14, CLR_YELLOW),
+    MON("volcano lemming", S_LEPRECHAUN, LVL(15, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_FIRE, 1, 16), ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_CLAW, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(190, 70, MS_LEMMING, MZ_SMALL), MR_FIRE, MR_FIRE, M1_HUMANOID | M1_HERBIVORE,
+        M2_HOSTILE, M3_INFRAVISIBLE, 0, 15, CLR_RED),
+    MON4("peak lemming", S_LEPRECHAUN, LVL(16, 12, 10, 0, 0), (G_GENO | 1),
+        A(ATTK(AT_BITE, AD_COLD, 1, 12), ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_CLAW, AD_PHYS, 1, 8), NO_ATTK, NO_ATTK,
+          NO_ATTK),
+        SIZ(260, 110, MS_LEMMING, MZ_SMALL), MR_COLD, MR_COLD, M1_HUMANOID | M1_HERBIVORE,
+        M2_LORD | M2_HOSTILE, M3_INFRAVISIBLE, M4_SUMMONER, 0, 16, CLR_WHITE),
+    MON("Superlemming", S_LEPRECHAUN, LVL(17, 24, 10, 0, 0), (G_UNIQ | 1),
+        A(ATTK(AT_GAZE, AD_FIRE, 2, 4), ATTK(AT_BITE, AD_PHYS, 1, 16), ATTK(AT_CLAW, AD_PHYS, 1, 8), ATTK(AT_CLAW, AD_PHYS, 1, 8), NO_ATTK,
+          NO_ATTK),
+        SIZ(280, 100, MS_LEMMING, MZ_SMALL), MR_SLEEP, MR_SLEEP, M1_FLY | M1_HUMANOID | M1_HERBIVORE,
+        M2_LORD | M2_HOSTILE | M2_MALE | M2_STRONG, M3_INFRAVISION | M3_INFRAVISIBLE, 0, 20, CLR_BRIGHT_MAGENTA),
+    MON("Cyberlemming", S_LEPRECHAUN, LVL(19, 24, 10, 0, 0), (G_UNIQ | 1),
+        A(ATTK(AT_BREA, AD_ELEC, 3, 6), ATTK(AT_BITE, AD_ELEC, 1, 16), ATTK(AT_CLAW, AD_PHYS, 1, 10),
+        ATTK(AT_CLAW, AD_PHYS, 1, 10), NO_ATTK,
+          NO_ATTK),
+        SIZ(350, 70, MS_LEMMING, MZ_SMALL), MR_SLEEP | MR_POISON | MR_ELEC, 0, M1_HUMANOID | M1_METALLIVORE,
+        M2_LORD | M2_HOSTILE | M2_STRONG | M2_MALE, M3_INFRAVISION | M3_INFRAVISIBLE | M3_JUMPER, 0, 22, CLR_BRIGHT_BLUE),
+    MON("Plummet's Champion", S_LEPRECHAUN, LVL(20, 12, 10, 0, 0), (G_UNIQ | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 12), ATTK(AT_WEAP, AD_PHYS, 2, 10), ATTK(AT_WEAP, AD_PHYS, 2, 10),
+        NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(300, 130, MS_LEMMING, MZ_SMALL), MR_COLD, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_PRINCE | M2_HOSTILE | M2_STRONG | M2_MALE, M3_INFRAVISIBLE, 0, 20, CLR_BRIGHT_GREEN),
+    MON4("Plummet", S_LEPRECHAUN, LVL(20, 12, 10, 0, 0), (G_UNIQ | 1),
+        A(ATTK(AT_BITE, AD_PHYS, 1, 12), ATTK(AT_WEAP, AD_PHYS, 2, 10), ATTK(AT_WEAP, AD_PHYS, 2, 10),
+        NO_ATTK, NO_ATTK, NO_ATTK),
+        SIZ(280, 120, MS_LEMMING, MZ_SMALL), MR_COLD, 0, M1_HUMANOID | M1_HERBIVORE,
+        M2_PRINCE | M2_HOSTILE | M2_STRONG | M2_MALE, M3_INFRAVISIBLE, M4_SUMMONER, 0, 20, HI_LORD),
+    /* More could easily be added.
+     * Aquatic, lurking, crevasse, polar, deep, rock, infernal, mutated lemmings...
+     * but there are too many already, many just powerups of earlier ones
+     * Keep the more specialized ones, though.
+     **/
     /*
      * mimics
      */
@@ -1799,7 +1942,7 @@ NEARDATA struct permonst mons[] = {
      */
 
     /* From J.R.R. Tolkien, the nine Nazgul had steeds known as 'fell beasts'
-     * which the rode/flew into battle. Fearsome in their own right.
+     * which they rode/flew into battle. Fearsome in their own right.
      * Not exactly dragons, but dragon-like.
      */
    MON("fell beast", S_DRAGON, LVL(14, 12, -2, 20, -17), G_NOGEN,
@@ -2916,41 +3059,41 @@ struct permonst _mons2[] = {
     /*
      * Trolls
      */
-    MON("troll", S_TROLL, LVL(7, 12, 4, 0, -3), (G_GENO | 2),
+    MON4("troll", S_TROLL, LVL(7, 12, 4, 0, -3), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 4, 2), ATTK(AT_CLAW, AD_PHYS, 4, 2),
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(800, 350, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
-        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, 0,
-        9, CLR_BROWN),
-    MON("cave troll", S_TROLL, LVL(7, 12, 4, 0, -3), (G_GENO | 2),
+        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, M4_REVIVE,
+        0, 9, CLR_BROWN),
+    MON4("cave troll", S_TROLL, LVL(7, 12, 4, 0, -3), (G_GENO | 2),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 2), ATTK(AT_CLAW, AD_PHYS, 3, 2),
           ATTK(AT_BITE, AD_PHYS, 3, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(800, 350, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE | M1_CLING | M1_HIDE | M1_THICK_HIDE,
-        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, 0,
-        10, CLR_BROWN),
-    MON("ice troll", S_TROLL, LVL(9, 10, 2, 20, -3), (G_NOHELL | G_GENO | 1),
+        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, M4_REVIVE,
+        0, 10, CLR_BROWN),
+    MON4("ice troll", S_TROLL, LVL(9, 10, 2, 20, -3), (G_NOHELL | G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 6), ATTK(AT_CLAW, AD_COLD, 2, 6),
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1000, 300, MS_GRUNT, MZ_LARGE), MR_COLD, MR_COLD,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
-        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, 0,
-        12, CLR_WHITE),
-    MON("rock troll", S_TROLL, LVL(9, 12, 0, 0, -3), (G_GENO | 1),
+        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, M4_REVIVE,
+        0, 12, CLR_WHITE),
+    MON4("rock troll", S_TROLL, LVL(9, 12, 0, 0, -3), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1200, 300, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
         M2_STRONG | M2_STALK | M2_HOSTILE | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION, 0, 12, CLR_CYAN),
-    MON("water troll", S_TROLL, LVL(11, 14, 4, 40, -3), (G_NOGEN | G_GENO),
+        M3_INFRAVISIBLE | M3_INFRAVISION, M4_REVIVE, 0, 12, CLR_CYAN),
+    MON4("water troll", S_TROLL, LVL(11, 14, 4, 40, -3), (G_NOGEN | G_GENO),
         A(ATTK(AT_WEAP, AD_PHYS, 2, 8), ATTK(AT_CLAW, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1200, 350, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE | M1_SWIM,
-        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION, 0,
-        13, CLR_BLUE),
+        M2_STRONG | M2_STALK | M2_HOSTILE, M3_INFRAVISIBLE | M3_INFRAVISION | M3_SUMMONABLE, M4_REVIVE,
+        0, 13, CLR_BLUE),
     MON("grave troll", S_TROLL, LVL(11, 8, 0, 60, 0), (G_GENO | 1),
         A(ATTK(AT_CLAW, AD_PHYS, 2, 6), ATTK(AT_CLAW, AD_PHYS, 2, 6),
           ATTK(AT_BITE, AD_DISE, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
@@ -2958,13 +3101,13 @@ struct permonst _mons2[] = {
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE | M1_THICK_HIDE | M1_POIS,
         M2_STRONG | M2_STALK | M2_HOSTILE | M2_COLLECT,
         M3_INFRAVISIBLE | M3_INFRAVISION, MH_UNDEAD, 14, CLR_GRAY),
-    MON("Olog-hai", S_TROLL, LVL(13, 12, -4, 0, -7), (G_GENO | 1),
+    MON4("Olog-hai", S_TROLL, LVL(13, 12, -4, 0, -7), (G_GENO | 1),
         A(ATTK(AT_WEAP, AD_PHYS, 3, 6), ATTK(AT_CLAW, AD_PHYS, 2, 8),
           ATTK(AT_BITE, AD_PHYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 400, MS_GRUNT, MZ_LARGE), 0, 0,
         M1_HUMANOID | M1_REGEN | M1_CARNIVORE,
         M2_STRONG | M2_STALK | M2_HOSTILE | M2_COLLECT,
-        M3_INFRAVISIBLE | M3_INFRAVISION | M3_ORGANIZED, 0, 16, HI_LORD),
+        M3_INFRAVISIBLE | M3_INFRAVISION | M3_ORGANIZED | M3_SUMMONABLE, M4_REVIVE, 0, 16, HI_LORD),
     /*
      * Umber hulk
      */
@@ -3044,14 +3187,14 @@ struct permonst _mons2[] = {
         M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_LORD
           | M2_MALE | M2_MAGIC | M2_SHAPESHIFTER,
         M3_INFRAVISIBLE, MH_VAMPIRE | MH_UNDEAD, 26, HI_ZAP),
-    MON("nosferatu", S_VAMPIRE, LVL(20, 14, -4, 50, -9),
+    MON4("nosferatu", S_VAMPIRE, LVL(20, 14, -4, 50, -9),
         (G_GENO | G_NOCORPSE | 1),
       	A(ATTK(AT_CLAW, AD_DRLI, 2, 8), ATTK(AT_BITE, AD_DRLI, 1, 8),
       	  ATTK(AT_GAZE, AD_PLYS, 2, 6), NO_ATTK, NO_ATTK, NO_ATTK),
       	SIZ(WT_HUMAN, 400, MS_VAMPIRE, MZ_HUMAN), MR_SLEEP | MR_POISON, 0,
       	M1_FLY | M1_BREATHLESS | M1_HUMANOID | M1_POIS | M1_REGEN,
       	M2_STALK | M2_HOSTILE | M2_STRONG | M2_NASTY | M2_LORD
-          | M2_MALE | M2_MAGIC, M3_INFRAVISIBLE | M3_ORGANIZED, 
+          | M2_MALE | M2_MAGIC, M3_INFRAVISIBLE | M3_ORGANIZED, M4_HATESLIGHT,
           MH_VAMPIRE | MH_UNDEAD, 
         25, CLR_GRAY),
     MON("Alucard", S_VAMPIRE, LVL(24, 20, -6, 70, -10),
@@ -4223,7 +4366,7 @@ struct permonst _mons2[] = {
     /* Riders -- the Four Horsemen of the Apocalypse ("War" == player);
      * depicted with '&' but do not have MH_DEMON set.
      */
-    MON("Death", S_DEMON, LVL(30, 12, -5, 100, 0), (G_UNIQ | G_NOGEN),
+    MON4("Death", S_DEMON, LVL(30, 12, -5, 100, 0), (G_UNIQ | G_NOGEN),
         A(ATTK(AT_TUCH, AD_DETH, 8, 8), ATTK(AT_TUCH, AD_DETH, 8, 8), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 1, MS_RIDER, MZ_HUMAN),
@@ -4231,9 +4374,9 @@ struct permonst _mons2[] = {
         MR_PSYCHIC | MR_SONIC, 0,
         M1_FLY | M1_HUMANOID | M1_REGEN | M1_SEE_INVIS | M1_TPORT_CNTRL,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG | M2_NASTY,
-        M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES | M3_ORGANIZED, 
-        0, 34, HI_LORD),
-    MON("Pestilence", S_DEMON, LVL(30, 12, -5, 100, 0), (G_UNIQ | G_NOGEN),
+        M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES | M3_ORGANIZED | M3_RIDER | M3_NONROTTING,
+        M4_REVIVE, 0, 34, HI_LORD),
+    MON4("Pestilence", S_DEMON, LVL(30, 12, -5, 100, 0), (G_UNIQ | G_NOGEN),
         A(ATTK(AT_TUCH, AD_PEST, 8, 8), ATTK(AT_TUCH, AD_PEST, 8, 8), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 1, MS_RIDER, MZ_HUMAN),
@@ -4241,9 +4384,9 @@ struct permonst _mons2[] = {
         MR_PSYCHIC | MR_SONIC, 0,
         M1_FLY | M1_HUMANOID | M1_REGEN | M1_SEE_INVIS | M1_TPORT_CNTRL,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG | M2_NASTY,
-        M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES | M3_ORGANIZED, 
-        0, 34, HI_LORD),
-    MON("Famine", S_DEMON, LVL(30, 12, -5, 100, 0), (G_UNIQ | G_NOGEN),
+        M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES | M3_ORGANIZED | M3_RIDER | M3_NONROTTING,
+        M4_REVIVE, 0, 34, HI_LORD),
+    MON4("Famine", S_DEMON, LVL(30, 12, -5, 100, 0), (G_UNIQ | G_NOGEN),
         A(ATTK(AT_TUCH, AD_FAMN, 8, 8), ATTK(AT_TUCH, AD_FAMN, 8, 8), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 1, MS_RIDER, MZ_HUMAN),
@@ -4251,8 +4394,8 @@ struct permonst _mons2[] = {
         MR_PSYCHIC | MR_SONIC, 0,
         M1_FLY | M1_HUMANOID | M1_REGEN | M1_SEE_INVIS | M1_TPORT_CNTRL,
         M2_NOPOLY | M2_STALK | M2_HOSTILE | M2_PNAME | M2_STRONG | M2_NASTY,
-        M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES | M3_ORGANIZED, 
-        0, 34, HI_LORD),
+        M3_INFRAVISIBLE | M3_INFRAVISION | M3_DISPLACES | M3_ORGANIZED | M3_RIDER | M3_NONROTTING,
+        M4_REVIVE, 0, 34, HI_LORD),
     /* other demons
      */
 #ifdef MAIL
@@ -4310,7 +4453,7 @@ struct permonst _mons2[] = {
           | M2_STRONG | M2_ROCKTHROW | M2_COLLECT | M2_MAGIC 
           | M2_PNAME | M2_NOPOLY | M2_NASTY,
         M3_INFRAVISION | M3_ORGANIZED | M3_JUMPER, MH_ANGEL, 77, CLR_MAGENTA),
-    MON("Sloth", S_SIN, LVL(77, 10, -7, 100, 0), (G_UNIQ | G_NOGEN),
+    MON4("Sloth", S_SIN, LVL(77, 10, -7, 100, 0), (G_UNIQ | G_NOGEN),
         A(ATTK(AT_BUTT, AD_SLOW, 10, 10), ATTK(AT_GAZE, AD_STUN, 0, 0), 
           ATTK(AT_BITE, AD_SLEE, 3, 4), NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(1500, 0, MS_GROAN, MZ_LARGE),
@@ -4320,7 +4463,7 @@ struct permonst _mons2[] = {
           | M1_TUNNEL | M1_BREATHLESS | M1_ACID | M1_POIS, 
         M2_LORD | M2_NEUTER | M2_HOSTILE | M2_STALK | M2_STRONG
           | M2_PNAME | M2_NOPOLY | M2_NASTY,
-        M3_INFRAVISION, 0, 77, CLR_MAGENTA),
+        M3_INFRAVISION, M4_REVIVE, 0, 77, CLR_MAGENTA),
     MON("Pride", S_SIN, LVL(77, 15, -7, 70, 0), (G_UNIQ | G_NOCORPSE | G_NOGEN),
         A(ATTK(AT_CLAW, AD_PHYS, 5, 4), ATTK(AT_CLAW, AD_PHYS, 5, 4), 
           ATTK(AT_TUCH, AD_PSYC, 6, 6), ATTK(AT_TUCH, AD_LEGS, 2, 2), 

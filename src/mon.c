@@ -1683,19 +1683,21 @@ long flag;
     nowtyp = levl[x][y].typ;
 
     nodiag = NODIAG(mdat - mons);
-    wantpool = (mdat->mlet == S_EEL);
+
+    wantpool = ((mdat->mlet == S_EEL) || is_lemming(mdat));
     poolok = ((!Is_waterlevel(&u.uz)
-               && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat) || can_wwalk(mon)))
+               && (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat) || is_lemming(mdat) || can_wwalk(mon)))
               || (is_swimmer(mdat) && !wantpool));
     /* note: floating eye is the only is_floater() so this could be
        simplified, but then adding another floater would be error prone */
     lavaok = (is_flyer(mdat) || is_floater(mdat) || is_clinger(mdat)
-              || likes_lava(mdat));
+              || likes_lava(mdat) || is_lemming(mdat));
     if (mdat == &mons[PM_FLOATING_EYE]) /* prefers to avoid heat */
         lavaok = FALSE;
     thrudoor = ((flag & (ALLOW_WALL | BUSTDOOR)) != 0L);
     poisongas_ok = ((nonliving(mdat) || is_vampshifter(mon)
-                     || breathless(mdat)) || resists_poison(mon));
+                     || breathless(mdat)) || resists_poison(mon) || is_lemming(mdat));
+
     in_poisongas = ((gas_reg = visible_region_at(x,y)) != 0
                     && gas_reg->glyph == gas_glyph);
 
@@ -1728,6 +1730,8 @@ long flag;
     }
     if (!mon->mcansee)
         flag |= ALLOW_SSM;
+    if (is_lemming(mdat))
+        flag |= ALLOW_TRAPS;
     maxx = min(x + 1, COLNO - 1);
     maxy = min(y + 1, ROWNO - 1);
     for (nx = max(1, x - 1); nx <= maxx; nx++)
@@ -1946,6 +1950,20 @@ struct monst *magr, /* monster that is currently deciding where to move */
   	/* and vice versa */
   	if(md->mlet==S_ANGEL && is_demon(ma))
   		  return ALLOW_M|ALLOW_TM;
+
+    /* green vs. blue lemmings */
+    if(ma == &mons[PM_GREEN_LEMMING] && md == &mons[PM_BLUE_LEMMING])
+        return ALLOW_M|ALLOW_TM;
+    if(ma == &mons[PM_BLUE_LEMMING] && md == &mons[PM_GREEN_LEMMING])
+        return ALLOW_M|ALLOW_TM;
+
+    /* highland lemmings vs. each other */
+    if(ma == &mons[PM_HIGHLAND_LEMMING] && md == &mons[PM_HIGHLAND_LEMMING])
+        return ALLOW_M|ALLOW_TM;
+
+    /* volcano lemmings vs. everything */
+    if(ma == &mons[PM_VOLCANO_LEMMING] && md != &mons[PM_VOLCANO_LEMMING])
+        return ALLOW_M|ALLOW_TM;
 
   	/* woodchucks vs. The Oracle */
   	if(ma == &mons[PM_WOODCHUCK] && md == &mons[PM_ORACLE])

@@ -20,15 +20,16 @@ STATIC_DCL boolean FDECL(uncommon, (int));
 STATIC_DCL int FDECL(align_shift, (struct permonst *));
 STATIC_DCL boolean FDECL(mk_gen_ok, (int, int, int));
 STATIC_DCL boolean FDECL(wrong_elem_type, (struct permonst *));
-STATIC_DCL void FDECL(m_initgrp, (struct monst *, int, int, int, int));
+STATIC_DCL void FDECL(m_initgrp, (struct monst *, int, int, int, int, int));
 STATIC_DCL void FDECL(m_initthrow, (struct monst *, int, int));
 STATIC_DCL void FDECL(m_initweap, (struct monst *));
 STATIC_DCL void FDECL(m_initinv, (struct monst *));
 STATIC_DCL boolean FDECL(makemon_rnd_goodpos, (struct monst *,
                                                unsigned, coord *));
 
-#define m_initsgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 3, mmf)
-#define m_initlgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 10, mmf)
+#define m_initsgrp(mtmp, x, y, f) m_initgrp(mtmp, x, y, 0, 3, f)
+#define m_initlgrp(mtmp, x, y, f) m_initgrp(mtmp, x, y, 0, 10, f)
+#define m_inithgrp(mtmp, x, y, f) m_initgrp(mtmp, x, y, 6, 12, f)
 #define toostrong(monindx, lev) (mons[monindx].difficulty > lev)
 #define tooweak(monindx, lev) (mons[monindx].difficulty < lev)
 
@@ -95,9 +96,9 @@ struct permonst *ptr;
 
 /* make a group just like mtmp */
 STATIC_OVL void
-m_initgrp(mtmp, x, y, n, mmflags)
+m_initgrp(mtmp, x, y, b, n, mmflags)
 struct monst *mtmp;
-int x, y, n, mmflags;
+int x, y, b, n, mmflags;
 {
     coord mm;
     register int cnt = rnd(n);
@@ -136,6 +137,7 @@ int x, y, n, mmflags;
     if (cnt > 10)
         cnt = 10;
 #endif
+    cnt += b;
 
     mm.x = x;
     mm.y = y;
@@ -212,7 +214,7 @@ register struct monst *mtmp;
     register struct permonst *ptr = mtmp->data;
     register int mm = monsndx(ptr);
     struct obj *otmp;
-    int bias, spe2, w1, w2, hbold;
+    int bias, spe2, w1, w2, hbold, i;
 
     if (Is_rogue_level(&u.uz))
         return;
@@ -226,6 +228,185 @@ register struct monst *mtmp;
      *          kops get clubs & cream pies.
      */
     switch (ptr->mlet) {
+    case S_LEPRECHAUN:
+        if (mm != PM_LEPRECHAUN) {
+            switch (mm) {
+                case PM_GULLY_LEMMING:
+                /* Gully lemmings wear armor. But they are Small, so most armor
+                 * won't fit. A shield and cloak should be OK, though, and maybe
+                 * a hat. */
+                if (rn2(2))
+                    mongets(mtmp, SMALL_SHIELD);
+                if (rn2(3))
+                    mongets(mtmp, PLAIN_CLOAK);
+                if (!rn2(3))
+                    mongets(mtmp, DENTED_POT);
+                else if (!rn2(10))
+                    mongets(mtmp, FEDORA);
+                break;
+
+                case PM_PLAINS_LEMMING:
+                mongets(mtmp, PICK_AXE);
+                if (!rn2(6))
+                    mongets(mtmp, WAN_DIGGING);
+                if (!rn2(4)) {
+                    otmp = mksobj(LANDMINE, FALSE, FALSE);
+                    if (rn2(4))
+                        curse(otmp);
+                     (void) mpickobj(mtmp, otmp);
+                }
+                if (!rn2(4))
+                    mongets(mtmp, SCR_WARDING_WORDS);
+                else if (!rn2(4))
+                    mongets(mtmp, SCR_EARTH);
+                else if (!rn2(4))
+                    mongets(mtmp, SCR_FIRE);
+                if (!rn2(40))
+                    mongets(mtmp, DRUM_OF_EARTHQUAKE);
+                if (!rn2(40))
+                    mongets(mtmp, POT_ACID);
+                if (!rn2(4))
+                    mongets(mtmp, OIL_LAMP);
+                break;
+
+                case PM_LEMMING_SHAMAN:
+                mongets(mtmp, QUARTERSTAFF);
+                if (rn2(2))
+                    mongets(mtmp, POT_HALLUCINATION);
+                break;
+
+                case PM_CLIFF_LEMMING:
+                /* Cliff lemmings may get climbing kit */
+                if (!rn2(10))
+                    mongets(mtmp, GRAPPLING_HOOK);
+                if (!rn2(10))
+                    mongets(mtmp, CLIMBING_BOOTS);
+                if (!rn2(10))
+                    mongets(mtmp, IRON_CHAIN);
+                break;
+
+                case PM_MOUNTAIN_LEMMING:
+                /* Mountain lemmings get a sling and ammo - usually of good quality */
+                otmp = mksobj(SLING, FALSE, FALSE);
+                if (otmp) {
+                    otmp->spe = min(otmp->spe, 1+rn2(2+rn2(6)));
+                    m_initthrow(mtmp, rn2(2) ? ROCK : FLINT, 12);
+                    (void) mpickobj(mtmp, otmp);
+                }
+                break;
+
+                case PM_DESERT_LEMMING:
+                /* Desert lemmings get water balloons to throw */
+                for(i = 0; i<rn2(3)+rn2(3); i++)
+                    mongets(mtmp, POT_WATER);
+                break;
+
+                case PM_MASTER_LEMMING:
+                /* Master lemmings get a musical instrument and some dubious pills.
+                 * Sometimes they also get a mirror or a lantern. */
+                {
+                    static const int tunes[] = {
+                        FLUTE,MAGIC_FLUTE,TOOLED_HORN,
+                        FROST_HORN,FIRE_HORN,HARP,MAGIC_HARP,
+                        BUGLE,LEATHER_DRUM,DRUM_OF_EARTHQUAKE };
+                    if (rn2(4))
+                        mongets(mtmp, tunes[rn2(sizeof(tunes)/sizeof(tunes[0]))]);
+                    if (!rn2(8))
+                        mongets(mtmp, MIRROR);
+                    if (!rn2(8))
+                        mongets(mtmp, LANTERN);
+                    if (rn2(2))
+                        mongets(mtmp, POT_HALLUCINATION);
+                    if (rn2(3))
+                        mongets(mtmp, POT_SPEED);
+                    if (rn2(4))
+                        mongets(mtmp, POT_CONFUSION);
+                    if (rn2(2))
+                        mongets(mtmp, POT_BOOZE);
+                    break;
+                }
+
+                case PM_ICE_LEMMING:
+                /* Ice lemmings (and similar) get cold related (non-protective) items */
+                if (rn2(3)) mongets(mtmp, WAN_COLD);
+                else if (!rn2(8)) mongets(mtmp, FROST_HORN);
+                if (!rn2(80))
+                    mongetsart(mtmp, ART_FROST_BRAND);
+                else if (!rn2(80))
+                    mongets(mtmp, ORB_OF_PERMAFROST); /* yrly */
+                break;
+
+                case PM_VOLCANO_LEMMING:
+                /* Volcano lemmings get fire related (non-protective) items */
+                if (!rn2(3)) mongets(mtmp, SCR_FIRE);
+                if (!rn2(3)) mongets(mtmp, SCR_FIRE);
+                if (rn2(2)) mongets(mtmp, WAN_FIRE);
+                else if (!rn2(8)) mongets(mtmp, FIRE_HORN);
+                while (!rn2(6)) mongets(mtmp, POT_OIL);
+                if (!rn2(40))
+                    mongetsart(mtmp, ART_FIRE_BRAND);
+                break;
+
+                case PM_SUPERLEMMING:
+                if (!rn2(12))
+                    mongets(mtmp, CLOAK_OF_FLIGHT);
+                else if (!rn2(12))
+                    mongets(mtmp, LEVITATION_BOOTS);
+                else if (!rn2(12))
+                    mongets(mtmp, SPEED_BOOTS);
+                break;
+
+                case PM_CYBERLEMMING:
+                if (rn2(2))
+                    mongets(mtmp, SCR_CHARGING);
+                break;
+
+                case PM_PLUMMET_S_CHAMPION:
+                if (!rn2(40))
+                    mongetsart(ART_STORMBRINGER);
+                break;
+
+                case PM_PLUMMET:
+                if (rn2(3)) {
+                    otmp = mksobj(rn2(2) ? QUARTERSTAFF :
+                                 (rn2(3) ? MACE : ORNATE_MACE), FALSE, FALSE);
+                    set_material(otmp, rn2(2) ? SILVER :
+                                 (rn2(3) ? GOLD : PLATINUM));
+                    (void) mpickobj(mtmp, otmp);
+                }
+                while (rn2(3))
+                    mongets(mtmp, DILITHIUM_CRYSTAL+rn2(JADE-DILITHIUM_CRYSTAL));
+                if (rn2(3))
+                    mkmonmoney(mtmp, rn2(500));
+                break;
+
+                /* Nothing (usually), to avoid large chances of stuff below */
+                case PM_HORDE_LEMMING:
+                if (rn2(12))
+                    break;
+                /* fall through */
+
+                /* Things which should not be duplicated */
+                default:
+                if (!rn2(10))
+                    mongets(mtmp, PICK_AXE);
+                else if (!rn2(30))
+                    mongets(mtmp, WAN_DIGGING);
+                if (!rn2(30))
+                    mongets(mtmp, LANDMINE);
+            }
+
+            /* Any lemmings may get these extra items, even if they have one already */
+            if ((mm != PM_HORDE_LEMMING) || (!rn2(12))) {
+                if (!rn2(15))
+                    mongets(mtmp, SCR_FIRE);
+                if (!rn2(30))
+                    mongets(mtmp, POT_OIL);
+                if (!rn2(20))
+                    mongets(mtmp, SCR_WARDING_WORDS);
+            }
+        }
+        break;
     case S_GIANT:
         if (rn2(2))
             (void) mongets(mtmp, (mm != PM_ETTIN) ? BOULDER : CLUB);
@@ -477,8 +658,8 @@ register struct monst *mtmp;
             (void) mpickobj(mtmp, otmp);
             break;
         default:
-            if (mm == PM_ARCHON || mm == PM_ALEAX || mm == PM_ANGEL) {
-                int art = 0;
+            if (humanoid(ptr)) {
+                boolean art = FALSE;
                 /* create minion stuff; can't use mongets */
 
                 /* maybe make it special */
@@ -491,7 +672,7 @@ register struct monst *mtmp;
                     otmp = mksobj(LONG_SWORD, FALSE, FALSE);
                     bless(otmp);
                     otmp->oerodeproof = TRUE;
-                    spe2 = rn2(5);
+                    spe2 = is_lord(ptr) + rn2(5);
                     otmp->spe = max(otmp->spe, spe2);
                     (void) mpickobj(mtmp, otmp);
                 }
@@ -1186,7 +1367,9 @@ register struct monst *mtmp;
         }
         break;
     case S_LEPRECHAUN:
-        mkmonmoney(mtmp, (long) d(level_difficulty(), 30));
+        if (ptr == &mons[PM_LEPRECHAUN]) {
+            mkmonmoney(mtmp, (long) d(level_difficulty(), 30));
+        }
         break;
     case S_DEMON:
         /* moved here from m_initweap() because these don't
@@ -1878,13 +2061,20 @@ int mmflags;
         }
         else
         {
-            if ((ptr->geno & G_SGROUP) && rn2(2)) {
-                m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
-            } else if (ptr->geno & G_LGROUP) {
+            if ((ptr->geno & (G_SGROUP|G_LGROUP)) == (G_SGROUP|G_LGROUP)) {
                 if (rn2(3))
-                    m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
+                    m_inithgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
                 else
+                    m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
+            } else {
+                if ((ptr->geno & G_SGROUP) && rn2(2)) {
                     m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
+                } else if (ptr->geno & G_LGROUP) {
+                    if (rn2(3))
+                        m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
+                    else
+                        m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
+                }
             }
         }
     }

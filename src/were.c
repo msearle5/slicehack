@@ -271,7 +271,18 @@ char *genbuf;
                 Strcpy(genbuf, "wolf");
             break;
         default:
-            continue;
+            if (is_summoner(ptr)) {
+                /* Generic summoners can summon anything of the same class, of the
+                 * same or lower level. Usually it must also not itself be a summoner,
+                 * but bosses can do this. This relies on levels being in order, and
+                 * summoners not being the weakest in the class.
+                 */
+                do {
+                    typ = rn2(NUMMONS);
+                } while ((mons[typ].mlet != ptr->mlet) || (mons[typ].mlevel > ptr->mlevel) ||
+                    (is_summoner(&mons[typ]) && (!is_prince(ptr) || yours)));
+                Strcpy(genbuf, def_monsyms[ptr->mlet].name);
+            } else continue;
         }
         mtmp = makemon(&mons[typ], u.ux, u.uy, NO_MM_FLAGS);
         if (mtmp) {
