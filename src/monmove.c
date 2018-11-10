@@ -1178,8 +1178,6 @@ not_special:
                         && touch_artifact(otmp, mtmp)) {
                         if (can_carry(mtmp, otmp) > 0
                             && (throws_rocks(ptr) || !sobj_at(BOULDER, xx, yy))
-                            && (!is_unicorn(ptr)
-                                || otmp->material == GEMSTONE)
                             /* Don't get stuck circling an Elbereth */
                             && !onscary(xx, yy, mtmp)) {
                             minr = distmin(omx, omy, xx, yy);
@@ -1228,8 +1226,7 @@ not_special:
         flag |= ALLOW_U;
     if (is_minion(ptr) || is_rider(ptr))
         flag |= ALLOW_SANCT;
-    /* unicorn may not be able to avoid hero on a noteleport level */
-    if ((is_unicorn(ptr) || ptr == &mons[PM_MAD_ALCHEMIST])
+    if ((is_evasive(ptr) || ptr == &mons[PM_MAD_ALCHEMIST])
           && !level.flags.noteleport)
         flag |= NOTONL;
     if (passes_walls(ptr))
@@ -1266,7 +1263,7 @@ not_special:
         if (!mtmp->mpeaceful && level.flags.shortsighted
             && nidist > (couldsee(nix, niy) ? 144 : 36) && appr == 1)
             appr = 0;
-        if ((is_unicorn(ptr) || ptr == &mons[PM_MAD_ALCHEMIST])
+        if ((is_evasive(ptr) || ptr == &mons[PM_MAD_ALCHEMIST])
               && level.flags.noteleport) {
             /* on noteleport levels, perhaps we cannot avoid hero */
             for (i = 0; i < cnt; i++)
@@ -1390,7 +1387,7 @@ not_special:
         if (mtmp->wormno)
             worm_move(mtmp);
     } else {
-        if (is_unicorn(ptr) && rn2(2) && !tele_restrict(mtmp)) {
+        if (is_evasive(ptr) && rn2(2) && !tele_restrict(mtmp)) {
             (void) rloc(mtmp, TRUE);
             return 1;
         }

@@ -135,7 +135,7 @@ const struct class_sym def_monsyms[MAXMCLASSES] = {
     { DEF_RODENT, "", "rodent" },
     { DEF_SPIDER, "", "arachnid or centipede" },
     { DEF_TRAPPER, "", "trapper or lurker above" },
-    { DEF_UNICORN, "", "unicorn or horse" },
+    { DEF_UNICORN, "", "horse" },
     { DEF_VORTEX, "", "vortex" },
     { DEF_WORM, "", "worm" },
     { DEF_XAN, "", "xan or other mythical/fantastic insect" },

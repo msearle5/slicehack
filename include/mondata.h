@@ -99,6 +99,7 @@
 #define is_lighthater(ptr) (((ptr)->mflags4 & M4_HATESLIGHT) != 0L)
 /* return TRUE if the monster tends to revive */
 #define is_reviver(ptr) (((ptr)->mflags4 & M4_REVIVE) != 0L)
+#define is_evasive(ptr) (((ptr)->mflags4 & M4_EVASIVE) != 0L)
 #define is_elf(ptr) (((ptr)->mflags2 & M2_ELF) != 0L)
 #define is_dwarf(ptr) (((ptr)->mflags2 & M2_DWARF) != 0L)
 #define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)
@@ -148,7 +149,6 @@
 #define likes_objs(ptr) (((ptr)->mflags2 & M2_COLLECT) != 0L || is_armed(ptr))
 #define likes_magic(ptr) (((ptr)->mflags2 & M2_MAGIC) != 0L)
 #define webmaker(ptr) (((ptr)->mflags3 & M3_WEBMAKER) != 0L)
-#define is_unicorn(ptr) ((ptr)->mlet == S_UNICORN && likes_gems(ptr))
 #define is_longworm(ptr) (((ptr)->mflags3 & M3_LONGWORM) != 0L)
 #define is_covetous(ptr) ((ptr->mflags3 & M3_COVETOUS))
 #define infravision(ptr) ((ptr->mflags3 & M3_INFRAVISION))

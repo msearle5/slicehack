@@ -1621,19 +1621,6 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         tmp += 1000; /* Guaranteed hit */
     }
 
-    if (obj->oclass == GEM_CLASS && is_unicorn(mon->data)) {
-        if (mon->msleeping || !mon->mcanmove) {
-            tmiss(obj, mon, FALSE);
-            return 0;
-        } else if (mon->mtame) {
-            pline("%s catches and drops %s.", Monnam(mon), the(xname(obj)));
-            return 0;
-        } else {
-            pline("%s catches %s.", Monnam(mon), the(xname(obj)));
-            return gem_accept(mon, obj);
-        }
-    }
-
     /* don't make game unwinnable if naive player throws artifact
        at leader... (kicked artifact is ok too; HMON_APPLIED could
        occur if quest artifact polearm or grapnel ever gets added) */

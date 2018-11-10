@@ -371,13 +371,12 @@ boolean force;
      * silly trying to use the same cursed horn round after round
      */
     if (mtmp->mconf || mtmp->mstun || !mtmp->mcansee) {
-        if (!is_unicorn(mtmp->data) && (!nohands(mtmp->data) ||
-            is_dragon(mtmp->data))) {
+        if ((!nohands(mtmp->data) || is_dragon(mtmp->data))) {
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
                 if (obj->otyp == UNICORN_HORN && !obj->cursed)
                     break;
         }
-        if (obj || is_unicorn(mtmp->data)) {
+        if (obj) {
             m.defensive = obj;
             m.has_defense = MUSE_UNICORN_HORN;
             return TRUE;
@@ -2438,7 +2437,7 @@ struct obj *obj;
         if (typ == PICK_AXE)
             return (boolean) needspick(mon->data);
         if (typ == UNICORN_HORN)
-            return (boolean) (!obj->cursed && !is_unicorn(mon->data));
+            return (boolean) (!obj->cursed);
         if (typ == FROST_HORN || typ == FIRE_HORN || typ == MAGIC_FLUTE)
             return (obj->spe > 0 && can_blow(mon));
         if (typ == FIGURINE || typ == DRUM_OF_EARTHQUAKE

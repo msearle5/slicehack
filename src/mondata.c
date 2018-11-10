@@ -498,9 +498,6 @@ struct permonst *ptr;
     case PM_MEPHISTO:
     case PM_BALROG:
         return 2;
-    case PM_WHITE_UNICORN:
-    case PM_GRAY_UNICORN:
-    case PM_BLACK_UNICORN:
     case PM_KI_RIN:
         return 1;
     default:
@@ -619,8 +616,6 @@ struct permonst *pm1, *pm2;
         return (let2 == S_NYMPH);
     if (let1 == S_CENTAUR)
         return (let2 == S_CENTAUR);
-    if (is_unicorn(pm1))
-        return is_unicorn(pm2);
     if (let1 == S_DRAGON)
         return (let2 == S_DRAGON);
     if (let1 == S_NAGA)
@@ -765,7 +760,6 @@ const char *in_str;
             /* Alternate spellings */
             { "grey dragon", PM_GRAY_DRAGON },
             { "baby grey dragon", PM_BABY_GRAY_DRAGON },
-            { "grey unicorn", PM_GRAY_UNICORN },
             { "grey ooze", PM_GRAY_OOZE },
             { "gray-elf", PM_GREY_ELF },
             { "mindflayer", PM_MIND_FLAYER },

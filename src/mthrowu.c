@@ -731,26 +731,6 @@ register boolean verbose;
             if (multi)
                 nomul(0);
 
-            if (singleobj->oclass == GEM_CLASS
-                && singleobj->otyp <= LAST_GEM + 9 /* 9 glass colors */
-                && is_unicorn(youmonst.data)) {
-                if (singleobj->otyp > LAST_GEM) {
-                    You("catch the %s.", xname(singleobj));
-                    You("are not interested in %s junk.",
-                        s_suffix(mon_nam(mon)));
-                    makeknown(singleobj->otyp);
-                    dropy(singleobj);
-                } else {
-                    You(
-                     "accept %s gift in the spirit in which it was intended.",
-                        s_suffix(mon_nam(mon)));
-                    (void) hold_another_object(singleobj,
-                                               "You catch, but drop, %s.",
-                                               xname(singleobj),
-                                               "You catch:");
-                }
-                break;
-            }
             if (singleobj->oclass == POTION_CLASS) {
                 if (!Blind)
                     singleobj->dknown = 1;

@@ -1143,11 +1143,7 @@ boolean ghostly;
             /* reset peaceful/malign relative to new character;
                shopkeepers will reset based on name */
             if (!mtmp->isshk)
-                mtmp->mpeaceful =
-                    (is_unicorn(mtmp->data)
-                     && sgn(u.ualign.type) == sgn(mtmp->data->maligntyp))
-                        ? TRUE
-                        : peace_minded(mtmp->data);
+                mtmp->mpeaceful = peace_minded(mtmp->data);
             set_malign(mtmp);
         } else if (elapsed > 0L) {
             mon_catchup_elapsed_time(mtmp, elapsed);

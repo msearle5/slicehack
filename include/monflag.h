@@ -196,14 +196,15 @@
 #define M3_MINDFLAYER 0x40000000  /* is a mindflayer, including the Ancient Brain */
 #define M3_PLACEHOLDER 0x80000000 /* is a placeholder for zombies */
 
-#define M4_INVISIBLE 0x00000001 /* invisible, like a stalker */
-#define M4_PETRIFY   0x00000002 /* petrifies on contact */
-#define M4_VEGAN     0x00000004 /* corpse is vegan (plants, etc) */
-#define M4_VEGETARIAN 0x00000008 /* corpse is vegetarian (puddings) */
-#define M4_WHIRLY    0x00000010 /* Vortices, air elemental, Taz */
-#define M4_SUMMONER  0x00000020 /* summons like a werewolf, but not a lycanthrope */
-#define M4_REVIVE    0x00000040 /* corpses revive, like a troll */
-#define M4_HATESLIGHT 0x00000080 /* hates light, like a gremlin */
+#define M4_INVISIBLE  0x00000001  /* invisible, like a stalker */
+#define M4_PETRIFY    0x00000002  /* petrifies on contact */
+#define M4_VEGAN      0x00000004  /* corpse is vegan (plants, etc) */
+#define M4_VEGETARIAN 0x00000008  /* corpse is vegetarian (puddings) */
+#define M4_WHIRLY     0x00000010  /* Vortices, air elemental, Taz */
+#define M4_SUMMONER   0x00000020  /* summons like a werewolf, but not a lycanthrope */
+#define M4_REVIVE     0x00000040  /* corpses revive, like a troll */
+#define M4_HATESLIGHT 0x00000080  /* hates light, like a gremlin */
+#define M4_EVASIVE    0x00000100  /* teleports to avoid you, like a unicorn */
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

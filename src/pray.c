@@ -1766,40 +1766,6 @@ dosacrifice()
         } else if (is_undead(ptr)) { /* Not demons--no demon corpses */
             if (u.ualign.type != A_CHAOTIC)
                 value += 1;
-        } else if (is_unicorn(ptr)) {
-            int unicalign = sgn(ptr->maligntyp);
-
-            if (unicalign == altaralign) {
-                /* When same as altar, always a very bad action.
-                 */
-                pline("Such an action is an insult to %s!",
-                      (unicalign == A_CHAOTIC) ? "chaos"
-                         : unicalign ? "law" : "balance");
-                (void) adjattrib(A_WIS, -1, TRUE);
-                value = -5;
-            } else if (u.ualign.type == altaralign) {
-                /* When different from altar, and altar is same as yours,
-                 * it's a very good action.
-                 */
-                if (u.ualign.record < ALIGNLIM)
-                    You_feel("appropriately %s.", align_str(u.ualign.type));
-                else
-                    You_feel("you are thoroughly on the right path.");
-                adjalign(5);
-                value += 3;
-            } else if (unicalign == u.ualign.type) {
-                /* When sacrificing unicorn of your alignment to altar not of
-                 * your alignment, your god gets angry and it's a conversion.
-                 */
-                u.ualign.record = -1;
-                value = 1;
-            } else {
-                /* Otherwise, unicorn's alignment is different from yours
-                 * and different from the altar's.  It's an ordinary (well,
-                 * with a bonus) sacrifice on a cross-aligned altar.
-                 */
-                value += 3;
-            }
         }
     } /* corpse */
 

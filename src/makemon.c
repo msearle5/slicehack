@@ -883,11 +883,6 @@ register struct monst *mtmp;
         }
         break;
     case S_UNICORN:
-        if (is_unicorn(mtmp->data)) {
-            while (!rn2(2)) {
-                mongets(mtmp, DILITHIUM_CRYSTAL+rn2(JADE-DILITHIUM_CRYSTAL));
-            };
-        }
         break;
     case S_WRAITH:
         (void) mongets(mtmp, KNIFE);
@@ -1790,10 +1785,6 @@ int mmflags;
     case S_ORC:
         if (Race_if(PM_ELF))
             mtmp->mpeaceful = FALSE;
-        break;
-    case S_UNICORN:
-        if (is_unicorn(ptr) && sgn(u.ualign.type) == sgn(ptr->maligntyp))
-            mtmp->mpeaceful = TRUE;
         break;
     case S_BAT:
         if (Inhell && is_bat(ptr))

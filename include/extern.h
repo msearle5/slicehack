@@ -54,7 +54,6 @@ E void FDECL(use_mask, (struct obj **));
 E boolean FDECL(check_mon_jump, (struct monst *, int, int));
 E boolean FDECL(snuff_lit, (struct obj *));
 E boolean FDECL(catch_lit, (struct obj *));
-E void FDECL(use_unicorn_horn, (struct obj *));
 E boolean FDECL(tinnable, (struct obj *));
 E void NDECL(reset_trapset);
 E void FDECL(fig_transform, (ANY_P *, long));

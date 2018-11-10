@@ -450,19 +450,6 @@ unsigned corpseflags;
             obj->cursed = obj->blessed = FALSE;
         }
         goto default_1;
-    case PM_WHITE_UNICORN:
-    case PM_GRAY_UNICORN:
-    case PM_BLACK_UNICORN:
-        if (mtmp->mrevived && rn2(2)) {
-            if (canseemon(mtmp))
-                pline("%s recently regrown horn crumbles to dust.",
-                      s_suffix(Monnam(mtmp)));
-        } else {
-            obj = mksobj_at(UNICORN_HORN, x, y, TRUE, FALSE);
-            if (obj && mtmp->mrevived)
-                obj->degraded_horn = 1;
-        }
-        goto default_1;
     case PM_LONG_WORM:
         (void) mksobj_at(WORM_TOOTH, x, y, TRUE, FALSE);
         goto default_1;
@@ -2892,10 +2879,6 @@ cleanup:
     }
     if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame)
         change_luck(-1);
-    if (is_unicorn(mdat) && sgn(u.ualign.type) == sgn(mdat->maligntyp)) {
-        change_luck(-5);
-        You_feel("guilty...");
-    }
 
     /* give experience points */
     {
@@ -4328,9 +4311,6 @@ struct permonst *mdat;
             break;
         /* These are here to avoid triggering the
            nonspecific treatment through the default case below*/
-        case PM_WHITE_UNICORN:
-        case PM_GRAY_UNICORN:
-        case PM_BLACK_UNICORN:
         case PM_JELLYFISH:
             break;
         default:

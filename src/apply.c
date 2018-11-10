@@ -1165,7 +1165,7 @@ struct obj *obj;
         (void) mpickobj(mtmp, obj);
         if (!tele_restrict(mtmp))
             (void) rloc(mtmp, TRUE);
-    } else if (!is_unicorn(mtmp->data) && !humanoid(mtmp->data)
+    } else if (!humanoid(mtmp->data)
                && (!mtmp->minvis || perceives(mtmp->data)) && rn2(5)) {
         boolean do_react = TRUE;
 

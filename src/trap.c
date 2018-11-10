@@ -378,10 +378,7 @@ int x, y, typ;
         struct permonst *mptr;
         int trycount = 10;
 
-        do { /* avoid ultimately hostile co-aligned unicorn */
-            mptr = &mons[rndmonnum()];
-        } while (--trycount > 0 && is_unicorn(mptr)
-                 && sgn(u.ualign.type) == sgn(mptr->maligntyp));
+        mptr = &mons[rndmonnum()];
         statue = mkcorpstat(STATUE, (struct monst *) 0, mptr, x, y,
                             CORPSTAT_NONE);
         mtmp = makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH);
