@@ -1156,9 +1156,9 @@ boolean artif;
          */
         if (rustable && is_rustprone(otmp) && (!otmp->oerodeproof) && (!otmp->oartifact) && (!rn2(40)))
             otmp->oeroded = (rn2(2)) ? 1 : ((rn2(3) ? 2 : 3));
-        if (erodable && is_damageable(otmp) && (!otmp->oerodeproof) && (!otmp->oartifact) && (!rn2((otmp->oeroded ? 10 : 120))))
+        if (erodable && (is_corrodeable(otmp) || is_rottable(otmp)) && (!otmp->oerodeproof) && (!otmp->oartifact) && (!rn2((otmp->oeroded ? 10 : 120))))
             otmp->oeroded2 = (rn2(4)) ? 1 : ((rn2(6) ? 2 : 3));
-        if (rustproofable && (is_damageable(otmp) || (otmp->material == GLASS)) && (!otmp->oeroded) && (!otmp->oeroded2) && (!rn2(40)))
+        if (rustproofable && ((is_corrodeable(otmp) || is_rottable(otmp)) || (otmp->material == GLASS)) && (!otmp->oeroded) && (!otmp->oeroded2) && (!rn2(40)))
             otmp->oerodeproof = TRUE;
     }
     
