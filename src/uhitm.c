@@ -1001,6 +1001,34 @@ int dieroll;
                     break_glass_obj(obj);
                     break_glass_obj(some_armor(mon));
                 }
+                
+                /* maybe set off a bomb */
+                if (hand_to_hand) {
+                    int boom = 0;
+                    switch(obj->otyp) {
+                        case STICK_OF_DYNAMITE:
+                        boom = 10;
+                        break;
+                        case FRAG_GRENADE:
+                        case GAS_GRENADE:
+                        boom = 40;
+                        break;
+                    }
+                    if (obj->cursed)
+                        boom /= 4;
+                    if (obj->blessed)
+                        boom *= 2;
+                    if ((boom) && (!rn2(boom))) {
+                        /* why were you doing that anyway? */
+                        pline("%s explodes in your %s!", Doname2(obj), body_part(HAND));
+                        losehp(d(2 * obj->quan, 5), "hitting someone with a bomb", KILLED_BY);
+                        grenade_explode(obj, u.ux, u.uy, obj->yours, 0);
+                        uwepgone();
+                        //obj_extract_self(obj);
+                        //obfree(obj, (struct obj *)0);
+                        return FALSE;
+                    }
+                }
 
                 if (obj->oartifact
                     && artifact_hit(&youmonst, mon, obj, &tmp, dieroll)) {
