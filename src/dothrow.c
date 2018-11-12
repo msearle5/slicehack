@@ -8,6 +8,7 @@
 /* Contains code for 't' (throw) */
 
 #include "hack.h"
+#include <assert.h>
 
 STATIC_DCL int FDECL(throw_obj, (struct obj *, int));
 STATIC_DCL boolean FDECL(ok_to_throw, (int *));
@@ -30,6 +31,8 @@ static NEARDATA const char bullets[] = { ALLOW_COUNT, COIN_CLASS, ALL_CLASSES,
 /* thrownobj (decl.c) tracks an object until it lands */
 
 extern boolean notonhead; /* for long worms */
+
+boolean break_thrown = FALSE; /*state variable, if TRUE thrown object always breaks.*/
 
 /* Throw the selected object, asking for direction */
 STATIC_OVL int
@@ -133,6 +136,10 @@ int shotlimit;
         default: /* basic or unskilled: no bonus */
             break;
         }
+        /* Increase skill related rof for heavy machine gun */
+        if(uwep && uwep->otyp == HEAVY_MACHINE_GUN)
+            multishot *= 2;
+
         /* ...or is using a special weapon for their role... */
         switch (Role_switch) {
         case PM_CAVEMAN:
@@ -232,11 +239,45 @@ int shotlimit;
         }
     }
 
+    /* Rate of fire is intrinsic to the weapon - cannot be user selected
+     * except via altmode
+     * Only for valid launchers
+     * (currently oc_rof conflicts with wsdam)
+     */
+    if (uwep && ammo_and_launcher(obj,uwep)) {
+        if (uwep->otyp == BFG) {
+            if (objects[(obj)->otyp].w_ammotyp == WP_BULLET)
+                multishot += 2*(objects[(uwep->otyp)].oc_rof);
+            else if (objects[(obj)->otyp].w_ammotyp == WP_SHELL)
+                multishot += 1.5*(objects[(uwep->otyp)].oc_rof);
+            else if (objects[(obj)->otyp].w_ammotyp == WP_GRENADE)
+                multishot += 1*(objects[(uwep->otyp)].oc_rof);
+            else if (objects[(obj)->otyp].w_ammotyp == WP_ROCKET)
+                multishot += .5*(objects[(uwep->otyp)].oc_rof);
+            else
+                multishot += (objects[(uwep->otyp)].oc_rof);
+        } else if (objects[(uwep->otyp)].oc_rof)
+            multishot += (objects[(uwep->otyp)].oc_rof - 1);
+        if (uwep->altmode == WP_MODE_SINGLE)
+          /* weapons switchable b/w full/semi auto */
+            multishot = 1;
+        else if (uwep->altmode == WP_MODE_BURST)
+            multishot = ((multishot > 5) ? (multishot / 3) : 1);
+        /* else it is auto == no change */
+    }
+
+    /* check again, because of the BFG */
+    if ((long) multishot > obj->quan)
+        multishot = (int) obj->quan;
+
+    if (multishot < 1)
+        multishot = 1;
+
     /* give a message if shooting more than one, or if player
        attempted to specify a count */
     if (multishot > 1 || shotlimit > 0) {
         /* "You shoot N arrows." or "You throw N daggers." */
-        You("%s %d %s.", m_shot.s ? "shoot" : "throw",
+        You("%s %d %s.", m_shot.s ? (is_firearm(uwep) ? "fire" : "shoot") : "throw",
             multishot, /* (might be 1 if player gave shotlimit) */
             (multishot == 1) ? singular(obj, xname) : xname(obj));
     }
@@ -254,8 +295,300 @@ int shotlimit;
             if (otmp->owornmask)
                 remove_worn_item(otmp, FALSE);
         }
-        freeinv(otmp);
+        if (obj->where == OBJ_INVENT)
+            freeinv(otmp);
         throwit(otmp, wep_mask, twoweap);
+    }
+    m_shot.n = m_shot.i = 0;
+    m_shot.o = STRANGE_OBJECT;
+    m_shot.s = FALSE;
+
+    return 1;
+}
+
+
+STATIC_OVL const char * const Ronnie_ray_gun[] = {
+    "When you can't make them see the light, make them feel the heat.",
+    "Every man must be free to become whatever God intends he should become.",
+    "There you go again.",
+    "Before I refuse to take your questions, I have an opening statement.",
+    "If you're explaining, you're losing.",
+    "As government expands, liberty contracts.",
+    "Each individual is accountable for his actions.",
+    "Government's first duty is to protect the people, not run their lives.",
+    "The ultimate determinate in the struggle now going on for the world will not be bombs and rockets but a test of wills and ideas.",
+    "If we lose freedom here, there is no place to escape to.",
+    "This is the last stand on Earth.",
+    "You and I have a rendezvous with destiny.",
+    "We will preserve for our children this, the last best hope of man on earth, or we will sentence them to take the first step into a thousand years of darkness.",
+    "Trust, but verify.",
+    "The bombing begins in five minutes.",
+    "Some people wonder all their lives if they've made a difference. The Marines don't have that problem.",
+    "History teaches that war begins when governments believe the price of aggression is cheap.",
+    "Freedom is never more than one generation away from extinction.",
+    "Our people look for a cause to believe in.",
+    "Today we did what we had to do.",
+    "They counted on us to be passive. They counted wrong.",
+    "Of the four wars in my lifetime, none came about because we were too strong.",
+    "If it moves, tax it. If it keeps moving, regulate it. And if it stops moving, subsidize it.",
+    "Tear down this wall.",
+    "Open this gate!",
+    "Come here to this gate!",
+    "There are no easy answers, but there are simple answers.",
+    "We must have the courage to do what we know is morally right.",
+    "We are never defeated unless we give up on God.",
+    "We will always remember.",
+    "We will always be proud.",
+    "We will always be prepared, so we will always be free.",
+    "It is a weapon our adversaries in today's world do not have.",
+    "They say the world has become too complex for simple answers. They are wrong.",
+    "Don't be afraid to see what you see.",
+    "Concentrated power has always been the enemy of liberty."
+};
+
+
+//ifdef FIREARMS
+int
+zap_raygun(raygun, shots, shotlimit)
+struct obj *raygun;
+int shots, shotlimit;
+{
+    int cost;
+    boolean clicky = FALSE;
+
+    if (raygun->altmode == ZT_LIGHTNING)
+        cost = 15;
+    else if (raygun->altmode == ZT_DEATH)
+        cost = 10;
+    else if (raygun->altmode == ZT_FIRE)
+        cost = 2;
+    else
+        cost = 1;
+
+    if( raygun->ovar1 < shots*cost) {
+        shots = raygun->ovar1/cost;
+        clicky = TRUE;
+    }
+
+    if( !u.dx && !u.dy) {
+        shotlimit = 1;
+        if (u.dz > 0) {
+            raygun->ovar1 -= cost;
+            if (raygun->altmode == ZT_LIGHTNING) {
+                if (dighole(FALSE, TRUE, (coord *)0)) {
+                    Your("raygun disintegrated the floor!");
+                    if (!Blind && !resists_blnd(&youmonst)) {
+                        You("are blinded by the flash!");
+                        make_blinded((long)rnd(50),FALSE);
+                        if (!Blind) Your1(vision_clears);
+                    }
+                    return 1;
+                } else {
+                    struct engr *oep;
+                    if (!Blind) {
+                        pline("A brilliant beam shoots from the raygun and burns into the %s!", surface(u.ux, u.uy));
+                        make_blinded((long)rnd(50),FALSE);
+                    } else if (!Deaf) {
+                        pline("There is an angry sizzling sound!");
+                    }
+                    oep = engr_at(u.ux,u.uy);
+                    if (!oep) {
+                        if (Hallucination || rn2(100)) {
+                            make_engr_at(u.ux, u.uy, randHaluWard(), moves, BURN);
+                        } else {
+                            doengravewith(raygun);
+                        }
+                    }
+                }
+            } else if (raygun->altmode == ZT_DEATH) {
+                if (!Blind) {
+                   pline("The bugs on the %s stop moving!", surface(u.ux, u.uy));
+                }
+            } else if (raygun->altmode == ZT_FIRE) {
+                struct engr *oep;
+                if (!Blind) {
+                    pline("A heat ray shoots from the raygun and melts into the %s!",surface(u.ux, u.uy));
+                } else {
+                    pline("You feel the raygun heat up.");
+                }
+                oep = engr_at(u.ux,u.uy);
+                if (!oep) {
+                    if (Hallucination || rn2(100)) {
+                        make_engr_at(u.ux, u.uy, randHaluWard(), moves, BURN);
+                    } else {
+                        doengravewith(raygun);
+                    }
+                }
+            } else {
+                if (!Blind) {
+                   pline("The bugs on the %s stop moving!", surface(u.ux, u.uy));
+                }
+            }
+            return 1;
+        } else {
+            if (Hallucination)
+                pline1(Ronnie_ray_gun[rn2(SIZE(Ronnie_ray_gun))]);
+            raygun->ovar1 -= cost;
+            dobuzz(raygun->altmode+40, 6, u.ux, u.uy, u.dx, u.dy, TRUE, 1, 0);
+            return 1;
+        }
+    }
+
+    if ((shots > 1 || shotlimit > 0) && !Hallucination) {
+        You("fire %d %s.",
+        shots,	/* (might be 1 if player gave shotlimit) */
+        (shots == 1) ? "ray" : "rays");
+    }
+
+    while (shots) {
+        if (Hallucination)
+            pline1(Ronnie_ray_gun[rn2(SIZE(Ronnie_ray_gun))]);
+        raygun->ovar1 -= cost;
+        dobuzz(raygun->altmode+40, 6, u.ux, u.uy, u.dx, u.dy, TRUE, objects[(raygun->otyp)].oc_range, 0);
+        shots--;
+    }
+
+    if(clicky) {
+        You("push the firing stud, but nothing happens.");
+    }
+    return 1;
+}
+
+/* Fire the selected object, asking for direction */
+STATIC_OVL int
+fire_blaster(blaster, shotlimit)
+struct obj *blaster;
+int shotlimit;
+{
+    struct obj *otmp;
+    int multishot = 1;
+    int range;
+    schar skill;
+    long wep_mask;
+    boolean twoweap;
+
+    multi = 0;      /* reset; it's been used up */
+
+    /* ask "in what direction?" */
+    if (!getdir((char *)0)) {
+        return 0;
+    }
+
+    if (blaster->ovar1 <= 0 || (blaster->otyp == MASS_SHADOW_PISTOL && !(blaster->cobj))) {
+        if (blaster->otyp == RAYGUN)
+            You("push the firing stud, but nothing happens.");
+        else
+            pline("Nothing happens when you pull the trigger.");
+        return 1;
+    }
+
+    check_unpaid(blaster);
+
+    u_wipe_engr(1);
+
+    /* Multishot calculations
+     */
+    skill = objects[blaster->otyp].oc_skill;
+
+    /* Bonus if the player is proficient in this weapon... */
+    switch (P_SKILL(weapon_type(blaster))) {
+        case P_SKILLED:
+        multishot++;
+        break;
+        case P_EXPERT:
+        multishot += 2;
+        break;
+        default:
+        break; /* No bonus */
+    }
+
+    multishot += u.ulevel/10+1; // state variable, we are doing a spirit power barrage
+
+    if (shotlimit > 0 && multishot > shotlimit)
+        multishot = shotlimit;
+
+        /* Rate of fire is intrinsic to the weapon - cannot be user selected
+         * except via altmode
+         * Only for valid launchers
+         * (currently oc_rof conflicts with wsdam)
+         */
+    if (objects[(blaster->otyp)].oc_rof && blaster->otyp != RAYGUN && blaster->altmode != WP_MODE_SINGLE) {
+        if (blaster->otyp != RAYGUN && blaster->altmode == WP_MODE_BURST)
+            multishot += objects[(blaster->otyp)].oc_rof / 3;
+        /* else it is full auto */
+        else
+            multishot += (objects[(blaster->otyp)].oc_rof - 1);
+    }
+    /* single shot, don't add anything */
+
+    if (blaster->otyp == RAYGUN)
+        return zap_raygun(blaster,multishot,shotlimit);
+
+    if ((long)multishot > blaster->ovar1)
+        multishot = (int)blaster->ovar1;
+
+    if (multishot < 1)
+        multishot = 1;
+
+    blaster->ovar1 -= multishot;
+
+    /* give a message if shooting more than one, or if player
+       attempted to specify a count */
+    m_shot.s = TRUE;
+
+    if (multishot > 1 || shotlimit > 0) {
+        if (blaster->otyp == MASS_SHADOW_PISTOL) {
+            You("fire %d %s.",
+            multishot,	/* (might be 1 if player gave shotlimit) */
+            (multishot == 1) ? "shot" : "shots");
+        } else {
+            You("fire %d %s.",
+            multishot,	/* (might be 1 if player gave shotlimit) */
+            (multishot == 1) ? "bolt" : "bolts");
+        }
+    }
+
+    m_shot.o =  blaster->otyp == CUTTING_LASER ? LASER_BEAM :
+                blaster->otyp == ARM_BLASTER ? HEAVY_BLASTER_BOLT :
+                blaster->otyp == MASS_SHADOW_PISTOL ? blaster->cobj->otyp :
+                BLASTER_BOLT;
+    m_shot.n = multishot;
+    otmp = mksobj(m_shot.o, FALSE, FALSE);
+    otmp->blessed = blaster->blessed;
+    otmp->cursed = blaster->cursed;
+    otmp->spe = blaster->spe;
+    otmp->quan = m_shot.n;
+    otmp->oartifact = blaster->otyp == MASS_SHADOW_PISTOL ? blaster->cobj->oartifact : 0;
+
+    if(!u.dx && !u.dy)
+        range = 1;
+    else
+        range = objects[(blaster->otyp)].oc_range;
+
+    if (blaster->otyp == MASS_SHADOW_PISTOL) {
+        struct obj *tobj;
+        break_thrown = TRUE; /* state variable, always destroy thrown */
+        for (m_shot.i = 1; m_shot.i <= m_shot.n; m_shot.i++) {
+            otmp = mksobj(m_shot.o, FALSE, FALSE);
+            otmp->blessed = blaster->blessed;
+            otmp->cursed = blaster->cursed;
+            otmp->spe = blaster->spe;
+            otmp->quan = m_shot.n;
+            otmp->oartifact = blaster->otyp == MASS_SHADOW_PISTOL ? blaster->cobj->oartifact : 0;
+            otmp->ovar1 = -P_FIREARM;
+            if (otmp->quan > 1L) {
+                tobj = splitobj(otmp, 1L);
+            } else {
+                tobj = otmp;
+            }
+            assert(!(tobj->nobj));
+            throwit(tobj, 0L, u.twoweap);
+        }
+        break_thrown = FALSE; /* state variable, always destroy thrown */
+    } else {
+        for (m_shot.i = 1; m_shot.i <= m_shot.n; m_shot.i++) {
+            m_throw(&youmonst, u.ux, u.uy, u.dx, u.dy, range, otmp, TRUE);
+        }
     }
     m_shot.n = m_shot.i = 0;
     m_shot.o = STRANGE_OBJECT;
@@ -381,7 +714,7 @@ autoquiver()
 int
 dofire()
 {
-    int shotlimit;
+    int result, shotlimit;
     struct obj *obj;
 
     /*
@@ -402,6 +735,35 @@ dofire()
      */
     if (!ok_to_throw(&shotlimit))
         return 0;
+
+    if (uwep && is_blaster(uwep)) {
+        shotlimit = (multi || save_cm) ? multi + 1 : 0;
+        multi = 0;		/* reset; it's been used up */
+        if (u.twoweap) {
+            if (!test_twoweapon())
+                untwoweapon();
+            else if (uswapwep && (is_blaster(uswapwep) || (uquiver && ammo_and_launcher(uquiver, uswapwep)))) {
+                result = fire_blaster(uwep, shotlimit);
+                if((result == 1) && is_blaster(uswapwep))
+                    result = fire_blaster(uswapwep, shotlimit);
+                if (result > 1)
+                    result--;
+                return(result);
+            }
+        }
+        result = fire_blaster(uwep, shotlimit);
+
+        return result;
+    } else if (u.twoweap && uswapwep && is_blaster(uswapwep) && !(uquiver && ammo_and_launcher(uquiver, uwep))) {
+        shotlimit = (multi || save_cm) ? multi + 1 : 0;
+        multi = 0;		/* reset; it's been used up */
+        if (!test_twoweapon())
+            untwoweapon();
+        else {
+            result = fire_blaster(uswapwep, shotlimit);
+            return(result);
+        }
+    }
 
     if ((obj = uquiver) == 0) {
         if (!flags.autoquiver) {
@@ -456,6 +818,12 @@ boolean impact;
 int x;
 int y;
 {
+    if (break_thrown) {
+        check_shop_obj(obj, u.ux,u.uy, TRUE);
+        obfree(obj, (struct obj *)0);
+        return;
+    }
+
     if (IS_SOFT(levl[x][y].typ) || u.uinwater || impact) {
         dropy(obj);
         return;
@@ -480,7 +848,7 @@ void
 hitfloor(obj)
 register struct obj *obj;
 {
-	mayhitfloor(obj, u.ux, u.uy, TRUE);
+    mayhitfloor(obj, u.ux, u.uy, TRUE);
 }
 
 /*
@@ -1135,7 +1503,7 @@ struct obj *obj;
 long wep_mask; /* used to re-equip returning boomerang */
 boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 {
-    register struct monst *mon;
+    register struct monst *mon = NULL;
     register int range, urange;
     boolean crossbowing, impaired = (Confusion || Stunned || Blind
                                      || Hallucination || Fumbling);
@@ -1145,9 +1513,12 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
     if ((obj->cursed || obj->greased) && (u.dx || u.dy) && !rn2(7)) {
         boolean slipok = TRUE;
 
-        if (ammo_and_launcher(obj, uwep))
-            pline("%s!", Tobjnam(obj, "misfire"));
-        else {
+        if (ammo_and_launcher(obj, uwep)) {
+            if (is_firearm(uwep))
+                pline("%s!", Tobjnam(uwep, "misfire"));
+            else
+                pline("%s!", Tobjnam(obj, "misfire"));
+        } else {
             /* only slip if it's greased or meant to be thrown */
             if (obj->greased || throwing_weapon(obj))
                 /* BUG: this message is grammatically incorrect if obj has
@@ -1203,8 +1574,35 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                 setuqwep((struct obj *) 0);
             setuwep(obj);
             u.twoweap = twoweap;
+            return;
+        }
+      /* [ALI]
+         * Grenades are armed but are then processed by toss_up/hitfloor
+         * as normal.
+         *
+         * Bullets just disappear with no message.
+         *
+         * Rockets hit the ceiling/floor and explode.
+         */
+        else if (is_grenade(obj))
+            arm_bomb(obj, TRUE);
+        else if (is_bullet(obj) && ammo_and_launcher(obj, uwep)) {
+            if (!Is_waterlevel(&u.uz) && !Is_airlevel(&u.uz) && !Underwater
+                && (objects[obj->otyp].oc_dir & EXPLOSION)) {
+                pline("%s hit%s the %s and explodes in a ball of fire!",
+                    Doname2(obj), (obj->quan == 1L) ? "s" : "",
+                    u.dz < 0 ? ceiling(u.ux, u.uy) : surface(u.ux, u.uy));
+                explode(u.ux, u.uy, ZT_SPELL(ZT_FIRE), d(3, 8),
+                    WEAPON_CLASS, EXPL_FIERY);
+            }
+            check_shop_obj(obj, u.ux, u.uy, TRUE);
+            obfree(obj, (struct obj *)0);
+            thrownobj = (struct obj *)0;
+            return;
         } else if (u.dz < 0) {
             (void) toss_up(obj, rn2(5) && !Underwater);
+            thrownobj = (struct obj *)0;
+            return;
         } else if (u.dz > 0 && u.usteed && obj->oclass == POTION_CLASS
                    && rn2(6)) {
             /* alternative to prayer or wand of opening/spell of knock
@@ -1212,8 +1610,15 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             potionhit(u.usteed, obj, POTHIT_HERO_THROW);
         } else {
             hitfloor(obj);
+            thrownobj = (struct obj *)0;
+            return;
         }
-        thrownobj = (struct obj *) 0;
+        if (u.dz < 0 && !Underwater && !Is_waterlevel(&u.uz)) {
+            (void) toss_up(obj, rn2(5));
+        } else {
+            hitfloor(obj);
+        }
+        thrownobj = (struct obj *)0;
         return;
 
     } else if (obj->otyp == BOOMERANG && !Underwater) {
@@ -1255,7 +1660,10 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             range = 1;
 
         if (is_ammo(obj)) {
-            if (ammo_and_launcher(obj, uwep)) {
+            if (ammo_and_launcher(obj, uwep) &&
+                    objects[(uwep->otyp)].oc_range)
+                range = objects[(uwep->otyp)].oc_range;
+            else if (ammo_and_launcher(obj, uwep)) {
                 if (crossbowing)
                     range = BOLT_LIM;
                 else
@@ -1331,9 +1739,34 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             thrownobj = 0;
     }
 
+    /* Handle grenades or rockets */
+    if (is_grenade(obj)) {
+        arm_bomb(obj, TRUE);
+    } else if (ammo_and_launcher(obj, uwep) &&
+        (objects[obj->otyp].oc_dir & EXPLOSION)) {
+        if (cansee(bhitpos.x,bhitpos.y))
+            pline("%s explodes in a ball of fire!", Doname2(obj));
+        else
+            You_hear("an explosion");
+        explode(bhitpos.x, bhitpos.y, ZT_SPELL(ZT_FIRE),
+            d(3,8), WEAPON_CLASS, EXPL_FIERY);
+    }
+    if (is_bullet(obj) && (ammo_and_launcher(obj, uwep) &&
+        !is_grenade(obj))) {
+        check_shop_obj(obj, bhitpos.x, bhitpos.y, TRUE);
+        obfree(obj, (struct obj *)0);
+        return;
+    }
+    if (break_thrown) {
+        check_shop_obj(obj, bhitpos.x, bhitpos.y, TRUE);
+        obfree(obj, (struct obj *)0);
+        return;
+    }
+
     if (!thrownobj) {
         /* missile has already been handled */
-        if (tethered_weapon) tmp_at(DISP_END, 0);
+        if (tethered_weapon)
+            tmp_at(DISP_END, 0);
     } else if (u.uswallow) {
         if (tethered_weapon) {
             tmp_at(DISP_END, 0);
@@ -1752,7 +2185,24 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                 if (broken) {
                     if (*u.ushops || obj->unpaid)
                         check_shop_obj(obj, bhitpos.x, bhitpos.y, TRUE);
-                    obfree(obj, (struct obj *) 0);
+                    /*
+                     * Thrown grenades and explosive ammo used with the
+                     * relevant launcher explode rather than simply
+                     * breaking.
+                     */
+                    if (is_grenade(obj)) {
+                        grenade_explode(obj, bhitpos.x, bhitpos.y, TRUE, 0);
+                    } else if (ammo_and_launcher(obj, uwep) &&
+                        (objects[obj->otyp].oc_dir & EXPLOSION)) {
+                        if (cansee(bhitpos.x,bhitpos.y))
+                            pline("%s explodes in a ball of fire!", Doname2(obj));
+                        else
+                            You_hear("an explosion");
+                        explode(bhitpos.x, bhitpos.y, ZT_SPELL(ZT_FIRE),
+                            d(3,8), WEAPON_CLASS, EXPL_FIERY);
+                        obfree(obj, (struct obj *)0);
+                    } else
+                        obfree(obj, (struct obj *) 0);
                     return 1;
                 }
             }

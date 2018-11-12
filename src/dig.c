@@ -546,6 +546,17 @@ register int x, y;
 struct monst *madeby;
 int ttyp;
 {
+    dodigactualhole(x, y, madeby, ttyp, FALSE, FALSE);
+}
+
+void
+dodigactualhole(x, y, madeby, ttyp, forceknown, msgs)
+register int x, y;
+struct monst *madeby;
+int ttyp;
+boolean forceknown;
+boolean msgs;
+{
     struct obj *oldobjs, *newobjs;
     register struct trap *ttmp;
     char surface_type[BUFSZ];
@@ -605,7 +616,7 @@ int ttyp;
         return;
     newobjs = level.objects[x][y];
     ttmp->madeby_u = madeby_u;
-    ttmp->tseen = 0;
+    ttmp->tseen = (forceknown || madeby_u || cansee(x,y));
     if (cansee(x, y))
         seetrap(ttmp);
     else if (madeby_u)
@@ -619,9 +630,9 @@ int ttyp;
                 You("dig a pit in the %s.", surface_type);
             if (shopdoor)
                 pay_for_damage("ruin", FALSE);
-        } else if (!madeby_obj && canseemon(madeby))
+        } else if (!madeby_obj && canseemon(madeby) && msgs)
             pline("%s digs a pit in the %s.", Monnam(madeby), surface_type);
-        else if (cansee(x, y) && flags.verbose)
+        else if (cansee(x, y) && flags.verbose && msgs)
             pline("A pit appears in the %s.", surface_type);
 
         if (at_u) {
@@ -644,10 +655,10 @@ int ttyp;
 
         if (madeby_u)
             You("dig a hole through the %s.", surface_type);
-        else if (!madeby_obj && canseemon(madeby))
+        else if (!madeby_obj && canseemon(madeby) && msgs)
             pline("%s digs a hole through the %s.", Monnam(madeby),
                   surface_type);
-        else if (cansee(x, y) && flags.verbose)
+        else if (cansee(x, y) && flags.verbose && msgs)
             pline("A hole appears in the %s.", surface_type);
 
         if (at_u) {
@@ -708,7 +719,7 @@ int ttyp;
                     if (Is_stronghold(&u.uz)) {
                         assign_level(&tolevel, &valley_level);
                     } else if (Is_botlevel(&u.uz)) {
-                        if (canseemon(mtmp))
+                        if (canseemon(mtmp) && msgs)
                             pline("%s avoids the trap.", Monnam(mtmp));
                         return;
                     } else {

@@ -1796,6 +1796,39 @@ unsigned doname_flags;
             Strcat(prefix, sitoa(obj->spe));
             Strcat(prefix, " ");
         }
+        if (obj->otyp == STICK_OF_DYNAMITE) {
+            if (obj->lamplit)
+                Strcat(bp, " (lit)");
+#ifdef DEBUG
+            Sprintf(eos(bp), " (%ld)", obj->age);
+#endif
+        } else if (is_grenade(obj)) {
+            if (obj->oarmed) Strcat(bp, " (armed)");
+#ifdef DEBUG
+            Sprintf(eos(bp), " (%ld)", obj->age);
+#endif
+        }
+        if (obj->otyp == RAYGUN) {
+            if(obj->altmode == ZT_SLEEP)
+                Strcat(bp, " (stun)");
+            else if(obj->altmode == ZT_FIRE)
+                Strcat(bp, " (heat)");
+            else if(obj->altmode == ZT_DEATH)
+                Strcat(bp, " (kill)");
+            else if(obj->altmode == ZT_LIGHTNING)
+                Strcat(bp, " (disintegrate)");
+        } else if (obj->otyp == ARM_BLASTER ||
+                   obj->otyp == ASSAULT_RIFLE ||
+                   obj->otyp == BFG ||
+                   obj->otyp == AUTO_SHOTGUN ||
+                   obj->otyp == SUBMACHINE_GUN) {
+            if (obj->altmode == WP_MODE_AUTO)
+                Strcat(bp, " (auto)");
+            else if (obj->altmode == WP_MODE_BURST)
+                Strcat(bp, " (burst)");
+            else if (obj->altmode == WP_MODE_SINGLE)
+                Strcat(bp, " (single)");
+        }
         break;
     case TOOL_CLASS:
         if (obj->owornmask & (W_TOOL | W_SADDLE)) { /* blindfold */
@@ -3473,6 +3506,9 @@ STATIC_OVL NEARDATA const struct o_range o_ranges[] = {
     { "dragon scale mail", ARMOR_CLASS, GRAY_DRAGON_SCALE_MAIL,
       YELLOW_DRAGON_SCALE_MAIL },
     { "sword", WEAPON_CLASS, SHORT_SWORD, KATANA },
+	{ "firearm", 	WEAPON_CLASS, PISTOL, AUTO_SHOTGUN },
+	{ "gun", 	WEAPON_CLASS, PISTOL, AUTO_SHOTGUN },
+	{ "grenade", 	WEAPON_CLASS, FRAG_GRENADE, GAS_GRENADE },
     { "venom", VENOM_CLASS, BLINDING_VENOM, ACID_VENOM },
     { "gray stone", GEM_CLASS, LUCKSTONE, FLINT },
     { "grey stone", GEM_CLASS, LUCKSTONE, FLINT },
@@ -3486,8 +3522,10 @@ static struct alt_spellings {
     const char *sp;
     int ob;
 } spellings[] = {
+    { "pick", PICK_AXE },
     { "pickax", PICK_AXE },
     { "whip", BULLWHIP },
+    { "sabre", SABER },
     { "saber", SABER },
     { "smooth shield", SHIELD_OF_REFLECTION },
     { "grey dragon scale mail", GRAY_DRAGON_SCALE_MAIL },
@@ -3513,6 +3551,17 @@ static struct alt_spellings {
     { "grappling iron", GRAPPLING_HOOK },
     { "grapnel", GRAPPLING_HOOK },
     { "grapple", GRAPPLING_HOOK },
+    { "shell", SHOTGUN_SHELL },
+    { "shotshell", SHOTGUN_SHELL },
+    { "handgun", PISTOL },
+    { "hand-gun", PISTOL },
+    { "hand gun", PISTOL },
+    { "revolver", PISTOL },
+    { "bazooka", ROCKET_LAUNCHER },
+    { "bomb", FRAG_GRENADE },
+    { "grenade", FRAG_GRENADE },
+    { "hand grenade", FRAG_GRENADE },
+    { "dynamite", STICK_OF_DYNAMITE },
     { "protection from shape shifters", RIN_PROTECTION_FROM_SHAPE_CHAN },
     /* if we ever add other sizes, move this to o_ranges[] with "bag" */
     { "box", LARGE_BOX },

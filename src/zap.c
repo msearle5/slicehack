@@ -68,15 +68,27 @@ const char *const flash_types[] =       /* also used in buzzmu(mcastu.c) */
         "beam of psychic energy",
 
         "magical blast",        /* Megaspell equivalents must be 30-39 */
-      	"fireball",             /*Should be same as explosion names*/
-      	"ball of cold",
-      	"",
-      	"",
-      	"ball lightning",
-      	"poison gas cloud",
-      	"splash of acid",
-      	"sonicboom",
-      	"psionic explosion"
+        "fireball",             /*Should be same as explosion names*/
+        "ball of cold",
+        "stun field",
+        "purple deathball",
+        "ball lightning",
+        "poison gas cloud",
+        "splash of acid",
+        "sonicboom",
+        "psionic explosion",
+
+        "magic ray",	/* Spell equivalents must be 40-49 */
+        "heat ray",
+        "cold ray",
+        "stun ray",
+        "death ray",
+        "disintegration ray",
+        "",
+        "",
+        "",
+        ""
+
     };
 
     /* Yells for Megaspells*/
@@ -3834,9 +3846,9 @@ int dx, dy;
 /* used by buzz(); also used by munslime(muse.c); returns damage applied
    to mon; note: caller is responsible for killing mon if damage is fatal */
 int
-zhitm(mon, type, nd, ootmp)
+zhitm(mon, type, nd, flat, ootmp)
 register struct monst *mon;
-register int type, nd;
+register int type, nd, flat;
 struct obj **ootmp; /* to return worn armor for caller to disintegrate */
 {
     register int tmp = 0;
@@ -3846,13 +3858,13 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
       /* maybe get a bonus! */
 
     *ootmp = (struct obj *) 0;
+    tmp = flat ? flat : d(nd, 6);
     switch (abstype) {
     case ZT_MAGIC_MISSILE:
         if (resists_magm(mon)) {
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         break;
@@ -3861,7 +3873,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         if (resists_cold(mon))
             tmp += 7;
         if (spellcaster)
@@ -3881,7 +3892,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         if (!rn2(3)) {
@@ -3897,7 +3907,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         mon->mconf = 1;
@@ -3909,7 +3918,6 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         if (resists_fire(mon))
             tmp += d(nd, 3);
         if (spellcaster)
@@ -3919,10 +3927,11 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
         break;
     case ZT_SLEEP:
         tmp = 0;
-        (void) sleep_monst(mon, d(nd, 25),
+        (void) sleep_monst(mon, flat ? flat : d(nd, 25),
                            type == ZT_WAND(ZT_SLEEP) ? WAND_CLASS : '\0');
         break;
-    case ZT_DEATH:                              /* death/disintegration */
+    case ZT_DEATH:
+death_blast:                          /* death/disintegration */
         if (abs(type) != ZT_BREATH(ZT_DEATH)) { /* death */
             if (mon->data == &mons[PM_DEATH]) {
                 mon->mhpmax += mon->mhpmax / 2;
@@ -3971,8 +3980,13 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             sho_shieldeff = TRUE;
             tmp = 0;
             /* can still blind the monster */
-        } else
-            tmp = d(nd, 6);
+        } else {
+            if(abs(type) == ZT_RAYGUN(ZT_LIGHTNING)) {
+                if(type < 0) type = -1*ZT_BREATH(ZT_DEATH);
+                else type = ZT_BREATH(ZT_DEATH);
+                goto death_blast;
+            }
+        }
         if (spellcaster)
             tmp = spell_damage_bonus(tmp);
         if (!resists_blnd(mon)
@@ -3995,14 +4009,12 @@ struct obj **ootmp; /* to return worn armor for caller to disintegrate */
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         break;
     case ZT_ACID:
         if (resists_acid(mon)) {
             sho_shieldeff = TRUE;
             break;
         }
-        tmp = d(nd, 6);
         if (!rn2(6))
             acid_damage(MON_WEP(mon));
         if (!rn2(6))
@@ -4320,26 +4332,32 @@ int type, nd;
 xchar sx, sy;
 int dx, dy;
 {
-    dobuzz(type, nd, sx, sy, dx, dy, TRUE);
+    dobuzz(type, nd, sx, sy, dx, dy, TRUE, 0, 0);
 }
 
 /*
  * type ==   0 to   9 : you shooting a wand
  * type ==  10 to  19 : you casting a spell
  * type ==  20 to  29 : you breathing as a monster
+ * type ==  40 to  49 : you firing a raygun
  * type == -10 to -19 : monster casting spell
  * type == -20 to -29 : monster breathing at you
  * type == -30 to -39 : monster shooting a wand
+ * type == -40 to -49 : monster firing a raygun
  * called with dx = dy = 0 with vertical bolts
+ * a range of 0 means "random range rn1(7,7), which is the default behavior
+ * 0 flat damage means nd6 damage, nozero flat damage means that much damage only
  */
 void
-dobuzz(type, nd, sx, sy, dx, dy, say)
+dobuzz(type, nd, sx, sy, dx, dy, say, range, flat)
 register int type, nd;
 register xchar sx, sy;
 register int dx, dy;
+int range;
+int flat;
 boolean say; /* Announce out of sight hit/miss events if true */
 {
-    int range, abstype = abs(type) % 10;
+    int abstype = abs(type) % 10;
     register xchar lsx, lsy;
     struct monst *mon;
     coord save_bhitpos;
@@ -4355,13 +4373,13 @@ boolean say; /* Announce out of sight hit/miss events if true */
     else
         spell_type = 0;
 
-    fltxt = flash_types[(type <= -30) ? abstype : abs(type)];
+    fltxt = flash_types[(type <= -30 && type > -40) ? abstype : abs(type)];
     if (u.uswallow) {
         register int tmp;
 
         if (type < 0)
             return;
-        tmp = zhitm(u.ustuck, type, nd, &otmp);
+        tmp = zhitm(u.ustuck, type, nd, flat, &otmp);
         if (!u.ustuck)
             u.uswallow = 0;
         else
@@ -4376,7 +4394,8 @@ boolean say; /* Announce out of sight hit/miss events if true */
     }
     if (type < 0)
         newsym(u.ux, u.uy);
-    range = rn1(7, 7);
+    if (!range)
+        range = rn1(7,7);
     if (dx == 0 && dy == 0)
         range = 1;
     save_bhitpos = bhitpos;
@@ -4462,7 +4481,7 @@ boolean say; /* Announce out of sight hit/miss events if true */
                     delay_output();
                 } else {
                     boolean mon_could_move = mon->mcanmove;
-                    int tmp = zhitm(mon, type, nd, &otmp);
+                    int tmp = zhitm(mon, type, nd, flat, &otmp);
 
                     if (is_rider(mon->data)
                         && abs(type) == ZT_BREATH(ZT_DEATH)) {

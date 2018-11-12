@@ -29,7 +29,8 @@
 #define PN_CLERIC_SPELL (-12)
 #define PN_ESCAPE_SPELL (-13)
 #define PN_MATTER_SPELL (-14)
-#define PN_ALCHEMY (-15)
+#define PN_FIREARMS (-15)
+#define PN_ALCHEMY (-16)
 
 STATIC_DCL void FDECL(give_may_advance_msg, (int));
 STATIC_PTR int NDECL(practice);
@@ -42,7 +43,7 @@ STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
     0, DAGGER, KNIFE, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
     TWO_HANDED_SWORD, SCIMITAR, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL,
     PN_HAMMER, QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING,
-    CROSSBOW, DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
+    PN_FIREARMS, CROSSBOW, DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
     PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
     PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
     PN_ALCHEMY, PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING
@@ -54,7 +55,7 @@ STATIC_VAR NEARDATA const char *const odd_skill_names[] = {
     "two weapon combat", "riding", "polearms", "saber", "hammer", "whip",
     "attack spells", "healing spells", "divination spells",
     "enchantment spells", "clerical spells", "escape spells", "matter spells",
-    "alchemy"
+    "firearms", "alchemy"
 };
 /* indexed vis `is_martial() */
 STATIC_VAR NEARDATA const char *const barehands_or_martial[] = {
@@ -429,7 +430,9 @@ int x;
 }
 
 static NEARDATA const int rwep[] = {
-    ORB_OF_PERMAFROST, DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR,
+    ORB_OF_PERMAFROST,
+    FRAG_GRENADE, GAS_GRENADE, ROCKET, SILVER_BULLET, BULLET, SHOTGUN_SHELL,
+    DWARVISH_SPEAR, ELVEN_SPEAR, SPEAR,
     ORCISH_SPEAR, JAVELIN, THROWING_AXE,
     SHURIKEN, YA, ELVEN_ARROW, ARROW, ORCISH_ARROW,
     CROSSBOW_BOLT, ELVEN_DAGGER, DAGGER, ORCISH_DAGGER, KNIFE,
@@ -588,6 +591,29 @@ register struct monst *mtmp;
             case P_SLING:
                 propellor = (oselect(mtmp, SLING));
                 break;
+            case P_FIREARM:
+                if ((objects[rwep[i]].w_ammotyp) == WP_BULLET) {
+                    propellor = (oselect(mtmp, BFG));
+                    if (!propellor) propellor = (oselect(mtmp, HEAVY_MACHINE_GUN));
+                    if (!propellor) propellor = (oselect(mtmp, ASSAULT_RIFLE));
+                    if (!propellor) propellor = (oselect(mtmp, SUBMACHINE_GUN));
+                    if (!propellor) propellor = (oselect(mtmp, SNIPER_RIFLE));
+                    if (!propellor) propellor = (oselect(mtmp, RIFLE));
+                    if (!propellor) propellor = (oselect(mtmp, PISTOL));
+                    if (!propellor) propellor = (oselect(mtmp, FLINTLOCK));
+                } else if ((objects[rwep[i]].w_ammotyp) == WP_SHELL) {
+                    propellor = (oselect(mtmp, BFG));
+                    if (!propellor) propellor = (oselect(mtmp, AUTO_SHOTGUN));
+                    if (!propellor) propellor = (oselect(mtmp, SHOTGUN));
+                } else if ((objects[rwep[i]].w_ammotyp) == WP_ROCKET) {
+                    propellor = (oselect(mtmp, BFG));
+                    if (!propellor) propellor = (oselect(mtmp, ROCKET_LAUNCHER));
+                } else if ((objects[rwep[i]].w_ammotyp) == WP_GRENADE) {
+                    propellor = (oselect(mtmp, BFG));
+                    if (!propellor) propellor = (oselect(mtmp, GRENADE_LAUNCHER));
+                    if (!propellor) propellor = &zeroobj;  /* can toss grenades */
+                }
+            break;
             case P_CROSSBOW:
                 propellor = (oselect(mtmp, CROSSBOW));
             }

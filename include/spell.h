@@ -43,5 +43,7 @@ struct spell {
 #define ZT_SPELL(x) (10 + (x))
 #define ZT_BREATH(x) (20 + (x))
 #define ZT_MEGA(x)   (30+(x))
+#define ZT_RAYGUN(x)    (40+(x))
+#define ZT_MONWAND(x)   (-(30+(x)))
 
 #endif /* SPELL_H */

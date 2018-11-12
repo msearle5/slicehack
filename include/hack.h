@@ -387,6 +387,13 @@ enum explosion_types {
     EXPL_MAGICAL,
     EXPL_FIERY,
     EXPL_FROSTY,
+    EXPL_GRAY,
+    EXPL_LIME,
+    EXPL_YELLOW,
+    EXPL_BBLUE,
+    EXPL_MAGENTA,
+    EXPL_RED,
+    EXPL_CYAN,
     EXPL_MAX
 };
 

@@ -2197,8 +2197,8 @@ struct trap *trap;
 {
     if (!trap->tseen) {
         trap->tseen = 1;
-        newsym(trap->tx, trap->ty);
     }
+    newsym(trap->tx, trap->ty);
 }
 
 /* like seetrap() but overrides vision */

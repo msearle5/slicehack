@@ -1763,6 +1763,7 @@ struct obj **cobjp;
 int cindex, ccount; /* index of this container (1..N), number of them (N) */
 {
     struct obj *cobj = *cobjp;
+    int timepassed = 0;
 
     if (!cobj)
         return 0;
@@ -1801,7 +1802,21 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
 
     You("%sopen %s...", (!cobj->cknown || !cobj->lknown) ? "carefully " : "",
         the(xname(cobj)));
-    return use_container(cobjp, 0, (boolean) (cindex < ccount));
+
+    timepassed |= use_container(cobjp, 0, (boolean) (cindex < ccount));
+    if (multi < 0)
+        return 1;		/* chest trap */
+    else if (cobj->otyp == MASS_SHADOW_PISTOL) {
+        char qbuf[BUFSZ];
+        char c;
+        Sprintf(qbuf, "There is %s here, open it?",an(xname(cobj)));
+        c = ynq(qbuf);
+        if (c == 'q')
+            return (timepassed);
+        if (c == 'n')
+            return 0;
+        return use_massblaster(cobj);
+    }
 }
 
 /* loot a container on the floor or loot saddle from mon. */
@@ -2485,6 +2500,42 @@ struct obj *box;
 
 #undef Icebox
 
+STATIC_OVL
+char
+pick_bullet()
+{
+    winid tmpwin;
+    int n=0, how,count=0;
+    char buf[BUFSZ];
+    struct obj *otmp;
+    menu_item *selected;
+    anything any;
+
+    tmpwin = create_nhwindow(NHW_MENU);
+    start_menu(tmpwin);
+    any.a_void = 0;     /* zero out all bits */
+
+    Sprintf(buf, "Bullets");
+    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_BOLD, buf, MENU_UNSELECTED);
+    for(otmp = invent; otmp; otmp = otmp->nobj){
+        if((otmp->otyp >= DILITHIUM_CRYSTAL && otmp->otyp <= ROCK) || (otmp->otyp >= BULLET && otmp->otyp <= GAS_GRENADE)){
+            Sprintf1(buf, doname(otmp));
+            any.a_char = otmp->invlet;      /* must be non-zero */
+            add_menu(tmpwin, NO_GLYPH, &any,
+                otmp->invlet, 0, ATR_NONE, buf,
+                MENU_UNSELECTED);
+            count++;
+        }
+    }
+    end_menu(tmpwin, "Choose new mass source:");
+
+    how = PICK_ONE;
+    if(count) n = select_menu(tmpwin, how, &selected);
+    else You("don't have any bullets.");
+    destroy_nhwindow(tmpwin);
+    return ( n > 0 ) ? selected[0].item.a_char : 0;
+}
+
 /* used by askchain() to check for magic bag explosion */
 boolean
 container_gone(fn)
@@ -2542,6 +2593,29 @@ u_handsy()
 }
 
 static const char stashable[] = { ALLOW_COUNT, COIN_CLASS, ALL_CLASSES, 0 };
+
+int
+use_massblaster(obj)
+register struct obj *obj;
+{
+    struct obj *otmp;
+    char gemlet;
+    gemlet = pick_bullet();
+
+    for (otmp = invent; otmp; otmp = otmp->nobj) {
+        if(otmp->invlet == gemlet) break;
+    }
+    if (otmp) {
+        current_container = obj;
+        if (otmp->quan > 1)
+            otmp = splitobj(otmp, 1);
+        if (obj->cobj)
+            out_container(obj->cobj);
+        if (!obj->cobj)
+            in_container(otmp);
+        return 1;
+    } else return 0;
+}
 
 int
 use_container(objp, held, more_containers)

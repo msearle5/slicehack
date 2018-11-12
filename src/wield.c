@@ -609,8 +609,12 @@ const char *verb; /* "rub",&c */
     return TRUE;
 }
 
+/* Contains those parts of can_twoweapon() that DON'T change the game state.
+ * Can be called anywhere the code needs to know if the player is capable of
+ * wielding two weapons
+ **/
 int
-can_twoweapon()
+test_twoweapon()
 {
     struct obj *otmp;
 
@@ -646,11 +650,24 @@ can_twoweapon()
         /* [Note: NOT_WEAPON() check prevents ever getting here...] */
         ; /* must be life-saved to reach here; return FALSE */
     } else if (Glib || uswapwep->cursed) {
-        if (!Glib)
-            uswapwep->bknown = TRUE;
-        drop_uswapwep();
+        return FALSE;
     } else
         return TRUE;
+    return FALSE;
+}
+
+/* Contains those parts of can_twoweapon() that CAN change the game state.
+ * Should only be called when the player commits to wielding two weapons
+ **/
+int
+can_twoweapon()
+{
+    if (test_twoweapon) {
+        return TRUE;
+    }
+    if ((!Glib) && (uswapwep->cursed))
+        uswapwep->bknown = TRUE;
+    drop_uswapwep();
     return FALSE;
 }
 

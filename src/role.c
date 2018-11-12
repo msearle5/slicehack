@@ -2777,6 +2777,23 @@ role_init()
             mons[urole.nbnum].mflags3 |= M3_INFRAVISION;
     }
 
+    /* Fix up the unknown firearms descriptions */
+    if(Role_if(PM_PIRATE)) {
+        COPY_OBJ_DESCR(objects[FLINTLOCK], objects[HANDGUN]);
+        COPY_OBJ_DESCR(objects[PISTOL], objects[HANDGUN]);
+
+        COPY_OBJ_DESCR(objects[RIFLE], objects[LONG_GUN]);
+        COPY_OBJ_DESCR(objects[ASSAULT_RIFLE], objects[LONG_GUN]);
+        COPY_OBJ_DESCR(objects[SNIPER_RIFLE], objects[LONG_GUN]);
+        COPY_OBJ_DESCR(objects[SHOTGUN], objects[LONG_GUN]);
+        COPY_OBJ_DESCR(objects[AUTO_SHOTGUN], objects[LONG_GUN]);
+
+        COPY_OBJ_DESCR(objects[SUBMACHINE_GUN], objects[GUN]);
+
+        COPY_OBJ_DESCR(objects[HEAVY_MACHINE_GUN], objects[HEAVY_GUN]);
+        COPY_OBJ_DESCR(objects[GRENADE_LAUNCHER], objects[HEAVY_GUN]);
+    }
+
     /* Artifacts are fixed in hack_artifacts() */
 
     /* Success! */

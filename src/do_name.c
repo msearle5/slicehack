@@ -1266,8 +1266,8 @@ struct obj *
 weapon_oname(wpn)
 struct obj * wpn;
 {
-    /* Don't randomly name stacks. */
-    if (wpn->quan > 1)
+    /* Don't randomly name stacks, ammo or firearms. */
+    if ((wpn->quan > 1) || (is_ammo(wpn)) || (objects[wpn->otyp].oc_skill == P_FIREARM))
         return wpn;
 
     char basename[BUFSZ];

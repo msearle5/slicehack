@@ -27,6 +27,9 @@ STATIC_OVL NEARDATA const char *breathwep[] = {
     "psychic beam"
 };
 
+static const int dirx[8] = {0, 1, 1,  1,  0, -1, -1, -1},
+				 diry[8] = {1, 1, 0, -1, -1, -1,  0,  1};
+
 extern boolean notonhead; /* for long worms */
 STATIC_VAR int mesg_given; /* for m_throw()/thitu() 'miss' message */
 
@@ -85,6 +88,11 @@ const char *name; /* if null, then format `*objp' */
         else
             You("are hit by %s%s", onm, exclam(dam));
 
+        if (Reflecting && (obj->otyp == BLASTER_BOLT || obj->otyp == HEAVY_BLASTER_BOLT || obj->otyp == LASER_BEAM)){
+            (void) ureflects("But %s reflects from your %s!", "it");
+            return -1;
+        }
+
         if (is_acid && Acid_resistance) {
             pline("It doesn't seem to hurt you.");
         } else if (obj && obj->oclass == POTION_CLASS) {
@@ -134,12 +142,37 @@ int x, y;
         You_feel("full of sorrow.");
         create = 0;
     } else if (obj->otyp == CREAM_PIE || obj->oclass == VENOM_CLASS
-        || (ohit && obj->otyp == EGG))
+        || (ohit && obj->otyp == EGG) || is_bullet(obj))
         create = 0;
     else if (ohit && (is_multigen(obj) || obj->otyp == ROCK))
         create = !rn2(3);
     else
         create = 1;
+
+    /* Detonate rockets */
+    if (is_grenade(obj)) {
+        if (!ohit) {
+            create = 1; /* Don't destroy */
+            arm_bomb(obj, FALSE);
+        } else {
+            grenade_explode(obj, bhitpos.x, bhitpos.y, FALSE, 0);
+            obj = (struct obj *)0;
+        }
+    } else if (obj->otyp == BLASTER_BOLT) {
+        explode(bhitpos.x, bhitpos.y, context.mon_moving ? -3 : 3, d(3,6),
+            0, EXPL_RED);
+        obj = (struct obj *)0;
+    } else if (obj->otyp == HEAVY_BLASTER_BOLT) {
+        explode(bhitpos.x, bhitpos.y, context.mon_moving ? -3 : 3, d(3,10),
+            0, EXPL_FIERY);
+        obj = (struct obj *)0;
+    } else if (objects[obj->otyp].oc_dir & EXPLOSION) {
+            if (cansee(bhitpos.x,bhitpos.y))
+                pline("%s explodes in a ball of fire!", Doname2(obj));
+        explode(bhitpos.x, bhitpos.y, context.mon_moving ? -ZT_SPELL(ZT_FIRE) : ZT_SPELL(ZT_FIRE), d(3,8),
+            WEAPON_CLASS, EXPL_FIERY);
+        obj = (struct obj *)0;
+    }
 
     if (create && !((mtmp = m_at(x, y)) != 0 && mtmp->mtrapped
                     && (t = t_at(x, y)) != 0
@@ -164,8 +197,10 @@ int x, y;
                 retvalu = 0;
             }
         }
-    } else
-        obfree(obj, (struct obj *) 0);
+    } else {
+        if (obj)
+            obfree(obj, (struct obj *) 0);
+    }
     return retvalu;
 }
 
@@ -181,6 +216,7 @@ monmulti(mtmp, otmp, mwep)
 struct monst *mtmp;
 struct obj *otmp, *mwep;
 {
+    boolean mass_pistol = FALSE;
     int skill = (int) objects[otmp->otyp].oc_skill;
     int multishot = 1;
 
@@ -255,6 +291,50 @@ struct obj *otmp, *mwep;
             || (is_gnome(mtmp->data) && otmp->otyp == CROSSBOW_BOLT
                 && mwep->otyp == CROSSBOW))
             multishot++;
+
+        // if (mwep && objects[mwep->otyp].oc_rof && is_launcher(mwep))
+        // multishot += objects[mwep->otyp].oc_rof;
+        if (((is_blaster(otmp) && otmp == mwep) || ammo_and_launcher(otmp, mwep))
+            && objects[(mwep->otyp)].oc_rof && mwep->otyp != RAYGUN && mwep->altmode != WP_MODE_SINGLE)
+        {
+            if(mwep->otyp == BFG) {
+                if(objects[(otmp)->otyp].w_ammotyp == WP_BULLET)
+                    multishot += 2*(objects[(mwep->otyp)].oc_rof);
+                else if(objects[(otmp)->otyp].w_ammotyp == WP_SHELL)
+                    multishot += 1.5*(objects[(mwep->otyp)].oc_rof);
+                else if(objects[(otmp)->otyp].w_ammotyp == WP_GRENADE)
+                    multishot += 1*(objects[(mwep->otyp)].oc_rof);
+                else if(objects[(otmp)->otyp].w_ammotyp == WP_ROCKET)
+                    multishot += .5*(objects[(mwep->otyp)].oc_rof);
+                else
+                    multishot += (objects[(mwep->otyp)].oc_rof);
+            } else if (objects[(mwep->otyp)].oc_rof)
+                multishot += (objects[(mwep->otyp)].oc_rof - 1);
+            if (mwep->altmode == WP_MODE_BURST)
+                multishot = ((multishot > 5) ? (multishot / 3) : 1);
+        }
+        /* single shot, don't add anything */
+        if(is_blaster(otmp) && otmp == mwep) {
+            if((long)multishot > otmp->ovar1)
+                multishot = (int)otmp->ovar1;
+        } else if ((long)multishot > otmp->quan)
+            multishot = (int)otmp->quan;
+        if (multishot < 1)
+            multishot = 1;
+    }
+
+    if(is_blaster(otmp) && otmp == mwep){
+        if(otmp->otyp == MASS_SHADOW_PISTOL)
+            mass_pistol = TRUE;
+        otmp = mksobj(otmp->otyp == CUTTING_LASER ? LASER_BEAM :
+                otmp->otyp == ARM_BLASTER ? HEAVY_BLASTER_BOLT :
+                otmp->otyp == MASS_SHADOW_PISTOL ? otmp->cobj->otyp :
+                BLASTER_BOLT, TRUE, FALSE);
+        otmp->blessed = mwep->blessed;
+        otmp->cursed = mwep->cursed;
+        otmp->spe = mwep->spe;
+        otmp->quan = multishot;
+        mwep->ovar1 -= multishot;
     }
 
     if (otmp->quan < multishot)
@@ -298,7 +378,7 @@ struct obj *otmp, *mwep;
         if (!strcmp(trgbuf, "it"))
             Strcpy(trgbuf, humanoid(mtmp->data) ? "someone" : something);
         pline("%s %s %s%s%s!", Monnam(mtmp),
-              m_shot.s ? "shoots" : "throws", onm,
+              m_shot.s ? is_bullet(otmp) ? "fires" : "shoots" : "throws", onm,
               mtarg ? " at " : "", trgbuf);
         m_shot.o = otmp->otyp;
     } else {
@@ -715,6 +795,101 @@ register boolean verbose;
     }
     mesg_given = 0; /* a 'missile misses' message has not yet been shown */
 
+    /* pre-check for doors, walls and boundaries.
+       Also need to pre-check for bars regardless of direction;
+       the random chance for small objects hitting bars is
+       skipped when reaching them at point blank range */
+    if (!isok(bhitpos.x+dx,bhitpos.y+dy)
+        || IS_ROCK(levl[bhitpos.x+dx][bhitpos.y+dy].typ)
+        || closed_door(bhitpos.x+dx, bhitpos.y+dy)
+        || (levl[bhitpos.x + dx][bhitpos.y + dy].typ == IRONBARS &&
+            (hits_bars(&singleobj, bhitpos.x, bhitpos.y, bhitpos.x + dx, bhitpos.y + dy, 0, 0)))
+    ) {
+        struct rm *room = &levl[bhitpos.x+dx][bhitpos.y+dy];
+        boolean shopdoor=FALSE, shopwall=FALSE;
+        if ((closed_door(bhitpos.x+dx,bhitpos.y+dy) || room->typ == SDOOR) && singleobj && 
+            (singleobj->otyp == BLASTER_BOLT || singleobj->otyp == HEAVY_BLASTER_BOLT || singleobj->otyp == LASER_BEAM)) {
+            if (cansee(bhitpos.x+dx,bhitpos.y+dy))
+                (singleobj->otyp == LASER_BEAM) ?
+                    pline("The %s cuts the door into chunks!", xname(singleobj)) : 
+                    pline("The door is blown to splinters by the impact!");
+            if (*in_rooms(bhitpos.x+dx,bhitpos.y+dy,SHOPBASE)) {
+                add_damage(bhitpos.x+dx,bhitpos.y+dy, !context.mon_moving ? 400L : 0L);
+                shopwall = TRUE;
+            }
+            if(!context.mon_moving) watch_dig((struct monst *)0, bhitpos.x+dx,bhitpos.y+dy, TRUE);
+            room->typ = DOOR;
+            room->doormask = D_NODOOR;
+            unblock_point(bhitpos.x+dx,bhitpos.y+dy); /* vision */
+            doredraw();
+        } else if (IS_WALL(room->typ) && may_dig(bhitpos.x+dx,bhitpos.y+dy) && singleobj && 
+            ((singleobj->otyp == LASER_BEAM) || (singleobj->otyp == BLASTER_BOLT && !rn2(20)) || (singleobj->otyp == HEAVY_BLASTER_BOLT && !rn2(5)))) {
+            if (cansee(bhitpos.x+dx,bhitpos.y+dy))
+                (singleobj->otyp == LASER_BEAM) ?
+                    pline("The %s cuts the wall into chunks!", xname(singleobj)) : 
+                    pline("The wall blows apart from the impact!");
+            if (*in_rooms(bhitpos.x+dx,bhitpos.y+dy,SHOPBASE)) {
+                add_damage(bhitpos.x+dx,bhitpos.y+dy, !context.mon_moving ? 200L : 0L);
+                shopwall = TRUE;
+            }
+            if (!context.mon_moving)
+                watch_dig((struct monst *)0, bhitpos.x+dx,bhitpos.y+dy, TRUE);
+            if (level.flags.is_cavernous_lev && !in_town(bhitpos.x+dx,bhitpos.y+dy)) {
+                struct obj *otmp;
+                room->typ = CORR;
+                unblock_point(bhitpos.x+dx,bhitpos.y+dy); /* vision */
+                otmp = mksobj_at(ROCK, bhitpos.x+dx,bhitpos.y+dy, TRUE, FALSE);
+                otmp->quan = 20L+rnd(20);
+                otmp->owt = weight(otmp);
+                doredraw();
+            } else {
+                struct obj *otmp;
+                room->typ = DOOR;
+                room->doormask = D_NODOOR;
+                unblock_point(bhitpos.x+dx,bhitpos.y+dy); /* vision */
+                otmp = mksobj_at(ROCK, bhitpos.x+dx,bhitpos.y+dy, TRUE, FALSE);
+                otmp->quan = 20L+rnd(20);
+                otmp->owt = weight(otmp);
+                doredraw();
+            }
+        } else if (isok(bhitpos.x+dx,bhitpos.y+dy) && IS_ROCK(room->typ) && may_dig(bhitpos.x+dx,bhitpos.y+dy) && singleobj && (singleobj->otyp == LASER_BEAM)) {
+            struct obj *otmp;
+            if(cansee(bhitpos.x+dx,bhitpos.y+dy))
+                pline("The %s cuts the stone into chunks!", xname(singleobj));
+            if (*in_rooms(bhitpos.x+dx,bhitpos.y+dy,SHOPBASE)) {
+                add_damage(bhitpos.x+dx,bhitpos.y+dy, !context.mon_moving ? 200L : 0L);
+                shopwall = TRUE;
+            }
+            if(!context.mon_moving) watch_dig((struct monst *)0, bhitpos.x+dx,bhitpos.y+dy, TRUE);
+            room->typ = CORR;
+            unblock_point(bhitpos.x+dx,bhitpos.y+dy); /* vision */
+            otmp = mksobj_at(ROCK, bhitpos.x+dx,bhitpos.y+dy, TRUE, FALSE);
+            otmp->quan = 20L+rnd(20);
+            otmp->owt = weight(otmp);
+            doredraw();
+        } else if (isok(bhitpos.x+dx,bhitpos.y+dy) && (room->typ == IRONBARS) && singleobj && 
+            (singleobj->otyp == LASER_BEAM)) {
+            char numbars;
+            struct obj *otmp;
+            if (cansee(bhitpos.x+dx,bhitpos.y+dy))
+                pline("The %s cuts through the bars!", xname(singleobj));
+            levl[bhitpos.x][bhitpos.y].typ = CORR;
+            for(numbars = d(2,4)-1; numbars > 0; numbars--) {
+                otmp = mksobj_at(IRON_CHAIN, bhitpos.x, bhitpos.y, FALSE, FALSE);
+                otmp->spe = 0;
+                otmp->cursed = obj->blessed = FALSE;
+            }
+            newsym(bhitpos.x, bhitpos.y);
+        }
+        if (!context.mon_moving && (shopdoor || shopwall))
+            (singleobj->otyp == LASER_BEAM) ?
+                    pay_for_damage("cut into", FALSE) : 
+                    pay_for_damage("blast into", FALSE);
+        if (singleobj)
+            (void) drop_throw(singleobj, 0, bhitpos.x, bhitpos.y); /* may have been broken by bars */
+        return;
+    }
+
     /* Note: drop_throw may destroy singleobj.  Since obj must be destroyed
      * early to avoid the dagger bug, anyone who modifies this code should
      * be careful not to use either one after it's been freed.
@@ -725,7 +900,10 @@ register boolean verbose;
         bhitpos.x += dx;
         bhitpos.y += dy;
         if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
-            if (ohitmon(mtmp, singleobj, range, verbose))
+            if ((singleobj->otyp == LASER_BEAM || singleobj->otyp == BLASTER_BOLT || singleobj->otyp == HEAVY_BLASTER_BOLT) && mon_reflects(mtmp, (char *)0)) {
+                dx *= -1;
+                dy *= -1;
+            } else if (ohitmon(mon, singleobj, range, verbose))
                 break;
         } else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
             if (multi)
@@ -984,7 +1162,7 @@ struct attack  *mattk;
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp), breathwep[typ - 1]);
                 dobuzz((int) (-20 - (typ - 1)), (int)mattk->damn,
-                       mtmp->mx, mtmp->my, sgn(tbx), sgn(tby), FALSE);
+                       mtmp->mx, mtmp->my, sgn(tbx), sgn(tby), FALSE, 0, 0);
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some
                  * cunning; don't breath if the target fell asleep.
@@ -1366,6 +1544,7 @@ int whodidit;   /* 1==hero, 0=other, -1==just check whether it'll pass thru */
 
             hits = (oskill != -P_BOW && oskill != -P_CROSSBOW
                     && oskill != -P_DART && oskill != -P_SHURIKEN
+                    && (oskill != -P_FIREARM || obj_type == ROCKET)
                     && oskill != P_SPEAR
                     && oskill != P_KNIFE); /* but not dagger */
             break;

@@ -3,6 +3,14 @@
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
 
+#ifdef TEXTCOLOR
+# define COPY_OBJ_DESCR(o_dst,o_src) \
+            o_dst.oc_descr_idx = o_src.oc_descr_idx,\
+            o_dst.oc_color = o_src.oc_color
+#else
+# define COPY_OBJ_DESCR(o_dst,o_src) o_dst.oc_descr_idx = o_src.oc_descr_idx
+#endif
+
 #ifndef OBJ_H
 #define OBJ_H
 
@@ -56,6 +64,11 @@ struct obj {
     char oclass;    /* object class */
     char invlet;    /* designation in inventory */
     char oartifact; /* artifact array index */
+    schar 	altmode; 	/* alternate modes - eg. SMG, double Lightsaber */
+                /* WP_MODEs are in decreasing speed */
+#define WP_MODE_AUTO	0	/* Max firing speed */
+#define WP_MODE_BURST	1	/* 1/3 of max rate */
+#define WP_MODE_SINGLE 	2	/* Single shot */
 
     xchar where;        /* where the object thinks it is */
 #define OBJ_FREE 0      /* object not attached to anything */
@@ -90,6 +103,7 @@ struct obj {
 #define norevive oeroded2
     Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
     Bitfield(olocked, 1);     /* object is locked */
+#define oarmed olocked
     Bitfield(obroken, 1);     /* lock has been broken */
 #define degraded_horn obroken /* unicorn horn will poly to non-magic */
     Bitfield(otrapped, 1);    /* container is trapped */
@@ -105,6 +119,7 @@ struct obj {
     Bitfield(was_thrown, 1); /* thrown by hero since last picked up */
 
     Bitfield(material, 5); /* material this obj is made of */
+    Bitfield(yours, 1); /* obj is yours (eg. thrown by you) */
     Bitfield(in_use, 1); /* for magic items before useup items */
     Bitfield(bypass, 1); /* mark this as an object to be skipped by bhito() */
     Bitfield(cknown, 1); /* contents of container assumed to be known */
@@ -187,8 +202,14 @@ struct obj {
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == GEM_CLASS) \
      && objects[otmp->otyp].oc_skill >= -P_CROSSBOW              \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
-#define matching_launcher(a, l) \
-    ((l) && objects[(a)->otyp].oc_skill == -objects[(l)->otyp].oc_skill)
+#define is_grenade(otmp)    (objects[(otmp)->otyp].oc_skill == -P_FIREARM && \
+     objects[(otmp)->otyp].w_ammotyp == WP_GRENADE)
+#define matching_launcher(otmp, ltmp) \
+    ((ltmp) && (otmp) && \
+    ((objects[(otmp)->otyp].oc_skill == -objects[(ltmp)->otyp].oc_skill) && \
+    ((ltmp->otyp == BFG) || \
+    (ltmp->otyp == MASS_SHADOW_PISTOL && (otmp->otyp == ltmp->cobj->otyp)) || \
+    (objects[(otmp)->otyp].w_ammotyp & objects[(ltmp)->otyp].w_ammotyp))))
 #define ammo_and_launcher(a, l) (is_ammo(a) && matching_launcher(a, l))
 #define is_missile(otmp)                                          \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
@@ -207,8 +228,12 @@ struct obj {
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
      && objects[otmp->otyp].oc_skill <= -P_BOW)
+#define is_unpoisonable_firearm_ammo(otmp)	\
+    (is_bullet(otmp) || (otmp)->otyp == STICK_OF_DYNAMITE)
 #define is_poisonable(otmp)                         \
-    ((otmp->oclass == WEAPON_CLASS                   \
+    ((((otmp->oclass == WEAPON_CLASS || is_weptool(otmp)) && \
+     !is_launcher(otmp) && \
+     !is_unpoisonable_firearm_ammo(otmp)) \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
      && objects[otmp->otyp].oc_skill <= -P_BOW) \
      || otmp->oartifact==ART_GRIMTOOTH )
@@ -220,6 +245,15 @@ struct obj {
 #define is_multislot(otmp)       \
     (otmp->oclass == ARMOR_CLASS \
      && (popcount(objects[otmp->otyp].oc_armcat) > 1))
+#define is_blaster(otmp) \
+    ((otmp)->oclass == WEAPON_CLASS && \
+     objects[(otmp)->otyp].w_ammotyp == WP_BLASTER && \
+     objects[(otmp)->otyp].oc_skill == P_FIREARM)
+#define is_firearm(otmp) \
+    ((otmp)->oclass == WEAPON_CLASS && \
+     objects[(otmp)->otyp].oc_skill == P_FIREARM)
+#define is_bullet(otmp)	((otmp)->oclass == WEAPON_CLASS && \
+     objects[(otmp)->otyp].oc_skill == -P_FIREARM)
 #define is_shield(otmp)          \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat & ARM_SHIELD)

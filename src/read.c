@@ -526,6 +526,8 @@ struct obj *obj;
                           && (obj->known
                               || (obj->dknown
                                   && objects[obj->otyp].oc_name_known)));
+    if (is_blaster(obj) && (obj->recharged < 4 || (obj->otyp != HAND_BLASTER && obj->otyp != ARM_BLASTER)))
+        return TRUE;
     if (is_weptool(obj)) /* specific check before general tools */
         return FALSE;
     if (obj->oclass == TOOL_CLASS)
@@ -641,7 +643,7 @@ int curse_bless;
                 alter_cost(obj, 0L);
         }
 
-    } else if (obj->oclass == TOOL_CLASS) {
+    } else if (obj->oclass == TOOL_CLASS || is_blaster(obj)) {
         int rechrg = (int) obj->recharged;
 
         if (objects[obj->otyp].oc_charged) {
@@ -701,6 +703,36 @@ int curse_bless;
                 p_glow2(obj, NH_WHITE);
             }
             break;
+
+        case HAND_BLASTER:
+        case ARM_BLASTER:
+            if (obj->recharged > 4) {
+                obj->recharged = 4;
+            } else {
+                if (is_blessed)
+                    obj->ovar1 = 100L;
+                else if (is_cursed)
+                    obj->ovar1 = 10L;
+                else obj->ovar1 =
+                    80L + rn2(20);
+            }
+        break;
+        case MASS_SHADOW_PISTOL:
+            if (is_blessed)
+                obj->ovar1 = 1000L;
+            else if (is_cursed)
+                obj->ovar1 = 100L;
+            else
+                obj->ovar1 = 800L + rn2(200);
+        break;
+        case RAYGUN:
+            if(is_blessed)
+                obj->ovar1 = 160L;
+            else if (is_cursed)
+                obj->ovar1 = 10L;
+            else
+                obj->ovar1 = (8 + rn2(8))*10L;
+        break;
         case OIL_LAMP:
         case LANTERN:
             if (is_cursed) {

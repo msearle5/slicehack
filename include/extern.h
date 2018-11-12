@@ -306,6 +306,7 @@ E int NDECL(dig);
 #endif
 E int NDECL(holetime);
 E boolean FDECL(dig_check, (struct monst *, BOOLEAN_P, int, int));
+E void FDECL(dodigactualhole, (int, int, struct monst *, int, BOOLEAN_P, BOOLEAN_P ));
 E void FDECL(digactualhole, (int, int, struct monst *, int));
 E boolean FDECL(dighole, (BOOLEAN_P, BOOLEAN_P, coord *));
 E int FDECL(use_pick_axe, (struct obj *));
@@ -728,6 +729,7 @@ E void FDECL(panictrace_setsignals, (BOOLEAN_P));
 
 /* ### engrave.c ### */
 
+E const char *NDECL(randHaluWard);
 E char *FDECL(random_engraving, (char *, BOOLEAN_P));
 E void FDECL(wipeout_text, (char *, int, unsigned));
 E boolean FDECL(can_reach_floor, (BOOLEAN_P));
@@ -743,6 +745,7 @@ E void FDECL(make_engr_at, (int, int, const char *, long, XCHAR_P));
 E void FDECL(del_engr_at, (int, int));
 E int NDECL(freehand);
 E int NDECL(doengrave);
+E int FDECL(doengravewith, (struct obj *));
 E void NDECL(sanitize_engravings);
 E void FDECL(save_engravings, (int, int));
 E void FDECL(rest_engravings, (int));
@@ -769,6 +772,8 @@ E void FDECL(explode, (int, int, int, int, CHAR_P, int));
 E long FDECL(scatter, (int, int, int, unsigned int, struct obj *));
 E void FDECL(splatter_burning_oil, (int, int));
 E void FDECL(explode_oil, (struct obj *, int, int));
+E void FDECL(grenade_explode, (struct obj *, int, int, BOOLEAN_P, int));
+E void FDECL(arm_bomb, (struct obj *, BOOLEAN_P));
 
 /* ### extralev.c ### */
 
@@ -1940,6 +1945,7 @@ E int NDECL(doloot);
 E boolean FDECL(container_gone, (int (*)(OBJ_P)));
 E boolean NDECL(u_handsy);
 E int FDECL(use_container, (struct obj **, int, BOOLEAN_P));
+E int FDECL(use_massblaster, (struct obj *));
 E int FDECL(loot_mon, (struct monst *, int *, boolean *));
 E int NDECL(dotip);
 E boolean FDECL(is_autopickup_exception, (struct obj *, BOOLEAN_P));
@@ -2507,6 +2513,7 @@ E boolean FDECL(goodpos, (int, int, struct monst *, unsigned));
 E boolean FDECL(enexto, (coord *, XCHAR_P, XCHAR_P, struct permonst *));
 E boolean FDECL(enexto_core, (coord *, XCHAR_P, XCHAR_P,
                               struct permonst *, unsigned));
+E void FDECL(xpathto, (int,XCHAR_P,XCHAR_P,int (*)(genericptr_t,int,int),void *));
 E void FDECL(teleds, (int, int, BOOLEAN_P));
 E boolean FDECL(safe_teleds, (BOOLEAN_P));
 E boolean FDECL(teleport_pet, (struct monst *, BOOLEAN_P));
@@ -2542,6 +2549,7 @@ E void FDECL(unpoly_mon, (genericptr_t, long));
 E void NDECL(burn_away_slime);
 E void NDECL(nh_timeout);
 E void FDECL(fall_asleep, (int, BOOLEAN_P));
+E void FDECL(attach_bomb_blow_timeout, (struct obj *,int,BOOLEAN_P));
 E void FDECL(attach_egg_hatch_timeout, (struct obj *, long));
 E void FDECL(attach_fig_transform_timeout, (struct obj *));
 E void FDECL(kill_egg, (struct obj *));
@@ -2919,6 +2927,7 @@ E int NDECL(dowield);
 E int NDECL(doswapweapon);
 E int NDECL(dowieldquiver);
 E boolean FDECL(wield_tool, (struct obj *, const char *));
+E int NDECL(test_twoweapon);
 E int NDECL(can_twoweapon);
 E void NDECL(drop_uswapwep);
 E int NDECL(dotwoweapon);
@@ -3073,10 +3082,10 @@ E struct monst *FDECL(bhit, (int, int, int, enum bhit_call_types,
                              int (*)(MONST_P, OBJ_P),
                              int (*)(OBJ_P, OBJ_P), struct obj **));
 E struct monst *FDECL(boomhit, (struct obj *, int, int));
-E int FDECL(zhitm, (struct monst *, int, int, struct obj **));
+E int FDECL(zhitm, (struct monst *, int, int, int, struct obj **));
 E int FDECL(burn_floor_objects, (int, int, BOOLEAN_P, BOOLEAN_P));
 E void FDECL(buzz, (int, int, XCHAR_P, XCHAR_P, int, int));
-E void FDECL(dobuzz, (int, int, XCHAR_P, XCHAR_P, int, int, BOOLEAN_P));
+E void FDECL(dobuzz, (int, int, XCHAR_P, XCHAR_P, int, int, BOOLEAN_P, int, int));
 E void FDECL(melt_ice, (XCHAR_P, XCHAR_P, const char *));
 E void FDECL(start_melt_ice_timeout, (XCHAR_P, XCHAR_P, long));
 E void FDECL(melt_ice_away, (ANY_P *, long));

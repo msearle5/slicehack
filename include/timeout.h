@@ -33,8 +33,7 @@ enum timeout_types {
     FIG_TRANSFORM,
     MELT_ICE_AWAY,
     EXPLODE_OBJECT,
-    UNPOLY_MON,
-
+    BOMB_BLOW,      /* for grenades - merge with EXPLODE_OBJECT? */
     NUM_TIME_FUNCS
 };
 

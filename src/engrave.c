@@ -28,6 +28,260 @@ boolean wipe;
     return outbuf;
 }
 
+/* There is %s drawn here */
+static const char * haluWard[] =  {
+    "a series of disconnected lines", /* nondescript*/
+
+    /*DnD*/
+    "a cerulean weeping-willow", /* it's magic. Unlike the others, this one works. Keep in sync with engrave.h!*/
+
+    /*Special behavior, these move across the floor, keep in sync with allmain.c*/
+    "a north-east facing glider",
+    "a north-west facing glider",
+    "a south-west facing glider",
+    "a south-east facing glider",
+    "a square",
+
+    /*Special behavior, these identify drow houses*/
+    "a House Baenre crest",
+    "a House Barrison Del'Armgo crest",
+    "a House Xorlarrin crest",
+    "a House Faen Tlabbar crest",
+    "a House Mizzrym crest",
+    "a House Fey-Branche crest",
+    "a House Melarn crest",
+    "a House Duskryn crest",
+
+    /*Special behavior, these identify fallen drow houses*/
+    "a House Bront'tej crest",
+    "a House Celofraie crest",
+    "a House DeVir crest",
+    "a House Do'Urden crest",
+    "a House Elec'thil crest",
+    "a House H'Kar crest",
+    "a House Hun'ett crest",
+    "a House Masq'il'yr crest",
+    "a House Mlin'thobbyn crest",
+    "a House Oblodra crest",
+    "a House S'sril crest",
+    "a House Syr'thaerl crest",
+    "a House Teken'duis crest",
+    "a House Thaeyalla crest",
+    "a House X'larraz'et'soj crest",
+
+    /*Special behavior, these identify hedrow towers*/
+    "a Tower Sorcere crest",
+    "a Tower Magthere crest",
+    "a Tower Xaxox crest",
+
+    /* Special behavior, Last Bastion symbol */
+    "a Last Bastion insignia",
+
+    /* Special behavior, Lolth holy symbol */
+    "a silver spider-like star",
+
+    /* Special behavior, Kiaransalee holy symbol */
+    "a pair of silver-beringed hands",
+
+    /* Special behavior, Pen'a holy symbol */
+    "a silver matron",
+
+    /* Special behavior, Ver'tas holy symbol */
+    "a silver feather tearing a web",
+
+    /* Special behavior, Eilistraee holy symbol */
+    "a pair of dancing silver drow",
+
+    /* Special behavior, Ghaunadaur holy symbol */
+    "a faintly luminous purple eye",
+
+    /* eternal matriarch symbol */
+    "a crest of a lost house of Svartalfheim",
+
+    /* Eddergud holy symbol */
+    "an obsidian spiderweb",
+
+    /* Footprint */
+    "a footprint",
+
+    /* Hehe */
+    "The Yellow Sign",
+
+    /* Not quite */
+    "a heptagenarian",
+    "an octogram",
+    "a pentagrain",
+    "a circle of da Vinci",
+    "a hand making a rude gesture",
+    "a junior sign",
+    "a childish compound eye",
+    "a Sign of an Illegitimate Step-daughter",
+    "a cenotaph of a catgirl",
+    "a groovy rendition of the wings of Gargula",
+
+    /* books */
+    "a set of holy horns",	"a Summoning Dark mine-sign",	"a Long Dark mine-sign",
+    "a Following Dark mine-sign",	"a Closing Dark mine-sign",	"an Opening Dark mine-sign",
+    "a Breathing Dark mine-sign",	"a Speaking Dark mine-sign",	"a Catching Dark mine-sign",
+    "a Secret Dark mine-sign",	"a Calling Dark mine-sign",	"a Waiting Dark mine-sign",
+    "a florid crest dominated by a double-headed bat",
+    "a Guarding Dark mine-sign",	"the mark of the Caller of Eight", /* Discworld */
+    "a lidless eye", /* Lord of the Rings */
+    "a white tree", /* Gondor, Lord of the Rings */
+    "a triangle enclosing a circle and bisected by a line", /* Harry Potter */
+    "a set of three trefoils, the lower most inverted", /* describes the three of clubs. Too Many Magicians*/
+    "a Trump of Doom",	"a Sign of Chaos",	"a Pattern of Amber",	"a Ghostwheel",
+    "a mockingjay", /* Hunger Games */
+    "a Sharuan Mindharp", /* Star Wars expanded universe */
+    "a winged blade of light", /* Jedi Order symbol */
+
+    /* webcomics */
+    "a Court symbol",	"a Forest symbol",	"the sign of the Wandering Eye", /* Gunnerkrigg Court */
+    "a winged tower", /* Girl Genius */
+    "a stylized trilobite",
+    "a setting (rising?) sun", /* Dresden Codak */
+
+    /* anime and manga */
+    "a Robotech Defense Force insignia", /*...Robotech*/
+    "a Black Knights insignia", /* Code Geass */
+    "a rose crest", /* Revolutionary Girl Utena */
+    "an inverted triangle flanked by seven eyes", /* NGE */
+    "a laughing man", /* Ghost in the Shell */
+    "an alchemic array",	"a human transmutation circle", /* Fullmetal Alchemist */
+    "an asymmetric, stylized arrowhead, point upwards", /* Star Trek*/
+    "a set of three blades, the top blade straight, the dexter curved down, the sinister curved up",
+    "a white lotus", /* Avatar, the Last Airbender */
+
+    "a winged eye and a tear of blood", /*02, Kirby*/
+    "an angular S before a segmented circle",/*a screw attack symbol*/
+    "a stylized umbrella", /* Resident Evil */
+    "an Imperium Aquilas", /* Warhammer 40k */
+    "more dakka",
+    "a triangle composed of three smaller triangles",	"an eye and single tear", /*Zelda*/
+    "a circle enclosing four swirling lines",	"a flame inside a circle",
+    "a snowflake within a circle",	"an inverted triangle with a dot above each face, enclosed by a circle",
+    "a sign resembling an eyeless yin-yang",
+    "a circle surrounding a triangle of dots and another of triangles",
+
+    "a silhouette of a bat", /* Batman */
+
+    "a symbol of pain", /* DnD */
+    /* Planescape */
+    "a mimir",
+    "a symbol of torment",
+    "a circle enclosing two curved colliding arrows",
+    "a pair of triangles, drawn tip to tip,",
+    "a stylized beast",
+    "a triangle crowned by a single line",
+    "a simple image of many mountains",
+    "a sketch of a shining diamond",
+    "a tree-rune",
+    "an eight-toothed gear",
+    "a random scribble",
+    "a square with two small handles on opposite sides",
+    "a square enclosing a spiral",
+    "an eye with three inverted crosses",
+    "an infinity symbol crossed by a burning downwards arrow",
+    "a set of four nested triangles",
+    "a watchful eye blocking an upward arrow",
+    "a pitchfork thrust into the ground",
+
+    /* Zodiac */
+    "an Aries sign",
+    "a Taurus sign",
+    "a Gemini sign",
+    "a Cancer sign",
+    "a Leo sign",
+    "a Virgo sign",
+    "a Libra sign",
+    "a Scorpio sign",
+    "a Sagittarius sign",
+    "a Capricorn sign",
+    "an Aquarius sign",
+    "a Pisces sign",
+
+    "a heart pierced through with an arrow",
+    "a broken heart",
+    "a skull and crossed bones",
+    "a bad situation",
+    "a zorkmid",
+
+    "a diagram of the bridges of Konigsberg",
+
+    "a hand-mirror of Aphrodite",
+    "a shield and spear of Ares", /* alchemy/male/female */
+
+    "a black moon lilith sign",
+
+    "a window", /* op-sys*/
+    "a no symbol",
+    "a test pattern",
+    "a work of modern art",
+    "a flag of Neverland",
+    "a hyped-up duck dressed in a sailor's shirt and hat", /* Disney */
+    "a mouse with 2d ears",
+    "a set of three circles in the shape of a mouse's head",
+    "a meaningless coincidence",
+
+    /*Corporate Logos*/
+    "a stylized, fan-shaped seashell",
+    "a bitten apple",
+    "a pair of arches meeting to form an \"M\"",
+    "a Swoosh mark",
+
+    /* Digimon Adventure */
+    "a Crest of Courage",
+    "a Crest of Friendship",
+    "a Crest of Love",
+    "a Crest of Knowledge",
+    "a Crest of Purity",
+    "a Crest of Sincerity",
+    "a Crest of Hope",
+    "a Crest of Light",
+    "a Crest of Miracles",
+    "a Crest of Kindness",
+
+    "a Zeon crest", /* Mobile Suit Gundam */
+
+    /* Umineko no Naku Koro ni */
+    "the Ushiromiya family crest",
+    "the first magic circle of the moon",
+    "the third magic circle of Mars",
+    "the fifth magic circle of Mars",
+
+    "a dream of the Fallen",
+    "a sign of the world to come",
+    "a thousandfold eye",
+    "a set of five interlocked rings", /*Olympics logo*/
+    "a tree diagram",
+    "a running man", /* Exit */
+    "a running man holding a cane",
+    "a one-and-zero", /* Power toggle */
+    "a thick soup of mist",	"a pattern of squared circles",
+    "a void",	"a notable lack of images",	"a stark absence of pictures",	"nothing much",
+    "a convergence of parallel lines",	"a sphere", /* How did you manage that? */
+    "a yin-yang",	"a taijitu",/* Taoist */
+    "a hand of Eris", /* Discordian */
+    "a butterfly of death and rebirth",
+    "an ichthus",	"a Cross", /* Christian*/
+    "a wheel with eight spokes", /* Budhism */
+    "a fish with legs",	"a fat fish",	"a fish with tentacles, legs, and wings",
+    /* ichthus parodies/derivatives: darwin, buddha, and Cthulhu. */
+    "an Eye of Horus", /*...*/
+    "a device to make the happy man sad and the sad man happy", /*"This too shall pass"*/
+    "a set of seven concentric circles",
+    "a left-handed trefoil knot",
+    "a triskelion", /* Ancient Symbol */
+    "a rough circle enclosing an A", /* Anarchy */
+    "a Tree of Life", /* Kabbalah */
+    "a winged oak",
+    "a wheel cross",	"a labyrinth",	"sign of Shamash",
+    "a naudh rune", /* misery */
+    "an Eye of Providence",	"a pyramid surmounted by an eye", /* Christian */
+    "a one-way staircase",
+    "an 'a' encircled by its own tail" /* meta */
+};
+
 /* Partial rubouts for engraving characters. -3. */
 static const struct {
     char wipefrom;
@@ -80,6 +334,11 @@ static const struct {
                 { '6', "o" },
                 { '7', "/" },
                 { '8', "3o" } };
+
+const char *
+randHaluWard(){
+    return haluWard[rn2(sizeof(haluWard)/sizeof(haluWard[0]))];
+}
 
 /* degrade some of the characters in a string */
 void
@@ -477,9 +736,9 @@ static NEARDATA const char styluses[] = { ALL_CLASSES, ALLOW_NONE,
  * moonstone  -  6      (orthoclase)    * amber      -  2-2.5
  */
 
-/* return 1 if action took 1 (or more) moves, 0 if error or aborted */
 int
-doengrave()
+doengravewith(otmp)
+struct obj *otmp;
 {
     boolean dengr = FALSE;    /* TRUE if we wipe out the current engraving */
     boolean doblind = FALSE;  /* TRUE if engraving blinds the player */
@@ -503,8 +762,6 @@ doengrave()
     int len;          /* # of nonspace chars of new engraving text */
     int maxelen;      /* Max allowable length of engraving text */
     struct engr *oep = engr_at(u.ux, u.uy);
-    /* The current engraving */
-    struct obj *otmp; /* Object selected with which to engrave */
     char *writer;
 
     multi = 0;              /* moves consumed */
@@ -556,7 +813,8 @@ doengrave()
      * Edited by GAN 10/20/86 so as not to change weapon wielded.
      */
 
-    otmp = getobj(styluses, "write with");
+    if (!otmp)
+        otmp = getobj(styluses, "write with");
     if (!otmp) /* otmp == zeroobj if fingers */
         return 0;
 
@@ -907,6 +1165,14 @@ doengrave()
             return 0;
         }
         switch (otmp->otyp) {
+        case RAYGUN:
+            ptext = TRUE;
+            type = BURN;
+            if (!objects[otmp->otyp].oc_name_known)
+                doknown = TRUE;
+            if (!Blind)
+                doblind = TRUE;
+            break;
         case MAGIC_MARKER:
             if (otmp->spe <= 0)
                 Your("marker has dried out.");
@@ -1246,6 +1512,13 @@ doengrave()
             Your1(vision_clears);
     }
     return 1;
+}
+
+/* return 1 if action took 1 (or more) moves, 0 if error or aborted */
+int
+doengrave()
+{
+    doengravewith(NULL);
 }
 
 /* while loading bones, clean up text which might accidentally

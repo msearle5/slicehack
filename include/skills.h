@@ -42,6 +42,7 @@ enum p_skills {
     P_TRIDENT,
     P_LANCE,
     P_BOW,
+    P_FIREARM,
     P_SLING,
     P_CROSSBOW,
     P_DART,

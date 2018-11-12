@@ -1551,7 +1551,17 @@ register const char *let, *word;
              || (!strcmp(word, "use or apply")
                  /* Picks, axes, pole-weapons, bullwhips */
                  && ((otmp->oclass == WEAPON_CLASS
-                      && !is_pick(otmp) && !is_axe(otmp)
+                      && !is_pick(otmp) &&
+					  otyp != BFG &&
+					  otyp != RAYGUN &&
+					  otyp != SUBMACHINE_GUN &&
+					  otyp != AUTO_SHOTGUN &&
+					  otyp != ASSAULT_RIFLE &&
+					  otyp != ARM_BLASTER &&
+					  otyp != FRAG_GRENADE &&
+					  otyp != GAS_GRENADE &&
+					  otyp != STICK_OF_DYNAMITE &&
+                      !is_axe(otmp)
                       && !is_pole(otmp) && otyp != BULLWHIP
                       && otyp != RAZOR_WHIP)
                      || (otmp->oclass == POTION_CLASS
