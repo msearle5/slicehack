@@ -326,52 +326,44 @@ BOW("crossbow", None,          1, 45, 50, 40, 0, WOOD, P_CROSSBOW, HI_WOOD),
 
 /* Firearms */
  /*Needs encyc entry*/
-GUN("flintlock", "broken hand-crossbow",			0,  0, 0,  10,   50,  8, -2,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("pistol", "broken hand-crossbow",	   	   		0,  0, 0,  12,  100, 15,  1,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("submachine gun", "strange broken crossbow",   	0,  0, 0,  25,  250, 10,  3, -1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("heavy machine gun", "strange broken crossbow",	0,  1, 0, 100, 2000, 20,  8, -4, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("rifle", "broken crossbow",		   	   			0,  1, 0,  30,  150, 22, -1,  1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("assault rifle", "broken crossbow",	   			0,  0, 0,  40, 1000, 20,  5, -2, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("sniper rifle", "broken crossbow",	   			0,  1, 0,  50, 4000, 25, -3,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("shotgun", "broken crossbow",	   	   			0,  0, 0,  35,  200,  3, -1,  3,  WP_SHELL, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("auto shotgun", "strange broken crossbow",	   	0,  1, 0,  60, 1500,  3,  2,  0,  WP_SHELL, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("rocket launcher", "metal tube",  				0,  1, 0, 100, 3500, 20, -5, -4, WP_ROCKET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-GUN("grenade launcher", "strange broken crossbow", 	0,  0, 0,  55, 1500,  6, -3, -3,WP_GRENADE, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("flintlock", "broken hand-crossbow",            0,  0,  0,  10,   50,  8, -2,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("pistol", "broken hand-crossbow",               0,  0, 40,  12,  100, 15,  1,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("submachine gun", "strange broken crossbow",    0,  0, 10,  25,  250, 10,  3, -1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("heavy machine gun", "strange broken crossbow", 0,  1,  4, 100, 2000, 20,  8, -4, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("rifle", "broken crossbow",                     0,  1, 25,  30,  150, 22, -1,  1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("assault rifle", "broken crossbow",             0,  0,  8,  40, 1000, 20,  5, -2, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("sniper rifle", "broken crossbow",              0,  1,  2,  50, 4000, 25, -3,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("shotgun", "broken crossbow",                   0,  0, 20,  35,  200,  3, -1,  3,  WP_SHELL, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("auto shotgun", "strange broken crossbow",      0,  1,  4,  60, 1500,  3,  2,  0,  WP_SHELL, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("rocket launcher", "metal tube",                0,  1,  2, 100, 3500, 20, -5, -4, WP_ROCKET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("grenade launcher", "strange broken crossbow",  0,  0,  2,  55, 1500,  6, -3, -3,WP_GRENADE, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
 
-GUN("BFG", "ovoid device", 			   		0,  1, 0, 100, 3000,100,  3,  0,WP_ROCKET|WP_GRENADE|WP_BULLET|WP_SHELL|WP_ROCKET,
+GUN("BFG", "ovoid device",                          0,  1,5005,100, 3000,100,  3,  0,WP_ROCKET|WP_GRENADE|WP_BULLET|WP_SHELL|WP_ROCKET,
                                                                                                 SILVER, P_FIREARM, HI_SILVER), /*Needs tile*/
-GUN("handgun", "unfamiliar handgun",			0,  0, 0,  12,  100, 15,  1,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL),/*Needs tile*/
-GUN("gun", "unfamiliar gun",					0,  0, 0,  25,  250, 10,  3, -1, WP_BULLET, IRON, P_FIREARM, HI_METAL),/*Needs tile*/
-GUN("long gun", "unfamiliar long gun",			0,  1, 0,  30,  150, 22, -1,  1, WP_BULLET, IRON, P_FIREARM, HI_METAL),/*Needs tile*/
-GUN("heavy gun", "unfamiliar heavy gun",		0,  1, 0, 100, 2000, 20,  8, -4, WP_BULLET, IRON, P_FIREARM, HI_METAL),/*Needs tile*/
- /*Needs encyc entry*/
-GUN("hand blaster", "hard black handmirror",		0,  0, 0,  12, 1000, 10,  1,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_BLACK), /*Needs tile*/
-GUN("arm blaster",  "hard white bracer", 	   		0,  0, 0,  45, 4500, 15,  6,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_WHITE), /*Needs tile*/
-GUN("mass-shadow pistol",  "rectangular device",	0,  0, 0,  25, 4500, 10,  1,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_GRAY), /*Needs tile*/
-GUN("cutting laser","hard tan lozenge",    			0,  0, 0,  10, 1000,  3, -1,  3,WP_BLASTER, PLASTIC, P_FIREARM, CLR_YELLOW), /*Needs tile*/
+/* These are to give Pirates different descriptions of unidentified firearms */
+GUN("handgun", "unfamiliar handgun",                0,  0, 0,  12,  100, 15,  1,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("gun", "unfamiliar gun",                        0,  0, 0,  25,  250, 10,  3, -1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("long gun", "unfamiliar long gun",              0,  1, 0,  30,  150, 22, -1,  1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+GUN("heavy gun", "unfamiliar heavy gun",            0,  1, 0, 100, 2000, 20,  8, -4, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
+ /* Needs encyc entry */
+GUN("hand blaster", "hard black handmirror",        0,  0,10,  12, 1000, 10,  1,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_BLACK),  /*Needs tile*/
+GUN("arm blaster",  "hard white bracer",            0,  0, 2,  45, 4500, 15,  6,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_WHITE),  /*Needs tile*/
+GUN("mass-shadow pistol",  "rectangular device",    0,  0, 2,  25, 4500, 10,  1,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_GRAY),   /*Needs tile*/
+GUN("cutting laser","hard tan lozenge",             0,  0, 2,  10, 1000,  3, -1,  3,WP_BLASTER, PLASTIC, P_FIREARM, CLR_YELLOW), /*Needs tile*/
 
-GUN("raygun", "hard handle ending in glassy disks",	0,  0, 0,  45, 3000, 15,  1,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_BRIGHT_CYAN), /*Needs tile*/
-BULLET("bullet", "pellet",
-    0,  0,   1,   5, 8, 6, 0, WP_BULLET,   P,   METAL, -P_FIREARM, HI_METAL),/*Needs tile*/
-BULLET("silver bullet", "silver pellet",
-    0,  0,   1,  15, 8, 6, 0, WP_BULLET,   P, SILVER, -P_FIREARM, HI_SILVER),/*Needs tile*/
-BULLET("shotgun shell", "red tube",
-    0,  0,   1,  10,12, 6,10,  WP_SHELL,   P,   METAL, -P_FIREARM, CLR_RED),/*Needs tile*/
-BULLET("frag grenade", "green spheroid",
-    0,  0,   5, 350, 2, 2, 0,  WP_GRENADE, B,   IRON, -P_FIREARM, CLR_GREEN),/*Needs tile*/
-BULLET("gas grenade", "lime spheroid",
-    0,  0,   2, 350, 2, 2, 0,  WP_GRENADE, B,   IRON, -P_FIREARM, CLR_BRIGHT_GREEN),/*Needs tile*/
-BULLET("rocket", "firework",
-    0,  0,  20, 450,12,20, 0, WP_ROCKET,   E, SILVER, -P_FIREARM, CLR_BLUE),/*Needs tile*/
-BULLET("stick of dynamite", "red stick",
-    0,  0,  10, 150, 0, 0, 0,  WP_GENERIC, B,   PLASTIC, P_NONE, CLR_RED),/*Needs tile*/
+GUN("raygun", "hard handle ending in glassy disks",	0,  0, 1,  45, 3000, 15,  1,  0,WP_BLASTER, PLASTIC, P_FIREARM, CLR_BRIGHT_CYAN), /*Needs tile*/
 
-BEAM("blaster bolt", "ruby bolt",
-        0,  0, 1, 0, 6, 8, 0, WP_BLASTER,   E,   METAL, -P_FIREARM, CLR_RED),/*Needs tile*/
-BEAM("heavy blaster bolt", "scarlet bolt",
-        0,  0, 1, 0,10,12, 0, WP_BLASTER,   E,   METAL, -P_FIREARM, CLR_ORANGE),/*Needs tile*/
-BEAM("laser beam", "green bolt",
-        0,  0, 1, 0, 1, 1, 0, WP_BLASTER,   S,   METAL, -P_FIREARM, CLR_BRIGHT_GREEN),/*Needs tile*/
+BULLET("bullet", "pellet",                          0,  40,   1,   5, 8, 6, 0,       WP_BULLET, P,   METAL,  -P_FIREARM, HI_METAL),/*Needs tile*/
+BULLET("silver bullet", "silver pellet",            0,  2,    1,  15, 8, 6, 0,       WP_BULLET, P,   SILVER, -P_FIREARM, HI_SILVER),/*Needs tile*/
+BULLET("shotgun shell", "red tube",                 0,  20,   1,  10,12, 6,10,        WP_SHELL, P,   METAL,  -P_FIREARM, CLR_RED),/*Needs tile*/
+BULLET("frag grenade", "green spheroid",            0,  10,   5, 350, 2, 2, 0,      WP_GRENADE, B,   IRON,   -P_FIREARM, CLR_GREEN),/*Needs tile*/
+BULLET("gas grenade", "lime spheroid",              0,  5,    2, 350, 2, 2, 0,      WP_GRENADE, B,   IRON,   -P_FIREARM, CLR_BRIGHT_GREEN),/*Needs tile*/
+BULLET("rocket", "firework",                        0,  5,   20, 450,12,20, 0,       WP_ROCKET, E,   SILVER, -P_FIREARM, CLR_BLUE),/*Needs tile*/
+BULLET("stick of dynamite", "red stick",            0,  4,   10, 150, 0, 0, 0,      WP_GENERIC, B,   PLASTIC, P_NONE,    CLR_RED),/*Needs tile*/
+
+BEAM("blaster bolt", "ruby bolt",                   0,  0, 1, 0, 6, 8, 0,           WP_BLASTER, E,   METAL, -P_FIREARM, CLR_RED),/*Needs tile*/
+BEAM("heavy blaster bolt", "scarlet bolt",          0,  0, 1, 0,10,12, 0,           WP_BLASTER, E,   METAL, -P_FIREARM, CLR_ORANGE),/*Needs tile*/
+BEAM("laser beam", "green bolt",                    0,  0, 1, 0, 1, 1, 0,           WP_BLASTER, S,   METAL, -P_FIREARM, CLR_BRIGHT_GREEN),/*Needs tile*/
 
 #undef P
 #undef S
