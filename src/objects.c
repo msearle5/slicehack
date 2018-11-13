@@ -103,6 +103,11 @@ OBJECT(OBJ("strange object", None),
            BITS(kn, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, sub, metal),      \
            0, WEAPON_CLASS, prob, 0, wt,                            \
            cost, 2, 2, hitbon, 0, wt, color)
+#define BEAM(name,app,kn,prob,wt,cost,sdam,ldam,hitbon,ammotyp,typ,metal,sub,color) \
+    OBJECT( \
+        OBJ(name,app), BITS(kn,1,1,0,0,1,0,1,0,0,typ,sub,metal), \
+        0, WEAPON_CLASS, prob, 0, wt, \
+        cost, sdam, ldam, hitbon, ammotyp, wt, color )
 #define BULLET(name,app,kn,prob,wt,cost,sdam,ldam,hitbon,ammotyp,typ,metal,sub,color) \
     OBJECT( \
         OBJ(name,app), BITS(kn,1,1,0,0,1,0,0,0,0,typ,sub,metal), \
@@ -322,7 +327,6 @@ BOW("crossbow", None,          1, 45, 50, 40, 0, WOOD, P_CROSSBOW, HI_WOOD),
 /* Firearms */
  /*Needs encyc entry*/
 GUN("flintlock", "broken hand-crossbow",			0,  0, 0,  10,   50,  8, -2,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
-
 GUN("pistol", "broken hand-crossbow",	   	   		0,  0, 0,  12,  100, 15,  1,  0, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
 GUN("submachine gun", "strange broken crossbow",   	0,  0, 0,  25,  250, 10,  3, -1, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
 GUN("heavy machine gun", "strange broken crossbow",	0,  1, 0, 100, 2000, 20,  8, -4, WP_BULLET, IRON, P_FIREARM, HI_METAL), /*Needs tile*/
@@ -362,11 +366,11 @@ BULLET("rocket", "firework",
 BULLET("stick of dynamite", "red stick",
     0,  0,  10, 150, 0, 0, 0,  WP_GENERIC, B,   PLASTIC, P_NONE, CLR_RED),/*Needs tile*/
 
-BULLET("blaster bolt", "ruby bolt",
+BEAM("blaster bolt", "ruby bolt",
         0,  0, 1, 0, 6, 8, 0, WP_BLASTER,   E,   METAL, -P_FIREARM, CLR_RED),/*Needs tile*/
-BULLET("heavy blaster bolt", "scarlet bolt",
+BEAM("heavy blaster bolt", "scarlet bolt",
         0,  0, 1, 0,10,12, 0, WP_BLASTER,   E,   METAL, -P_FIREARM, CLR_ORANGE),/*Needs tile*/
-BULLET("laser beam", "green bolt",
+BEAM("laser beam", "green bolt",
         0,  0, 1, 0, 1, 1, 0, WP_BLASTER,   S,   METAL, -P_FIREARM, CLR_BRIGHT_GREEN),/*Needs tile*/
 
 #undef P
