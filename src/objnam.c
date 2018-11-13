@@ -1988,15 +1988,8 @@ unsigned doname_flags;
         switch (obj->oclass) {
         case WEAPON_CLASS:
             if (is_ammo(obj)) {
-                if (objects[obj->otyp].oc_skill == -P_BOW) {
-                    /* Ammo for a bow */
-                    Strcat(bp, " (in quiver)");
-                    break;
-                } else {
-                    /* Ammo not for a bow */
-                    Strcat(bp, " (in quiver pouch)");
-                    break;
-                }
+                /* Ammo */
+                Strcat(bp, " (selected ammo)");
             } else {
                 /* Weapons not considered ammo */
                 Strcat(bp, " (at the ready)");
@@ -3522,6 +3515,8 @@ static struct alt_spellings {
     const char *sp;
     int ob;
 } spellings[] = {
+    { "ID card", SCR_IDENTITY },
+    { "identify card", SCR_IDENTITY },
     { "pick", PICK_AXE },
     { "pickax", PICK_AXE },
     { "whip", BULLWHIP },

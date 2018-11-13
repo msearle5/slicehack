@@ -1746,7 +1746,7 @@ redo_menu:
                         makeplural(body_part(HAND)),
                         !uwep ? " (wielded)" : "");
             else if (!strcmp(word, "ready"))
-                Sprintf(qbuf, "empty quiver%s",
+                Sprintf(qbuf, "empty %s",
                         !uquiver ? " (nothing readied)" : "");
 
             if (ilet == '?' && !*lets && *altlets)

@@ -2928,7 +2928,10 @@ static const char *hallu_seasound[] = {
     "a dripping tap.",
     "something fishy happening.",
     "a gull asking for a bite of your sandwich.",
-    "a foghorn!"
+    "a foghorn!",
+    "a sea shell exploding!",
+    "a C-shell script running.",
+    "dancing in the rain."
 };
 
 /* Polymorph obj contents */
