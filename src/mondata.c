@@ -606,9 +606,9 @@ struct permonst *pm1, *pm2;
         return is_golem(pm2); /* even moreso... */
     if (is_mind_flayer(pm1))
         return is_mind_flayer(pm2);
-    if (let1 == S_KOBOLD || pm1 == &mons[PM_KOBOLD_ZOMBIE]
+    if (let1 == S_KOBOLD
         || pm1 == &mons[PM_KOBOLD_MUMMY])
-        return (let2 == S_KOBOLD || pm2 == &mons[PM_KOBOLD_ZOMBIE]
+        return (let2 == S_KOBOLD
                 || pm2 == &mons[PM_KOBOLD_MUMMY]);
     if (let1 == S_OGRE)
         return (let2 == S_OGRE);
@@ -636,8 +636,6 @@ struct permonst *pm1, *pm2;
     if (is_demon(pm1))
         return is_demon(pm2);
     if (is_undead(pm1)) {
-        if (let1 == S_ZOMBIE)
-            return (let2 == S_ZOMBIE);
         if (let1 == S_MUMMY)
             return (let2 == S_MUMMY);
         if (let1 == S_LICH)

@@ -205,6 +205,8 @@
 #define M4_REVIVE     0x00000040  /* corpses revive, like a troll */
 #define M4_HATESLIGHT 0x00000080  /* hates light, like a gremlin */
 #define M4_EVASIVE    0x00000100  /* teleports to avoid you, like a unicorn */
+#define M4_TWOHEADED  0x00000200  /* has two heads, like an ettin */
+#define M4_ROTTEN     0x00000400  /* prefers rotten meat, like a ghoul */
 
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */

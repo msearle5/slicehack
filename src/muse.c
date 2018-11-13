@@ -2154,9 +2154,6 @@ struct monst *mtmp;
             pline("%s passes out!", Monnam(mtmp));
         }
         m_useup(mtmp, otmp);
-        if (mtmp->data == &mons[PM_SKELETAL_PIRATE] && canseemon(mtmp))
-            pline("%s splatters out of the ribcage of %s.",
-                The(xname(otmp)), mon_nam(mtmp));
         return 2;
     case MUSE_POT_REFLECT:
         mpillmsg(mtmp, otmp);

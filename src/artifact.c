@@ -1920,7 +1920,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     return TRUE;
                 }
                 *dmgptr = 2 * mdef->mhp + FATAL_DAMAGE_MODIFIER;
-                if(mdef->data==&mons[PM_ETTIN] || mdef->data==&mons[PM_ETTIN_ZOMBIE])
+                if (two_headed(mdef->data))
                     pline("%s goes through both necks of %s at once like butter!",
                         wepdesc, mon_nam(mdef));
                 else
@@ -1943,7 +1943,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                     return TRUE;
                 }
                 *dmgptr = 2 * (Upolyd ? u.mh : u.uhp) + FATAL_DAMAGE_MODIFIER;
-                if(mdef->data==&mons[PM_ETTIN] || mdef->data==&mons[PM_ETTIN_ZOMBIE])
+                if (two_headed(mdef->data))
                     pline("%s goes through both your necks at once like butter!",
                         wepdesc);
                 else

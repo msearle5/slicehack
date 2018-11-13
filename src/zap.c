@@ -848,7 +848,7 @@ boolean by_hero;
     }
 
     if (cant_revive(&montype, TRUE, corpse)) {
-        /* make a zombie or doppelganger instead */
+        /* make a doppelganger instead */
         /* note: montype has changed; mptr keeps old value for newcham() */
         mtmp = makemon(&mons[montype], x, y, NO_MINVENT | MM_NOWAIT | MM_REVIVE);
         if (mtmp) {
@@ -860,9 +860,6 @@ boolean by_hero;
             if (mtmp->cham == PM_DOPPELGANGER) {
                 /* change shape to match the corpse */
                 (void) newcham(mtmp, mptr, FALSE, FALSE);
-            } else if (mtmp->data->mlet == S_ZOMBIE) {
-                mtmp->mhp = mtmp->mhpmax = 100;
-                mon_adjust_speed(mtmp, 2, (struct obj *) 0); /* MFAST */
             }
         }
     } else if (has_omonst(corpse)) {
@@ -1367,6 +1364,7 @@ int okind;
         break;
     case 0:
     case FLESH:
+    case BONE:
         /* there is no flesh type, but all food is type 0, so we use it */
         pm_index = PM_FLESH_GOLEM;
         material = "organic ";
@@ -1383,10 +1381,6 @@ int okind;
         pm_index = PM_ROPE_GOLEM;
         material = "cloth ";
         break;
-    case BONE:
-        pm_index = PM_SKELETON; /* nearest thing to "bone golem" */
-        material = "bony ";
-        break;
     case GOLD:
         pm_index = PM_GOLD_GOLEM;
         material = "gold ";
@@ -1400,9 +1394,9 @@ int okind;
         material = "paper ";
         break;
     case WAX:
-    		pm_index = PM_WAX_GOLEM;
-    		material = "wax ";
-    		break;
+        pm_index = PM_WAX_GOLEM;
+        material = "wax ";
+        break;
     default:
         /* if all else fails... */
         pm_index = PM_STRAW_GOLEM;

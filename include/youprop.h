@@ -335,7 +335,7 @@
  *   Contact-poisoned spellbooks                     [poison/sickness]
  *   Eating acidic/poisonous/mildly-old corpses      [poison/sickness]
  *   Eating a poisoned weapon while polyselfed       [poison/sickness]
- *   Engulfing a zombie or mummy (AT_ENGL in hmonas) [poison/sickness]
+ *   Engulfing a mummy (AT_ENGL in hmonas)           [poison/sickness]
  *   Quaffed potions of sickness, lit oil, acid      [poison/sickness]
  *   Pyrolisks' fiery gaze                           [fire damage]
  *   Any passive attack                              [most don't qualify]

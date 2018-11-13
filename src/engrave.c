@@ -854,7 +854,7 @@ struct obj *otmp;
         } else if (!levl[u.ux][u.uy].disturbed) {
             You("disturb the undead!");
             levl[u.ux][u.uy].disturbed = 1;
-            (void) makemon(&mons[PM_GHOUL], u.ux, u.uy, NO_MM_FLAGS);
+            (void) makemon(&mons[PM_HUMAN_MUMMY], u.ux, u.uy, NO_MM_FLAGS);
             exercise(A_WIS, FALSE);
             return 1;
         }

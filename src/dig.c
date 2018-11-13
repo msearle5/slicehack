@@ -940,7 +940,7 @@ coord *cc;
         if (!Blind)
             pline(Hallucination ? "Dude!  The living dead!"
                                 : "The grave's owner is very upset!");
-        (void) makemon(mkclass(S_ZOMBIE, 0), dig_x, dig_y, NO_MM_FLAGS);
+        (void) makemon(mkclass(S_MUMMY, 0), dig_x, dig_y, NO_MM_FLAGS);
         break;
     case 3:
         if (!Blind)

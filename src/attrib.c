@@ -265,7 +265,7 @@ register int num;
     (void) adjattrib(A_STR, -num, 1);
 }
 
-/* may kill you; cause is probably a zombie */
+/* may kill you; as used by zombies */
 void
 loseint(num)
 register int num;

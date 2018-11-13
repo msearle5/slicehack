@@ -539,10 +539,10 @@ MONSTER:'L',random
 MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
@@ -771,37 +771,37 @@ OBJECT:random,random
 # The resident nasty
 MONSTER:('&',"Orcus"),(33,15)
 # And its preferred companions
-MONSTER:('Z',"human zombie"),(32,15)
+MONSTER:('M',"human mummy"),(32,15)
 MONSTER:(' ',"shade"),(32,14)
 MONSTER:(' ',"shade"),(32,16)
-MONSTER:('Z',"ettin zombie"),(35,16)
-MONSTER:('Z',"ettin zombie"),(35,14)
-MONSTER:('Z',"skeleton"),(36,14)
-MONSTER:('Z',"skeleton"),(36,15)
+MONSTER:('M',"ettin mummy"),(35,16)
+MONSTER:('M',"ettin mummy"),(35,14)
+MONSTER:('M',"ettin mummy"),(36,14)
+MONSTER:('M',"ettin mummy"),(36,15)
 # Randomly placed companions
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"giant mummy"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
 MONSTER:(' ',"shade"),random
-MONSTER:('Z',"giant zombie"),random
-MONSTER:('Z',"giant zombie"),random
-MONSTER:('Z',"giant zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"ettin zombie"),random
-MONSTER:('Z',"skeleton"),random
-MONSTER:('Z',"skeleton"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"ettin mummy"),random
+MONSTER:('M',"giant mummy"),random
+MONSTER:('M',"giant mummy"),random
 # A few more for the party
 MONSTER:random,random
 MONSTER:random,random
@@ -869,7 +869,7 @@ MONSTER:(' ',"ghost"),(11,07)
 MONSTER:('&',"horned devil"),(10,05)
 MONSTER:'L',random
 MONSTER:'M',random
-MONSTER:'Z',random
+MONSTER:'M',random
 MONSTER:'M',random
 # Second part
 GEOMETRY:half-right,center
@@ -954,7 +954,7 @@ MONSTER:(' ',"ghost"),(37,07)
 MONSTER:('&',"horned devil"),(32,05)
 MONSTER:('&',"barbed devil"),(38,07)
 MONSTER:'L',random
-MONSTER:'Z',random
+MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
 #
@@ -1084,7 +1084,7 @@ MONSTER:'L',random
 MONSTER:'L',random
 MONSTER:'M',random
 MONSTER:'M',random
-MONSTER:'Z',random
+MONSTER:'M',random
 STAIR:(63,15),up
 # Teleporting to this level is allowed after the invocation creates its
 # entrance.  Force arrival in that case to be on rightmost third of level.

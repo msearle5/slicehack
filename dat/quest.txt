@@ -1976,7 +1976,7 @@ after all.  Prepare to die, %r!  You shall never regain
 "Your puny powers are no match for me, %c."
 %E
 %Cp Mon 00062
-"I shall have you turned into a zombie for my pleasure!"
+"Your puny powers are no match for me, %c."
 %E
 %Cp Mon 00063
 "Despair now, %r.  %d cannot help you."

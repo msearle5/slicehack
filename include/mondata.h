@@ -100,6 +100,8 @@
 /* return TRUE if the monster tends to revive */
 #define is_reviver(ptr) (((ptr)->mflags4 & M4_REVIVE) != 0L)
 #define is_evasive(ptr) (((ptr)->mflags4 & M4_EVASIVE) != 0L)
+#define two_headed(ptr) (((ptr)->mflags4 & M4_TWOHEADED) != 0L)
+#define prefers_rotten(ptr) (((ptr)->mflags4 & M4_ROTTEN) != 0L)
 #define is_elf(ptr) (((ptr)->mflags2 & M2_ELF) != 0L)
 #define is_dwarf(ptr) (((ptr)->mflags2 & M2_DWARF) != 0L)
 #define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)

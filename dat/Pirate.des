@@ -109,18 +109,18 @@ ENDMAP
 MONSTER: (' ',"ghost"),random
 MONSTER: (' ',"ghost"),random
 MONSTER: (' ',"ghost"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 
 GEOMETRY:center,center
@@ -178,7 +178,7 @@ DOOR:locked,(50,15)
 DOOR:locked,(52,15)
 
 # Shops
-REGION:(22,14,24,16),lit,"potion shop"
+REGION:(22,14,24,16),lit,"liquor store"
 OBJECT:('!',"booze"),(22,14)
 OBJECT:('!',"booze"),(23,14)
 OBJECT:('!',"booze"),(24,14)
@@ -398,15 +398,15 @@ ENDMAP
 #0         1         2   	   3	     4		   5		 6	       7
 
 MONSTER: (' ',"ghost"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 # Objects (lost flotsam).
 OBJECT:random,random
@@ -450,17 +450,17 @@ MONSTER: (' ',"ghost"),random
 MONSTER: (' ',"ghost"),random
 MONSTER: (' ',"ghost"),random
 MONSTER: ('&',"damned pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 GEOMETRY:center,center
 #0         1         2   	   3	     4		   5		 6	       7
@@ -689,24 +689,24 @@ OBJECT:random,random
 OBJECT:random,random
 # Random monsters.
 MONSTER:(' ',"Blackbeard's Ghost"),(36,08)
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:('Z',"human zombie"),random
-MONSTER:'Z',random
-MONSTER:'Z',random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:('M',"human mummy"),random
+MONSTER:'M',random
+MONSTER:'M',random
 MONSTER:('W',"wraith"),random
 MONSTER:('W',"wraith"),random
 MONSTER:('W',"wraith"),random
@@ -718,19 +718,19 @@ MONSTER:('W',"wraith"),random
 MONSTER:'W',random
 
 MONSTER: ('&',"damned pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 MONSTER: ('&',"damned pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 MONSTER: ('&',"damned pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 #
 #	The "fill" levels for the quest.
@@ -749,10 +749,10 @@ NOMAP
 STAIR: (20,00,75,20), (0,0,20,20), down
 
 MONSTER: (' ',"ghost"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 
 MONSTER: ('@',"soldier"),random
 MONSTER: ('@',"soldier"),random
@@ -813,15 +813,15 @@ MONSTER: (' ',"ghost"),random
 MONSTER: ('@',"sergeant"),random
 
 MONSTER: ('&',"damned pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
-MONSTER: ('Z',"skeletal pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
+MONSTER: ('@',"pirate"),random
 

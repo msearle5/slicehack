@@ -15,7 +15,6 @@ static void NDECL(doblitzlist);
 static int FDECL(get_tech_no,(int));
 static int FDECL(techeffects, (int));
 static void FDECL(hurtmon, (struct monst *,int));
-static int FDECL(mon_to_zombie, (int));
 STATIC_PTR int NDECL(tinker);
 STATIC_PTR int NDECL(draw_energy);
 static const struct innate_tech * NDECL(role_tech);
@@ -60,7 +59,6 @@ STATIC_OVL NEARDATA const char *tech_names[] = {
 	"sigil of control",
 	"sigil of tempest",
 	"sigil of discharge",
-	"raise zombies",
 	"revivification",
 	"ward against flame",
 	"ward against ice",
@@ -140,7 +138,6 @@ static const struct innate_tech
 		       {   0, 0, 0} },
 	#if 0
 	nec_tech[] = { {   1, T_REINFORCE, 1},
-		       {   1, T_RAISE_ZOMBIES, 1},
 		       {  10, T_POWER_SURGE, 1},
 		       {  15, T_SIGIL_TEMPEST, 1},
 		       {   0, 0, 0} },
@@ -1083,41 +1080,6 @@ tamedog(mtmp, (struct obj *) 0);
 		u_wipe_engr(2);
 		return(0);
 		break;
-            case T_RAISE_ZOMBIES:
-            	You("chant the ancient curse...");
-		for(i = -1; i <= 1; i++) for(j = -1; j <= 1; j++) {
-		    int corpsenm;
-
-		    if (!isok(u.ux+i, u.uy+j)) continue;
-		    for (obj = level.objects[u.ux+i][u.uy+j]; obj; obj = otmp) {
-			otmp = obj->nexthere;
-
-			if (obj->otyp != CORPSE) continue;
-			/* Only generate undead */
-			corpsenm = mon_to_zombie(obj->corpsenm);
-			if (corpsenm != -1 && !unique_corpstat(mtmp->data)) {
-			    /* Maintain approx. proportion of oeaten to cnutrit
-			     * so that the zombie's HP relate roughly to how
-			     * much of the original corpse was left.
-			     */
-			    if (obj->oeaten)
-				obj->oeaten =
-					eaten_stat(mons[corpsenm].cnutrit, obj);
-			    obj->corpsenm = corpsenm;
-			    mtmp = revive(obj, TRUE);
-			    if (mtmp) {
-				if (!resist(mtmp, SPBOOK_CLASS, 0, TELL)) {
-				   tamedog(mtmp, (struct obj *) 0);
-				   You("dominate %s!", mon_nam(mtmp));
-				} else setmangry(mtmp, TRUE);
-			    }
-			}
-		    }
-		}
-		nomul(-2); /* You need to recover */
-		nomovemsg = 0;
-		t_timeout = rn1(1000,500);
-		break;
             case T_REVIVE:
 		if (u.uswallow) {
 		    You("have no elbow room to work with!");
@@ -1812,28 +1774,6 @@ int oldlevel, newlevel;
 		}
 	}
 }
-
-int
-mon_to_zombie(monnum)
-int monnum;
-{
-	if ((&mons[monnum])->mlet == S_ZOMBIE) return monnum;  /* is already zombie */
-	if ((&mons[monnum])->mlet == S_KOBOLD) return PM_KOBOLD_ZOMBIE;
-	if ((&mons[monnum])->mlet == S_GNOME) return PM_GNOME_ZOMBIE;
-	if (is_orc(&mons[monnum])) return PM_ORC_ZOMBIE;
-	if (is_dwarf(&mons[monnum])) return PM_DWARF_ZOMBIE;
-	if (is_elf(&mons[monnum])) return PM_ELF_ZOMBIE;
-	if (is_human(&mons[monnum])) return PM_HUMAN_ZOMBIE;
-	if (monnum == PM_ETTIN) return PM_ETTIN_ZOMBIE;
-	if (is_giant(&mons[monnum])) return PM_GIANT_ZOMBIE;
-	if (is_dragon(&mons[monnum])) return PM_ZOMBIE_DRAGON;
-	/* Is it humanoid? */
-	if (!humanoid(&mons[monnum])) return (-1);
-	/* Otherwise,  return a ghoul or ghast */
-	if (!rn2(4)) return PM_GHAST;
-	else return PM_GHOUL;
-}
-
 
 /*WAC tinker code*/
 STATIC_PTR int

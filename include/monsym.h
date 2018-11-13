@@ -65,7 +65,7 @@ enum mon_class_types {
     S_WRAITH,
     S_XORN,
     S_YETI,
-    S_ZOMBIE,
+    S_Z,
     S_HUMAN,
     S_GHOST,
     S_GOLEM,
@@ -136,7 +136,7 @@ enum mon_class_types {
 #define DEF_WRAITH      'W'
 #define DEF_XORN        'X'
 #define DEF_YETI        'Y'
-#define DEF_ZOMBIE      'Z'
+#define DEF_Z           'Z'
 #define DEF_HUMAN       '@'
 #define DEF_GHOST       ' '
 #define DEF_GOLEM       '\''

@@ -1521,7 +1521,7 @@ register struct attack *mattk;
          * like standard level draining - it can't kill, doesn't
          * reduce max hp, and doesn't respect drain resistance.
          */
-        if (!cancelled && (zombie_target(pd) >= 0) && (rn2(6+magr->m_lev) <= magr->m_lev)) {
+        if (!cancelled && (rn2(6+magr->m_lev) <= magr->m_lev)) {
             int loss = 1+(rn2(15+magr->m_lev) <= magr->m_lev)+(rn2(25+magr->m_lev) <= magr->m_lev);
             int i;
             for(i = 0; i < loss; i++)

@@ -85,9 +85,9 @@ char *buf;
 {
     static const char *shirt_msgs[] = {
         /* Scott Bigham */
-      "I explored the Dungeons of Doom and all I got was this lousy T-shirt!",
+        "I explored the Dungeons of Doom and all I got was this lousy T-shirt!",
         "Is that Mjollnir in your pocket or are you just happy to see me?",
-      "It's not the size of your sword, it's how #enhance'd you are with it.",
+        "It's not the size of your sword, it's how #enhance'd you are with it.",
         "Madame Elvira's House O' Succubi Lifetime Customer",
         "Madame Elvira's House O' Succubi Employee of the Month",
         "Ludios Vault Guards Do It In Small, Dark Rooms",
@@ -103,7 +103,6 @@ char *buf;
         "Hel-LOOO, Nurse!",                                   /* Animaniacs */
         "=^.^=",
         "100% goblin hair - do not wash",
-        "Aberzombie and Fitch",
         "cK -- Cockatrice touches the Kop",
         "Don't ask me, I only adventure here",
         "Down with pants!",
@@ -128,7 +127,7 @@ char *buf;
         "Meat is Mordor",
         "Minetown Better Business Bureau",
         "Minetown Watch",
- "Ms. Palm's House of Negotiable Affection -- A Very Reputable House Of Disrepute",
+        "Ms. Palm's House of Negotiable Affection -- A Very Reputable House Of Disrepute",
         "Protection Racketeer",
         "Real men love Crom",
         "Somebody stole my Mojo!",
@@ -136,7 +135,6 @@ char *buf;
         "The Werewolves",
         "They Might Be Storm Giants",
         "Weapons don't kill people, I kill people",
-        "White Zombie",
         "You're killing me!",
         "Anhur State University - Home of the Fighting Fire Ants!",
         "FREE HUGS",
@@ -3148,7 +3146,7 @@ unpunish()
 
 /* some creatures have special data structures that only make sense in their
  * normal locations -- if the player tries to create one elsewhere, or to
- * revive one, the disoriented creature becomes a zombie
+ * revive one, the disoriented creature becomes a doppelganger
  */
 boolean
 cant_revive(mtype, revival, from_obj)
@@ -3160,7 +3158,7 @@ struct obj *from_obj;
     if (*mtype == PM_GUARD || (*mtype == PM_SHOPKEEPER && !revival)
         || *mtype == PM_HIGH_PRIEST || *mtype == PM_ALIGNED_PRIEST
         || *mtype == PM_ANGEL) {
-        *mtype = PM_HUMAN_ZOMBIE;
+        *mtype = PM_DOPPELGANGER;
         return TRUE;
     } else if (*mtype == PM_LONG_WORM_TAIL) { /* for create_particular() */
         *mtype = PM_LONG_WORM;

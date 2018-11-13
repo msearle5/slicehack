@@ -133,174 +133,35 @@ mon_sanity_check()
     }
 }
 
-
-/* return true if the monster can turn its victims into zombies when it
- * kills them. All zombies (by name - not just by being Z's) can do this.
- * A few other monsters can too - liches, at least.
- */
-boolean
-zombie_maker(pm)
-struct permonst *pm;
-{
-    if ((pm->mlet == S_ZOMBIE) && (strstr(pm->mname, "zombie")))
-        return TRUE;
-
-    if (pm->mlet == S_LICH)
-        return TRUE;
-
-    return FALSE;
-}
-
-/* return the monster index of the zombie monster which this monster could
- * be turned into. Or DEFUNCT_MONSTER if it cannot be zombified.
- */
-int
-zombie_target(pm)
-struct permonst *pm;
-{
-    int zom = DEFUNCT_MONSTER;
-    switch (pm->mlet) {
-        case S_KOBOLD:
-            zom = PM_KOBOLD_ZOMBIE;
-            break;
-        case S_KOP:
-            zom = PM_HUMAN_ZOMBIE;
-            break;
-        case S_HUMAN:
-            zom = (is_elf(pm) ? PM_ELF_ZOMBIE : PM_HUMAN_ZOMBIE);
-            break;
-        case S_GIANT:
-            if (pm == &mons[PM_ETTIN])
-                zom = PM_ETTIN_ZOMBIE;
-            else if (strstr(pm->mname, "giant"))
-                zom = PM_GIANT_ZOMBIE;
-            break;
-        case S_ORC:
-            if (pm == &mons[PM_HOBGOBLIN])
-                zom = PM_HOBGOBLIN_ZOMBIE;
-            else if (strstr(pm->mname, "goblin"))
-                zom = PM_GOBLIN_ZOMBIE;
-            else
-                zom = PM_ORC_ZOMBIE;
-            break;
-        case S_HUMANOID:
-            if (pm == &mons[PM_HOBBIT])
-                zom = PM_HOBBIT_ZOMBIE;
-            else if (pm == &mons[PM_PLANAR_PIRATE])
-                zom = PM_HUMAN_ZOMBIE;
-            else if (pm == &mons[PM_BUGBEAR])
-                zom = PM_BUGBEAR_ZOMBIE;
-            else if (strstr(pm->mname, "dwarf"))
-                zom = PM_DWARF_ZOMBIE;
-            else if (strstr(pm->mname, "flayer"))
-                zom = PM_MIND_FLAYER_ZOMBIE;
-            break;
-        case S_GNOME:
-            if (strstr(pm->mname, "gnoll"))
-                zom = PM_GNOLL_ZOMBIE;
-            else
-                zom = PM_GNOME_ZOMBIE;
-            break;
-        case S_RODENT:
-            if (strstr(pm->mname, "ratman"))
-                zom = PM_RATMAN_ZOMBIE;
-            break;
-        case S_NYMPH:
-            if (strstr(pm->mname, "nymph"))
-                zom = PM_NYMPH_ZOMBIE;
-            break;
-        case S_CENTAUR:
-            zom = PM_CENTAUR_ZOMBIE;
-            break;
-        case S_OGRE:
-            zom = PM_OGRE_ZOMBIE;
-            break;
-        case S_TROLL:
-            zom = PM_TROLL_ZOMBIE;
-            break;
-        case S_EEL:
-            if (pm == &mons[PM_MERFOLK])
-                zom = PM_HUMAN_ZOMBIE;
-            break;
-    }
-            
-    return zom;
-}
-
 /* convert the monster index of an undead to its living counterpart */
 int
 undead_to_corpse(mndx)
 int mndx;
 {
     switch (mndx) {
-    case PM_KOBOLD_ZOMBIE:
     case PM_KOBOLD_MUMMY:
         mndx = PM_KOBOLD;
         break;
-    case PM_DWARF_ZOMBIE:
     case PM_DWARF_MUMMY:
         mndx = PM_DWARF;
         break;
-    case PM_GNOME_ZOMBIE:
     case PM_GNOME_MUMMY:
         mndx = PM_GNOME;
         break;
-    case PM_ORC_ZOMBIE:
     case PM_ORC_MUMMY:
         mndx = PM_ORC;
         break;
-    case PM_ELF_ZOMBIE:
     case PM_ELF_MUMMY:
         mndx = PM_ELF;
         break;
-    case PM_HUMAN_ZOMBIE:
     case PM_HUMAN_MUMMY:
-    case PM_DRAUGR:
         mndx = PM_HUMAN;
         break;
-    case PM_GIANT_ZOMBIE:
     case PM_GIANT_MUMMY:
         mndx = PM_GIANT;
         break;
-    case PM_ETTIN_ZOMBIE:
     case PM_ETTIN_MUMMY:
         mndx = PM_ETTIN;
-        break;
-    case PM_ZOMBIE_DRAGON:
-        mndx = PM_RED_DRAGON;
-        break;
-    case PM_GOBLIN_ZOMBIE:
-        mndx = PM_GOBLIN;
-        break;
-    case PM_HOBGOBLIN_ZOMBIE:
-        mndx = PM_HOBGOBLIN;
-        break;
-    case PM_CENTAUR_ZOMBIE:
-        mndx = PM_CENTAUR;
-        break;
-    case PM_MIND_FLAYER_ZOMBIE:
-        mndx = PM_MIND_FLAYER;
-        break;
-    case PM_TROLL_ZOMBIE:
-        mndx = PM_TROLL;
-        break;
-    case PM_OGRE_ZOMBIE:
-        mndx = PM_OGRE;
-        break;
-    case PM_NYMPH_ZOMBIE:
-        mndx = PM_NYMPH;
-        break;
-    case PM_HOBBIT_ZOMBIE:
-        mndx = PM_HOBBIT;
-        break;
-    case PM_GNOLL_ZOMBIE:
-        mndx = PM_GNOLL;
-        break;
-    case PM_RATMAN_ZOMBIE:
-        mndx = PM_RATMAN;
-        break;
-    case PM_BUGBEAR_ZOMBIE:
-        mndx = PM_BUGBEAR;
         break;
     default:
         break;
@@ -461,25 +322,9 @@ unsigned corpseflags;
     case PM_HUMAN_MUMMY:
     case PM_GIANT_MUMMY:
     case PM_ETTIN_MUMMY:
-    case PM_KOBOLD_ZOMBIE:
-    case PM_DWARF_ZOMBIE:
-    case PM_GNOME_ZOMBIE:
-    case PM_ORC_ZOMBIE:
-    case PM_ELF_ZOMBIE:
-    case PM_HUMAN_ZOMBIE:
-    case PM_ZOMBIE_DRAGON:
-    case PM_DRAUGR:
-    case PM_GIANT_ZOMBIE:
-    case PM_ETTIN_ZOMBIE:
         num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
         obj = mkcorpstat(CORPSE, mtmp, &mons[num], x, y, corpstatflags);
-        obj->age -= 100; /* this is an *OLD* corpse */
-        break;
-    case PM_GHOUL:
-    case PM_GHAST:
-        corpstatflags |= CORPSTAT_INIT;
-        obj = mkcorpstat(CORPSE, mtmp, &mons[mndx], x, y, corpstatflags);
         obj->age -= 100; /* this is an *OLD* corpse */
         break;
     case PM_SILVER_GOLEM:
@@ -1845,13 +1690,6 @@ struct monst *magr, /* monster that is currently deciding where to move */
         return ALLOW_M|ALLOW_TM;
 
     /* Pirate patch. TODO: Clean this up */
-    if (magr->data == &mons[PM_SKELETAL_PIRATE] &&
-      is_mercenary(mdef->data))
-     	  return ALLOW_M|ALLOW_TM;
-   	else if (mdef->data == &mons[PM_SKELETAL_PIRATE] &&
-   		is_mercenary(magr->data))
-   	    return ALLOW_M|ALLOW_TM;
-
    	else if (magr->data == &mons[PM_DAMNED_PIRATE] &&
    		is_mercenary(mdef->data))
    	    return ALLOW_M|ALLOW_TM;
@@ -1868,11 +1706,6 @@ struct monst *magr, /* monster that is currently deciding where to move */
    	else if (magr->data == &mons[PM_PLANAR_PIRATE] &&
    		u.ukinghill)
    	    return ALLOW_M|ALLOW_TM;
-
-    /* zombies vs. zombifiable */
-    if ((zombie_maker(ma) && (zombie_target(md) >= 0)) ||
-        (zombie_maker(md) && (zombie_target(ma) >= 0)))
-        return ALLOW_M|ALLOW_TM;
 
     /* pets attack hostile monsters */
     else if (magr->mtame && !mdef->mpeaceful)
@@ -2347,25 +2180,6 @@ register struct monst *magr;
 
     if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph))
         unmap_object(mtmp->mx, mtmp->my);
-
-    /* If this is a zombifiable monster and was killed by a zombie-maker,
-     * rise again as a zombie.
-     */
-    tmp = zombie_target(mtmp->data);
-    if ((tmp >= 0) && (magr) && (magr != mtmp) && (zombie_maker(magr->data))) {
-        if (canspotmon(mtmp))
-            pline("%s rises again as a zombie!", Monnam(mtmp));
-        newcham(mtmp, &mons[tmp], FALSE, FALSE);
-        if (mtmp->data == &mons[tmp])
-            mtmp->cham = NON_PM;
-        else
-            mtmp->cham = tmp;
-        mtmp->mcanmove = 1;
-        mtmp->mfrozen = 0;
-        mtmp->mpeaceful = mtmp->mtame = FALSE;
-        newsym(mtmp->mx, mtmp->my);
-        return;
-    }
 
     m_detach(mtmp, mptr);
 }
@@ -4335,10 +4149,6 @@ struct permonst *mdat;
             case S_UNICORN:
                 You("detect a%s odor reminiscent of a stable.",
                     (mndx == PM_PONY) ? "n" : " strong");
-                msg_given = TRUE;
-                break;
-            case S_ZOMBIE:
-                You("smell rotting flesh.");
                 msg_given = TRUE;
                 break;
             case S_EEL:

@@ -46,13 +46,13 @@ MONSTER: ('q',"walrus"),random,hostile
 MONSTER: ('H',"frost giant"),random,hostile
 MONSTER: ('H',"frost giant"),random,hostile
 MONSTER: ('H',"frost giant"),random,hostile
-MONSTER: ('Z',"draugr"),random
-MONSTER: ('Z',"draugr"),random
-MONSTER: ('Z',"draugr"),random
-MONSTER: ('Z',"draugr"),random
-MONSTER: ('Z',"draugr"),random
-MONSTER: ('Z',"draugr"),random
-MONSTER: ('Z',"draugr"),random
+MONSTER: ('M',"giant mummy"),random
+MONSTER: ('M',"giant mummy"),random
+MONSTER: ('M',"giant mummy"),random
+MONSTER: ('M',"giant mummy"),random
+MONSTER: ('M',"giant mummy"),random
+MONSTER: ('M',"giant mummy"),random
+MONSTER: ('M',"giant mummy"),random
 # Boss
 MONSTER: ('Q',"Failure Eidolon"),(66,8)
 OBJECT: ('(',"Orb of Permafrost"),(66,8)

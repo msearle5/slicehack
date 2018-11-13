@@ -46,7 +46,7 @@ SHUFFLE: $object
 $place = { (04,02),(58,02),(04,14),(58,14) }
 SHUFFLE: $place
 
-$monster = monster: { 'L','N','E','H','M','O','R','T','X','Z' }
+$monster = monster: { 'L','N','E','H','M','O','R','T','X'}
 SHUFFLE: $monster
 
 
@@ -193,7 +193,7 @@ MONSTER:$monster[5],(31,06)
 MONSTER:$monster[6],(34,06)
 MONSTER:$monster[7],(37,06)
 MONSTER:$monster[8],(27,07)
-MONSTER:$monster[9],(30,07)
+MONSTER:$monster[7],(30,07)
 MONSTER:$monster[0],(33,07)
 MONSTER:$monster[1],(36,07)
 MONSTER:$monster[2],(28,08)
@@ -203,7 +203,7 @@ MONSTER:$monster[5],(27,09)
 MONSTER:$monster[6],(30,09)
 MONSTER:$monster[7],(33,09)
 MONSTER:$monster[8],(36,09)
-MONSTER:$monster[9],(28,10)
+MONSTER:$monster[7],(28,10)
 MONSTER:$monster[0],(31,10)
 MONSTER:$monster[1],(34,10)
 MONSTER:$monster[2],(37,10)
@@ -290,7 +290,7 @@ SHUFFLE: $object
 $place = { (09,08),(09,09),(09,10),(52,03),(52,15) }
 SHUFFLE: $place
 
-$monster = monster: { 'L','N','E','M','O','R','T','X','Z' }
+$monster = monster: { 'L','N','E','M','O','R','T','X' }
 
 
 TELEPORT_REGION:(64,03,75,20),(07,01,54,17),down
@@ -432,9 +432,9 @@ IF [25%] {
   MONSTER:('H',"titan"),(23,09),hostile,asleep
 }
 IF [50%] {
-  MONSTER:'Z',(23,09),asleep
+  MONSTER:'M',(23,09),asleep
 }
-MONSTER:'Z',(23,09),asleep
+MONSTER:'M',(23,09),asleep
 
 # monsters in the water around the castle
 MONSTER:(';',"shark"),random
@@ -459,7 +459,7 @@ MONSTER:$monster[4],(28,05)
 MONSTER:$monster[5],(30,05)
 MONSTER:$monster[6],(25,06)
 MONSTER:$monster[7],(27,06)
-MONSTER:$monster[8],(29,06)
+MONSTER:$monster[3],(29,06)
 MONSTER:$monster[0],(25,14)
 MONSTER:$monster[1],(27,14)
 MONSTER:$monster[2],(29,14)
@@ -468,7 +468,7 @@ MONSTER:$monster[4],(28,13)
 MONSTER:$monster[5],(30,13)
 MONSTER:$monster[6],(25,12)
 MONSTER:$monster[7],(27,12)
-MONSTER:$monster[8],(29,12)
+MONSTER:$monster[6],(29,12)
 
 # welcoming committee
 MONSTER:'D',(48,05)

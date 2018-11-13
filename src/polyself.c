@@ -84,7 +84,7 @@ set_uasmon()
     PROPSET(ANTIMAGIC, (dmgtype(mdat, AD_MAGM)
                         || mdat == &mons[PM_BABY_GRAY_DRAGON]
                         || dmgtype(mdat, AD_RBRE)));
-    PROPSET(SICK_RES, (mdat->mlet == S_FUNGUS || mdat == &mons[PM_GHOUL]));
+    PROPSET(SICK_RES, (mdat->mlet == S_FUNGUS || (prefers_rotten(mdat))));
 
     PROPSET(STUNNED, (mdat == &mons[PM_STALKER] || is_bat(mdat)));
     PROPSET(HALLUC_RES, dmgtype(mdat, AD_HALU));
@@ -1664,7 +1664,7 @@ int part;
     /* claw attacks are overloaded in mons[]; most humanoids with
        such attacks should still reference hands rather than claws */
     static const char not_claws[] = {
-        S_HUMAN,     S_MUMMY,   S_ZOMBIE, S_ANGEL, S_NYMPH,
+        S_HUMAN,     S_MUMMY,   S_ANGEL, S_NYMPH,
         S_QUANTMECH, S_ORC,    S_GIANT, /* quest nemeses */
         '\0' /* string terminator; assert( S_xxx != 0 ); */
     };

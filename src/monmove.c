@@ -1573,7 +1573,8 @@ postmov:
                     return 2; /* it died */
             }
 
-            if (ptr == &mons[PM_GHOUL] || ptr == &mons[PM_GHAST]) meatcorpse(mtmp);
+            if (prefers_rotten(ptr))
+                meatcorpse(mtmp);
 
             if (ptr == &mons[PM_BROWN_MOLD_WARRIOR] ||
                 ptr == &mons[PM_GREEN_MOLD_WARRIOR] ||

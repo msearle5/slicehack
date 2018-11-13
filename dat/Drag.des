@@ -124,15 +124,15 @@ TRAP:random,random
 TRAP:random,random
 TRAP:random,random
 # Random monsters.
-MONSTER:'Z' ,random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:'Z' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:'M' ,random,hostile
 MONSTER:('q',"chimera"),random,hostile
 
 #
@@ -189,11 +189,11 @@ OBJECT:random,random
 OBJECT:random,random
 # monsters.
 MONSTER:('@',"Slipscale the Betrayer"),(25,08)
-MONSTER:('Z', "zombie dragon"),random
-MONSTER:('Z', "zombie dragon"),random
-MONSTER:('Z', "zombie dragon"),random
-MONSTER:('Z', "zombie dragon"),random
-MONSTER:('Z', "zombie dragon"),random
+MONSTER:('D', "hydra"),random
+MONSTER:('D', "hydra"),random
+MONSTER:('D', "hydra"),random
+MONSTER:('D', "hydra"),random
+MONSTER:('D', "hydra"),random
 MONSTER:random,random
 MONSTER:random,random
 MONSTER:random,random
@@ -236,11 +236,11 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 #
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:('Z',"zombie dragon"),random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:('D', "hydra"),random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
 
 MAZE: "Dra-filb" , ' '
 INIT_MAP: mines, '.' , ' ' , true , true , unlit , true
@@ -266,13 +266,13 @@ TRAP: random, random
 TRAP: random, random
 TRAP: random, random
 #
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
-MONSTER:'Z' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile
+MONSTER:'M' ,random,hostile

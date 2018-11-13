@@ -276,7 +276,7 @@ ROOM: "ordinary" , random, random, random, random {
   OBJECT: random, random
   TRAP: random, random
   OBJECT: random,random
-  MONSTER: 'Z', random, hostile
+  MONSTER: 'M', random, hostile
 }
 
 ROOM: "ordinary" , random, random, random, random {

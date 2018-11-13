@@ -495,15 +495,11 @@ int how;
         u.ugrave_arise = PM_WRAITH;
     else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
-    else if (mptr == &mons[PM_GHOUL])
-        u.ugrave_arise = PM_GHOUL;
     else if (mptr == &mons[PM_BANSHEE])
         u.ugrave_arise = PM_BANSHEE;
     else if (mptr == &mons[PM_WORM_THAT_WALKS] ||
               mptr == &mons[PM_LORD_OF_WORMS])
         u.ugrave_arise = PM_WORM_THAT_WALKS;
-    else if (zombie_maker(mptr) && (zombie_target(youmonst.data) >= 0))
-		u.ugrave_arise = zombie_target(youmonst.data);
     else if (mptr == &mons[PM_SPECTRE] || u.ulevel > 15)
         u.ugrave_arise = PM_SPECTRE;
     /* this could happen if a Nazgul kills the hero
@@ -1266,8 +1262,7 @@ int how;
         }
     }
 
-    if (u.ugrave_arise >= LOW_PM && u.ugrave_arise != PM_GREEN_SLIME
-        && u.ugrave_arise != PM_SKELETAL_PIRATE) {
+    if (u.ugrave_arise >= LOW_PM && u.ugrave_arise != PM_GREEN_SLIME) {
         /* give this feedback even if bones aren't going to be created,
            so that its presence or absence doesn't tip off the player to
            new bones or their lack; it might be a lie if makemon fails */
@@ -1663,7 +1658,7 @@ const genericptr vptr2;
         /* S_ANT through S_ZOUTHERN correspond to lowercase monster classes,
            S_ANGEL through S_ZOMBIE correspond to uppercase, and various
            punctuation characters are used for classes beyond those */
-        if (mcls1 > S_ZOMBIE && mcls2 > S_ZOMBIE) {
+        if (mcls1 > S_Z && mcls2 > S_Z) {
             /* force a specific order to the punctuation classes that's
                different from the internal order;
                internal order is ok if neither or just one is punctuation
@@ -1673,9 +1668,9 @@ const genericptr vptr2;
             };
 
             if ((punct = index(punctclasses, mcls1)) != 0)
-                mcls1 = (schar) (S_ZOMBIE + 1 + (int) (punct - punctclasses));
+                mcls1 = (schar) (S_Z + 1 + (int) (punct - punctclasses));
             if ((punct = index(punctclasses, mcls2)) != 0)
-                mcls2 = (schar) (S_ZOMBIE + 1 + (int) (punct - punctclasses));
+                mcls2 = (schar) (S_Z + 1 + (int) (punct - punctclasses));
         }
         res = mcls1 - mcls2; /* class */
         if (res == 0) {

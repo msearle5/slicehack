@@ -888,24 +888,6 @@ register struct monst *mtmp;
         (void) mongets(mtmp, KNIFE);
         (void) mongets(mtmp, LONG_SWORD);
         break;
-    case S_ZOMBIE:
-        if (!rn2(4))
-            (void) mongets(mtmp, LIGHT_ARMOR);
-        if (!rn2(4))
-            (void) mongets(mtmp, (rn2(3) ? KNIFE : SHORT_SWORD));
-        if (mm == PM_SKELETAL_PIRATE) {
-        	  otmp = rn2(2) ? mksobj(SCIMITAR, FALSE, FALSE) :
-                mksobj(KNIFE, FALSE, FALSE);
-        	  curse(otmp);
-         		otmp->oeroded = 1;
-         		(void) mpickobj(mtmp, otmp);
-         		otmp = rn2(2) ? mksobj(HIGH_BOOTS, FALSE, FALSE) :
-                mksobj(JACKET, FALSE, FALSE);
-         		curse(otmp);
-         		otmp->oeroded2 = 1;
-         		(void) mpickobj(mtmp, otmp);
-         }
-        break;
     case S_LIZARD:
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
@@ -2075,13 +2057,13 @@ rndmonst()
     register struct permonst *ptr;
     register int mndx, ct, cap;
 
-   	if(u.ukinghill){ /* You have pirate quest artifact in open inventory */
-   		  if(rnd(100)>80){
-   			    if(In_endgame(&u.uz)) return &mons[PM_PLANAR_PIRATE];
-   			    else if(Inhell) return &mons[PM_DAMNED_PIRATE];
-   			    else return &mons[PM_SKELETAL_PIRATE];
-   		  }
-   	}
+    if (u.ukinghill){ /* You have pirate quest artifact in open inventory */
+          if(rnd(100)>80){
+                if(In_endgame(&u.uz)) return &mons[PM_PLANAR_PIRATE];
+                else if(Inhell) return &mons[PM_DAMNED_PIRATE];
+                else return &mons[PM_PIRATE];
+          }
+    }
 
     if (u.uz.dnum == quest_dnum && rn2(7) && (ptr = qt_montype()) != 0)
         return ptr;

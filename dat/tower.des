@@ -24,12 +24,12 @@ SHUFFLE: $niches
 LADDER:(11,05),down
 # The lord and his court
 MONSTER:('@',"Vlad the Impaler"),(06,05)
-MONSTER:'Z',$niches[0]
-MONSTER:'Z',$niches[1]
-MONSTER:'Z',$niches[2]
-MONSTER:'Z',$niches[3]
-MONSTER:'Z',$niches[4]
-MONSTER:'Z',$niches[5]
+MONSTER:'M',$niches[0]
+MONSTER:'M',$niches[1]
+MONSTER:'M',$niches[2]
+MONSTER:'M',$niches[3]
+MONSTER:'M',$niches[4]
+MONSTER:'M',$niches[5]
 # The doors
 DOOR:closed,(08,03)
 DOOR:closed,(10,03)
@@ -144,22 +144,22 @@ MONSTER:'D',(56,09)
 # The legions of Vlad...
 MONSTER:random,(12,05)
 MONSTER:random,(12,12)
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
 MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
 MONSTER:'M',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
-MONSTER:'Z',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
+MONSTER:'M',random
 MONSTER:'M',(35,10)
 MONSTER:'M',(35,08)
 MONSTER:'M',(43,10)

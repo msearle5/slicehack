@@ -2063,10 +2063,8 @@ struct monst *mon;
 {
     static char buf[BUFSZ];
     boolean wounded = ((!nonliving(mon->data) ||
-            /* Zombies and mummies (but not skeletons) have flesh */
-            ((mon->data->mlet == S_ZOMBIE && mon->data != &mons[PM_SKELETON])
-              || mon->data->mlet == S_MUMMY
-              || mon->data == &mons[PM_FLESH_GOLEM]))
+            /* Mummies and flesh golems have flesh */
+            mon->data->mlet == S_MUMMY || mon->data == &mons[PM_FLESH_GOLEM])
             && !vegetarian(mon->data));
 
     /* Able to detect wounds? */

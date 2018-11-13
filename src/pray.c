@@ -2177,12 +2177,12 @@ struct obj *obj;
             adjalign(-3);
         for(i=0; i<2+rnl(6); i++) {
             static const int mclasses[] = {
-                S_ZOMBIE,   S_ZOMBIE,   S_ZOMBIE,
+                S_MUMMY,   S_MUMMY,   S_MUMMY,
                 S_MUMMY,    S_MUMMY,    S_IMP,
-                S_ZOMBIE,   S_ZOMBIE,  S_GHOST,
+                S_MUMMY,   S_MUMMY,  S_GHOST,
                 S_DEMON,    S_LICH
             };
-            int mclass = S_ZOMBIE;
+            int mclass = S_MUMMY;
             int mindex = min(u.ulevel, rn2((i+1)*2));
             if (mindex < sizeof(mclasses)/sizeof(mclasses[0]))
                 mclass = mclasses[mindex];
@@ -2483,7 +2483,6 @@ int once, range, xlev;
                     xlev += 2; /*FALLTHRU*/
                 case S_MUMMY:
                     xlev += 2; /*FALLTHRU*/
-                case S_ZOMBIE:
                     if (u.ulevel >= xlev && !resist(mtmp, '\0', 0, NOTELL)) {
                         if (u.ualign.type == A_CHAOTIC) {
                             mtmp->mpeaceful = 1;

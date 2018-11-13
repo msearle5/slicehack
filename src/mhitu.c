@@ -1421,7 +1421,7 @@ register struct attack *mattk;
          * If it succeeds it will drain INT temporarily and may
          * confuse.
          */
-        if ((zombie_target(youmonst.data) >= 0) && (rn2(6+mdat->mlevel) <= mdat->mlevel)) {
+        if ((rn2(6+mdat->mlevel) <= mdat->mlevel)) {
             int loss = 1+(rn2(15+mdat->mlevel) <= mdat->mlevel)+(rn2(25+mdat->mlevel) <= mdat->mlevel);
             loseint(loss);
             if (loss > 1) {
