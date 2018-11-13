@@ -778,6 +778,10 @@ MONSTER:('M',"ettin mummy"),(35,16)
 MONSTER:('M',"ettin mummy"),(35,14)
 MONSTER:('M',"ettin mummy"),(36,14)
 MONSTER:('M',"ettin mummy"),(36,15)
+MONSTER:('Z',"ettin zombie"),(35,16)
+MONSTER:('Z',"ettin zombie"),(35,14)
+MONSTER:('Z',"skeleton"),(36,14)
+MONSTER:('Z',"skeleton"),(36,15)
 # Randomly placed companions
 MONSTER:('M',"ettin mummy"),random
 MONSTER:('M',"giant mummy"),random
@@ -802,6 +806,20 @@ MONSTER:('M',"ettin mummy"),random
 MONSTER:('M',"ettin mummy"),random
 MONSTER:('M',"giant mummy"),random
 MONSTER:('M',"giant mummy"),random
+MONSTER:('Z',"giant zombie"),random
+MONSTER:('Z',"giant zombie"),random
+MONSTER:('Z',"giant zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"human zombie"),random
+MONSTER:('Z',"human zombie"),random
+MONSTER:('Z',"human zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"ettin zombie"),random
+MONSTER:('Z',"skeleton"),random
+MONSTER:('Z',"skeleton"),random
 # A few more for the party
 MONSTER:random,random
 MONSTER:random,random

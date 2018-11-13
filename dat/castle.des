@@ -292,7 +292,6 @@ SHUFFLE: $place
 
 $monster = monster: { 'L','N','E','M','O','R','T','X' }
 
-
 TELEPORT_REGION:(64,03,75,20),(07,01,54,17),down
 TELEPORT_REGION:(01,01,07,18),(07,01,75,20),up
 STAIR:(66,05,75,20),(07,01,66,20), up
@@ -435,6 +434,7 @@ IF [50%] {
   MONSTER:'M',(23,09),asleep
 }
 MONSTER:'M',(23,09),asleep
+
 
 # monsters in the water around the castle
 MONSTER:(';',"shark"),random

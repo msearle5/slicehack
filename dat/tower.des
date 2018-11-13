@@ -30,6 +30,7 @@ MONSTER:'M',$niches[2]
 MONSTER:'M',$niches[3]
 MONSTER:'M',$niches[4]
 MONSTER:'M',$niches[5]
+
 # The doors
 DOOR:closed,(08,03)
 DOOR:closed,(10,03)
