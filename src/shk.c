@@ -2397,23 +2397,13 @@ struct monst *shkp;
 boolean quietly;
 {
     /* for unique situations */
-    if (ESHK(shkp)->shoptype == CANDLESHOP
-        && obj->otyp == CANDELABRUM_OF_INVOCATION) {
+    if (is_invocation(obj)) {
         if (!quietly) {
-            if (is_izchak(shkp, TRUE) && !u.uevent.invoked) {
+            if (!u.uevent.invoked) {
                 if (Deaf || muteshk(shkp)) {
-                    pline("%s seems %s that you want to sell that.",
-                          Shknam(shkp),
-                          (obj->spe < 7) ? "horrified" : "concerned");
+                    pline("%s seems concerned that you want to sell that.", Shknam(shkp));
                 } else {
                     verbalize("No thanks, I'd hang onto that if I were you.");
-                    if (obj->spe < 7)
-                        verbalize(
-                             "You'll need %d%s candle%s to go along with it.",
-                                (7 - obj->spe), (obj->spe > 0) ? " more" : "",
-                                  plur(7 - obj->spe));
-                    /* [what if hero is already carrying enough candles?
-                       should Izchak explain how to attach them instead?] */
                 }
             } else {
                 if (!Deaf && !muteshk(shkp))

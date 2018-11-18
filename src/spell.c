@@ -30,7 +30,6 @@
 STATIC_DCL int FDECL(spell_let_to_idx, (CHAR_P));
 STATIC_DCL boolean FDECL(cursed_book, (struct obj * bp));
 STATIC_DCL boolean FDECL(confused_book, (struct obj *));
-STATIC_DCL void FDECL(deadbook, (struct obj *));
 STATIC_PTR int NDECL(learn);
 STATIC_DCL boolean NDECL(rejectcasting);
 STATIC_DCL boolean FDECL(getspell, (int *));
@@ -185,7 +184,7 @@ struct obj *spellbook;
 {
     boolean gone = FALSE;
 
-    if (!rn2(3) && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
+    if (!rn2(3) && !is_invocation(spellbook)) {
         spellbook->in_use = TRUE; /* in case called from learn */
         pline(
          "Being confused you have difficulties in controlling your actions.");
@@ -201,151 +200,6 @@ struct obj *spellbook;
             spellbook == context.spbook.book ? "next" : "first");
     }
     return gone;
-}
-
-/* special effects for The Book of the Dead */
-STATIC_OVL void
-deadbook(book2)
-struct obj *book2;
-{
-    struct monst *mtmp, *mtmp2;
-    coord mm;
-    int pm = PM_JUIBLEX;
-
-    You("turn the pages of the Book of the Dead...");
-    makeknown(SPE_BOOK_OF_THE_DEAD);
-    /* KMH -- Need ->known to avoid "_a_ Book of the Dead" */
-    book2->known = 1;
-    if (invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
-        register struct obj *otmp;
-        register boolean arti1_primed = FALSE, arti2_primed = FALSE,
-                         arti_cursed = FALSE;
-
-        if (book2->cursed) {
-            pline_The("runes appear scrambled.  You can't read them!");
-            return;
-        }
-
-        if (!u.uhave.bell || !u.uhave.menorah) {
-            pline("A chill runs down your %s.", body_part(SPINE));
-            if (!u.uhave.bell)
-                You_hear("a faint chime...");
-            if (!u.uhave.menorah)
-                pline("Vlad's doppelganger is amused.");
-            return;
-        }
-
-        for (otmp = invent; otmp; otmp = otmp->nobj) {
-            if (otmp->otyp == CANDELABRUM_OF_INVOCATION && otmp->spe == 7
-                && otmp->lamplit) {
-                if (!otmp->cursed)
-                    arti1_primed = TRUE;
-                else
-                    arti_cursed = TRUE;
-            }
-            if (otmp->otyp == BELL_OF_OPENING
-                && (moves - otmp->age) < 5L) { /* you rang it recently */
-                if (!otmp->cursed)
-                    arti2_primed = TRUE;
-                else
-                    arti_cursed = TRUE;
-            }
-        }
-
-        if (arti_cursed) {
-            pline_The("invocation fails!");
-            pline("At least one of your artifacts is cursed...");
-        } else if (arti1_primed && arti2_primed) {
-            unsigned soon =
-                (unsigned) d(2, 6); /* time til next intervene() */
-
-            /* successful invocation */
-            mkinvokearea();
-            u.uevent.invoked = 1;
-            /* in case you haven't killed the Wizard yet, behave as if
-               you just did */
-            u.uevent.udemigod = 1; /* wizdead() */
-            if (!u.udg_cnt || u.udg_cnt > soon)
-                u.udg_cnt = soon;
-            /* Awaken all the ndemons and scatter them throughout the game. The
-               ascension run is no easy task :D */
-            pline("You feel like you are being watched...");
-            for (pm = PM_JUIBLEX; pm <= PM_DEMOGORGON; pm++) {
-                if (!(mvitals[pm].mvflags & G_EXTINCT)) {
-                    mtmp = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS);
-                    mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 0;
-                    if (mtmp->data->mflags3 & M3_WANTSAMUL)
-                        mtmp->data->mflags3 &= ~M3_WANTSAMUL;
-                    if (mtmp->data->mflags3 & ~M3_WANTSBOOK)
-                        mtmp->data->mflags3 &= ~M3_WANTSBOOK;
-                    if (mtmp->data->mflags3 & M3_WAITFORU)
-                        mtmp->data->mflags3 &= ~M3_WAITFORU;
-                    /* based on muse.c code */
-                    d_level flev;
-                    get_level(&flev, 1 + rn2(depth(&u.uz)));
-                    migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
-                                     (coord *) 0);
-                }
-            }
-        } else { /* at least one artifact not prepared properly */
-            You("have a feeling that %s is amiss...", something);
-            goto raise_dead;
-        }
-        return;
-    }
-
-    /* when not an invocation situation */
-    if (book2->cursed) {
-    raise_dead:
-
-        You("raised the dead!");
-        /* first maybe place a dangerous adversary */
-        if (!rn2(3) && ((mtmp = makemon(&mons[PM_MASTER_LICH], u.ux, u.uy,
-                                        NO_MINVENT)) != 0
-                        || (mtmp = makemon(&mons[PM_NALFESHNEE], u.ux, u.uy,
-                                           NO_MINVENT)) != 0)) {
-            mtmp->mpeaceful = 0;
-            set_malign(mtmp);
-        }
-        /* next handle the affect on things you're carrying */
-        (void) unturn_dead(&youmonst);
-        /* last place some monsters around you */
-        mm.x = u.ux;
-        mm.y = u.uy;
-        mkundead(&mm, TRUE, NO_MINVENT);
-    } else if (book2->blessed) {
-        for (mtmp = fmon; mtmp; mtmp = mtmp2) {
-            mtmp2 = mtmp->nmon; /* tamedog() changes chain */
-            if (DEADMONSTER(mtmp))
-                continue;
-
-            if ((is_undead(mtmp->data))
-                && cansee(mtmp->mx, mtmp->my)) {
-                mtmp->mpeaceful = TRUE;
-                if (sgn(mtmp->data->maligntyp) == sgn(u.ualign.type)
-                    && distu(mtmp->mx, mtmp->my) < 4)
-                    if (mtmp->mtame) {
-                        if (mtmp->mtame < 20)
-                            mtmp->mtame++;
-                    } else
-                        (void) tamedog(mtmp, (struct obj *) 0);
-                else
-                    monflee(mtmp, 0, FALSE, TRUE);
-            }
-        }
-    } else {
-        switch (rn2(3)) {
-        case 0:
-            Your("ancestors are annoyed with you!");
-            break;
-        case 1:
-            pline_The("headstones in the cemetery begin to move!");
-            break;
-        default:
-            pline("Oh my!  Your name appears in the book!");
-        }
-    }
-    return;
 }
 
 /* 'book' has just become cursed; if we're reading it and realize it is
@@ -389,10 +243,6 @@ learn(VOID_ARGS)
     }
     exercise(A_WIS, TRUE); /* you're studying. */
     booktype = book->otyp;
-    if (booktype == SPE_BOOK_OF_THE_DEAD) {
-        deadbook(book);
-        return 0;
-    }
 
     Sprintf(splname,
             objects[booktype].oc_name_known ? "\"%s\"" : "the \"%s\" spell",
@@ -444,7 +294,7 @@ learn(VOID_ARGS)
         makeknown((int) booktype);
     }
     if (book->oartifact == ART_KING_IN_YELLOW && book->spestudied == 1) {
-        You("find that you cannot look away from the boook, and your mind is filled with visions of a ruined city. Your fate is now sealed.");
+        You("find that you cannot look away from the book, and your mind is filled with visions of a ruined city. Your fate is now sealed.");
         /* Make and teleport the king to a random level */
         mtmp = makemon(&mons[PM_KING_IN_YELLOW], u.ux, u.uy, NO_MM_FLAGS);
         if (!In_endgame(&u.uz) && !u.uhave.amulet) {
@@ -571,7 +421,7 @@ register struct obj *spellbook;
 
         /* Books are often wiser than their readers (Rus.) */
         spellbook->in_use = TRUE;
-        if (!spellbook->blessed && spellbook->otyp != SPE_BOOK_OF_THE_DEAD
+        if (!spellbook->blessed && !is_invocation(spellbook)
             && spellbook->oartifact != ART_KING_IN_YELLOW) {
             if (spellbook->cursed) {
                 too_hard = TRUE;
@@ -629,8 +479,7 @@ register struct obj *spellbook;
         }
         spellbook->in_use = FALSE;
 
-        You("begin to %s the runes.",
-            spellbook->otyp == SPE_BOOK_OF_THE_DEAD ? "recite" : "memorize");
+        You("begin to memorize the runes.");
     }
 
     context.spbook.book = spellbook;

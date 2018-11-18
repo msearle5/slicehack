@@ -167,24 +167,27 @@ boolean restore;
                 otmp->otyp = FAKE_AMULET_OF_YENDOR;
                 otmp->material = PLASTIC;
                 curse(otmp);
-            } else if (otmp->otyp == CANDELABRUM_OF_INVOCATION) {
-                if (otmp->lamplit)
-                    end_burn(otmp, TRUE);
-                otmp->otyp = WAX_CANDLE;
-                otmp->material = WAX;
-                otmp->age = 50L; /* assume used */
-                if (otmp->spe > 0)
-                    otmp->quan = (long) otmp->spe;
-                otmp->spe = 0;
+            } else if (otmp->otyp == SUITCASE_BOMB) {
+                if (otmp->oarmed) {
+                    (void) stop_timer(SUITCASE_BLOW, obj_to_any(otmp));
+                    otmp->oarmed = FALSE;
+                }
+                otmp->otyp = LARGE_BOX;
+                otmp->material = WOOD;
+                otmp->ovar1 = 0;
                 otmp->owt = weight(otmp);
                 curse(otmp);
-            } else if (otmp->otyp == BELL_OF_OPENING) {
-                otmp->otyp = BELL;
-                otmp->material = COPPER;
+            } else if (otmp->otyp == INTERLOCK_PLUG) {
+                otmp->otyp = FLUTE;
+                otmp->material = WOOD;
+                otmp->ovar1 = 0;
                 otmp->owt = weight(otmp);
                 curse(otmp);
-            } else if (otmp->otyp == SPE_BOOK_OF_THE_DEAD) {
-                otmp->otyp = SPE_BLANK_PAPER;
+            } else if (otmp->otyp == SCR_AUTHORIZATION) {
+                otmp->otyp = SCR_IDENTITY;
+                otmp->material = PLASTIC;
+                otmp->ovar1 = 0;
+                otmp->owt = weight(otmp);
                 curse(otmp);
             } else if (otmp->oartifact == ART_THIEFBANE) {
       			    /* Guaranteed artifacts become ordinary objects */

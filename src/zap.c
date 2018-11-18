@@ -1111,7 +1111,7 @@ register struct obj *obj;
         if (obj->spe != ((obj->oclass == WAND_CLASS) ? -1 : 0)
             && otyp != WAN_CANCELLATION /* can't cancel cancellation */
             && otyp != MAGIC_LAMP /* cancelling doesn't remove djinni */
-            && otyp != CANDELABRUM_OF_INVOCATION) {
+            && !is_invocation_typ(otyp)) {
             costly_alteration(obj, COST_CANCEL);
             obj->spe = (obj->oclass == WAND_CLASS) ? -1 : 0;
         }
@@ -1123,7 +1123,7 @@ register struct obj *obj;
             break;
         case SPBOOK_CLASS:
             if (otyp != SPE_CANCELLATION && otyp != SPE_NOVEL
-                && otyp != SPE_BOOK_OF_THE_DEAD) {
+                && !is_invocation_typ(otyp)) {
                 costly_alteration(obj, COST_CANCEL);
                 obj->otyp = SPE_BLANK_PAPER;
             }
@@ -1235,9 +1235,7 @@ struct obj *obj;
 int ochance, achance; /* percent chance for ordinary objects, artifacts */
 {
     if (obj->otyp == AMULET_OF_YENDOR
-        || obj->otyp == SPE_BOOK_OF_THE_DEAD
-        || obj->otyp == CANDELABRUM_OF_INVOCATION
-        || obj->otyp == BELL_OF_OPENING
+        || is_invocation(obj)
         || (obj->otyp == CORPSE && is_rider(&mons[obj->corpsenm]))) {
         return TRUE;
     } else {
@@ -5211,7 +5209,7 @@ register int osym, dmgtyp;
             		skip++;
             if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
                 skip++;
-            if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+            if (is_invocation(obj)) {
                 skip++;
                 if (!Blind)
                     pline("%s glows a strange %s, but remains intact.",
@@ -5445,7 +5443,7 @@ int osym, dmgtyp;
             		skip++;
             if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL)
                 skip++;
-            if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+            if (is_invocation(obj)) {
                 skip++;
                 if (vis)
                     pline("%s glows a strange %s, but remains intact.",

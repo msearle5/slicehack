@@ -308,6 +308,29 @@ boolean resuming;
                         }
                     }
 
+                    /* Check timeouts for invocation items */
+                    {
+                        struct obj *plug = carrying(INTERLOCK_PLUG);
+                        if (plug) {
+                            if (plug->ovar1 > 0) { /* inserted */
+                                plug->ovar1--;
+                                /* Timed out: pop out. There should be no way that the bomb
+                                 * is not also in inventory.
+                                 */
+                                if (plug->ovar1 == 0) {
+                                    struct obj *bomb = carrying(SUITCASE_BOMB);
+                                    if (!bomb)
+                                        impossible("carrying connected plug, but no bomb");
+                                    bomb->ovar1 = 0;
+                                    pline("The countdown on the bomb reaches zero...");
+                                    pline("%s pops back out of its socket.", The(xname(plug)));
+                                    if (Hallucination)
+                                        pline("It's got a smooth disconnect!");
+                                }
+                            }
+                        }
+                    }
+
                     if (Glib)
                         glibr();
                     nh_timeout();

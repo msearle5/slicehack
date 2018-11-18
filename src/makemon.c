@@ -1788,7 +1788,7 @@ int mmflags;
     mitem = 0; /* extra inventory item for this monster */
 
     if (mndx == PM_VLAD_THE_IMPALER)
-        mitem = CANDELABRUM_OF_INVOCATION;
+        mitem = INTERLOCK_PLUG;
     mtmp->cham = NON_PM; /* default is "not a shapechanger" */
     if ((mcham = pm_to_cham(mndx)) != NON_PM) {
         /* this is a shapechanger after all */
@@ -1810,7 +1810,7 @@ int mmflags;
     } else if (mndx == PM_CROESUS) {
         mitem = TWO_HANDED_SWORD;
     } else if (mndx == urole.neminum) {
-        mitem = BELL_OF_OPENING;
+        mitem = SUITCASE_BOMB;
     } else if (mndx == PM_PESTILENCE) {
         register struct obj *otmp;
         mitem = PIL_POISON;
@@ -2477,16 +2477,12 @@ int otyp;
             otmp->spe = (3 + rn2(4));
         }
 
-        if (otmp->otyp == CANDELABRUM_OF_INVOCATION) {
+        if (is_invocation(otmp)) {
             otmp->spe = 0;
             otmp->age = 0L;
             otmp->lamplit = FALSE;
             otmp->blessed = otmp->cursed = FALSE;
-        } else if (otmp->otyp == BELL_OF_OPENING) {
-            otmp->blessed = otmp->cursed = FALSE;
-        } else if (otmp->otyp == SPE_BOOK_OF_THE_DEAD) {
-            otmp->blessed = FALSE;
-            otmp->cursed = TRUE;
+            otmp->ovar1 = 0;
         }
 
         /* leaders don't tolerate inferior quality battle gear */

@@ -6,6 +6,7 @@
 /* Edited on 5/19/18 by NullCGT */
 
 #include "hack.h"
+#include "wintty.h"
 
 extern boolean notonhead; /* for long worms */
 
@@ -1195,32 +1196,25 @@ struct obj *obj;
     return 1;
 }
 
+
+
 STATIC_OVL void
 use_bell(optr)
 struct obj **optr;
 {
     register struct obj *obj = *optr;
     struct monst *mtmp;
-    boolean wakem = FALSE, learno = FALSE,
-            ordinary = (obj->otyp != BELL_OF_OPENING || !obj->spe),
-            invoking =
-                (obj->otyp == BELL_OF_OPENING && invocation_pos(u.ux, u.uy)
-                 && !On_stairs(u.ux, u.uy));
+    boolean wakem = FALSE;
 
     You("ring %s.", the(xname(obj)));
 
-    if (Underwater || (u.uswallow && ordinary)) {
+    if (Underwater || (u.uswallow)) {
 #ifdef AMIGA
         amii_speaker(obj, "AhDhGqEqDhEhAqDqFhGw", AMII_MUFFLED_VOLUME);
 #endif
         pline("But the sound is muffled.");
 
-    } else if (invoking && ordinary) {
-        /* needs to be recharged... */
-        pline("But it makes no sound.");
-        learno = TRUE; /* help player figure out why */
-
-    } else if (ordinary) {
+    } else {
 #ifdef AMIGA
         amii_speaker(obj, "ahdhgqeqdhehaqdqfhgw", AMII_MUFFLED_VOLUME);
 #endif
@@ -1251,133 +1245,166 @@ struct obj **optr;
                 }
         }
         wakem = TRUE;
-
-    } else {
-        /* charged Bell of Opening */
-        consume_obj_charge(obj, TRUE);
-
-        if (u.uswallow) {
-            if (!obj->cursed)
-                (void) openit();
-            else
-                pline1(nothing_happens);
-
-        } else if (obj->cursed) {
-            coord mm;
-
-            mm.x = u.ux;
-            mm.y = u.uy;
-            mkundead(&mm, FALSE, NO_MINVENT);
-            wakem = TRUE;
-
-        } else if (invoking) {
-            pline("%s an unsettling shrill sound...", Tobjnam(obj, "issue"));
-#ifdef AMIGA
-            amii_speaker(obj, "aefeaefeaefeaefeaefe", AMII_LOUDER_VOLUME);
-#endif
-            obj->age = moves;
-            learno = TRUE;
-            wakem = TRUE;
-
-        } else if (obj->blessed) {
-            int res = 0;
-
-#ifdef AMIGA
-            amii_speaker(obj, "ahahahDhEhCw", AMII_SOFT_VOLUME);
-#endif
-            if (uchain) {
-                unpunish();
-                res = 1;
-            } else if (u.utrap && u.utraptype == TT_BURIEDBALL) {
-                buried_ball_to_freedom();
-                res = 1;
-            }
-            res += openit();
-            switch (res) {
-            case 0:
-                pline1(nothing_happens);
-                break;
-            case 1:
-                pline("%s opens...", Something);
-                learno = TRUE;
-                break;
-            default:
-                pline("Things open around you...");
-                learno = TRUE;
-                break;
-            }
-
-        } else { /* uncursed */
-#ifdef AMIGA
-            amii_speaker(obj, "AeFeaeFeAefegw", AMII_OKAY_VOLUME);
-#endif
-            if (findit() != 0)
-                learno = TRUE;
-            else
-                pline1(nothing_happens);
-        }
-
-    } /* charged BofO */
-
-    if (learno) {
-        makeknown(BELL_OF_OPENING);
-        obj->known = 1;
     }
+
     if (wakem)
         wake_nearby();
 }
 
 STATIC_OVL void
-use_candelabrum(obj)
-register struct obj *obj;
+use_suitcase_bomb(optr)
+struct obj *optr;
 {
-    const char *s = (obj->spe != 1) ? "candles" : "candle";
+    struct obj *otmp, *plug;
 
-    if (obj->lamplit) {
-        You("snuff the %s.", s);
-        end_burn(obj, TRUE);
+    /* First, make sure that you are capable of starting the sequence. */
+    if (Blind) {
+        pline("You can't see enough to know what to do with it.");
         return;
     }
-    if (obj->spe <= 0) {
-        pline("This %s has no %s.", xname(obj), s);
+
+    if (nohands(youmonst.data)) {
+        pline("In this form you don't have any way to activate the touchpad.");
         return;
     }
-    if (Underwater) {
-        You("cannot make fire under water.");
+
+    if (Confusion || Stunned || Glib || Fumbling) {
+        pline("You fumble about with it but are unable to get anything to happen.");
         return;
     }
-    if (u.uswallow || obj->cursed) {
-        if (!Blind)
-            pline_The("%s %s for a moment, then %s.", s, vtense(s, "flicker"),
-                      vtense(s, "die"));
+
+    /* You touch the pad and the sequence starts... */
+    if (Hallucination)
+        pline("You reach out and touch something...");
+    else
+        pline("You touch the pad under the handle...");
+    more();
+
+    /* Any fingerprint will do - unless cursed, or?? */
+    pline("Fingerprint Authorization - ACCEPTED");
+    more();
+
+    /* If it's already armed, disarm it. */
+    if (optr->oarmed) {
+        pline("DISARMED. Firing Timer Reset.");
+        optr->oarmed = FALSE;
+        (void) stop_timer(SUITCASE_BLOW, obj_to_any(otmp));
         return;
     }
-    if (obj->spe < 7) {
-        There("%s only %d %s in %s.", vtense(s, "are"), obj->spe, s,
-              the(xname(obj)));
-        if (!Blind)
-            pline("%s lit.  %s dimly.", obj->spe == 1 ? "It is" : "They are",
-                  Tobjnam(obj, "shine"));
+
+    /* Check position. Accept, or fail and give a hint */
+    if (invocation_pos(u.ux, u.uy)) {
+        pline("Location Tracker - OK");
     } else {
-        pline("%s's %s burn%s", The(xname(obj)), s,
-              (Blind ? "." : " brightly!"));
+        char buf[BUFSZ];
+        *buf = 0;
+
+        if (!Invocation_lev(&u.uz))
+            strcat(buf, "ALT ");
+        if (u.uy != inv_pos.y)
+            strcat(buf, "LAT ");
+        if (u.ux != inv_pos.x)
+            strcat(buf, "LONG ");
+
+        /* This is the Long Fail */
+        strcat(buf, "FAIL");
+        pline("Location Tracker - %s", buf);
+        return;
     }
-    if (!invocation_pos(u.ux, u.uy) || On_stairs(u.ux, u.uy)) {
-        pline_The("%s %s being rapidly consumed!", s, vtense(s, "are"));
-        /* this used to be obj->age /= 2, rounding down; an age of
-           1 would yield 0, confusing begin_burn() and producing an
-           unlightable, unrefillable candelabrum; round up instead */
-        obj->age = (obj->age + 1L) / 2L;
+    more();
+
+    /* Check that the interlock plug is present, give a hint if not? (light around the recess, etc)
+     * 'Present' literally means contained.
+     * But this would mess with the requirements to be in open inventory.
+     * So set ovar1 for both, and reset it for both when either leaves your inventory. (Or on timeout)
+     * Check both.
+     * (Again, fail if cursed, uncharged, ...??)
+     **/
+    plug = carrying(INTERLOCK_PLUG);
+    if ((!plug) || (!plug->ovar1) || (!plug->ovar1)) {
+        pline("Interlock Device - NOT PRESENT");
+        return;
     } else {
-        if (obj->spe == 7) {
-            if (Blind)
-                pline("%s a strange warmth!", Tobjnam(obj, "radiate"));
-            else
-                pline("%s with a strange light!", Tobjnam(obj, "glow"));
+        pline("Interlock Device - READY");
+    }
+    more();
+
+    /* Check that a recent key has been generated
+     * (If an old one has, signal this in order to avoid confusing the player)
+     * This means that the ovar1 of the card is not too long ago...
+     */
+    otmp = carrying(SCR_AUTHORIZATION);
+    if (!otmp) {
+        pline("Firing Key - NO CONTACT");
+        return;
+    } else {
+        if (!otmp->ovar1) {
+            pline("Firing Key - INACTIVE");
+            return;
+        } else if ((monstermoves - otmp->ovar1) > 30) {
+            pline("Firing Key - TIMED OUT");
+            return;
+        } else {
+            pline("Firing Key - AUTHORIZED");
         }
-        obj->known = 1;
     }
-    begin_burn(obj, FALSE);
+    more();
+
+    /* Everything's OK for everything not being OK in 30 seconds... */
+    pline("%s, no longer required, is ejected...", The(xname(plug)));
+    optr->ovar1 = 0;
+    plug->ovar1 = 0;
+    more();
+
+    pline("Activate again at any time to disarm...");
+    more();
+    pline("Disarming does not require interlock or authorization...");
+    more();
+    pline("Location Tracker remains active. Motion will prevent firing...");
+    more();
+    if (Hallucination) {
+        ray_gun_msg();
+        more();
+    }
+    pline("ARMED. Firing in 30 seconds.");
+    optr->oarmed = TRUE;
+    (void) start_timer((long)30, TIMER_GLOBAL, SUITCASE_BLOW, obj_to_any(optr));
+}
+
+STATIC_OVL void
+use_interlock_plug(optr)
+struct obj *optr;
+{
+    struct obj *otmp = carrying(SUITCASE_BOMB);
+
+    /* Using the plug means inserting it into the bomb.
+     * So the bomb needs to be in inventory, and not already inserted (could pop it out?)
+     */
+    if (!otmp) {
+        pline("You don't have anything that could connect with the plug.");
+        return;
+    }
+
+    /* ovar1 = inserted.
+     * Removing the plug doesn't disarms the bomb (as  the bomb ejects the
+     * plug when it arms)
+     **/
+    if (otmp->ovar1) {
+        otmp->ovar1 = 0;
+        optr->ovar1 = 0;
+        pline("You push on the plug. It goes dark and pops back out.");
+        return;
+    }
+
+    /* insert the plug */
+    otmp->ovar1 = 1;
+    optr->ovar1 = 30;
+    pline("The plug fits smoothly into a recess in the side of the case.");
+
+    /* and troll them */
+    pline("A previously dark display begins counting down...");
+
+    return;
 }
 
 STATIC_OVL void
@@ -1394,61 +1421,8 @@ struct obj **optr;
         return;
     }
 
-    otmp = carrying(CANDELABRUM_OF_INVOCATION);
-    if (!otmp || otmp->spe == 7) {
-        use_lamp(obj);
-        return;
-    }
-
-    /* first, minimal candelabrum suffix for formatting candles */
-    Sprintf(qsfx, " to\033%s?", thesimpleoname(otmp));
-    /* next, format the candles as a prefix for the candelabrum */
-    (void) safe_qbuf(qbuf, "Attach ", qsfx, obj, yname, thesimpleoname, s);
-    /* strip temporary candelabrum suffix */
-    if ((q = strstri(qbuf, " to\033")) != 0)
-        Strcpy(q, " to ");
-    /* last, format final "attach candles to candelabrum?" query */
-    if (yn(safe_qbuf(qbuf, qbuf, "?", otmp, yname, thesimpleoname, "it"))
-        == 'n') {
-        use_lamp(obj);
-        return;
-    } else {
-        if ((long) otmp->spe + obj->quan > 7L) {
-            obj = splitobj(obj, 7L - (long) otmp->spe);
-            /* avoid a grammatical error if obj->quan gets
-               reduced to 1 candle from more than one */
-            s = (obj->quan != 1) ? "candles" : "candle";
-        } else
-            *optr = 0;
-        You("attach %ld%s %s to %s.", obj->quan, !otmp->spe ? "" : " more", s,
-            the(xname(otmp)));
-        if (!otmp->spe || otmp->age > obj->age)
-            otmp->age = obj->age;
-        otmp->spe += (int) obj->quan;
-        if (otmp->lamplit && !obj->lamplit)
-            pline_The("new %s magically %s!", s, vtense(s, "ignite"));
-        else if (!otmp->lamplit && obj->lamplit)
-            pline("%s out.", (obj->quan > 1L) ? "They go" : "It goes");
-        if (obj->unpaid)
-            verbalize("You %s %s, you bought %s!",
-                      otmp->lamplit ? "burn" : "use",
-                      (obj->quan > 1L) ? "them" : "it",
-                      (obj->quan > 1L) ? "them" : "it");
-        if (obj->quan < 7L && otmp->spe == 7)
-            pline("%s now has seven%s candles attached.", The(xname(otmp)),
-                  otmp->lamplit ? " lit" : "");
-        /* candelabrum's light range might increase */
-        if (otmp->lamplit)
-            obj_merge_light_sources(otmp, otmp);
-        /* candles are no longer a separate light source */
-        if (obj->lamplit)
-            end_burn(obj, TRUE);
-        /* candles are now gone */
-        useupall(obj);
-        /* candelabrum's weight is changing */
-        otmp->owt = weight(otmp);
-        update_inventory();
-    }
+    use_lamp(obj);
+    return;
 }
 
 /* call in drop, throw, and put in box, etc. */
@@ -1458,8 +1432,7 @@ struct obj *otmp;
 {
     boolean candle = Is_candle(otmp);
 
-    if ((candle || otmp->otyp == CANDELABRUM_OF_INVOCATION)
-        && otmp->lamplit) {
+    if ((candle) && otmp->lamplit) {
         char buf[BUFSZ];
         xchar x, y;
         boolean many = candle ? (otmp->quan > 1L) : (otmp->spe > 1);
@@ -1508,14 +1481,11 @@ struct obj *obj;
     xchar x, y;
 
     if (!obj->lamplit && (obj->otyp == MAGIC_LAMP || ignitable(obj))) {
-        if ((obj->otyp == MAGIC_LAMP
-             || obj->otyp == CANDELABRUM_OF_INVOCATION) && obj->spe == 0)
+        if ((obj->otyp == MAGIC_LAMP) && obj->spe == 0)
             return FALSE;
         else if (obj->otyp != MAGIC_LAMP && obj->age == 0)
             return FALSE;
         if (!get_obj_location(obj, &x, &y, 0))
-            return FALSE;
-        if (obj->otyp == CANDELABRUM_OF_INVOCATION && obj->cursed)
             return FALSE;
         if ((obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
              || obj->otyp == LANTERN) && obj->cursed && !rn2(2))
@@ -3948,11 +3918,7 @@ doapply()
         res = use_mirror(obj);
         break;
     case BELL:
-    case BELL_OF_OPENING:
         use_bell(&obj);
-        break;
-    case CANDELABRUM_OF_INVOCATION:
-        use_candelabrum(obj);
         break;
     case WAX_CANDLE:
     case TALLOW_CANDLE:
@@ -3990,6 +3956,12 @@ doapply()
         break;
     case UNICORN_HORN:
         use_unicorn_horn(obj);
+        break;
+    case INTERLOCK_PLUG:
+        use_interlock_plug(obj);
+        break;
+    case SUITCASE_BOMB:
+        use_suitcase_bomb(obj);
         break;
     case FLUTE:
     case MAGIC_FLUTE:

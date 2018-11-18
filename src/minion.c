@@ -327,9 +327,7 @@ register struct monst *mtmp;
     for (n = 0, obj = invent; obj; obj = obj->nobj){
         if ((obj->oartifact &&
             obj->oartifact != ART_STING && obj->oartifact != ART_ORCRIST
-            && obj->otyp != AMULET_OF_YENDOR && obj->otyp != BELL_OF_OPENING
-            && obj->otyp != CANDELABRUM_OF_INVOCATION &&
-            obj->otyp != SPE_BOOK_OF_THE_DEAD) || obj->otyp == WAN_WISHING
+            && obj->otyp != AMULET_OF_YENDOR && !is_invocation(obj)) || obj->otyp == WAN_WISHING
             || obj->otyp == BAG_OF_HOLDING || obj->otyp == PLAYING_CARD_DECK
             || obj->otyp == DECK_OF_FATE)
             ++n, otmp = obj;

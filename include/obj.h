@@ -362,14 +362,12 @@ struct obj {
 /* MAGIC_LAMP intentionally excluded below */
 /* age field of this is relative age rather than absolute */
 #define age_is_relative(otmp)                                       \
-    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
-     || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP            \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)
 /* object can be ignited */
 #define ignitable(otmp)                                             \
-    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP      \
-     || (otmp)->otyp == CANDELABRUM_OF_INVOCATION                   \
+    ((otmp)->otyp == LANTERN || (otmp)->otyp == OIL_LAMP            \
      || (otmp)->otyp == TALLOW_CANDLE || (otmp)->otyp == WAX_CANDLE \
      || (otmp)->otyp == POT_OIL)
 

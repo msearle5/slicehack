@@ -94,6 +94,11 @@ struct objclass {
     (is_rustprone(otmp) || is_flammable(otmp) || is_rottable(otmp) \
      || is_corrodeable(otmp))
 
+#define is_invocation_typ(otyp) \
+    ((otyp == SUITCASE_BOMB) || (otyp == INTERLOCK_PLUG) || (otyp == SCR_AUTHORIZATION))
+
+#define is_invocation(otmp) is_invocation_typ(otmp->otyp)
+
     schar oc_subtyp;
 #define oc_skill oc_subtyp  /* Skills of weapons, spellbooks, tools, gems */
 #define oc_armcat oc_subtyp /* for armor */

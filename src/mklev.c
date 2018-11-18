@@ -1833,65 +1833,6 @@ struct mkroom *croom;
 #define x_maze_min 2
 #define y_maze_min 2
 
-/*
- * Major level transmutation: add a set of stairs (to the Sanctum) after
- * an earthquake that leaves behind a a new topology, centered at inv_pos.
- * Assumes there are no rooms within the invocation area and that inv_pos
- * is not too close to the edge of the map.  Also assume the hero can see,
- * which is guaranteed for normal play due to the fact that sight is needed
- * to read the Book of the Dead.
- */
-void
-mkinvokearea()
-{
-    int dist;
-    xchar xmin = inv_pos.x, xmax = inv_pos.x;
-    xchar ymin = inv_pos.y, ymax = inv_pos.y;
-    register xchar i;
-
-    pline_The("floor shakes violently under you!");
-    pline_The("walls around you begin to bend and crumble!");
-    display_nhwindow(WIN_MESSAGE, TRUE);
-
-    /* any trap hero is stuck in will be going away now */
-    if (u.utrap) {
-        if (u.utraptype == TT_BURIEDBALL)
-            buried_ball_to_punishment();
-        reset_utrap(FALSE);
-    }
-    mkinvpos(xmin, ymin, 0); /* middle, before placing stairs */
-
-    for (dist = 1; dist < 7; dist++) {
-        xmin--;
-        xmax++;
-
-        /* top and bottom */
-        if (dist != 3) { /* the area is wider that it is high */
-            ymin--;
-            ymax++;
-            for (i = xmin + 1; i < xmax; i++) {
-                mkinvpos(i, ymin, dist);
-                mkinvpos(i, ymax, dist);
-            }
-        }
-
-        /* left and right */
-        for (i = ymin; i <= ymax; i++) {
-            mkinvpos(xmin, i, dist);
-            mkinvpos(xmax, i, dist);
-        }
-
-        flush_screen(1); /* make sure the new glyphs shows up */
-        delay_output();
-    }
-
-    You("are standing at the top of a stairwell leading down!");
-    mkstairs(u.ux, u.uy, 0, (struct mkroom *) 0); /* down */
-    newsym(u.ux, u.uy);
-    vision_full_recalc = 1; /* everything changed */
-    livelog_write_string(LL_ACHIEVE, "woke the rulers of Gehennom by performing the invocation");
-}
-
 /* Change level topology.  Boulders in the vicinity are eliminated.
  * Temporarily overrides vision in the name of a nice effect.
  */

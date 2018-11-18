@@ -227,9 +227,9 @@ struct obj *obj; /* quest artifact; possibly null if carrying Amulet */
             fully_identify_obj(otmp);
     } else {
         qt_pager(!Qstat(got_thanks) ? QT_OFFEREDIT : QT_OFFEREDIT2);
-        /* should have obtained bell during quest;
+        /* should have obtained bomb during quest;
            if not, suggest returning for it now */
-        if ((otmp = carrying(BELL_OF_OPENING)) == 0)
+        if ((otmp = carrying(SUITCASE_BOMB)) == 0)
             com_pager(5);
     }
     Qstat(got_thanks) = TRUE;

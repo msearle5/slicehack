@@ -2021,21 +2021,16 @@ invocation_message()
     /* a special clue-msg when on the Invocation position */
     if (invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
         char buf[BUFSZ];
-        struct obj *otmp = carrying(CANDELABRUM_OF_INVOCATION);
+        struct obj *otmp = carrying(SUITCASE_BOMB);
 
-        nomul(0); /* stop running or travelling */
-        if (u.usteed)
-            Sprintf(buf, "beneath %s", y_monnam(u.usteed));
-        else if (Levitation || Flying)
-            Strcpy(buf, "beneath you");
-        else
-            Sprintf(buf, "under your %s", makeplural(body_part(FOOT)));
-
-        You_feel("a strange vibration %s.", buf);
-        u.uevent.uvibrated = 1;
-        if (otmp && otmp->spe == 7 && otmp->lamplit)
-            pline("%s %s!", The(xname(otmp)),
-                  Blind ? "throbs palpably" : "glows with a strange light");
+        if (otmp) {
+            nomul(0); /* stop running or travelling */
+            if (!u.uevent.uvibrated)
+                pline("A line of green light blinks on around %s's touchpad.", the(xname(otmp)));
+            else
+                pline("The green light around %s's touchpad blinks back on.", the(xname(otmp)));
+            u.uevent.uvibrated = 1;
+        }
     }
 }
 

@@ -1304,7 +1304,7 @@ boolean
 Can_fall_thru(lev)
 d_level *lev;
 {
-    return (boolean) (Can_dig_down(lev) || Is_stronghold(lev));
+    return (boolean) (Can_dig_down(lev) || Is_stronghold(lev) || (Invocation_lev(lev) && (u.uevent.invoked)));
 }
 
 /*
@@ -1512,6 +1512,15 @@ d_level *lev;
 {
     lev->dnum = valley_level.dnum;
     lev->dlevel = 1;
+}
+
+/* sets *lev to be the vibrating square... */
+void
+find_vs(lev)
+d_level *lev;
+{
+    lev->dnum = valley_level.dnum;
+    lev->dlevel = dungeons[lev->dnum].num_dunlevs - 1;
 }
 
 /* go directly to hell... */

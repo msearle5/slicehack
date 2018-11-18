@@ -346,6 +346,11 @@ STATIC_OVL const char * const Ronnie_ray_gun[] = {
     "Concentrated power has always been the enemy of liberty."
 };
 
+void
+ray_gun_msg()
+{
+    pline1(Ronnie_ray_gun[rn2(SIZE(Ronnie_ray_gun))]);
+}
 
 //ifdef FIREARMS
 int
@@ -427,7 +432,7 @@ int shots, shotlimit;
             return 1;
         } else {
             if (Hallucination)
-                pline1(Ronnie_ray_gun[rn2(SIZE(Ronnie_ray_gun))]);
+                ray_gun_msg();
             raygun->ovar1 -= cost;
             dobuzz(raygun->altmode+40, 6, u.ux, u.uy, u.dx, u.dy, TRUE, 1, 0);
             return 1;
@@ -442,7 +447,7 @@ int shots, shotlimit;
 
     while (shots) {
         if (Hallucination)
-            pline1(Ronnie_ray_gun[rn2(SIZE(Ronnie_ray_gun))]);
+            ray_gun_msg();
         raygun->ovar1 -= cost;
         dobuzz(raygun->altmode+40, 6, u.ux, u.uy, u.dx, u.dy, TRUE, objects[(raygun->otyp)].oc_range, 0);
         shots--;

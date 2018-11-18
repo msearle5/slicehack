@@ -621,16 +621,7 @@ struct obj *obj;
 {
     int radius;
 
-    if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-        /*
-         *      The special candelabrum emits more light than the
-         *      corresponding number of candles would.
-         *       1..3 candles, range 2 (minimum range);
-         *       4..6 candles, range 3 (normal lamp range);
-         *          7 candles, range 4 (bright).
-         */
-        radius = (obj->spe < 4) ? 2 : (obj->spe < 7) ? 3 : 4;
-    } else if (Is_candle(obj)) {
+    if (Is_candle(obj)) {
         /*
          *      Range is incremented by powers of 7 so that it will take
          *      wizard mode quantities of candles to get more light than
@@ -648,7 +639,7 @@ struct obj *obj;
         } while (n > 0L);
     } else {
         /* we're only called for lit candelabrum or candles */
-        /* impossible("candlelight for %d?", obj->otyp); */
+        impossible("candlelight for %d?", obj->otyp);
         radius = 3; /* lamp's value */
     }
     return radius;

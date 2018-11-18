@@ -1494,11 +1494,10 @@ boolean telekinesis; /* not picking it up directly by hand */
          *  A corpse or egg doesn't work that way, so they have been excepted.)
          **/
         if ((obj->otyp != CORPSE) && (obj->otyp != EGG)) {
-            /* The essential items (Bell, Book, Candelabrum and Amulet) must not
-             * explode.
+            /* The essential items (Bomb, Plug, Card and Amulet) must not
+             * (randomly) explode.
              */
-            if ((obj->otyp != CANDELABRUM_OF_INVOCATION) && (obj->otyp != BELL_OF_OPENING) &&
-                (obj->otyp != SPE_BOOK_OF_THE_DEAD) && (obj->otyp != AMULET_OF_YENDOR)) {
+            if ((!is_invocation(obj)) && (obj->otyp != AMULET_OF_YENDOR)) {
                 /* Everything else is fair game, but some items last longer than others.
                  * Potions of acid are very fast, consumables (potions, scrolls) fast,
                  * spellbooks slower (to allow at least one use), tools and gems very slow (except
@@ -2214,12 +2213,10 @@ register struct obj *obj;
         pline_The("stone%s won't leave your person.", plur(obj->quan));
         return 0;
     } else if (obj->otyp == AMULET_OF_YENDOR
-               || obj->otyp == CANDELABRUM_OF_INVOCATION
-               || obj->otyp == BELL_OF_OPENING
-               || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+               || is_invocation(obj)) {
         /* Prohibit Amulets in containers; if you allow it, monsters can't
          * steal them.  It also becomes a pain to check to see if someone
-         * has the Amulet.  Ditto for the Candelabrum, the Bell and the Book.
+         * has the Amulet.  Ditto for the Plug, the Bomb and the Card.
          */
         pline("%s cannot be confined in such trappings.", The(xname(obj)));
         return 0;

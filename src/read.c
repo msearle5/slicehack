@@ -21,6 +21,7 @@ static NEARDATA const char readable[] = { ALL_CLASSES, SCROLL_CLASS,
                                           SPBOOK_CLASS, 0 };
 static const char all_count[] = { ALLOW_COUNT, ALL_CLASSES, 0 };
 
+STATIC_DCL void FDECL(authcard, (struct obj *));
 STATIC_DCL boolean FDECL(learnscrolltyp, (SHORT_P));
 STATIC_DCL char *FDECL(erode_obj_text, (struct obj *, char *));
 STATIC_DCL char *FDECL(apron_text, (struct obj *, char *buf));
@@ -41,6 +42,32 @@ STATIC_DCL boolean FDECL(is_valid_stinking_cloud_pos, (int, int, BOOLEAN_P));
 STATIC_PTR void FDECL(display_stinking_cloud_positions, (int));
 STATIC_PTR void FDECL(set_lit, (int, int, genericptr));
 STATIC_DCL void NDECL(do_class_genocide);
+
+/* special effects for the authorization card */
+STATIC_OVL void
+authcard(card)
+struct obj *card;
+{
+    struct monst *mtmp, *mtmp2;
+
+    makeknown(SCR_AUTHORIZATION);
+    /* KMH -- Need ->known to avoid "_an_ authorization card" */
+    card->known = 1;
+    /* Start the timer */
+    card->ovar1 = monstermoves;
+    /* Print a 'code' - there is no way to get this back, so it doesn't
+     * have to be repeatable.
+     **/
+    int code1,code2,code3;
+    if (Hallucination) {
+        code1 = code2 = code3 = 0;
+    } else {
+        code1 = rn2(1000);
+        code2 = rn2(1000);
+        code3 = rn2(1000);
+    }
+    pline("The code on the card now reads '%d%d%d'.", code1, code2, code3);
+}
 
 STATIC_OVL boolean
 learnscrolltyp(scrolltyp)
@@ -358,7 +385,7 @@ doread()
                && scroll->oclass != SPBOOK_CLASS) {
         pline(silly_thing_to, "read");
         return 0;
-    } else if (Blind && (scroll->otyp != SPE_BOOK_OF_THE_DEAD)) {
+    } else if (Blind && (scroll->otyp != SCR_AUTHORIZATION)) {
         const char *what = 0;
 
         if (scroll->oclass == SPBOOK_CLASS)
@@ -396,7 +423,7 @@ doread()
 
     /* Actions required to win the game aren't counted towards conduct */
     /* Novel conduct is handled in read_tribute so exclude it too*/
-    if (scroll->otyp != SPE_BOOK_OF_THE_DEAD
+    if (!is_invocation(scroll)
         && scroll->otyp != SPE_BLANK_PAPER && scroll->otyp != SCR_UNPROGRAMMED
         && scroll->otyp != SPE_NOVEL)
         if(!u.uconduct.literate++)
@@ -421,6 +448,7 @@ doread()
         /* a few scroll feedback messages describe something happening
            to the scroll itself, so avoid "it disappears" for those */
         nodisappear = (scroll->otyp == SCR_FIRE
+                       || (scroll->otyp == SCR_AUTHORIZATION)
                        || (scroll->otyp == SCR_REMOVE_CURSE
                            && scroll->cursed));
 
@@ -460,7 +488,8 @@ doread()
                 pline("But wait, the card didn't vanish after all!");
                 You("actually shuffled the card back into your deck!");
             } else {
-                useup(scroll);
+                if (scroll->otyp != SCR_AUTHORIZATION)
+                    useup(scroll);
             }
         }
     }
@@ -650,16 +679,6 @@ int curse_bless;
                 obj->recharged++;
         }
         switch (obj->otyp) {
-        case BELL_OF_OPENING:
-            if (is_cursed)
-                stripspe(obj);
-            else if (is_blessed)
-                obj->spe += rnd(3);
-            else
-                obj->spe += 1;
-            if (obj->spe > 5)
-                obj->spe = 5;
-            break;
         case MAGIC_MARKER:
         case TINNING_KIT:
         case EXPENSIVE_CAMERA:
@@ -1315,6 +1334,9 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             readmail(sobj);
         break;
 #endif
+    case SCR_AUTHORIZATION:
+        authcard(sobj);
+        break;
     case SCR_ENLIGHTENMENT:
         if (scursed) {
             You("have an uneasy feeling...");

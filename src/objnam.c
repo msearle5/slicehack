@@ -730,6 +730,9 @@ char *buf;
         }
         
         switch (objects[otyp].oc_class) {
+            case SCROLL_CLASS:
+                Sprintf(buf, "a %s card", name);
+                return;
             case POTION_CLASS:
                 Strcpy(buf, "a bottle");
                 break;
@@ -786,9 +789,6 @@ register int otyp;
         break;
     case PILL_CLASS:
         Strcpy(buf, "pill");
-        break;
-    case SCROLL_CLASS:
-        Strcpy(buf, "card");
         break;
     case WAND_CLASS:
         Strcpy(buf, "device");
@@ -1323,28 +1323,27 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         }
         break;
     case SCROLL_CLASS:
+        *buf = 0;
         if (Role_if(PM_CARTOMANCER)) {
             if (!nn && dknown) {
                 Strcpy(buf, Cartomancer_rarity(typ));
                 break;
-            } else
-                Strcpy(buf, "card");
-        } else
-            Strcpy(buf, "card");
-        if (!dknown)
-            break;
-        if (nn) {
-            Strcat(buf, " of ");
-            Strcat(buf, actualn);
-        } else if (un) {
-            Strcat(buf, " called ");
-            Strcat(buf, un);
-        } else if (ocl->oc_magic) {
-            Strcat(buf, " labeled ");
-            Strcat(buf, dn);
-        } else {
-            Strcpy(buf, dn);
-            Strcat(buf, " card");
+            }
+        }
+        if (dknown) {
+            if (nn) {
+                Strcat(buf, actualn);
+                Strcat(buf, " card");
+            } else if (un) {
+                Strcat(buf, "card called ");
+                Strcat(buf, un);
+            } else if (ocl->oc_magic) {
+                Strcat(buf, "card labeled ");
+                Strcat(buf, dn);
+            } else {
+                Strcpy(buf, dn);
+                Strcat(buf, " card");
+            }
         }
         break;
     case WAND_CLASS:
@@ -1372,8 +1371,6 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
         } else if (!dknown) {
             Strcpy(buf, "spellbook");
         } else if (nn) {
-            if (typ != SPE_BOOK_OF_THE_DEAD)
-                Strcpy(buf, "spellbook of ");
             Strcat(buf, actualn);
         } else if (un) {
             Sprintf(buf, "spellbook called %s", un);
@@ -1847,13 +1844,10 @@ unsigned doname_flags;
             }
             break;
         }
-        if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-            if (!obj->spe)
-                Strcpy(tmpbuf, "no");
-            else
-                Sprintf(tmpbuf, "%d", obj->spe);
-            Sprintf(eos(bp), " (%s candle%s%s)", tmpbuf, plur(obj->spe),
-                    !obj->lamplit ? " attached" : ", lit");
+        if (obj->otyp == INTERLOCK_PLUG) {
+            if (obj->ovar1) {
+                Sprintf(eos(bp), " (inserted)");
+            }
             break;
         } else if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP
                    || obj->otyp == LANTERN || Is_candle(obj)) {
@@ -4663,14 +4657,14 @@ typfnd:
         case AMULET_OF_YENDOR:
             typ = FAKE_AMULET_OF_YENDOR;
             break;
-        case CANDELABRUM_OF_INVOCATION:
-            typ = rnd_class(TALLOW_CANDLE, WAX_CANDLE);
+        case INTERLOCK_PLUG:
+            typ = FLUTE;
             break;
-        case BELL_OF_OPENING:
-            typ = BELL;
+        case SUITCASE_BOMB:
+            typ = STICK_OF_DYNAMITE;
             break;
-        case SPE_BOOK_OF_THE_DEAD:
-            typ = SPE_BLANK_PAPER;
+        case SCR_AUTHORIZATION:
+            typ = SCR_IDENTITY;
             break;
         case MAGIC_LAMP:
             typ = rnl(5) ? OIL_LAMP : MAGIC_LAMP;

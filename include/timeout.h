@@ -34,6 +34,7 @@ enum timeout_types {
     MELT_ICE_AWAY,
     EXPLODE_OBJECT,
     BOMB_BLOW,      /* for grenades - merge with EXPLODE_OBJECT? */
+    SUITCASE_BLOW,
     NUM_TIME_FUNCS
 };
 

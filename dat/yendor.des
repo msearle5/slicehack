@@ -50,7 +50,7 @@ MONSTER:('@',"Wizard of Yendor"),(16,05),asleep
 MONSTER:('d',"hell hound"),(15,05)
 MONSTER:('d',"hell hound"),(15,05)
 # The local treasure
-OBJECT:('+',"Book of the Dead"),(16,05)
+OBJECT:('?',"authorization"),(16,05)
 # Surrounding terror
 MONSTER:(';',"kraken"),(14,02)
 MONSTER:(';',"giant eel"),(17,02)

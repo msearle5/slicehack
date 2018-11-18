@@ -555,6 +555,7 @@ E void FDECL(impact_drop, (struct obj *, XCHAR_P, XCHAR_P, XCHAR_P));
 
 E int NDECL(dothrow);
 E int NDECL(dofire);
+E void NDECL(ray_gun_msg);
 E void FDECL(endmultishot, (BOOLEAN_P));
 E void FDECL(mayhitfloor, (struct obj *, boolean, int, int));
 E void FDECL(hitfloor, (struct obj *));
@@ -635,6 +636,7 @@ E boolean FDECL(In_V_tower, (d_level *));
 E boolean FDECL(On_W_tower_level, (d_level *));
 E boolean FDECL(In_W_tower, (int, int, d_level *));
 E void FDECL(find_hell, (d_level *));
+E void FDECL(find_vs, (d_level *));
 E void FDECL(goto_hell, (BOOLEAN_P, BOOLEAN_P));
 E void FDECL(assign_level, (d_level *, d_level *));
 E void FDECL(assign_rnd_level, (d_level *, d_level *, int));
@@ -1688,6 +1690,7 @@ E const char * NDECL(generic_lvl_desc);
 E void FDECL(awaken_monsters, (int));
 E void FDECL(awaken_soldiers, (struct monst *));
 E void FDECL(do_earthquake, (int, int, int));
+E void FDECL(do_big_earthquake, (int, BOOLEAN_P));
 E int FDECL(do_play_instrument, (struct obj *));
 
 /* ### nhlan.c ### */

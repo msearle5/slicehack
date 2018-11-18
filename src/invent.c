@@ -793,27 +793,24 @@ struct obj *obj;
         if(!u.uachieve.amulet)
             livelog_write_string(LL_ACHIEVE, "acquired the Amulet of Yendor");
         u.uachieve.amulet = 1;
-    } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-        if (u.uhave.menorah)
-            impossible("already have candelabrum?");
-        u.uhave.menorah = 1;
-        if(!u.uachieve.menorah)
-            livelog_write_string(LL_ACHIEVE, "acquired the Candelabrum of Invocation");
-        u.uachieve.menorah = 1;
-    } else if (obj->otyp == BELL_OF_OPENING) {
-        if (u.uhave.bell)
-            impossible("already have silver bell?");
-        u.uhave.bell = 1;
-        if(!u.uachieve.bell)
-            livelog_write_string(LL_ACHIEVE, "acquired the Bell of Opening");
-        u.uachieve.bell = 1;
-    } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-        if (u.uhave.book)
-            impossible("already have the book?");
-        u.uhave.book = 1;
-        if(!u.uachieve.book)
-            livelog_write_string(LL_ACHIEVE, "acquired the Book of the Dead");
-        u.uachieve.book = 1;
+    } else if (obj->otyp == INTERLOCK_PLUG) {
+        if (u.uhave.plug)
+            impossible("already have the plug?");
+        u.uhave.plug = 1;
+    } else if (obj->otyp == SUITCASE_BOMB) {
+        if (u.uhave.bomb)
+            impossible("already have suitcase bomb?");
+        u.uhave.bomb = 1;
+        if(!u.uachieve.bomb)
+            livelog_write_string(LL_ACHIEVE, "acquired the Suitcase Bomb");
+        u.uachieve.bomb = 1;
+    } else if (obj->otyp == SCR_AUTHORIZATION) {
+        if (u.uhave.card)
+            impossible("already have the card?");
+        u.uhave.card = 1;
+        if(!u.uachieve.card)
+            livelog_write_string(LL_ACHIEVE, "acquired the Authorization Card");
+        u.uachieve.card = 1;
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
             if (u.uhave.questart)
@@ -1117,26 +1114,38 @@ struct obj *obj;
         if (!u.uhave.amulet)
             impossible("don't have amulet?");
         u.uhave.amulet = 0;
-    } else if (obj->otyp == CANDELABRUM_OF_INVOCATION) {
-        if (!u.uhave.menorah)
-            impossible("don't have candelabrum?");
-        u.uhave.menorah = 0;
-    } else if (obj->otyp == BELL_OF_OPENING) {
-        if (!u.uhave.bell)
-            impossible("don't have silver bell?");
-        u.uhave.bell = 0;
-    } else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-        if (!u.uhave.book)
+    } else if (obj->otyp == INTERLOCK_PLUG) {
+        if (!u.uhave.plug)
+            impossible("don't have plug?");
+        u.uhave.plug = 0;
+        if (obj->ovar1) { /* linked */
+            struct obj *bomb = carrying(SUITCASE_BOMB);
+            if (!bomb)
+                impossible("plug is connected, but no bomb?");
+            obj->ovar1 = bomb->ovar1 = 0;
+        }
+    } else if (obj->otyp == SUITCASE_BOMB) {
+        if (!u.uhave.bomb)
+            impossible("don't have bomb?");
+        u.uhave.bomb = 0;
+        if (obj->ovar1) { /* linked */
+            struct obj *plug = carrying(INTERLOCK_PLUG);
+            if (!plug)
+                impossible("bomb is connected, but no plug?");
+            obj->ovar1 = plug->ovar1 = 0;
+        }
+    } else if (obj->otyp == SCR_AUTHORIZATION) {
+        if (!u.uhave.card)
             impossible("don't have the book?");
-        u.uhave.book = 0;
+        u.uhave.card = 0;
     } else if (obj->oartifact) {
         if (is_quest_artifact(obj)) {
             if (!u.uhave.questart)
                 impossible("don't have quest artifact?");
             u.uhave.questart = 0;
         }
-        if(obj->oartifact == ART_TREASURY_OF_PROTEUS){
-        		u.ukinghill = FALSE;
+        if (obj->oartifact == ART_TREASURY_OF_PROTEUS) {
+            u.ukinghill = FALSE;
         }
         set_artifact_intrinsic(obj, 0, W_ART, FALSE);
     }
@@ -1186,9 +1195,7 @@ register struct obj *obj;
     boolean update_map;
 
     if (obj->otyp == AMULET_OF_YENDOR
-        || obj->otyp == CANDELABRUM_OF_INVOCATION
-        || obj->otyp == BELL_OF_OPENING
-        || obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+        || is_invocation(obj)) {
         /* player might be doing something stupid, but we
          * can't guarantee that.  assume special artifacts
          * are indestructible via drawbridges, and exploding
@@ -1247,6 +1254,63 @@ register int type;
         if (otmp->otyp == type)
             return  otmp;
     return (struct obj *) 0;
+}
+
+
+/* Scan an object chain, return any object of type 'type' and its XY position */
+static struct obj *
+findobjin(obj, type, rx, ry)
+struct obj *obj;
+int type;
+int *rx;
+int *ry;
+{
+    while (obj) {
+        if (obj->otyp == type) {
+            *rx = obj->ox;
+            *ry = obj->oy;
+            return obj;
+        }
+        obj = obj->nobj;
+    }
+    *rx = 0;
+    *ry = 0;
+    return NULL;
+}
+
+/* Find an object of given type somewhere on the level, including player and monster inventory.
+ * Returns the object and its XY.
+ **/
+struct obj *
+findobj(type, rx, ry)
+int type;
+int *rx;
+int *ry;
+{
+    int x, y;
+    struct obj *o;
+
+    /* Scan inventory, then the level, then monsters' inventory */
+    o = findobjin(invent);
+    if (!o)
+        o = findobjin(level.objlist, type, x, y);
+    else if (!o)
+        o = findobjin(level.buriedobjlist, type, x, y);
+    else if (!o)
+        o = findobjin(migrating_objs, type, x, y);
+    else if (!o) {
+        struct monst *mtmp = level.monlist;
+
+        while (mtmp) {
+            if (mtmp->minvent) {
+                o = findobjin(mtmp->minvent, type, x, y);
+                if (o) return o;
+            }
+            mtmp = mtmp->nmon;
+        }
+    }
+
+    return NULL;
 }
 
 /* Fictional and not-so-fictional currencies.

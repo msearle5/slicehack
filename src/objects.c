@@ -956,12 +956,12 @@ OBJECT(OBJ("phial", (char *)0),
 /* two unique tools;
  * not artifacts, despite the comment which used to be here
  */
-OBJECT(OBJ("Candelabrum of Invocation", "candelabrum"),
-       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, P_NONE, GOLD),
-       0, TOOL_CLASS, 0, 0, 10, 5000, 0, 0, 0, 0, 200, HI_GOLD),
-OBJECT(OBJ("Bell of Opening", "engraved platinum bell"),
-       BITS(0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, P_NONE, PLATINUM),
-       0, TOOL_CLASS, 0, 0, 10, 5000, 0, 0, 0, 0, 50, HI_METAL),
+OBJECT(OBJ("Interlock Plug", "tapered shiny metal rod"),
+       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, P_NONE, TITANIUM),
+       0, TOOL_CLASS, 0, 0, 15, 3000, 0, 0, 0, 0, 200, HI_METAL),
+OBJECT(OBJ("Suitcase Bomb", "small but very heavy suitcase"),
+       BITS(0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, P_NONE, TITANIUM),
+       0, TOOL_CLASS, 0, 0, 250, 9000, 0, 0, 0, 0, 2000, HI_METAL),
 #undef TOOL
 #undef WEPTOOL
 
@@ -1133,7 +1133,7 @@ SCROLL("teleportation",        "VENZAR BORGAVVE",  1,  55, 100),
 SCROLL("gold detection",                 "THARR",  1,  33, 100),
 SCROLL("food detection",               "YUM YUM",  1,  25, 100),
 SCROLL("knowledge",                   "POTESTAS",  1,  20,  20), /* power */
-SCROLL("identity",            "KERNOD WEL",  1, 160,  20),
+SCROLL("identity",                  "KERNOD WEL",  1, 160,  20),
 SCROLL("divinity",                "ACCIO CACCIO",  1,   5, 200),
 SCROLL("air",                        "TRATS ARL",  1,   5, 200), /* LRA START */
 SCROLL("warp armor",              "TWAS BRILLIG",  1,   5, 200), /* Jabberwocky */
@@ -1150,6 +1150,11 @@ SCROLL("poison gas",                 "VELOX NEB",  1,  15, 300),
 SCROLL("enlightenment",                 "BURRRP",  1,  20, 200), /* purple worm */
 SCROLL("monster detection",             "YSKNAB",  1,  40, 150),
 SCROLL("object detection",    "POP ELKCARC PANS",  1,  42, 150),
+
+/* *The* card must be defined differently to be unwishable and indestructable */
+OBJECT(OBJ("authorization", "SECAM NTSC"),
+    BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, P_NONE, TITANIUM),
+    0, SCROLL_CLASS, 0, 0, 2, 2000, 0, 0, 0, 0, 12, HI_METAL),
 
     /* Extra descriptions, shuffled into use at start of new game.
      * Code in win/share/tilemap.c depends on SCR_POISON_GAS preceding
@@ -1323,10 +1328,6 @@ SPELL("blank paper", "plain", P_NONE, 18, 0, 0, 0, 0, HI_PAPER),
 OBJECT(OBJ("novel", "paperback"),
        BITS(0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, P_NONE, PAPER),
        0, SPBOOK_CLASS, 0, 0, 0, 20, 0, 0, 0, 1, 20, CLR_BRIGHT_BLUE),
-/* a special, one of a kind, spellbook */
-OBJECT(OBJ("Book of the Dead", "papyrus"),
-       BITS(0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, P_NONE, PAPER),
-       0, SPBOOK_CLASS, 0, 0, 20, 10000, 0, 0, 0, 7, 20, HI_PAPER),
 #undef SPELL
 
 /* wands ... */

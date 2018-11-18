@@ -452,13 +452,13 @@ encodeachieve()
 {
     long r = 0L;
 
-    if (u.uachieve.bell)
+    if (u.uachieve.bomb)
         r |= 1L << 0;
     if (u.uachieve.enter_gehennom)
         r |= 1L << 1;
-    if (u.uachieve.menorah)
+    if (u.uachieve.plug)
         r |= 1L << 2;
-    if (u.uachieve.book)
+    if (u.uachieve.card)
         r |= 1L << 3;
     if (u.uevent.invoked)
         r |= 1L << 4;

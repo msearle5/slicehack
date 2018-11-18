@@ -553,17 +553,16 @@ struct monst *mtmp;
     }
 
     if (!otmp) {
-        /* if we didn't find any quest arifact, find another valuable item */
+        /* if we didn't find any quest artifact, find another valuable item */
         if (u.uhave.amulet) {
             real = AMULET_OF_YENDOR;
             fake = FAKE_AMULET_OF_YENDOR;
-        } else if (u.uhave.bell) {
-            real = BELL_OF_OPENING;
-            fake = BELL;
-        } else if (u.uhave.book) {
-            real = SPE_BOOK_OF_THE_DEAD;
-        } else if (u.uhave.menorah) {
-            real = CANDELABRUM_OF_INVOCATION;
+        } else if (u.uhave.bomb) {
+            real = SUITCASE_BOMB;
+        } else if (u.uhave.card) {
+            real = SCR_AUTHORIZATION;
+        } else if (u.uhave.plug) {
+            real = INTERLOCK_PLUG;
         } else
             return; /* you have nothing of special interest */
 

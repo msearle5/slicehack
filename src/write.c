@@ -220,8 +220,8 @@ found:
         You_cant("write that!");
         pline("It's obscene!");
         return 1;
-    } else if (i == SPE_BOOK_OF_THE_DEAD) {
-        pline("No mere dungeon adventurer could write that.");
+    } else if (i == SCR_AUTHORIZATION) {
+        pline("...it's not that easy.");
         return 1;
     } else if (by_descr && paper->oclass == SPBOOK_CLASS
                && !objects[i].oc_name_known) {

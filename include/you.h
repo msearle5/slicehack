@@ -33,9 +33,9 @@ struct RoleAdvance {
 
 struct u_have {
     Bitfield(amulet, 1);   /* carrying Amulet   */
-    Bitfield(bell, 1);     /* carrying Bell     */
-    Bitfield(book, 1);     /* carrying Book     */
-    Bitfield(menorah, 1);  /* carrying Candelabrum */
+    Bitfield(bomb, 1);     /* carrying Bomb     */
+    Bitfield(card, 1);     /* carrying Card     */
+    Bitfield(plug, 1);     /* carrying Plug */
     Bitfield(questart, 1); /* carrying the Quest Artifact */
     Bitfield(unused, 3);
 };
@@ -60,9 +60,9 @@ struct u_event {
 
 struct u_achieve {
     Bitfield(amulet, 1);  /* touched Amulet */
-    Bitfield(bell, 1);    /* touched Bell */
-    Bitfield(book, 1);    /* touched Book */
-    Bitfield(menorah, 1); /* touched Candelabrum */
+    Bitfield(bomb, 1);    /* touched Bomb */
+    Bitfield(card, 1);    /* touched Card */
+    Bitfield(plug, 1);    /* touched Plug */
     Bitfield(enter_gehennom,
              1);           /* entered Gehennom (or Valley) by any means */
     Bitfield(ascended, 1); /* not quite the same as u.uevent.ascended */
@@ -351,7 +351,7 @@ struct you {
     int uhunger;  /* refd only in eat.c and shk.c */
     unsigned uhs; /* hunger state - see eat.c */
     boolean ukinghill; /* records if you are carying the pirate treasure
-    (and are therefor king of the hill) */
+    (and are therefore king of the hill) */
     int protean; /* counter for the auto-polypiling power of the chest*/
 
     struct prop uprops[LAST_PROP + 1];
@@ -450,7 +450,7 @@ struct you {
     long ugallop;            /* turns steed will run after being kicked */
     int urideturns;          /* time spent riding, for skill advancement */
     int umortality;          /* how many times you died */
-    int ugrave_arise;    /* you die and become something aside from a ghost */
+    int ugrave_arise;        /* you die and become something aside from a ghost */
     int weapon_slots;        /* unused skill slots */
     int skills_advanced;     /* # of advances made so far */
     xchar skill_record[P_SKILL_LIMIT]; /* skill advancements */

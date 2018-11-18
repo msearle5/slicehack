@@ -3546,9 +3546,9 @@ xchar x, y;
     } else if (obj->oclass == SCROLL_CLASS || obj->oclass == SPBOOK_CLASS) {
         if (obj->otyp == SCR_FIRE || obj->otyp == SPE_FIREBALL || obj->oartifact)
             return FALSE;
-        if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+        if (obj->otyp == SCR_AUTHORIZATION) {
             if (in_sight)
-                pline("Smoke rises from %s.", the(xname(obj)));
+                pline("%s briefly glows red, then cools.", The(xname(obj)));
             return FALSE;
         }
         dindx = (obj->oclass == SCROLL_CLASS) ? 3 : 4;
@@ -3608,7 +3608,7 @@ xchar x, y;
 
     /* the Amulet, invocation items, and Rider corpses are never destroyed
        (let Book of the Dead fall through to fire_damage() to get feedback) */
-    if (obj_resists(obj, 0, 0) && otyp != SPE_BOOK_OF_THE_DEAD)
+    if (obj_resists(obj, 0, 0) && otyp != SCR_AUTHORIZATION)
         return FALSE;
     /* destroy liquid (venom), wax, veggy, flesh, paper (except for scrolls
        and books--let fire damage deal with them), cloth, leather, wood, bone
@@ -3759,8 +3759,8 @@ boolean force;
             update_inventory();
         return ER_DAMAGED;
     } else if (obj->oclass == SPBOOK_CLASS) {
-        if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
-            pline("Steam rises from %s.", the(xname(obj)));
+        if (obj->otyp == SCR_AUTHORIZATION) {
+            pline("%s is unaffected.", The(xname(obj)));
             return 0;
         } else if (obj->otyp == SPE_BLANK_PAPER) {
             return 0;
@@ -5488,7 +5488,7 @@ lava_effects()
         for (obj = invent; obj; obj = obj2) {
             obj2 = obj->nobj;
             /* above, we set in_use for objects which are to be destroyed */
-            if (obj->otyp == SPE_BOOK_OF_THE_DEAD && !Blind) {
+            if (obj->otyp == SCR_AUTHORIZATION && !Blind) {
                 if (usurvive)
                     pline("%s glows a strange %s, but remains intact.",
                           The(xname(obj)), hcolor("dark red"));

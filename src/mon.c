@@ -1319,7 +1319,7 @@ struct obj *otmp;
     if (otyp == CORPSE && is_rider(&mons[otmp->corpsenm]))
         return 0;
     if (mon_hates_material(mtmp, otmp->material)
-        && (otyp != BELL_OF_OPENING || !is_covetous(mdat)))
+        && (otyp != SUITCASE_BOMB || !is_covetous(mdat)))
         return 0;
 
     /* hostile monsters who like gold will pick up the whole stack;

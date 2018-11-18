@@ -459,8 +459,8 @@ register int i;
 
 /* items that should stand out once they're known */
 static short uniq_objs[] = {
-    AMULET_OF_YENDOR, SPE_BOOK_OF_THE_DEAD, CANDELABRUM_OF_INVOCATION,
-    BELL_OF_OPENING,
+    AMULET_OF_YENDOR, SCR_AUTHORIZATION, INTERLOCK_PLUG,
+    SUITCASE_BOMB,
 };
 
 /* the '\' command - show discovered object types */

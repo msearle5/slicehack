@@ -7,6 +7,7 @@
 
 #include "hack.h"
 #include "lev.h" /* for checking save modes */
+#include "wintty.h" /* more() */
 
 STATIC_DCL void NDECL(stoned_dialogue);
 STATIC_DCL void NDECL(vomiting_dialogue);
@@ -726,6 +727,255 @@ boolean yours;
     (void) start_timer((long)fuse, TIMER_OBJECT, BOMB_BLOW, obj_to_any(bomb));
 }
 
+/* Suitcase bomb.
+ * First make sure it's still armed (in the right place).
+ * If so, it will go off and kill you if you are on the same level,
+ * otherwise doing damage to levels above it.
+ */
+static void
+suitcase_bomb(bomb)
+struct obj *bomb;
+{
+    int pm;
+    xchar cx,cy;
+    d_level z;
+    d_level uz = u.uz;
+    int i, dmg;
+    struct monst *mtmp;
+    struct obj *otmp;
+
+    /* successful invocation */
+    unsigned soon = (unsigned) d(2, 6); /* time til next intervene() */
+    u.uevent.invoked = 1;
+    /* in case you haven't killed the Wizard yet, behave as if
+       you just did */
+    u.uevent.udemigod = 1; /* wizdead() */
+
+    find_vs(&z);
+
+    /* It's the big boom.
+     * If you are in a different branch then you are safe
+     * same if you are enough levels up.
+     **/
+
+    /* Change the levels 'damaged'.
+     * Sanctum has no stair back.
+     * The VS level has a lava lake, with a few holes down on an island in the middle.
+     * The rest is random pits and twisted rock. All monsters are killed. (Leave corpses?)
+     * Levels VS-1 through VS-5 are affected similarly to a drum of earthquake.
+     **/
+    for (i=0;i<=5;i++)
+    {
+        struct obj *otmp;
+        boolean quiet = TRUE;
+        d_level target = z;
+        target.dlevel -= i;
+        /* Same branch & level */
+        if ((target.dnum == uz.dnum) && (target.dlevel == uz.dlevel))
+            quiet = FALSE;
+        goto_level(&target, FALSE, FALSE, FALSE);
+        if (i == 0) {
+            int x, y, debris;
+
+            /* First, make sure that the bomb really is on the right level and XY.
+             * If not, disarm it. If the bomb is being carried by you, inform you.
+             **/
+            otmp = sobj_at(SUITCASE_BOMB, inv_pos.x, inv_pos.y);
+            if (!otmp) {
+                bomb->oarmed = FALSE;
+                if (get_obj_location(bomb, &cx, &cy, BURIED_TOO | CONTAINED_TOO)) {
+                    if ((cx != inv_pos.x) || (cy != inv_pos.y)) {
+                        if (bomb->where == OBJ_INVENT) {
+                            pline("The bomb displays a message:");
+                            more();
+                            pline("Motion Detected. Firing Timer Reset. DISARMED.");
+                        }
+                    }
+                }
+                goto_level(&uz, FALSE, FALSE, FALSE);
+                return;
+            }
+
+            do_big_earthquake(12, quiet);
+            /* For each grid of the level, kill any monsters and destroy any objects.
+             * Then determine distance from ground zero and change the terrain
+             */
+            for(x=0;x<COLNO;x++) {
+                for(y=0;y<ROWNO;y++) {
+                    struct obj *next_obj;
+                    int dist;
+                    struct trap *trap;
+
+                    if (level.monsters[x][y])
+                        mondead(level.monsters[x][y], NULL);
+                    for (otmp = level.objects[x][y]; otmp; otmp = next_obj) {
+                        next_obj = otmp->nexthere;
+                        delobj(otmp);
+                    }
+                    dist = ((x - inv_pos.x)*(x - inv_pos.x))+((y - inv_pos.y)*(y - inv_pos.y));
+                    if (dist)
+                        dist = rn2(dist);
+                    debris = 0;
+                    if (trap = t_at(x, y))
+                        deltrap(trap);
+
+                    if (!dist) {
+                        /* lava + hole */
+                        levl[x][y].typ = LAVAPOOL;
+                        maketrap(x, y, HOLE);
+                    } else if (dist < 10*10) {
+                        /* make lava (LAVAPOOL) */
+                        levl[x][y].typ = LAVAPOOL;
+                    } else if (dist < 20*20) {
+                        /* make floor (CORR, plus boulders and rocks - and pits?)
+                         * Amount of debris increases outwards */
+                        levl[x][y].typ = CORR;
+                        debris = dist - (10*10);
+                    } else {
+                        /* keep original feature if it's not "furniture" or incompatible
+                         * (such as ice/water). This should remove stairs!
+                         * Also add debris and pits, decreasing outwards
+                         **/
+                        switch (levl[x][y].typ) {
+                            case TREE:
+                            case SDOOR:
+                            case POOL:
+                            case WATER:
+                            case DRAWBRIDGE_UP:
+                            case IRONBARS:
+                            case DOOR:
+                            case ROOM:
+                            case STAIRS:
+                            case LADDER:
+                            case FOUNTAIN:
+                            case THRONE:
+                            case SINK:
+                            case FURNACE:
+                            case GRAVE:
+                            case ALTAR:
+                            case ICE:
+                            case DRAWBRIDGE_DOWN:
+                                levl[x][y].typ = CORR;
+                        }
+                        debris = (20*20*20*20) / dist;
+                    }
+
+                    /* Add debris */
+                    if (rn2(200000) < debris) {
+                        mksobj_at(BOULDER, x, y, FALSE, FALSE);
+                    } else if (rn2(200000) < debris) {
+                        maketrap(x, y, PIT);
+                    } else if (rn2(50000) < debris) {
+                        mksobj_at(ROCK, x, y, FALSE, FALSE);
+                    }
+
+                    /* Destroy doors */
+                    levl[x][y].doormask = D_NODOOR;
+                    unblock_point(x, y);
+                }
+            }
+        } else {
+            static const xchar force[6] = {
+                0, 12, 6, 4, 2, 1
+            };
+            do_big_earthquake(force[i], quiet);
+        }
+    }
+    goto_level(&uz, FALSE, FALSE, FALSE);
+
+    if (z.dnum == u.uz.dnum) {
+        /* Same branch */
+        int diff = abs(u.uz.dlevel - z.dlevel);
+        switch (diff) {
+            case 0:
+            /* Same level. You can survive this, if life-saved.
+             * You may well end up in lava, though.
+             **/
+            pline("There is a searing blast of light!");
+            u.uhp = 0;
+            losehp(1, "a nuclear blast", KILLED_BY);
+            break;
+
+            case 1:
+            /* Level above. This takes a lot of damage. */
+            pline("There is a blinding flash of light!");
+            if (!Blind)
+                make_blinded(100+rn2(100), FALSE);
+            pline("The cave collapses around you with a terrible thundering!");
+            if (!Deaf)
+                make_deaf(100+rn2(100), FALSE);
+            losehp(Maybe_Half_Phys(d(15,15)), "a nearby nuclear blast", KILLED_BY);
+            break;
+
+            case 2:
+            /* Nearby. Still takes some damage */
+            pline("There is a brilliant flash of light!");
+            if (!Blind)
+                make_blinded(5+rn2(5), FALSE);
+            pline("The cave buckles around you with a thunderous noise!");
+            if (!Deaf)
+                make_deaf(10+rn2(10), FALSE);
+            losehp(Maybe_Half_Phys(d(8,8)), "a nearby nuclear blast", KILLED_BY);
+            break;
+
+            case 5:
+            case 4:
+            case 3:
+            /* Some way off. Take scratch damage */
+            pline("There is a %sflash of light, and the cave shakes%s!", (diff == 3) ? "bright " : "",
+                (diff == 3) ? " violently" : (diff == 4 ? " hard" : "") );
+            dmg = d(((diff == 3) ? 4 : 2), ((diff == 5) ? 3 : 6));
+            losehp(Maybe_Half_Phys(dmg), "a distant nuclear blast", KILLED_BY);
+            break;
+
+            default:
+            /* Distant enough that no damage is done to the levels, or you.
+             * But it should still be noticable!
+             **/
+            pline("The cave trembles from a distant blast!");
+            break;
+        }
+    } else {
+        /* Different branch. No message (there isn't really one case that fits all). */
+        ;
+    }
+
+    livelog_write_string(LL_ACHIEVE, "nuked the bunker door and so alerted its protectors");
+
+    if (!u.udg_cnt || u.udg_cnt > soon)
+        u.udg_cnt = soon;
+    /* Awaken all the ndemons and scatter them throughout the game. The
+       ascension run is no easy task :D */
+    pline("You feel like you are being watched...");
+    for (pm = PM_JUIBLEX; pm <= PM_DEMOGORGON; pm++) {
+        if (!(mvitals[pm].mvflags & G_EXTINCT)) {
+            mtmp = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS);
+            mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 0;
+            if (mtmp->data->mflags3 & M3_WANTSAMUL)
+                mtmp->data->mflags3 &= ~M3_WANTSAMUL;
+            if (mtmp->data->mflags3 & ~M3_WANTSBOOK)
+                mtmp->data->mflags3 &= ~M3_WANTSBOOK;
+            if (mtmp->data->mflags3 & M3_WAITFORU)
+                mtmp->data->mflags3 &= ~M3_WAITFORU;
+            /* based on muse.c code */
+            d_level flev;
+            get_level(&flev, 1 + rn2(depth(&u.uz)));
+            migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
+                             (coord *) 0);
+        }
+    }
+}
+
+/* timer callback routine: detonate suitcase bomb */
+void
+suitcase_bomb_blow(arg, timeout)
+anything *arg;
+long timeout;
+{
+    pline("timeout %ld, mmoves %ld", timeout, monstermoves);
+    suitcase_bomb(arg->a_obj);
+}
+
 /* timer callback routine: detonate the explosives */
 void
 bomb_blow(arg, timeout)
@@ -1215,12 +1465,11 @@ anything *arg;
 long timeout;
 {
     struct obj *obj = arg->a_obj;
-    boolean canseeit, many, menorah, need_newsym, need_invupdate;
+    boolean canseeit, many, need_newsym, need_invupdate;
     xchar x, y;
     char whose[BUFSZ];
 
-    menorah = obj->otyp == CANDELABRUM_OF_INVOCATION;
-    many = menorah ? obj->spe > 1 : obj->quan > 1L;
+    many = obj->quan > 1L;
 
     /* timeout while away */
     if (timeout != monstermoves) {
@@ -1230,10 +1479,7 @@ long timeout;
             obj->age = 0;
             end_burn(obj, FALSE);
 
-            if (menorah) {
-                obj->spe = 0; /* no more candles */
-                obj->owt = weight(obj);
-            } else if (Is_candle(obj) || obj->otyp == POT_OIL) {
+            if (Is_candle(obj) || obj->otyp == POT_OIL) {
                 /* get rid of candles and burning oil potions;
                    we know this object isn't carried by hero,
                    nor is it migrating */
@@ -1364,7 +1610,6 @@ long timeout;
 
         break;
 
-    case CANDELABRUM_OF_INVOCATION:
     case TALLOW_CANDLE:
     case WAX_CANDLE:
         switch (obj->age) {
@@ -1373,14 +1618,12 @@ long timeout;
                 switch (obj->where) {
                 case OBJ_INVENT:
                 case OBJ_MINVENT:
-                    pline("%s%scandle%s getting short.", whose,
-                          menorah ? "candelabrum's " : "",
+                    pline("%scandle%s getting short.", whose,
                           many ? "s are" : " is");
                     break;
                 case OBJ_FLOOR:
                     You_see("%scandle%s getting short.",
-                            menorah ? "a candelabrum's " : many ? "some "
-                                                                : "a ",
+                            many ? "some " : "a ",
                             many ? "s" : "");
                     break;
                 }
@@ -1391,14 +1634,13 @@ long timeout;
                 switch (obj->where) {
                 case OBJ_INVENT:
                 case OBJ_MINVENT:
-                    pline("%s%scandle%s flame%s flicker%s low!", whose,
-                          menorah ? "candelabrum's " : "", many ? "s'" : "'s",
+                    pline("%scandle%s flame%s flicker%s low!", whose,
+                          many ? "s'" : "'s",
                           many ? "s" : "", many ? "" : "s");
                     break;
                 case OBJ_FLOOR:
                     You_see("%scandle%s flame%s flicker low!",
-                            menorah ? "a candelabrum's " : many ? "some "
-                                                                : "a ",
+                            many ? "some " : "a ",
                             many ? "s'" : "'s", many ? "s" : "");
                     break;
                 }
@@ -1407,66 +1649,46 @@ long timeout;
         case 0:
             /* we know even if blind and in our inventory */
             if (canseeit || obj->where == OBJ_INVENT) {
-                if (menorah) {
-                    switch (obj->where) {
-                    case OBJ_INVENT:
-                        need_invupdate = TRUE;
-                        /*FALLTHRU*/
-                    case OBJ_MINVENT:
-                        pline("%scandelabrum's flame%s.", whose,
-                              many ? "s die" : " dies");
-                        break;
-                    case OBJ_FLOOR:
-                        You_see("a candelabrum's flame%s die.",
-                                many ? "s" : "");
-                        break;
-                    }
-                } else {
-                    switch (obj->where) {
-                    case OBJ_INVENT:
-                        /* no need_invupdate for update_inventory() necessary;
-                           useupall() -> freeinv() handles it */
-                        /*FALLTHRU*/
-                    case OBJ_MINVENT:
-                        pline("%s %s consumed!", Yname2(obj),
-                              many ? "are" : "is");
-                        break;
-                    case OBJ_FLOOR:
-                        /*
-                          You see some wax candles consumed!
-                          You see a wax candle consumed!
-                         */
-                        You_see("%s%s consumed!", many ? "some " : "",
-                                many ? xname(obj) : an(xname(obj)));
-                        need_newsym = TRUE;
-                        break;
-                    }
-
-                    /* post message */
-                    pline(Hallucination
-                              ? (many ? "They shriek!" : "It shrieks!")
-                              : Blind ? "" : (many ? "Their flames die."
-                                                   : "Its flame dies."));
+                switch (obj->where) {
+                case OBJ_INVENT:
+                    /* no need_invupdate for update_inventory() necessary;
+                       useupall() -> freeinv() handles it */
+                    /*FALLTHRU*/
+                case OBJ_MINVENT:
+                    pline("%s %s consumed!", Yname2(obj),
+                          many ? "are" : "is");
+                    break;
+                case OBJ_FLOOR:
+                    /*
+                      You see some wax candles consumed!
+                      You see a wax candle consumed!
+                     */
+                    You_see("%s%s consumed!", many ? "some " : "",
+                            many ? xname(obj) : an(xname(obj)));
+                    need_newsym = TRUE;
+                    break;
                 }
+
+                /* post message */
+                pline(Hallucination
+                          ? (many ? "They shriek!" : "It shrieks!")
+                          : Blind ? "" : (many ? "Their flames die."
+                                               : "Its flame dies."));
             }
             end_burn(obj, FALSE);
 
-            if (menorah) {
-                obj->spe = 0;
-                obj->owt = weight(obj);
+            if (carried(obj)) {
+                useupall(obj);
             } else {
-                if (carried(obj)) {
-                    useupall(obj);
-                } else {
-                    /* clear migrating obj's destination code
-                       so obfree won't think this item is worn */
-                    if (obj->where == OBJ_MIGRATING)
-                        obj->owornmask = 0L;
-                    obj_extract_self(obj);
-                    obfree(obj, (struct obj *) 0);
-                }
-                obj = (struct obj *) 0;
+                /* clear migrating obj's destination code
+                   so obfree won't think this item is worn */
+                if (obj->where == OBJ_MIGRATING)
+                    obj->owornmask = 0L;
+                obj_extract_self(obj);
+                obfree(obj, (struct obj *) 0);
             }
+            obj = (struct obj *) 0;
+
             break; /* case [age ==] 0 */
 
         default:
@@ -1565,7 +1787,6 @@ boolean already_lit;
             turns = obj->age;
         break;
 
-    case CANDELABRUM_OF_INVOCATION:
     case TALLOW_CANDLE:
     case WAX_CANDLE:
         /* magic times are 75, 15, and 0 */
@@ -1814,7 +2035,8 @@ static const ttable timeout_funcs[NUM_TIME_FUNCS] = {
     TTAB(fig_transform, (timeout_proc) 0, "fig_transform"),
     TTAB(melt_ice_away, (timeout_proc) 0, "melt_ice_away"),
     TTAB(explode_potion, (timeout_proc) 0, "explode_potion"),
-    TTAB(bomb_blow,     (timeout_proc)0,	"bomb_blow")
+    TTAB(bomb_blow,     (timeout_proc)0,	"bomb_blow"),
+    TTAB(suitcase_bomb_blow,     (timeout_proc)0,	"suitcase_bomb_blow")
 };
 #undef TTAB
 

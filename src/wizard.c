@@ -148,9 +148,7 @@ register struct monst *mtmp;
     for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
         if (otmp->otyp == AMULET_OF_YENDOR
             || any_quest_artifact(otmp)
-            || otmp->otyp == BELL_OF_OPENING
-            || otmp->otyp == CANDELABRUM_OF_INVOCATION
-            || otmp->otyp == SPE_BOOK_OF_THE_DEAD)
+            || is_invocation(otmp))
             return 1;
     return 0;
 }
@@ -176,11 +174,11 @@ register int mask;
     case M3_WANTSAMUL:
         return AMULET_OF_YENDOR;
     case M3_WANTSBELL:
-        return BELL_OF_OPENING;
+        return SUITCASE_BOMB;
     case M3_WANTSCAND:
-        return CANDELABRUM_OF_INVOCATION;
+        return INTERLOCK_PLUG;
     case M3_WANTSBOOK:
-        return SPE_BOOK_OF_THE_DEAD;
+        return SCR_AUTHORIZATION;
     default:
         break; /* 0 signifies quest artifact */
     }
@@ -248,11 +246,11 @@ register int mask;
     case M3_WANTSAMUL:
         return (boolean) u.uhave.amulet;
     case M3_WANTSBELL:
-        return (boolean) u.uhave.bell;
+        return (boolean) u.uhave.bomb;
     case M3_WANTSCAND:
-        return (boolean) u.uhave.menorah;
+        return (boolean) u.uhave.plug;
     case M3_WANTSBOOK:
-        return (boolean) u.uhave.book;
+        return (boolean) u.uhave.card;
     case M3_WANTSARTI:
         return (boolean) u.uhave.questart;
     default:
