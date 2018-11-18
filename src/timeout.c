@@ -498,6 +498,8 @@ nh_timeout()
                 losehp(d(10, 4), "being eaten from the inside by insects", KILLED_BY);
                 break;
             case SLIMED:
+                if (Hallucination)
+                    pline("Next time, watch out for slime!");
                 if (kptr && kptr->name[0]) {
                     killer.format = kptr->format;
                     Strcpy(killer.name, kptr->name);
