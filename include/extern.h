@@ -56,6 +56,7 @@ E boolean FDECL(snuff_lit, (struct obj *));
 E boolean FDECL(catch_lit, (struct obj *));
 E void FDECL(use_unicorn_horn, (struct obj *));
 E boolean FDECL(tinnable, (struct obj *));
+E void FDECL(destroy_wand, (struct obj *, boolean));
 E void NDECL(reset_trapset);
 E void FDECL(fig_transform, (ANY_P *, long));
 E int FDECL(unfixable_trouble_count, (BOOLEAN_P));

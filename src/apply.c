@@ -3529,15 +3529,7 @@ STATIC_OVL int
 do_break_wand(obj)
 struct obj *obj;
 {
-    static const char nothing_else_happens[] = "But nothing else happens...";
-    register int i, x, y;
-    register struct monst *mon;
-    int dmg, damage, spe;
-    boolean affects_objects;
-    boolean shop_damage = FALSE;
-    boolean fillmsg = FALSE;
-    int expltype = EXPL_MAGICAL;
-    char confirm[QBUFSZ], buf[BUFSZ];
+    char confirm[QBUFSZ];
     boolean is_fragile = (!strcmp(OBJ_DESCR(objects[obj->otyp]), "balsa"));
 
     if (!paranoid_query(ParanoidBreakwand,
@@ -3556,12 +3548,32 @@ struct obj *obj;
     pline("Raising %s high above your %s, you %s it in two!", yname(obj),
           body_part(HEAD), is_fragile ? "snap" : "break");
 
+    destroy_wand(obj, FALSE);
+    return 1;
+}
+
+/* Destroy a wand, e.g. from breaking or eating it */
+void
+destroy_wand(obj, eating)
+struct obj *obj;
+boolean eating;
+{
+    static const char nothing_else_happens[] = "But nothing else happens...";
+    register int i, x, y;
+    register struct monst *mon;
+    int dmg, damage, spe;
+    boolean affects_objects;
+    boolean shop_damage = FALSE;
+    boolean fillmsg = FALSE;
+    int expltype = EXPL_MAGICAL;
+    char buf[BUFSZ];
+
     /* [ALI] Do this first so that wand is removed from bill. Otherwise,
      * the freeinv() below also hides it from setpaid() which causes problems.
      */
     if (obj->unpaid) {
         check_unpaid(obj); /* Extra charge for use */
-        costly_alteration(obj, COST_DSTROY);
+        costly_alteration(obj, eating ? COST_BITE : COST_DSTROY);
     }
 
     current_wand = obj; /* destroy_item might reset this */
@@ -3585,7 +3597,7 @@ struct obj *obj;
 
     obj->ox = u.ux;
     obj->oy = u.uy;
-    dmg = obj->spe * 4;
+    dmg = obj->spe * (eating ? 6 : 4);
     affects_objects = FALSE;
 
     switch (obj->otyp) {
@@ -3601,19 +3613,41 @@ struct obj *obj;
             pline(nothing_else_happens);
         goto discard_broken_wand;
     case WAN_DEATH:
+        if ((Hallucination) && (eating))
+            You("could murder a curry!");
+        dmg *= 4;
+        goto wanexpl;
     case WAN_LIGHTNING:
+        if ((Hallucination) && (eating))
+            pline("That tastes shockingly good!");
+        dmg *= 4;
+        goto wanexpl;
     case WAN_SONICS:
+        if ((Hallucination) && (eating))
+            pline("You burp... like a clap of thunder!");
         dmg *= 4;
         goto wanexpl;
     case WAN_FIRE:
         expltype = EXPL_FIERY;
-        /*FALLTHRU*/
+        dmg *= 2;
+        if ((Hallucination) && (eating))
+            pline("Wow! It tastest like super hot chili!");
+        goto wanexpl;
     case WAN_ACID:
+        if ((Hallucination) && (eating))
+            pline("Tangy! It's full of lemonade!");
+        dmg *= 2;
+        goto wanexpl;
     case WAN_POISON_GAS:
         if (expltype == EXPL_MAGICAL)
             expltype = EXPL_NOXIOUS;
-        /*FALLTHRU*/
+        if ((Hallucination) && (eating))
+            pline("Maybe I'm nuts, but it tastes like marzipan!");
+        dmg *= 2;
+        goto wanexpl;
     case WAN_COLD:
+        if ((Hallucination) && (eating))
+            pline("Cool! It's an ice cream cone!");
         if (expltype == EXPL_MAGICAL)
             expltype = EXPL_FROSTY;
         dmg *= 2;
@@ -3767,7 +3801,6 @@ discard_broken_wand:
     if (obj)
         delobj(obj);
     nomul(0);
-    return 1;
 }
 
 STATIC_OVL void

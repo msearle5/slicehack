@@ -2259,6 +2259,19 @@ struct obj *otmp;
     }
 }
 
+/* Eat a device.
+ * Maybe some could have special effects, but the default response is to blow it
+ * up, similarly to breaking it - although as you are closer it should hit harder,
+ * and some messages get changed...
+ */
+STATIC_OVL void
+eatdevice(obj)
+struct obj *obj;
+{
+    pline("You bite into %s.", yname(obj));
+    destroy_wand(obj, TRUE);
+}
+
 /* called after eating non-food */
 STATIC_OVL void
 eatspecial()
@@ -2302,6 +2315,8 @@ eatspecial()
         (void) dopotion(otmp);
     } else if (otmp->oclass == RING_CLASS || otmp->oclass == AMULET_CLASS) {
         eataccessory(otmp);
+    } else if (otmp->oclass == WAND_CLASS) {
+        eatdevice(otmp);
     } else if (otmp->otyp == LEASH && otmp->leashmon) {
         o_unleash(otmp);
     }
@@ -2698,6 +2713,7 @@ doeat()
         }
         return 1;
     }
+
     /* KMH -- Slow digestion is... indigestible */
     if (otmp->otyp == RIN_SLOW_DIGESTION) {
         pline("This ring is indigestible!");
