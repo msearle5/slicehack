@@ -1143,7 +1143,7 @@ struct monst *mtmp;
         case AD_COLD:
             return !(yours ? Cold_resistance : resists_cold(mtmp));
         case AD_LOUD:
-            return !(yours ? Cold_resistance : resists_sonic(mtmp));
+            return !(yours ? Sonic_resistance : resists_sonic(mtmp));
         case AD_ACID:
             return !(yours ? Acid_resistance : resists_acid(mtmp));
         case AD_ELEC:
