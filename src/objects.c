@@ -1057,12 +1057,15 @@ SCROLL("stinking cloud",             "VELOX NEB",  1,  15, 300),
      * tilemap.c must be modified to match.
      */
 SCROLL(None,      "FOOBIE BLETCH",  1,   0, 100),
+SCROLL(None,        "OMG LOL WTH",  1,   0, 100),
+SCROLL(None,       "HTH HAND GFY",  1,   0, 100),
+SCROLL(None,         "BT DT GTTS",  1,   0, 100),
 SCROLL(None,            "NYEHEHE",  1,   0, 100), /* laughing noise */
 SCROLL(None,      "ELPHE MONATER",  1,   0, 100), /* famous mistranslation */
 SCROLL(None,               "ABAJ",  1,   0, 100), /* famous mistranslation */
 SCROLL(None,     "CONGLATURATION",  1,   0, 100), /* famous mistranslation */
 SCROLL(None,       "DESUM TETRAL",  1,   0, 100), /* dal aos */
-SCROLL(None,            "NHINRL",   1,   0, 100), /* meta */
+SCROLL(None,             "NHINRL",   1,   0, 100), /* meta */
 SCROLL(None,          "ISAY INAY",  1,   0, 100), /* meta */
 SCROLL(None,              "TEMOV",  1,   0, 100),
 SCROLL(None,         "GARVEN DEH",  1,   0, 100),
