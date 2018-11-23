@@ -113,8 +113,10 @@ hellephant
 inept mimic
 hungry ghost
 unborn deep dwarf
-Wandering mushroom
+wandering mushroom
 
+Care Bear
+My Little Pony
 Vlad the Inhaler
 Delaunay tessellation field estimator
 # NAO fruit name
@@ -198,6 +200,7 @@ magically animated Vorpal Blade
 Legendary black beast of Arrrgh
 
 # powergaming and speedrunning
+polyparrot
 polypiler
 pudding farmer
 speedrunner
@@ -206,6 +209,7 @@ Elbereth-spammer
 enexto abuser
 
 # self-deprecation / this variant
+thinly disguised fantasy trope
 questionable addition
 poorly balanced monster
 obscure reference
@@ -382,6 +386,8 @@ were-rabbit
 # "Only you can prevent forest fires!
 +Smokey Bear
 
+whomping willow
+
 # Discworld
 Luggage
 vampiric watermelon
@@ -485,6 +491,7 @@ Vorlon
 
 # King Arthur
 questing beast
+pesting beast
 
 # Movie
 Predator
@@ -517,6 +524,7 @@ ferret
 # arcade games
 space invader
 galaxian
+galagan
 gorfian
 
 # european cryptids
@@ -539,10 +547,13 @@ trow
 chupacabras
 chupachup
 
+barf elemental
+
 # Unusually animate body parts
 bouncing eye
 floating nose
 wandering eye
+wandering hand
 
 # Computerese
 infinite loop

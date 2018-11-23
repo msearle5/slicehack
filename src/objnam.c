@@ -86,6 +86,88 @@ STATIC_DCL const char *FDECL(Cartomancer_rarity,(int otyp));
 
 
 static const char * const bogus_items[] = {
+    "Wand of ouchies",
+    ".44 water pistol",
+    "Clear Potion of Water",    /* Angband */
+    "Jewel of Judgement",
+    "Iron Crown of Morgoth",
+    "Smilaril",
+    "Tear of Offler",
+    "balas-ruby",
+    "moissanite",
+    "butter knife",
+    "battlemech armour",
+    "golden crunchy bit",
+    "infra-yellow laser",
+    "vacuum pocket",
+    "flying turkey",
+    "uberpenguin",
+    "wand of fishing",
+    "curtain ring",
+    "token ring",
+    "decoder ring",
+    "personalised ring",
+    "mood ring",
+    "satanic ring",
+    "ring of peril",
+    "ring of fire",
+    "The One Ring",
+    "rubber gloves",
+    "toilet brush",
+    "card wronger",
+    "punched card",
+    ".44 Magnum ice cream",
+    "BFG-9000",
+    "chocolate teapot",
+    "inflatable dartboard",
+    "whoopee cushion",
+    "mining rig",
+    "figurine of Death",
+    "*100lb diamond*",
+    "*golden skull*",
+    "*Faberge egg*",
+    "*platinum pyramid*",
+    "brass lantern",
+    "key ring",
+    "ZX80",
+    "Dvorak keyboard",
+    "black rod with a rusty star",
+    "*plover's egg*",
+    "*golden nugget*",
+    "*huge emerald*",
+    "sword that was broken",
+    "record that was broken",
+    "amulet of Yendor",
+    "cooked steel amulet",
+    "BB gun",
+    "potato gun",
+    "glowing gem",
+    "ring of brass and glass",
+    "cowpat",
+    "orb of wishing",
+    "massive EXPLOSION!",
+    "cockatrice corpse",
+    "kestral",
+    "round square",
+    "vibrating square",
+    "plain gold ring",
+    "greenish-purple blob",
+    "thingie",
+    "glowy melty wotsit",
+    "rotten egg",
+    "potion of swirliness",
+    "empty bottle",
+    "magic mushroom",
+    "Ringil",
+    "deathstone",
+    "touchstone",
+    "wishstone",
+    "tombstone",
+    "flightstone",
+    "dhrystone",
+    "cosmic ray",
+    "sick bag",
+    "blast of fire",
 
     /* Real */
     "arrow",
@@ -294,7 +376,7 @@ static const char * const bogus_items[] = {
     "YANI",
     "spoiler",
     "wiki",
-    "source diving helmet",
+    "source diving helmet",             /* doxygen tank */
     "wizard bones",
     "Puddingbane",
     "malevolent RNG",
@@ -329,6 +411,8 @@ static const char * const bogus_items[] = {
     "euphonium",
     "kick drum",                        /* 303 */
     "tooled airhorn",
+    "penny whistle",
+    "mighty organ",
 
     /* Pop Culture */
     "flux capacitor",                   /* BTTF */
@@ -341,7 +425,7 @@ static const char * const bogus_items[] = {
     "blessed +9 helm of Des Lynam",     /* Bottom */
 
     /* Culture */
-    "Book of Sand",                 /* Jorge Luis Borges */
+    "Book of Sand",                     /* Jorge Luis Borges */
     "sonic screwdriver",                /* Doctor Who */
 
     /* Brithack */
@@ -372,6 +456,7 @@ static const char * const bogus_items[] = {
     "amulet versus stone",              /* SLASH'EM */
     "clairvoyance pill",                /* SLASH'EM */
     "invulnerability pill",             /* SLASH'EM */
+    "power pill",
     "spellbook of enchant armor",       /* SLASH'EM */
     "map of The Great Adamantine Space Elevator", /*Dwarf Fortress*/
     "rat blood barrel",                 /* Dwarf Fortress */
@@ -379,12 +464,14 @@ static const char * const bogus_items[] = {
     "cat tallow roast",                 /* Dwarf Fortress */
     "si",                               /* ADOM, it means "strange item" */
     "omnipotence card",                 /* ADOM */
+    "chaos resistance card",            /* ADOM */
     "vermin control card",              /* ADOM */
     "potion of cure dianthroritis",     /* Larn */
     "Eye of Spam",                      /* Larn sent you mail if you won */
     "long sword named Ringil",          /* Angband */
     "long sword named Anduril",         /* Angband */
-    "metal shod boots of stealth",      /* Angband */
+    "big axe named Big Axe",
+    "metal shod boots of stealth",      /* Angband. CLANK. */
 
     /* fruit names mostly from NAO - http://alt.org/nethack/petnames.html */
     "!!+dimple cup stew+!!",            /* fruit name from NAO, inspired by Dwarf Fortress */
@@ -410,6 +497,7 @@ static const char * const bogus_items[] = {
     "eldritch pear",
     "flask of nanobots",
     "gingerbread Amulet of Yendor",
+    "cheap plastic copy of a credit card",
     "Hand of Vecna",
     "Higgs Boson",
     "human soul",
@@ -433,6 +521,7 @@ static const char * const bogus_items[] = {
     "syntax error",
     "thoroughly useless object",
     "perfection card",
+    "special brownie",
 
     /* Fantasy */
     "Necronomicon",                     /* Lovecraft */
@@ -443,6 +532,8 @@ static const char * const bogus_items[] = {
     "spellbook called Octavo",          /* Discworld */
     "ring of power",                    /* LOTR */
     "lightsaber",
+    "litesaber",
+    "brightsaber",
     "blaster",
     "dimsaber",
     "darksaber",
@@ -475,15 +566,15 @@ static const char * const bogus_items[] = {
     "CPU",
     "core dump",
     "compiler",
-    "install CD",
-    "CPU",
 
     /* Historical */
+    "scrool",
     "dead sea scroll",
     "cat o'nine tails",
     "pieces of eight",
     "poignard",
     "codpiece",
+    "flintlock",
     "straight-jacket",
     "bayonet",
     "iron maiden",
