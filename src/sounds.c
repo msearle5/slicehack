@@ -1129,8 +1129,12 @@ dochat()
     tx = u.ux + u.dx;
     ty = u.uy + u.dy;
 
-    if (!isok(tx, ty))
+    if (!isok(tx, ty)) {
+        if (IS_ROCK(levl[tx][ty].typ)) {
+            pline("The wall listens intently, but doesn't reply. (Walls have ears, not mouths.)");
+        }
         return 0;
+    }
 
     mtmp = m_at(tx, ty);
 
