@@ -1007,6 +1007,7 @@ boolean artif;
             case MEDICAL_KIT:
                 mkbox_cnts(otmp);
                 break;
+            case TRICORDER:
             case EXPENSIVE_CAMERA:
             case TINNING_KIT:
             case MAGIC_MARKER:

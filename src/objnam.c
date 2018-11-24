@@ -5230,7 +5230,7 @@ typfnd:
                     pm=PM_SAMURAI;
                     break;
                 case ART_YENDORIAN_EXPRESS_CARD:
-                    otmp2 = mksobj(UNICORN_HORN, TRUE, FALSE);
+                    otmp2 = mksobj(DAGGER, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
                 case ART_VORPAL_BLADE:

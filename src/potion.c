@@ -2325,7 +2325,7 @@ register struct obj *o1, *o2;
             return PIL_ABILITY;
         }
         break;
-    case UNICORN_HORN:
+    case TRICORDER:
         switch (o2->otyp) {
         case PIL_POISON:
             return POT_FRUIT_JUICE;
@@ -2535,7 +2535,7 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
             
             case TOOL_CLASS:
             /* Some tools are valid. Some form equivalence groups */
-            if ((otyp == UNICORN_HORN) || (otyp == CAN_OF_GREASE) || (otyp == TALLOW_CANDLE) || (otyp == WAX_CANDLE))
+            if ((otyp == CAN_OF_GREASE) || (otyp == TALLOW_CANDLE) || (otyp == WAX_CANDLE))
                 ok = TRUE;
             if (otyp == TOOLED_HORN) {
                 baseid = id + 1;
@@ -2700,9 +2700,6 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                     switch(otyp) {
                         case CAN_OF_GREASE:
                             v = 100;
-                            break;
-                        case UNICORN_HORN:
-                            v = 50;
                             break;
                         case TOOLED_HORN:
                         case FIRE_HORN:
@@ -3666,7 +3663,7 @@ more_dips:
     }
 
     potion->in_use = FALSE; /* didn't go poof */
-    if ((obj->otyp == UNICORN_HORN || obj->otyp == AMETHYST)
+    if ((obj->otyp == TRICORDER || obj->otyp == AMETHYST)
         && (mixture = mixtype(obj, potion)) != STRANGE_OBJECT) {
         char oldbuf[BUFSZ], newbuf[BUFSZ];
         short old_otyp = potion->otyp;

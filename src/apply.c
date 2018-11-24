@@ -2100,7 +2100,7 @@ struct obj *obj;
 }
 
 void
-use_unicorn_horn(obj)
+use_tricorder(obj)
 struct obj *obj;
 {
 #define PROP_COUNT 7           /* number of properties we're dealing with */
@@ -2109,8 +2109,20 @@ struct obj *obj;
         did_attr;
     int trouble_list[PROP_COUNT + ATTR_COUNT];
 
+    if (obj && obj->spe <= 0) {
+        if (Hallucination)
+            pline("It's dead, Jim.");
+        else
+            pline("It's out of power.");
+        return;
+    }
+
     if (obj && obj->cursed) {
         long lcount = (long) rn1(90, 10);
+
+        obj->spe -= d(1,2);
+        if (obj->spe < 0)
+            obj->spe = 0;
 
         switch (rn2(13) / 2) { /* case 6 is half as likely as the others */
         case 0:
@@ -2189,7 +2201,7 @@ struct obj *obj;
            WEAK or worse, but that's handled via ATEMP(A_STR) now */
         if (Fixed_abil) {
             /* potion/spell of restore ability override sustain ability
-               intrinsic but unicorn horn usage doesn't */
+               intrinsic but tricorder usage doesn't */
             unfixable_trbl += val_limit - ABASE(idx);
             continue;
         }
@@ -2269,7 +2281,7 @@ struct obj *obj;
                 ABASE(idx) += 1;
                 did_attr++;
             } else
-                panic("use_unicorn_horn: bad trouble? (%d)", idx);
+                panic("use_tricorder: bad trouble? (%d)", idx);
             break;
         }
     }
@@ -2281,6 +2293,9 @@ struct obj *obj;
                   : "better");
     else if (!did_prop)
         pline("Nothing seems to happen.");
+
+    if ((!obj->blessed) || (rn2(4)))
+        obj->spe -= 1;
 
     context.botl = (did_attr || did_prop);
 #undef PROP_COUNT
@@ -3987,8 +4002,8 @@ doapply()
     case FIGURINE:
         use_figurine(&obj);
         break;
-    case UNICORN_HORN:
-        use_unicorn_horn(obj);
+    case TRICORDER:
+        use_tricorder(obj);
         break;
     case INTERLOCK_PLUG:
         use_interlock_plug(obj);

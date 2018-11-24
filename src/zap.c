@@ -1489,8 +1489,6 @@ int id;
         int try_limit = 3;
         unsigned magic_obj = objects[obj->otyp].oc_magic;
 
-        if (obj->otyp == UNICORN_HORN && obj->degraded_horn)
-            magic_obj = 0;
         /* Try up to 3 times to make the magic-or-not status of
            the new item be the same as it was for the old one. */
         otmp = (struct obj *) 0;

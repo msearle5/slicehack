@@ -48,8 +48,7 @@ enum p_skills {
     P_DART,
     P_SHURIKEN,
     P_BOOMERANG,
-    P_WHIP,
-    P_UNICORN_HORN, /* last weapon */
+    P_WHIP, /* last weapon */
 
     /* Spell Skills added by Larry Stewart-Zerba */
     P_ATTACK_SPELL,
@@ -72,7 +71,7 @@ enum p_skills {
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */
 
 #define P_FIRST_WEAPON P_DAGGER
-#define P_LAST_WEAPON P_UNICORN_HORN
+#define P_LAST_WEAPON P_WHIP
 
 #define P_FIRST_SPELL P_ATTACK_SPELL
 #define P_LAST_SPELL P_ALCHEMY

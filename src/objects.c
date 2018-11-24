@@ -935,14 +935,13 @@ TOOL("bell",                None, 1, 0, 0, 0,  2, 30, 50, COPPER, HI_COPPER),
 TOOL("bugle",               None, 1, 0, 0, 0,  4, 10, 15, COPPER, HI_COPPER),
 TOOL("leather drum",      "drum", 0, 0, 0, 0,  4, 25, 25, LEATHER, HI_LEATHER),
 TOOL("drum of earthquake","drum", 0, 0, 1, 1,  2, 25, 25, LEATHER, HI_LEATHER),
+TOOL("tricorder", 			None, 1, 0, 1, 1,  4, 20, 100, PLASTIC, CLR_WHITE),
+
 /* tools useful as weapons */
 WEPTOOL("pick-axe", None,
         1, 0, 0, 20,  50,  50,  6,  3, WHACK,  P_PICK_AXE, IRON, HI_METAL),
 WEPTOOL("grappling hook", "hook",
         0, 0, 0,  5,  30,  50,  2,  6, WHACK,  P_FLAIL,    IRON, HI_METAL),
-WEPTOOL("unicorn horn", None,
-        1, 1, 1,  0,  20, 100, 12, 12, PIERCE, P_UNICORN_HORN,
-                                                           BONE, CLR_WHITE),
 
 /* Two pseudo tools. These can never exist outside of medical kits. */
 OBJECT(OBJ("bandage", (char *)0),

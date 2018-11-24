@@ -145,7 +145,7 @@ boolean check_if_better;
         otmp->otyp == FIRE_HORN ||
         otmp->otyp == MAGIC_HARP ||
         otmp->otyp == DRUM_OF_EARTHQUAKE ||
-        otmp->otyp == UNICORN_HORN));
+        otmp->otyp == TRICORDER));
 
     if (can_use)
     {
@@ -176,12 +176,12 @@ struct obj *
 droppables(mon)
 struct monst *mon;
 {
-    struct obj *obj, *wep, dummy, *pickaxe, *unihorn, *key, *hwep, *proj, *rwep;
+    struct obj *obj, *wep, dummy, *pickaxe, *tricorder, *key, *hwep, *proj, *rwep;
 
     dummy = zeroobj;
     dummy.otyp = GOLD_PIECE; /* not STRANGE_OBJECT or tools of interest */
     dummy.oartifact = 1; /* so real artifact won't override "don't keep it" */
-    pickaxe = unihorn = key = (struct obj *) 0;
+    pickaxe = tricorder = key = (struct obj *) 0;
     wep = MON_WEP(mon),
       hwep = attacktype(mon->data, AT_WEAP)
         ? select_hwep(mon) : (struct obj *)0,
@@ -194,7 +194,7 @@ struct monst *mon;
     if (is_animal(mon->data) || mindless(mon->data)) {
         /* won't hang on to any objects of these types */
         intelligent = FALSE;
-        pickaxe = unihorn = key = &dummy; /* act as if already have them */
+        pickaxe = tricorder = key = &dummy; /* act as if already have them */
     } else {
         /* don't hang on to pick-axe if can't use one or don't need one */
         if (!tunnels(mon->data) || !needspick(mon->data))
@@ -206,8 +206,6 @@ struct monst *mon;
     if (wep) {
         if (is_pick(wep))
             pickaxe = wep;
-        if (wep->otyp == UNICORN_HORN)
-            unihorn = wep;
         /* don't need any wielded check for keys... */
     }
 
@@ -232,15 +230,15 @@ struct monst *mon;
             }
             break;
 
-        case UNICORN_HORN:
-            /* reject cursed unicorn horns */
+        case TRICORDER:
+            /* reject cursed tricorders */
             if (obj->cursed)
                 break;
-            /* keep artifact unihorn in preference to ordinary one */
-            if (!unihorn || (obj->oartifact && !unihorn->oartifact)) {
-                if (unihorn)
-                    return unihorn;
-                unihorn = obj; /* keep this unicorn horn */
+            /* keep artifact tricorder in preference to ordinary one */
+            if (!tricorder || (obj->oartifact && !tricorder->oartifact)) {
+                if (tricorder)
+                    return tricorder;
+                tricorder = obj; /* keep this tricorder */
                 continue;
             }
             break;

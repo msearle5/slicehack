@@ -282,7 +282,7 @@ struct obj *otmp;
 #define MUSE_SSTAIRS 14
 #define MUSE_WAN_TELEPORTATION 15
 #define MUSE_BUGLE 16
-#define MUSE_UNICORN_HORN 17
+#define MUSE_TRICORDER 17
 #define MUSE_PIL_FULL_HEALING 18
 #define MUSE_LIZARD_CORPSE 19
 #define MUSE_WAN_MEDICAL 20
@@ -373,12 +373,12 @@ boolean force;
     if (mtmp->mconf || mtmp->mstun || !mtmp->mcansee) {
         if ((!nohands(mtmp->data) || is_dragon(mtmp->data))) {
             for (obj = mtmp->minvent; obj; obj = obj->nobj)
-                if (obj->otyp == UNICORN_HORN && !obj->cursed)
+                if (obj->otyp == TRICORDER && !obj->cursed)
                     break;
         }
         if (obj) {
             m.defensive = obj;
-            m.has_defense = MUSE_UNICORN_HORN;
+            m.has_defense = MUSE_TRICORDER;
             return TRUE;
         }
     }
@@ -682,12 +682,12 @@ struct monst *mtmp;
     }
 
     switch (m.has_defense) {
-    case MUSE_UNICORN_HORN:
+    case MUSE_TRICORDER:
         if (vismon) {
             if (otmp)
-                pline("%s uses a unicorn horn!", Monnam(mtmp));
+                pline("%s uses a tricorder!", Monnam(mtmp));
             else
-                pline_The("tip of %s's horn glows!", mon_nam(mtmp));
+                pline_The("%s's eyes flash!", mon_nam(mtmp));
         }
         if (!mtmp->mcansee) {
             mcureblindness(mtmp, vismon);
@@ -696,7 +696,7 @@ struct monst *mtmp;
             if (vismon)
                 pline("%s seems steadier now.", Monnam(mtmp));
         } else
-            impossible("No need for unicorn horn?");
+            impossible("No need for tricorder?");
         return 2;
     case MUSE_BUGLE:
         if (vismon)
@@ -2433,7 +2433,7 @@ struct obj *obj;
     case TOOL_CLASS:
         if (typ == PICK_AXE)
             return (boolean) needspick(mon->data);
-        if (typ == UNICORN_HORN)
+        if (typ == TRICORDER)
             return (boolean) (!obj->cursed);
         if (typ == FROST_HORN || typ == FIRE_HORN || typ == MAGIC_FLUTE)
             return (obj->spe > 0 && can_blow(mon));

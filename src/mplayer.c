@@ -202,8 +202,10 @@ struct obj *obj;
         case PM_HEALER:
             if (rn2(4))
                 weapon = QUARTERSTAFF;
-            else if (rn2(2))
-                weapon = rn2(2) ? UNICORN_HORN : SCALPEL;
+            else
+                weapon = SCALPEL;
+            if (!rn2(4))
+                mongets(mtmp, TRICORDER);
             if (rn2(4))
                 helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
             if (rn2(2))
