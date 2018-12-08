@@ -1564,7 +1564,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
         if (tethered_weapon)
             tmp_at(DISP_TETHER, obj_to_glyph(obj));
     } else if (u.dz) {
-        if (u.dz < 0
+        if ((u.dz < 0) && (!u.ucarry)
             /* Mjollnir must we wielded to be thrown--caller verifies this;
                aklys must we wielded as primary to return when thrown */
             && ((Role_if(PM_VALKYRIE) && (obj->oartifact == ART_MJOLLNIR
@@ -1604,7 +1604,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
             obfree(obj, (struct obj *)0);
             thrownobj = (struct obj *)0;
             return;
-        } else if (u.dz < 0) {
+        } else if ((u.dz < 0) && (!u.ucarry)) {
             (void) toss_up(obj, rn2(5) && !Underwater);
             thrownobj = (struct obj *)0;
             return;
@@ -1614,11 +1614,20 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
                for dealing with cursed saddle:  throw holy water > */
             potionhit(u.usteed, obj, POTHIT_HERO_THROW);
         } else {
-            hitfloor(obj);
-            thrownobj = (struct obj *)0;
+            if ((u.dz < 0) && (u.ucarry)) {
+                pline("foo");
+                mon = bhit(0, 0, 2,
+                           tethered_weapon ? THROWN_TETHERED_WEAPON : THROWN_WEAPON,
+                           (int FDECL((*), (MONST_P, OBJ_P))) 0,
+                           (int FDECL((*), (OBJ_P, OBJ_P))) 0, &obj);
+                thrownobj = obj; /* obj may be null now */
+            } else {
+                hitfloor(obj);
+                thrownobj = (struct obj *)0;
+            }
             return;
         }
-        if (u.dz < 0 && !Underwater && !Is_waterlevel(&u.uz)) {
+        if (u.dz < 0 && !u.ucarry && !Underwater && !Is_waterlevel(&u.uz)) {
             (void) toss_up(obj, rn2(5));
         } else {
             hitfloor(obj);
@@ -1991,7 +2000,7 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
     register int tmp;     /* Base chance to hit */
     register int disttmp; /* distance modifier */
     int otyp = obj->otyp, hmode;
-    boolean guaranteed_hit = (u.uswallow && mon == u.ustuck);
+    boolean guaranteed_hit = ((u.uswallow) && mon == u.ustuck);
     int dieroll;
 
     hmode = (obj == uwep) ? HMON_APPLIED

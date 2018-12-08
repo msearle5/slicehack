@@ -37,7 +37,7 @@ dogive()
     int tx, ty, i;
     struct obj *otmp;
 
-    if (u.uswallow) {
+    if (u.uswallow || u.ucarry) {
         pline("The only thing you can give right now is your best effort.");
         return 0;
     }
@@ -727,7 +727,7 @@ register struct obj *obj;
         setuswapwep((struct obj *) 0);
     }
 
-    if (u.uswallow) {
+    if (u.uswallow || u.ucarry) {
         pline("You aren't really in a position to give things away.");
         return 0;
     } else {
@@ -1453,6 +1453,8 @@ boolean at_stairs, falling, portal;
     keepdogs(FALSE, at_stairs);
     if (u.uswallow) /* idem */
         u.uswldtim = u.uswallow = 0;
+    if (u.ucarry)
+		u.ucarry = 0;
     recalc_mapseen(); /* recalculate map overview before we leave the level */
     /*
      *  We no longer see anything on the level.  Make sure that this

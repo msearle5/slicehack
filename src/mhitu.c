@@ -19,6 +19,7 @@ STATIC_DCL void FDECL(mayberem, (struct monst *, const char *,
 STATIC_DCL boolean FDECL(diseasemu, (struct permonst *));
 STATIC_DCL int FDECL(hitmu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(gulpmu, (struct monst *, struct attack *));
+STATIC_DCL int FDECL(carrymu, (struct monst *, struct attack *));
 STATIC_DCL int FDECL(explmu, (struct monst *, struct attack *, BOOLEAN_P));
 STATIC_DCL void FDECL(missmu, (struct monst *, BOOLEAN_P, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
@@ -308,6 +309,21 @@ struct attack *mattk;
         impossible("%s attacks you without knowing your location?",
                    Monst_name);
 }
+
+void
+endcarry(mtmp)
+struct monst *mtmp;
+{
+    You("get dropped from %s!", mon_nam(mtmp));
+    unstuck(mtmp); /* ball&chain returned in unstuck() */
+    mnexto(mtmp);
+    newsym(u.ux, u.uy);
+    spoteffects(TRUE);
+    /* to cover for a case where mtmp is not in a next square */
+    if (um_dist(mtmp->mx, mtmp->my, 1))
+        pline("You land hard at some distance.");
+}
+
 
 void
 expels(mtmp, mdat, message)
@@ -833,7 +849,22 @@ register struct monst *mtmp;
             if (!range2)
                 sum[i] = explmu(mtmp, mattk, foundyou);
             break;
-
+        case AT_CARY:
+            if (!range2) {
+                if (foundyou) {
+                    if (tmp > (j = rnd(20 + i))) {
+                        /* force swallowing monster to be displayed
+                           even when hero is moving away */
+                        flush_screen(1);
+                        sum[i] = carrymu(mtmp, mattk);
+                    } else {
+                        missmu(mtmp, (tmp == j), mattk);
+                    }
+                } else {
+                    pline("%s grabs, but misses!", Monnam(mtmp));
+                }
+            }
+            break;
         case AT_ENGL:
             if (!range2) {
                 if (foundyou) {
@@ -2171,6 +2202,66 @@ gulp_blnd_check()
         return TRUE;
     }
     return FALSE;
+}
+
+/* monster carries you, or damage if swallowed, riding or carried */
+STATIC_OVL int
+carrymu(mtmp, mattk)
+struct monst *mtmp;
+struct attack *mattk;
+{
+    int omx = mtmp->mx, omy = mtmp->my;
+    int tmp = d((int) mattk->damn, (int) mattk->damd);
+    int i;
+    tmp = Maybe_Half_Phys(tmp);
+
+    if (u.uswallow)
+        return 1;
+
+    if ((u.ucarry) && (u.ustuck == mtmp))
+        return 1;
+
+    if (touch_petrifies(youmonst.data) && !resists_ston(mtmp)) {
+        pline("%s grabs you, but very hurriedly drops you!", Monnam(mtmp));
+        return 1;
+    }
+
+    if ((u.usteed) || (u.ucarry) || (u.ustuck) || (youmonst.data->msize >= MZ_HUGE)) {
+        You("are clawed at!");
+        return 1;
+    }
+
+    mdamageu(mtmp, tmp);
+    if (tmp)
+        stop_occupation();
+    reset_occupations(); /* behave as if you had moved */
+
+    pline("%s grabs you and carries you off!", Monnam(mtmp));
+
+    if (u.utrap) {
+        You("are pulled from the %s!",
+            u.utraptype == TT_WEB ? "web" : "trap");
+        reset_utrap(FALSE);
+    }
+
+    i = number_leashed();
+    if (i > 0) {
+        const char *s = (i > 1) ? "leashes" : "leash";
+
+        pline_The("%s %s loose.", s, vtense(s, "snap"));
+        unleash_all();
+    }
+
+    u.ucarry = 1;
+    u.ustuck = mtmp;
+    remove_monster(omx, omy);
+    mtmp->mtrapped = 0; /* no longer on old trap */
+    place_monster(mtmp, u.ux, u.uy);
+    newsym(mtmp->mx, mtmp->my);
+    display_nhwindow(WIN_MESSAGE, FALSE);
+    vision_recalc(0);
+    docrt();
+    return 1;
 }
 
 /* monster swallows you, or damage if u.uswallow */

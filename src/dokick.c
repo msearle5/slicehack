@@ -849,15 +849,19 @@ dokick()
     else
         avrg_attrib = (ACURRSTR + ACURR(A_DEX) + ACURR(A_CON)) / 3;
 
-    if (u.uswallow) {
+    if (u.uswallow || u.ucarry) {
         switch (rn2(3)) {
         case 0:
             You_cant("move your %s!", body_part(LEG));
             break;
         case 1:
-            if (is_animal(u.ustuck->data)) {
-                pline("%s burps loudly.", Monnam(u.ustuck));
-                break;
+            if (u.ucarry) {
+                pline("%s only grips you tighter.", Monnam(u.ustuck));
+            } else {
+                if (is_animal(u.ustuck->data)) {
+                    pline("%s burps loudly.", Monnam(u.ustuck));
+                    break;
+                }
             }
             /*FALLTHRU*/
         default:

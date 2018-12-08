@@ -2318,13 +2318,7 @@ boolean was_swallowed; /* digestion */
 
             Sprintf(killer.name, "%s explosion", s_suffix(mdat->mname));
             killer.format = KILLED_BY_AN;
-            if (mdat == &mons[PM_PHOENIX]) {
-                explode(mon->mx, mon->my, -1, tmp, MON_EXPLODE, EXPL_FIERY);
-                /* eggs have to be done here instead of in the corpse
-                   function because otherwise the explosion destroys the egg */
-                obj = mksobj_at(EGG, mon->mx, mon->my, TRUE, FALSE);
-                obj->corpsenm = PM_PHOENIX;
-            } else {
+            {
                 int x, y;
                 struct monst *mtmp;
                 struct attack mattk = { AT_EXPL, AD_PHYS, 100, 1 };
@@ -2537,6 +2531,15 @@ struct monst *mtmp;
             /* prevent swallower (mtmp might have just poly'd into something
                without an engulf attack) from immediately re-engulfing */
             if (attacktype(mtmp->data, AT_ENGL) && !mtmp->mspec_used)
+                mtmp->mspec_used = rnd(2);
+        }
+        if (u.ucarry) {
+            u.ux = mtmp->mx;
+            u.uy = mtmp->my;
+            u.ucarry = 0;
+            vision_full_recalc = 1;
+            docrt();
+            if (attacktype(mtmp->data, AT_CARY) && !mtmp->mspec_used)
                 mtmp->mspec_used = rnd(2);
         }
         u.ustuck = 0;

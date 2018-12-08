@@ -368,7 +368,6 @@ MONSTER:('d',"hell hound"),random
 MONSTER:('H',"fire giant"),random
 MONSTER:('&',"pit fiend"),random
 MONSTER:('E',"fire elemental"),random,hostile
-MONSTER:('B',"phoenix"),random,hostile
 #
 MONSTER:('&',"barbed devil"),random
 MONSTER:(':',"salamander"),random,hostile

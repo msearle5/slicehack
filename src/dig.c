@@ -250,7 +250,7 @@ dig(VOID_ARGS)
     lev = &levl[dpx][dpy];
     /* perhaps a nymph stole your pick-axe while you were busy digging */
     /* or perhaps you teleported away */
-    if (u.uswallow || !uwep || (!ispick && !is_axe(uwep))
+    if (u.uswallow || u.ucarry || !uwep || (!ispick && !is_axe(uwep))
         || !on_level(&context.digging.level, &u.uz)
         || ((context.digging.down ? (dpx != u.ux || dpy != u.uy)
                                   : (distu(dpx, dpy) > 2))))
@@ -991,7 +991,7 @@ struct obj *obj;
     dsp = dirsyms;
     for (sdp = Cmd.dirchars; *sdp; ++sdp) {
         /* filter out useless directions */
-        if (u.uswallow) {
+        if (u.uswallow || u.ucarry) {
             ; /* all directions are viable when swallowed */
         } else if (movecmd(*sdp)) {
             /* normal direction, within plane of the level map;
@@ -1036,7 +1036,7 @@ struct obj *obj;
     boolean ispick = is_pick(obj);
     const char *verbing = ispick ? "digging" : "chopping";
 
-    if (u.uswallow && attack(u.ustuck)) {
+    if ((u.uswallow || u.ucarry) && attack(u.ustuck)) {
         ; /* return 1 */
     } else if (Underwater) {
         pline("Turbulence torpedoes your %s attempts.", verbing);
@@ -1415,7 +1415,7 @@ zap_dig()
      * 3.6.0: from a PIT: dig one adjacent pit.
      */
 
-    if (u.uswallow) {
+    if (u.uswallow || u.ucarry) {
         mtmp = u.ustuck;
 
         if (!is_whirly(mtmp->data)) {

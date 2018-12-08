@@ -1884,7 +1884,7 @@ int magic; /* 0=Physical, otherwise skill level */
     } else if (!magic && u.usteed && stucksteed(FALSE)) {
         /* stucksteed gave "<steed> won't move" message */
         return 0;
-    } else if (u.uswallow) {
+    } else if (u.uswallow || u.ucarry) {
         if (magic) {
             You("bounce around a little.");
             return 1;
@@ -2737,6 +2737,8 @@ struct obj *otmp;
     else if (u.uswallow)
         what =
             is_animal(u.ustuck->data) ? "while swallowed" : "while engulfed";
+    else if (u.ucarry)
+        what = "while carried";
     else if (Underwater)
         what = "underwater";
     else if (Levitation)
@@ -2918,8 +2920,13 @@ struct obj *obj;
         There("is too much resistance to flick your whip.");
 
     } else if (u.dz < 0) {
-        You("flick a bug off of the %s.", ceiling(u.ux, u.uy));
-
+        if (u.ucarry) {
+            mtmp = u.ustuck;
+            rx = mtmp->mx;
+            ry = mtmp->my;
+        } else {
+            You("flick a bug off of the %s.", ceiling(u.ux, u.uy));
+        }
     } else if ((!u.dx && !u.dy) || (u.dz > 0)) {
         int dam;
 

@@ -243,7 +243,7 @@
 /* BLevitation has I_SPECIAL set if trapped in the floor,
    FROMOUTSIDE set if inside solid rock (or in water on Plane of Water) */
 #define BLevitation u.uprops[LEVITATION].blocked
-#define Levitation ((HLevitation || ELevitation) && !BLevitation)
+#define Levitation ((HLevitation || ELevitation || u.ucarry) && !BLevitation)
 /* Can't touch surface, can't go under water; overrides all others */
 #define Lev_at_will                                                    \
     (((HLevitation & I_SPECIAL) != 0L || (ELevitation & W_ARTI) != 0L) \

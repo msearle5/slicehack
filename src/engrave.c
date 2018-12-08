@@ -411,7 +411,7 @@ boolean check_pit;
 {
     struct trap *t;
 
-    if (u.uswallow)
+    if (u.uswallow || u.ucarry)
         return FALSE;
     /* Restricted/unskilled riders can't reach the floor */
     if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
@@ -447,7 +447,7 @@ register int x, y;
 
     if (x == u.ux && y == u.uy && u.uswallow && is_animal(u.ustuck->data))
         return "maw";
-    else if (IS_AIR(lev->typ) && Is_airlevel(&u.uz))
+    else if ((IS_AIR(lev->typ) && Is_airlevel(&u.uz)) || (x == u.ux && y == u.uy && u.ucarry))
         return "air";
     else if (is_pool(x, y))
         return (Underwater && !Is_waterlevel(&u.uz))
@@ -787,6 +787,9 @@ struct obj *otmp;
             return 0;
         } else
             jello = TRUE;
+    } else if (u.ucarry) {
+        cant_reach_floor(u.ux, u.uy, FALSE, FALSE);
+        return 0;
     } else if (is_lava(u.ux, u.uy)) {
         You_cant("write on the %s!", surface(u.ux, u.uy));
         return 0;

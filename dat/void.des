@@ -40,11 +40,11 @@ MONSTER: ('D',"void dragon"),random
 MONSTER: ('v',"energy vortex"),random
 MONSTER: ('d',"memory hound"),random
 MONSTER: ('n',"yuki-onna"),random
-MONSTER: ('B',"nightgaunt"),random
-MONSTER: ('B',"nightgaunt"),random
-MONSTER: ('B',"nightgaunt"),random
-MONSTER: ('B',"nightgaunt"),random
-MONSTER: ('B',"nightgaunt"),random
+MONSTER: 'B',random
+MONSTER: 'B',random
+MONSTER: 'B',random
+MONSTER: 'B',random
+MONSTER: 'B',random
 MONSTER: random,random
 MONSTER: random,random
 MONSTER: random,random

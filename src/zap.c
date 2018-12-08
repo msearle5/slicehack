@@ -3513,7 +3513,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
 
     while (range-- > 0) {
         int x, y;
-
+pline("bar");
         bhitpos.x += ddx;
         bhitpos.y += ddy;
         x = bhitpos.x;
@@ -3574,7 +3574,7 @@ struct obj **pobj; /* object tossed/used, set to NULL
             if (learn_it)
                 learnwand(obj);
         }
-
+pline("baz");
         mtmp = m_at(bhitpos.x, bhitpos.y);
 
         /*

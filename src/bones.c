@@ -323,8 +323,8 @@ can_make_bones()
         return FALSE;
     if (no_bones_level(&u.uz))
         return FALSE; /* no bones for specific levels */
-    if (u.uswallow) {
-        return FALSE; /* no bones when swallowed */
+    if (u.uswallow || u.ucarry) {
+        return FALSE; /* no bones when swallowed or carried */
     }
     if (!Is_branchlev(&u.uz)) {
         /* no bones on non-branches with portals */

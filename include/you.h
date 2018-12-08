@@ -388,6 +388,7 @@ struct you {
     unsigned uswldtim;          /* time you have been swallowed */
 
     Bitfield(uswallow, 1);      /* true if swallowed */
+    Bitfield(ucarry, 1);        /* true if carried */
     Bitfield(uinwater, 1);      /* if you're currently in water (only
                                    underwater possible currently) */
     Bitfield(uundetected, 1);   /* if you're a hiding monster/piercer */

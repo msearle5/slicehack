@@ -964,6 +964,8 @@ register struct obj *obj;
     if (mtmp == u.ustuck) {
         if (u.uswallow)
             expels(mtmp, mtmp->data, TRUE);
+        else if (u.ucarry)
+            endcarry(mtmp);
         else if (!(Upolyd && sticks(youmonst.data)))
             unstuck(mtmp);
     }

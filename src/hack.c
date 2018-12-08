@@ -1377,7 +1377,7 @@ domove()
         nomul(0);
         return;
     }
-    if (u.uswallow) {
+    if (u.uswallow/* || u.ucarry*/) {
         u.dx = u.dy = 0;
         u.ux = x = u.ustuck->mx;
         u.uy = y = u.ustuck->my;
@@ -1496,6 +1496,8 @@ domove()
                 case 2:
                 pull_free:
                     You("pull free from %s.", mon_nam(u.ustuck));
+                    if (u.ucarry)
+                        endcarry(u.ustuck);
                     u.ustuck = 0;
                     break;
                 case 3:
@@ -2674,6 +2676,10 @@ pickup_checks()
         } else {
             return -2; /* loot the monster inventory */
         }
+    }
+    if (u.ucarry) {
+        You("can't pick anything up while held by the %s.", mon_nam(u.ustuck));
+        return -1;
     }
     if (is_pool(u.ux, u.uy)) {
         if (Wwalking || is_floater(youmonst.data) || is_clinger(youmonst.data)
