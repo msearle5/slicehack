@@ -598,6 +598,19 @@ register struct obj *otmp;
     lastinvnr = i;
 }
 
+static void check_invent()
+{
+	struct obj *otmp;
+	otmp = invent;
+	while (otmp)
+	{
+		if (otmp == otmp->nobj) {
+			panic("obj self nobj");
+		}
+		otmp = otmp->nobj;
+	}
+}
+
 /* note: assumes ASCII; toggling a bit puts lowercase in front of uppercase */
 #define inv_rank(o) ((o)->invlet ^ 040)
 
@@ -607,7 +620,7 @@ reorder_invent()
 {
     struct obj *otmp, *prev, *next;
     boolean need_more_sorting;
-
+check_invent();
     do {
         /*
          * We expect at most one item to be out of order, so this
@@ -631,6 +644,7 @@ reorder_invent()
             }
         }
     } while (need_more_sorting);
+check_invent();
 }
 
 #undef inv_rank
