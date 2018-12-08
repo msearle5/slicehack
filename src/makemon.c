@@ -211,6 +211,33 @@ int otyp, oquan;
     (void) mpickobj(mtmp, otmp);
 }
 
+/* Create an artifact, give it to a monster, and return TRUE.
+ * The artifact is blessed, rustproof and enchanted to +0 .. +3
+ * (or more, if random generation produced higher enchantment)
+ *
+ * If this can't be done because it already exists, don't give the
+ * monster anything and return FALSE.
+ */
+STATIC_OVL boolean
+mongetsart(mtmp, art)
+struct monst *mtmp;
+int art;
+{
+    struct obj *otmp;
+    const char *name = artiname(art);
+    int type = arti_type(art);
+
+    if (exist_artifact(type, name)) return FALSE;
+
+    otmp = mksobj(type, FALSE, FALSE);
+    otmp = oname(otmp, name);
+    bless(otmp);
+    otmp->oerodeproof = TRUE;
+    otmp->spe = max(otmp->spe, rn2(4));
+    (void) mpickobj(mtmp, otmp);
+    return TRUE;
+}
+
 STATIC_OVL void
 m_initweap(mtmp)
 register struct monst *mtmp;
@@ -465,13 +492,17 @@ register struct monst *mtmp;
                 /* maybe make it special */
                 if (!rn2(20) || is_lord(ptr)) {
                     const int arti[3] = { ART_DEMONBANE, ART_SUNSWORD, ART_UNLIMITED_MOON };
-                    otmp = oname(otmp, artiname(arti[rn2(3)]));
+                    int art = mongetsart(arti[rn2(3)]);
+
+                    if (!art) {
+                        otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+                        bless(otmp);
+                        otmp->oerodeproof = TRUE;
+                        spe2 = rn2(4);
+                        otmp->spe = max(otmp->spe, spe2);
+                        (void) mpickobj(mtmp, otmp);
+                    }
                 }
-                bless(otmp);
-                otmp->oerodeproof = TRUE;
-                spe2 = rn2(4);
-                otmp->spe = max(otmp->spe, spe2);
-                (void) mpickobj(mtmp, otmp);
 
                 otmp = mksobj(!rn2(4) || is_lord(ptr) ? (rn2(2) ? SHIELD_OF_REFLECTION : SHIELD_OF_RESONANCE)
                                                   : LARGE_SHIELD,

@@ -63,6 +63,7 @@ E int FDECL(unfixable_trouble_count, (BOOLEAN_P));
 
 /* ### artifact.c ### */
 
+E int FDECL(arti_type, (int));
 E void FDECL(introduce_item, (struct obj *));
 E void NDECL(init_artifacts);
 E void FDECL(save_artifacts, (int));
