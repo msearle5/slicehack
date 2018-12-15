@@ -1040,6 +1040,8 @@ register int pm;
         }
         break;
     case PM_WRAITH:
+        if (Hallucination)
+            pline("Pac-Man promotes consumption of undead!");
         pluslvl(FALSE);
         break;
     case PM_HUMAN_WERERAT:
