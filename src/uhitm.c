@@ -1055,14 +1055,16 @@ int dieroll;
                             && uwep->otyp == YUMI)
                             tmp++;
                         else if (Race_if(PM_ELF) && obj->otyp == ELVEN_ARROW
-                                 && uwep->otyp == ELVEN_BOW) {
+                                    && (uwep->otyp == ELVEN_BOW ||
+                                    (uwep->oartifact == ART_LONGBOW_OF_DIANA))) {
                             tmp++;
                             /* WAC Extra damage if in special ability*/
-                    				if (tech_inuse(T_FLURRY)) tmp += 2;
-                				} else if (objects[obj->otyp].oc_skill == P_BOW
-                					&& tech_inuse(T_FLURRY)) {
-                    				tmp++;
-                    		}
+                            if (tech_inuse(T_FLURRY))
+                                tmp += 2;
+                        } else if (objects[obj->otyp].oc_skill == P_BOW
+                                        && tech_inuse(T_FLURRY)) {
+                                tmp++;
+                        }
                     }
                     if (obj->opoisoned && is_poisonable(obj))
                         ispoisoned = TRUE;

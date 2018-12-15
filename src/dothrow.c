@@ -1711,7 +1711,8 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
                     && (!Upolyd || your_race(youmonst.data))
                     && objects[uwep->otyp].oc_skill == P_BOW) {
                     tmp++;
-                    if (Race_if(PM_ELF) && uwep->otyp == ELVEN_BOW)
+                    if (Race_if(PM_ELF) && (uwep->otyp == ELVEN_BOW ||
+                        (uwep->oartifact == ART_LONGBOW_OF_DIANA)))
                         tmp++;
                     else if (Role_if(PM_SAMURAI) && uwep->otyp == YUMI)
                         tmp++;
