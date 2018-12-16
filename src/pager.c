@@ -1123,6 +1123,7 @@ add_obj_info(winid datawin, short otyp)
                 ink_cost(otyp)/2, ink_cost(otyp)-1);
         OBJPUTSTR(buf);
     }
+    *buf = 0;
 
     /* power conferred */
     extern const struct propname {
@@ -1140,7 +1141,8 @@ add_obj_info(winid datawin, short otyp)
                 continue;
             }
             if (oc.oc_oprop == propertynames[i].prop_num) {
-                OBJPUTSTR(buf);
+                if (*buf)
+                    OBJPUTSTR(buf);
                 /* proper grammar */
                 const char* confers = "Makes you";
                 const char* effect = propertynames[i].prop_name;
