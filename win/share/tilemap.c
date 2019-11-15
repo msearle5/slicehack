@@ -1,4 +1,4 @@
-/* NetHack 3.6	tilemap.c	$NHDT-Date: 1524689272 2018/04/25 20:47:52 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.33 $ */
+/* NetHack 3.6	tilemap.c	$NHDT-Date: 1542501042 2018/11/18 00:30:42 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.35 $ */
 /*      Copyright (c) 2016 by Michael Allison                     */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -490,9 +490,11 @@ main()
     Fprintf(ofp, "\nshort glyph2tile[MAX_GLYPH] = {\n");
 
     for (i = 0; i < MAX_GLYPH; i++) {
-        Fprintf(ofp, "%2d,%c", tilemap[i], (i % 12) ? ' ' : '\n');
+        Fprintf(ofp, " %4d,", tilemap[i]);
+        if ((i % 12) == 11 || i == MAX_GLYPH - 1)
+            Fprintf(ofp, "\n");
     }
-    Fprintf(ofp, "\n};\n");
+    Fprintf(ofp, "};\n");
 
     process_substitutions(ofp);
 
@@ -571,6 +573,10 @@ struct {
 {S_rust_trap,            "rust trap", "rust trap"},
 {S_fire_trap,            "fire trap", "fire trap"},
 {S_buzzsaw_trap,         "buzzsaw trap", "buzzsaw trap"},
+{S_whirlwind_trap,       "whirlwind trap", "whirlwind trap"},
+{S_glyph_of_neutrality,  "glyph of neutrality", "glyph of neutrality"},
+{S_glyph_of_law,         "glyph of law", "glyph of law"},
+{S_glyph_of_chaos,       "glyph of chaos", "glyph of chaos"},
 {S_pit,                  "pit", "pit"},
 {S_spiked_pit,           "spiked pit", "spiked pit"},
 {S_hole,                 "hole", "hole"},
@@ -584,28 +590,28 @@ struct {
 {S_anti_magic_trap,      "anti magic trap", "anti-magic field"},
 {S_polymorph_trap,       "polymorph trap", "polymorph trap"},
 {S_vibrating_square,     "vibrating square", "vibrating square"},
-{S_vbeam,    "vertical beam", "cmap 65"},
-{S_hbeam,    "horizontal beam", "cmap 66"},
-{S_lslant,   "left slant beam", "cmap 67"},
-{S_rslant,   "right slant beam", "cmap 68"},
-{S_digbeam,  "dig beam", "cmap 69"},
-{S_flashbeam, "flash beam", "cmap 70"},
-{S_boomleft, "boom left", "cmap 71"},
-{S_boomright, "boom right", "cmap 72"},
-{S_ss1,      "shield1", "cmap 73"},
-{S_ss2,      "shield2", "cmap 74"},
-{S_ss3,      "shield3", "cmap 75"},
-{S_ss4,      "shield4", "cmap 76"},
+{S_vbeam,    "vertical beam", "cmap 71"},
+{S_hbeam,    "horizontal beam", "cmap 72"},
+{S_lslant,   "left slant beam", "cmap 73"},
+{S_rslant,   "right slant beam", "cmap 74"},
+{S_digbeam,  "dig beam", "cmap 75"},
+{S_flashbeam, "flash beam", "cmap 76"},
+{S_boomleft, "boom left", "cmap 77"},
+{S_boomright, "boom right", "cmap 78"},
+{S_ss1,      "shield1", "cmap 79"},
+{S_ss2,      "shield2", "cmap 80"},
+{S_ss3,      "shield3", "cmap 81"},
+{S_ss4,      "shield4", "cmap 82"},
 {S_poisoncloud, "poison cloud", "poison cloud"},
 {S_goodpos,  "valid position", "valid position"},
-{S_sw_tl,    "swallow top left", "cmap 79"},
-{S_sw_tc,    "swallow top center", "cmap 80"},
-{S_sw_tr,    "swallow top right", "cmap 81"},
-{S_sw_ml,    "swallow middle left", "cmap 82"},
-{S_sw_mr,    "swallow middle right", "cmap 83"},
-{S_sw_bl,    "swallow bottom left ", "cmap 84"},
-{S_sw_bc,    "swallow bottom center", "cmap 85"},
-{S_sw_br,    "swallow bottom right", "cmap 86"},
+{S_sw_tl,    "swallow top left", "cmap 85"},
+{S_sw_tc,    "swallow top center", "cmap 86"},
+{S_sw_tr,    "swallow top right", "cmap 87"},
+{S_sw_ml,    "swallow middle left", "cmap 88"},
+{S_sw_mr,    "swallow middle right", "cmap 89"},
+{S_sw_bl,    "swallow bottom left ", "cmap 90"},
+{S_sw_bc,    "swallow bottom center", "cmap 91"},
+{S_sw_br,    "swallow bottom right", "cmap 92"},
 {S_explode1, "explosion top left", "explosion dark 0"},
 {S_explode2, "explosion top centre", "explosion dark 1"},
 {S_explode3, "explosion top right", "explosion dark 2"},

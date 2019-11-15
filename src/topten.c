@@ -64,7 +64,6 @@ struct toptenentry {
 
 STATIC_DCL void FDECL(topten_print, (const char *));
 STATIC_DCL void FDECL(topten_print_bold, (const char *));
-STATIC_DCL xchar FDECL(observable_depth, (d_level *));
 STATIC_DCL void NDECL(outheader);
 STATIC_DCL void FDECL(outentry, (int, struct toptenentry *, BOOLEAN_P));
 STATIC_DCL void FDECL(discardexcess, (FILE *));
@@ -96,8 +95,10 @@ int how;
 boolean incl_helpless;
 {
     static NEARDATA const char *const killed_by_prefix[] = {
-        /* DIED, MURDERED, CHOKING, POISONING, STARVING, */
-        "killed by ", "killed by ", "choked on ", "poisoned by ", "died of ",
+        /* DIED, MURDERED, TREX, CHOKING, */
+        "killed by ", "killed by ", "tyranosaurus rekt by", "choked on ",
+        /* POISONING, STARVING, */
+        "poisoned by ", "died of ",
         /* DROWNING, BURNING, DISSOLVED, CRUSHING, */
         "drowned in ", "burned by ", "dissolved in ", "crushed to death by ",
         /* STONING, TURNED_SLIME, GENOCIDED, */
@@ -111,7 +112,8 @@ boolean incl_helpless;
         "killed by ",       "inhumed by ",                "dispatched by ",
         "exterminated by ", "done in by ",                "defeated by ",
         "struck down by ",  "offed by ",                  "mowed down by ",
-        "taken down by ",   "sent to the grave by ",
+        "taken down by ",   "sent to the grave by ",      "cut down by ",
+        "slaughtered by "
     };
     unsigned l;
     char c, *kname = killer.name;
@@ -127,10 +129,12 @@ boolean incl_helpless;
         kname = an(kname);
         /*FALLTHRU*/
     case KILLED_BY:
+        #ifdef UNIQDEATHS
         if (how == MURDERED)
             (void) strncat(buf,
-                murdered_by_msg[rn2(SIZE(murdered_by_msg))], siz - 1);
+                murdered_by_msg[moves % SIZE(murdered_by_msg)], siz - 1);
         else
+        #endif
             (void) strncat(buf, killed_by_prefix[how], siz - 1);
         l = strlen(buf);
         buf += l, siz -= l;
@@ -192,7 +196,7 @@ const char *x;
         putstr(toptenwin, ATR_BOLD, x);
 }
 
-STATIC_OVL xchar
+int
 observable_depth(lev)
 d_level *lev;
 {
@@ -443,6 +447,8 @@ encodeconduct()
         e |= 1L << 12;
     if (!u.uconduct.alcohol)
         e |= 1L << 13;
+    if (!u.uconduct.notech)
+        e |= 1L << 14; 
 
     return e;
 }
@@ -586,7 +592,7 @@ time_t when;
     t0->uid = uid;
     copynchars(t0->plrole, urole.filecode, ROLESZ);
     copynchars(t0->plrace, urace.filecode, ROLESZ);
-    copynchars(t0->plgend, genders[flags.female].filecode, ROLESZ);
+    copynchars(t0->plgend, genders[flags.gender].filecode, ROLESZ);
     copynchars(t0->plalign, aligns[1 - u.ualign.type].filecode, ROLESZ);
     copynchars(t0->name, plname, NAMSZ);
     formatkiller(t0->death, sizeof t0->death, how, TRUE);
@@ -620,7 +626,7 @@ time_t when;
     }
 #endif /* XLOGFILE */
 
-    if (wizard || discover) {
+    if (wizard || discover || u.uroleplay.marathon) {
         if (how != PANICKED)
             HUP {
                 char pbuf[BUFSZ];
@@ -628,7 +634,7 @@ time_t when;
                 topten_print("");
                 Sprintf(pbuf,
              "Since you were in %s mode, the score list will not be checked.",
-                        wizard ? "wizard" : "discover");
+                        wizard ? "wizard" : discover ? "discover" : "marathon");
                 topten_print(pbuf);
             }
         goto showwin;

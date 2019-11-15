@@ -82,7 +82,7 @@ MONSTER:('q',"chimera"),random,hostile
 #
 
 MAZE: "Dra-loca",' '
-FLAGS: hardfloor
+FLAGS: hardfloor, noflip
 INIT_MAP: mines, '.' , 'P' , true , true , unlit , false
 NOMAP
 # Dungeon Description
@@ -216,6 +216,7 @@ TRAP:random,random
 #
 
 MAZE: "Dra-fila" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ' , true , true , unlit , false
 NOMAP
 #
@@ -243,6 +244,7 @@ MONSTER:'Z' ,random,hostile
 MONSTER:'V' ,random,hostile
 
 MAZE: "Dra-filb" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ' , true , true , unlit , true
 NOMAP
 #

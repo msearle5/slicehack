@@ -57,6 +57,8 @@
 #define MS_ONEEYEDSAM 45 /* One-Eyed Sam */
 #define MS_MAD 46       /* cheshire cats */
 #define MS_GNOLL 47     /* gnolls */
+#define MS_YAWN 48      /* hippos yawn when angry */
+#define MS_SIN 49       /* seven deadly sins */
 
 #define MR_FIRE 0x00000001L      /* resists fire */
 #define MR_COLD 0x00000002L      /* resists cold */
@@ -72,14 +74,16 @@
 /* other conveyances: teleport, teleport control, telepathy */
 
 /* individual resistances */
-#define MR2_SEE_INVIS 0x00000400L /* see invisible */
-#define MR2_LEVITATE 0x00000800L  /* levitation */
-#define MR2_WATERWALK 0x00001000L /* water walking */
-#define MR2_MAGBREATH 0x00002000L /* magical breathing */
-#define MR2_DISPLACED 0x00004000L /* displaced */
-#define MR2_STRENGTH 0x00008000L  /* gauntlets of power */
-#define MR2_FUMBLING 0x00010000L  /* clumsy */
-#define MR2_JUMPING  0x00020000L  /* jumping */
+#define MR2_TELEPATHY 0x00000400L /* telepathic */
+#define MR2_SEE_INVIS 0x00000800L /* see invisible */
+#define MR2_LEVITATE 0x00001000L  /* levitation */
+#define MR2_WATERWALK 0x00002000L /* water walking */
+#define MR2_MAGBREATH 0x00004000L /* magical breathing */
+#define MR2_DISPLACED 0x00008000L /* displaced */
+#define MR2_STRENGTH 0x00010000L  /* gauntlets of power */
+#define MR2_FUMBLING 0x00020000L  /* clumsy */
+#define MR2_JUMPING  0x00040000L  /* jumping */
+#define MR2_TELEPORT    0x00080000L  /* teleporting */
 
 #define M1_FLY 0x00000001L         /* can fly or float */
 #define M1_SWIM 0x00000002L        /* can traverse water */
@@ -132,7 +136,6 @@
 #define M2_MERFOLK 0x00000400L      /* is a merfolk */
 #define M2_PRINCE 0x00000800L       /* is an overlord to its kind */
 #define M2_MINION 0x00001000L       /* is a minion of a deity */
-
 #define M2_LORD 0x00002000L         /* is a lord to its kind */
 #define M2_SHAPESHIFTER 0x00004000L /* is a shapeshifting species */
 #define M2_MERC 0x00008000L         /* is a guard or soldier */
@@ -175,6 +178,9 @@
 
 #define M3_DISPLACES 0x0400 /* moves monsters out of its way */
 
+#define M3_ORGANIZED 0x0800 /* uses group tactics */
+#define M3_JUMPER 0x00001000L       /* is able to jump very far */
+
 #define MZ_TINY 0          /* < 2' */
 #define MZ_SMALL 1         /* 2-4' */
 #define MZ_MEDIUM 2        /* 4-7' */
@@ -194,8 +200,16 @@
 #define MH_MERFOLK M2_MERFOLK
 #define MH_WERE M2_WERE
 #define MH_DEMON M2_DEMON
+#define MH_ANGEL M2_ANGEL
+#define MH_GHOUL M2_GHOUL
+#define MH_UNDEAD M2_UNDEAD
+#define MH_FLAYER M2_FLAYER
+#define MH_VAMPIRE M2_VAMPIRE
+#define MH_ANY 0x80000000L
 
 /* for mons[].geno (constant during game) */
+#define G_NOPLANES 0x4000   /* not generated in the planes */
+#define G_PLANES 0x2000   /* generated only in the planes */
 #define G_UNIQ 0x1000     /* generated only once */
 #define G_NOHELL 0x0800   /* not generated in "hell" */
 #define G_HELL 0x0400     /* generated only in "hell" */

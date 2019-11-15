@@ -1,4 +1,4 @@
-/* NetHack 3.6	engrave.c	$NHDT-Date: 1456304550 2016/02/24 09:02:30 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.61 $ */
+/* NetHack 3.6	engrave.c	$NHDT-Date: 1570318925 2019/10/05 23:42:05 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.75 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -7,8 +7,8 @@
 
 #include "hack.h"
 #include "lev.h"
+#include "decl.h"
 
-STATIC_VAR NEARDATA struct engr *head_engr;
 STATIC_DCL const char *NDECL(blengr);
 
 char *
@@ -21,7 +21,7 @@ boolean wipe;
     /* a random engraving may come from the "rumors" file,
        or from the "engrave" file (formerly in an array here) */
     if (!rn2(4) || !(rumor = getrumor(0, outbuf, TRUE)) || !*rumor)
-        (void) get_rnd_text(ENGRAVEFILE, outbuf);
+        (void) get_rnd_text(ENGRAVEFILE, outbuf, rn2);
 
     if (wipe)
         wipeout_text(outbuf, (int) (strlen(outbuf) / 4), 0);
@@ -205,7 +205,7 @@ register int x, y;
         return "headstone";
     else if (IS_FOUNTAIN(levl[x][y].typ))
         return "fountain";
-    else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
+    else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz) && !Is_gemlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
         return "floor";
     else if (Is_firelevel(&u.uz))
@@ -237,7 +237,7 @@ register int x, y;
         what = "sky";
     else if (Underwater)
         what = "water's surface";
-    else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz))
+    else if ((IS_ROOM(lev->typ) && !Is_earthlevel(&u.uz) && !Is_gemlevel(&u.uz))
              || IS_WALL(lev->typ) || IS_DOOR(lev->typ) || lev->typ == SDOOR)
         what = "ceiling";
     else
@@ -293,7 +293,8 @@ int cnt;
 
 void
 wipe_engr_at(x, y, cnt, magical)
-xchar x, y, cnt, magical;
+xchar x, y, cnt;
+boolean magical;
 {
     register struct engr *ep = engr_at(x, y);
 
@@ -320,7 +321,6 @@ int x, y;
 {
     register struct engr *ep = engr_at(x, y);
     int sensed = 0;
-    char buf[BUFSZ];
 
     /* Sensing an engraving does not require sight,
      * nor does it necessarily imply comprehension (literacy).
@@ -369,17 +369,22 @@ int x, y;
             impossible("%s is written in a very strange way.", Something);
             sensed = 1;
         }
+
         if (sensed) {
-            char *et;
-            unsigned maxelen = BUFSZ - sizeof("You feel the words: \"\". ");
-            if (strlen(ep->engr_txt) > maxelen) {
-                (void) strncpy(buf, ep->engr_txt, (int) maxelen);
+            char *et, buf[BUFSZ];
+            int maxelen = (int) (sizeof buf
+                                 /* sizeof "literal" counts terminating \0 */
+                                 - sizeof "You feel the words: \"\".");
+
+            if ((int) strlen(ep->engr_txt) > maxelen) {
+                (void) strncpy(buf, ep->engr_txt, maxelen);
                 buf[maxelen] = '\0';
                 et = buf;
-            } else
+            } else {
                 et = ep->engr_txt;
+            }
             You("%s: \"%s\".", (Blind) ? "feel the words" : "read", et);
-            if (context.run > 1)
+            if (context.run > 0)
                 nomul(0);
             if (!Blind && !strcmp(ep->engr_txt, explengr)) {
                 pline("As you read the words, the engraving explodes!");
@@ -516,7 +521,8 @@ doengrave()
     maxelen = BUFSZ - 1;
     if (oep)
         oetype = oep->engr_type;
-    if (is_demon(youmonst.data) || youmonst.data->mlet == S_VAMPIRE)
+    if (is_demon(youmonst.data) || youmonst.data->mlet == S_VAMPIRE
+        || (uarmc && uarmc->otyp == ROBE_OF_THE_BLOOD_MAGUS))
         type = ENGR_BLOOD;
 
     /* Can the adventurer engrave at all? */
@@ -675,6 +681,7 @@ doengrave()
             case WAN_LIGHT:
             case WAN_SECRET_DOOR_DETECTION:
             case WAN_CREATE_MONSTER:
+            case WAN_CREATE_HORDE:
             case WAN_WISHING:
             case WAN_ENLIGHTENMENT:
                 if (wonder)
@@ -736,7 +743,11 @@ doengrave()
                             surface(u.ux, u.uy));
                 }
             /* RAY wands */
+                break;
             case WAN_PSIONICS:
+                if (!Blind)
+                    Sprintf(post_engr_text, "The bugs on the %s run around in circles!",
+                                surface(u.ux, u.uy));
                 break;
             case WAN_MAGIC_MISSILE:
                 ptext = TRUE;
@@ -745,6 +756,14 @@ doengrave()
                             "The %s is riddled by bullet holes!",
                             surface(u.ux, u.uy));
                 }
+                break;
+            case WAN_WINDSTORM:
+                if (!Blind) {
+                    Sprintf(post_engr_text, "The bugs on the %s are blown away!",
+                            surface(u.ux, u.uy));
+                }
+                scatter(u.ux, u.uy, 4, MAY_DESTROY | MAY_HIT | VIS_EFFECTS,
+                    (struct obj *) 0);
                 break;
             /* can't tell sleep from death - Eric Backus
              * ...usually (MS)
@@ -818,7 +837,7 @@ doengrave()
                 }
                 Strcpy(post_engr_text,
                        (Blind && !Deaf)
-                          ? "You hear drilling!"
+                          ? "You hear drilling!"    /* Deaf-aware */
                           : Blind
                              ? "You feel tremors."
                              : IS_GRAVE(levl[u.ux][u.uy].typ)
@@ -907,6 +926,10 @@ doengrave()
             return 0;
         }
         switch (otmp->otyp) {
+        case EARMUFFS:
+            if (oep)
+                You("can no longer hear the engraving.");
+            break;
         case MAGIC_MARKER:
             if (otmp->spe <= 0)
                 Your("marker has dried out.");
@@ -1382,7 +1405,7 @@ const char *str;
     /* Engrave the headstone */
     del_engr_at(x, y);
     if (!str)
-        str = get_rnd_text(EPITAPHFILE, buf);
+        str = get_rnd_text(EPITAPHFILE, buf, rn2);
     make_engr_at(x, y, str, 0L, HEADSTONE);
     return;
 }

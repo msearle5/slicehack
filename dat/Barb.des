@@ -314,6 +314,7 @@ WALLIFY
 #
 
 MAZE: "Bar-fila" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , '.' , true , true , unlit , false
 NOMAP
 #
@@ -340,6 +341,7 @@ MONSTER: 'O', random, hostile
 MONSTER: ('T', "rock troll"), random, hostile
 
 MAZE: "Bar-filb" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ' , true , true , unlit , true
 NOMAP
 #

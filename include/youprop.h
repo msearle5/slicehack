@@ -1,4 +1,4 @@
-/* NetHack 3.6	youprop.h	$NHDT-Date: 1433291407 2015/06/03 00:30:07 $  $NHDT-Branch: master $:$NHDT-Revision: 1.23 $ */
+/* NetHack 3.6	youprop.h	$NHDT-Date: 1568831820 2019/09/18 18:37:00 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.27 $ */
 /* Copyright (c) 1989 Mike Threepoint				  */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -87,8 +87,8 @@
 /* Pseudo-property */
 #define Punished (uball != 0)
 
-/* Those implemented solely as timeouts (we use just intrinsic) */
-#define HStun u.uprops[STUNNED].intrinsic
+/* Many are implemented solely as timeouts (we use just intrinsic) */
+#define HStun u.uprops[STUNNED].intrinsic /* timed or FROMFORM */
 #define Stunned HStun
 
 #define HConfusion u.uprops[CONFUSION].intrinsic
@@ -96,7 +96,9 @@
 
 #define Blinded u.uprops[BLINDED].intrinsic
 #define Blindfolded (ublindf && ublindf->otyp != LENSES \
-                      && ublindf->otyp != MASK)
+                      && ublindf->otyp != MASK          \
+                      && ublindf->otyp != EARMUFFS)
+#define Earplugged (ublindf && ublindf->otyp == EARMUFFS)
 /* ...means blind because of a cover */
 #define Blind                                     \
     ((u.uroleplay.blind || Blinded || Blindfolded \
@@ -128,7 +130,7 @@
 /* Timeout, plus a worn mask */
 #define HDeaf u.uprops[DEAF].intrinsic
 #define EDeaf u.uprops[DEAF].extrinsic
-#define Deaf (HDeaf || EDeaf || u.uroleplay.deaf)
+#define Deaf (HDeaf || EDeaf || Earplugged || u.uroleplay.deaf)
 
 #define HFumbling u.uprops[FUMBLING].intrinsic
 #define EFumbling u.uprops[FUMBLING].extrinsic
@@ -279,7 +281,7 @@
 /* Get wet, may go under surface */
 
 #define Breathless \
-    (HMagical_breathing || EMagical_breathing || breathless(youmonst.data))
+    (HMagical_breathing || EMagical_breathing || breathless(Upolyd ? youmonst.data : &mons[urace.malenum]))
 
 #define Underwater (u.uinwater)
 /* Note that Underwater and u.uinwater are both used in code.
@@ -347,7 +349,7 @@
 
 #define HRegeneration u.uprops[REGENERATION].intrinsic
 #define ERegeneration u.uprops[REGENERATION].extrinsic
-#define Regeneration (HRegeneration || ERegeneration)
+#define Regeneration ((HRegeneration || ERegeneration) && !Withering)
 
 #define HEnergy_regeneration u.uprops[ENERGY_REGENERATION].intrinsic
 #define EEnergy_regeneration u.uprops[ENERGY_REGENERATION].extrinsic
@@ -384,6 +386,10 @@
 #define HReflecting u.uprops[REFLECTING].intrinsic
 #define EReflecting u.uprops[REFLECTING].extrinsic
 #define Reflecting (HReflecting || EReflecting)
+
+#define HWithering u.uprops[WITHERING].intrinsic
+#define EWithering u.uprops[WITHERING].extrinsic
+#define Withering (HWithering || EWithering)
 
 #define Free_action u.uprops[FREE_ACTION].extrinsic /* [Tom] */
 

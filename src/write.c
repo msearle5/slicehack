@@ -128,7 +128,7 @@ register struct obj *pen;
         return 0;
     /* can't write on a novel (unless/until it's been converted into a blank
        spellbook), but we want messages saying so to avoid "spellbook" */
-    typeword = (paper->otyp == SPE_NOVEL)
+    typeword = (paper->otyp == SPE_NOVEL || paper->otyp == SPE_ENCYCLOPEDIA)
                   ? "book"
                   : (paper->oclass == SPBOOK_CLASS)
                      ? "spellbook"

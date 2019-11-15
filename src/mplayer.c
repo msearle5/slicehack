@@ -1,4 +1,4 @@
-/* NetHack 3.6	mplayer.c	$NHDT-Date: 1458949461 2016/03/25 23:44:21 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.21 $ */
+/* NetHack 3.6	mplayer.c	$NHDT-Date: 1550524564 2019/02/18 21:16:04 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.26 $ */
 /*      Copyright (c) Izchak Miller, 1992.                        */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -165,8 +165,8 @@ struct obj *obj;
         set_malign(mtmp); /* peaceful may have changed again */
 
         /* default equipment; much of it will be overridden below */
-        weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, BULLWHIP);
-        armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALE_MAIL);
+        weapon = !rn2(2) ? LONG_SWORD : rnd_class(SPEAR, RAZOR_WHIP);
+        armor  = rnd_class(GRAY_DRAGON_SCALE_MAIL, VOID_DRAGON_SCALE_MAIL);
         cloak  = !rn2(8) ? STRANGE_OBJECT
                          : rnd_class(OILSKIN_CLOAK, CLOAK_OF_DISPLACEMENT);
         helm   = !rn2(8) ? STRANGE_OBJECT
@@ -230,7 +230,7 @@ struct obj *obj;
         case PM_MONK:
             weapon = !rn2(3) ? SHURIKEN : STRANGE_OBJECT;
             armor = STRANGE_OBJECT;
-            cloak = ROBE;
+            cloak = MYSTIC_ROBE;
             if (rn2(2))
                 shield = STRANGE_OBJECT;
             break;
@@ -242,7 +242,7 @@ struct obj *obj;
             if (rn2(2))
                 armor = rnd_class(PLATE_MAIL, CHAIN_MAIL);
             if (rn2(4))
-                cloak = ROBE;
+                cloak = MYSTIC_ROBE;
             if (rn2(4))
                 helm = rn2(2) ? HELM_OF_BRILLIANCE : HELM_OF_TELEPATHY;
             if (rn2(2))
@@ -312,7 +312,8 @@ struct obj *obj;
 #endif
                 otmp = mk_artifact(otmp, A_NONE);
             /* usually increase stack size if stackable weapon */
-            if (objects[otmp->otyp].oc_merge && !otmp->oartifact)
+            if (objects[otmp->otyp].oc_merge && !otmp->oartifact
+                && monmightthrowwep(otmp))
                 otmp->quan += (long) rn2(is_spear(otmp) ? 4 : 8);
             /* mplayers knew better than to overenchant Magicbane */
             if (otmp->oartifact == ART_MAGICBANE)
@@ -389,7 +390,7 @@ boolean special;
 
         /* roll for character class */
         pm = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
-        set_mon_data(&fakemon, &mons[pm], -1);
+        set_mon_data(&fakemon, &mons[pm]);
 
         /* roll for an available location */
         do {
@@ -411,10 +412,11 @@ mplayer_talk(mtmp)
 register struct monst *mtmp;
 {
     static const char
-        *same_class_msg[3] = {
+        *same_class_msg[4] = {
             "I can't win, and neither will you!",
             "You don't deserve to win!",
             "Mine should be the honor, not yours!",
+            "Glory will be mine!",
         },
         *other_class_msg[3] = {
             "The low-life wants to talk, eh?",
@@ -422,8 +424,8 @@ register struct monst *mtmp;
             "Here is what I have to say!",
         },
         *peaceful_msg[3] = {
-            "Don\'t make the same mistakes I did.",
-            "I was so close."
+            "Best of luck in your quest. Don\'t make the same mistakes I did.",
+            "Let's hope you know what you're doing."
             "You must complete what I started."
         };
 

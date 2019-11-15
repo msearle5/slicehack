@@ -6,7 +6,7 @@
 #ifndef QTEXT_H
 #define QTEXT_H
 
-#define N_HDR 17 /* Maximum number of categories */
+#define N_HDR 18 /* Maximum number of categories */
 /* (i.e., num roles + 1) */
 #define LEN_HDR 3 /* Maximum length of a category name */
 
@@ -118,12 +118,13 @@ struct qtlists {
 /*
  * Message defines for boss appearances, not role-specific.
  */
-#define QT_DLORD_APPEARS 70
-#define QTN_DLORD 11 /* number of demon lords */
-#define QT_RIDER_APPEARS 90
+#define QT_DLORD_APPEARS 100
+#define QTN_DLORD 13 /* number of demon lords */
+#define QT_RIDER_APPEARS 120
 #define QTN_RIDER 3 /* number of Riders */
-#define QT_WIZARD_APPEARS 93
-#define QT_VLAD_APPEARS 94
+#define QT_WIZARD_APPEARS 123
+#define QT_VLAD_APPEARS 124
+#define QT_ENVY_APPEARS 126
 
 #endif /***** !MAKEDEFS *****/
 

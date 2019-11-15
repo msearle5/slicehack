@@ -85,12 +85,17 @@ int roomtype;
             break;
         case STOREROOM:
             mkzoo(STOREROOM);
+        case ARMORY:
+            mkzoo(ARMORY);
             break;
         case COCKNEST:
             mkzoo(COCKNEST);
             break;
         case ANTHOLE:
             mkzoo(ANTHOLE);
+            break;
+        case LEMUREPIT:
+            mkzoo(LEMUREPIT);
             break;
         default:
             impossible("Tried to make a room of type %d.", roomtype);
@@ -141,6 +146,10 @@ mkshop()
                 mkzoo(ANTHOLE);
                 return;
             }
+            if(*ep == 'p' || *ep == 'P'){
+ 				mkzoo(LEMUREPIT);
+ 				return;
+ 			}
             if (*ep == 'c' || *ep == 'C') {
                 mkzoo(COCKNEST);
                 return;
@@ -370,6 +379,7 @@ struct mkroom *sroom;
             /* don't place monster on explicitly placed throne */
             if (type == COURT && IS_THRONE(levl[sx][sy].typ))
                 continue;
+
             if (type != STOREROOM) {
                 mon = makemon((type == COURT)
                                ? courtmon()
@@ -381,14 +391,19 @@ struct mkroom *sroom;
                                          ? (sx == tx && sy == ty
                                              ? &mons[PM_QUEEN_BEE]
                                              : &mons[PM_KILLER_BEE])
+                                     : (type == LEMUREPIT) ?
+                                        (!rn2(10) ? &mons[PM_HORNED_DEVIL] :
+                                        &mons[PM_LEMURE])
                                          : (type == LAB)
                                              ? (sx == tx && sy == ty
                                                  ? &mons[PM_BAD_CLONE]
-                                                 : &mons[PM_AMALGAMATION])
+                                                : mkclass(S_QUANTMECH, 0))
                                            : (type == LEPREHALL)
                                                ? &mons[PM_LEPRECHAUN]
                                                : (type == COCKNEST)
                                                    ? &mons[PM_COCKATRICE]
+                                                   : (type == ARMORY) 
+                                                    ? (rn2(3) ? mkclass(S_RUSTMONST,0) : &mons[PM_BROWN_PUDDING])
                                                    : (type == DEN)
                                                        ? denmon()
                                                        : (type == ANTHOLE)
@@ -396,6 +411,7 @@ struct mkroom *sroom;
                                                            : (struct permonst *) 0,
                                     sx, sy, NO_MM_FLAGS);
             }
+
             if (mon) {
                 mon->msleeping = 1;
                 if (type == COURT && mon->mpeaceful) {
@@ -420,7 +436,7 @@ struct mkroom *sroom;
                 if (!rn2(5))
                     (void) mk_tt_object(CORPSE, sx, sy);
                 if (!rn2(10)) /* lots of treasure buried with dead */
-                    (void) mksobj_at((rn2(3)) ? LARGE_BOX : CHEST, sx, sy,
+                    (void) mksobj_at((rn2(3)) ? COFFIN : CHEST, sx, sy,
                                      TRUE, FALSE);
                 if (!rn2(5))
                     make_grave(sx, sy, (char *) 0);
@@ -467,6 +483,17 @@ struct mkroom *sroom;
                     }
                 }
                 break;
+            case ARMORY: {
+                    struct obj *otmp;
+                    if (rn2(2))
+                        otmp = mkobj_at(WEAPON_CLASS, sx, sy, FALSE);
+                    else
+                        otmp = mkobj_at(ARMOR_CLASS, sx, sy, FALSE);
+                    otmp->spe = 0;
+                    if (is_rustprone(otmp)) otmp->oeroded = rn2(4);
+                    else if (is_rottable(otmp)) otmp->oeroded2 = rn2(4);
+                }
+                break;
             case ANTHOLE:
                 if (!rn2(3))
                     (void) mkobj_at(FOOD_CLASS, sx, sy, FALSE);
@@ -509,8 +536,14 @@ struct mkroom *sroom;
     case BEEHIVE:
         level.flags.has_beehive = 1;
         break;
+    case LEMUREPIT:
+ 		level.flags.has_lemurepit = 1;
+ 		break;
     case DEN:
         level.flags.has_den = 1;
+        break;
+    case ARMORY:
+        level.flags.has_armory = 1;
         break;
     }
 }
@@ -601,9 +634,9 @@ denmon()
         return mkclass(S_QUADRUPED, 0);
     else if (i > 70)
         return &mons[PM_WOLF];
-    else if (i > 50)
+    else if (i > 40)
         return &mons[PM_LION];
-    else if (i > 30)
+    else if (i > 20)
         return mkclass(S_FELINE, 0);
     else
         return mkclass(S_DOG, 0);

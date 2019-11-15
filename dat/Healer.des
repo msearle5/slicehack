@@ -302,6 +302,7 @@ MONSTER: 'S',random,hostile
 #
 
 MAZE: "Hea-fila" , 'P'
+FLAGS: noflip
 INIT_MAP: mines, '.' , 'P' , false , true , lit , false
 NOMAP
 #
@@ -337,6 +338,7 @@ TRAP: random, random
 TRAP: random, random
 
 MAZE: "Hea-filb" , 'P'
+FLAGS: noflip
 INIT_MAP: mines, '.' , 'P' , false , true , lit , false
 NOMAP
 #

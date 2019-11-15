@@ -89,6 +89,7 @@ struct obj {
 #define odiluted oeroded /* diluted potions */
 #define norevive oeroded2
     Bitfield(oerodeproof, 1); /* erodeproof weapon/armor */
+#define odrained olocked	/* drained corpse */
     Bitfield(olocked, 1);     /* object is locked */
     Bitfield(obroken, 1);     /* lock has been broken */
 #define degraded_horn obroken /* unicorn horn will poly to non-magic */
@@ -177,7 +178,8 @@ struct obj {
 #define is_pole(otmp)                                             \
     ((otmp->oclass == WEAPON_CLASS || otmp->oclass == TOOL_CLASS) \
      && (objects[otmp->otyp].oc_skill == P_POLEARMS               \
-         || objects[otmp->otyp].oc_skill == P_LANCE))
+         || objects[otmp->otyp].oc_skill == P_LANCE               \
+         || otmp->otyp == SPIKED_CHAIN))
 #define is_spear(otmp) \
     (otmp->oclass == WEAPON_CLASS && objects[otmp->otyp].oc_skill == P_SPEAR)
 #define is_launcher(otmp)                                                  \
@@ -206,7 +208,8 @@ struct obj {
 #define is_multigen(otmp)                           \
     (otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
-     && objects[otmp->otyp].oc_skill <= -P_BOW)
+     && objects[otmp->otyp].oc_skill <= -P_BOW      \
+     && otmp->otyp != WINDMILL_BLADE)
 #define is_poisonable(otmp)                         \
     ((otmp->oclass == WEAPON_CLASS                   \
      && objects[otmp->otyp].oc_skill >= -P_SHURIKEN \
@@ -224,7 +227,8 @@ struct obj {
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat & ARM_SHIELD)
 #define is_helmet(otmp) \
-    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat & ARM_HELM)
+    (otmp->oclass == ARMOR_CLASS && objects[otmp->otyp].oc_armcat == ARM_HELM \
+     || (otmp)->otyp == PUMPKIN)
 #define is_boots(otmp)           \
     (otmp->oclass == ARMOR_CLASS \
      && objects[otmp->otyp].oc_armcat & ARM_BOOTS)
@@ -266,6 +270,7 @@ struct obj {
 #define Is_pudding(o)                                                 \
     (o->otyp == GLOB_OF_GRAY_OOZE || o->otyp == GLOB_OF_BROWN_PUDDING \
      || o->otyp == GLOB_OF_GREEN_SLIME || o->otyp == GLOB_OF_BLACK_PUDDING)
+#define drainlevel(corpse) (mons[(corpse)->corpsenm].cnutrit * 0.8)
 
 /* Containers */
 #define carried(o) ((o)->where == OBJ_INVENT)
@@ -275,23 +280,21 @@ struct obj {
      (o)->cobj != (struct obj *) 0)
 
 #define Is_container(o) ((o)->otyp == MEDICAL_KIT || \
-			 ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS))
-#define Is_box(otmp) (otmp->otyp == LARGE_BOX || otmp->otyp == CHEST || otmp->otyp == MAGIC_CHEST)
-
+            ((o)->otyp >= LARGE_BOX && (o)->otyp <= BAG_OF_TRICKS))
+#define Is_box(otmp) (otmp->otyp == LARGE_BOX|| otmp->otyp == COFFIN || otmp->otyp == CHEST || otmp->otyp == MAGIC_CHEST)
 #define Is_mbag(otmp) \
-    (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS || otmp->otyp == MAGIC_BAG)
+            (otmp->otyp == BAG_OF_HOLDING || otmp->otyp == BAG_OF_TRICKS || otmp->otyp == MAGIC_BAG)
 #define SchroedingersBox(o) ((o)->otyp == LARGE_BOX && (o)->spe == 1)
 #define cobj_is_magic_chest(cobj) ((cobj)->otyp == MAGIC_CHEST)
 #define cobj_is_magic_bag(cobj) ((cobj)->otyp == MAGIC_BAG)
 
 /* dragon gear */
 #define Is_dragon_scales(obj) \
-    ((obj)->otyp >= GRAY_DRAGON_SCALES && (obj)->otyp <= YELLOW_DRAGON_SCALES)
+    ((obj)->otyp >= GRAY_DRAGON_SCALES && (obj)->otyp <= VOID_DRAGON_SCALES)
 #define Is_dragon_mail(obj)                \
-    ((obj)->otyp >= GRAY_DRAGON_SCALE_MAIL \
-     && (obj)->otyp <= YELLOW_DRAGON_SCALE_MAIL)
+    ((obj)->otyp >= GRAY_DRAGON_SCALE_MAIL && (obj)->otyp <= VOID_DRAGON_SCALE_MAIL)
 #define Is_dragon_armor(obj) \
-	((obj)->otyp >= GRAY_DRAGON_HELM && (obj)->otyp <= YELLOW_DRAGON_SCALES)
+	((obj)->otyp >= GRAY_DRAGON_HELM && (obj)->otyp <= VOID_DRAGON_SCALE_MAIL)
 #define Dragon_scales_to_pm(obj) \
     &mons[PM_GRAY_DRAGON + (obj)->otyp - GRAY_DRAGON_SCALES]
 #define Dragon_mail_to_pm(obj) \
@@ -350,7 +353,8 @@ struct obj {
 /* special stones */
 #define is_graystone(obj)                                 \
     ((obj)->otyp == LUCKSTONE || (obj)->otyp == LOADSTONE \
-     || (obj)->otyp == FLINT || (obj)->otyp == TOUCHSTONE)
+     || (obj)->otyp == FLINT || (obj)->otyp == TOUCHSTONE \
+     || (obj)->otyp == MOONSTONE)
 
 /* worthless glass -- assumes all GLASS * are worthless glass */
 #define is_worthless_glass(obj) \
@@ -365,7 +369,7 @@ struct obj {
         "a pair of lenses named the Eyes of the Overworld" is not */    \
      || ((o)->oartifact == ART_EYES_OF_THE_OVERWORLD                    \
          && !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD)))
-#define pair_of(o) ((o)->otyp == LENSES || is_gloves(o) || is_boots(o))
+#define pair_of(o) ((o)->otyp == LENSES || (o)->otyp == EARMUFFS || is_gloves(o) || is_boots(o))
 
 /* 'PRIZE' values override obj->corpsenm so prizes mustn't be object types
    which use that field for monster type (or other overloaded purpose) */
@@ -390,6 +394,7 @@ struct obj {
 #define ERODE_RUST 1
 #define ERODE_ROT 2
 #define ERODE_CORRODE 3
+#define ERODE_COOK 4
 
 /* erosion flags for erode_obj() */
 #define EF_NONE 0

@@ -1,4 +1,4 @@
-/* NetHack 3.6	dogmove.c	$NHDT-Date: 1502753407 2017/08/14 23:30:07 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.63 $ */
+/* NetHack 3.6	dogmove.c	$NHDT-Date: 1557094801 2019/05/05 22:20:01 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.74 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -145,6 +145,11 @@ boolean check_if_better;
  	      otmp->otyp == FIRE_HORN ||
         otmp->otyp == MAGIC_HARP ||
         otmp->otyp == DRUM_OF_EARTHQUAKE ||
+        otmp->otyp == EXPENSIVE_CAMERA ||
+        otmp->otyp == SCR_LIGHT ||
+        otmp->otyp == POT_BOOZE ||
+        otmp->otyp == POT_BLOOD ||
+        otmp->otyp == WAN_WINDSTORM ||
  	      otmp->otyp == UNICORN_HORN));
 
     if (can_use)
@@ -176,7 +181,8 @@ struct obj *
 droppables(mon)
 struct monst *mon;
 {
-    struct obj *obj, *wep, dummy, *pickaxe, *unihorn, *key, *hwep, *proj, *rwep;
+    struct obj *obj, *wep, dummy, *pickaxe, *unihorn, *key, *hwep, *proj;
+    const struct obj *rwep;
 
     dummy = zeroobj;
     dummy.otyp = GOLD_PIECE; /* not STRANGE_OBJECT or tools of interest */
@@ -395,6 +401,7 @@ boolean devour;
     int nutrit;
     long oprice;
     char objnambuf[BUFSZ];
+    boolean vampiric = mtmp->data->mlet == S_VAMPIRE;
 
     objnambuf[0] = '\0';
     if (edog->hungrytime < monstermoves)
@@ -420,6 +427,12 @@ boolean devour;
         if (nutrit > 1)
             nutrit = (nutrit * 3) / 4;
     }
+    /* vampires only get 1/5 normal nutrition */
+	if (vampiric) {
+	    mtmp->meating = (mtmp->meating + 4) / 5;
+	    nutrit = (nutrit + 4) / 5;
+	}
+
     edog->hungrytime += nutrit;
     mtmp->mconf = 0;
     if (edog->mhpmax_penalty) {
@@ -490,6 +503,26 @@ boolean devour;
             pline("%s spits %s out in disgust!", Monnam(mtmp),
                   distant_name(obj, doname));
         }
+    } else if (vampiric) {
+		/* Split Object */
+		if (obj->quan > 1L) {
+		    if(!carried(obj)) {
+			(void) splitobj(obj, 1L);
+		    } else {
+		    	/* Carried */
+			obj = splitobj(obj, obj->quan - 1L);
+
+			freeinv(obj);
+			if (inv_cnt(TRUE) >= 52 && !merge_choice(invent, obj))
+			    dropy(obj);
+			else
+			    obj = addinv(obj); /* unlikely but a merge is possible */
+		    }
+		}
+
+		/* Take away blood nutrition */
+	    obj->oeaten = drainlevel(obj);
+		obj->odrained = 1;
     } else if (obj == uball) {
         unpunish();
         delobj(obj); /* we assume this can't be unpaid */
@@ -543,76 +576,82 @@ boolean devour;
             mtmp->perminvis = 1;
     }
     if (obj->otyp == CORPSE)
-        dogintr(mtmp, &mons[obj->corpsenm]);
+        mon_givit(mtmp, &mons[obj->corpsenm], obj->oeroded);
     return 1;
 }
 
+/* Maybe give an intrinsic to a monster from eating a corpse that confers it. */
 void
-dogintr(mtmp, ptr)
-struct monst *mtmp;
-register struct permonst *ptr;
+mon_givit(mtmp, ptr, cooking)
+struct monst* mtmp;
+struct permonst* ptr;
+boolean cooking;
 {
-    register int type = 0;
-    /* this loop of code is copied from cpostfx, since symmetry is good.
-       In the future this should be put into its own function. */
-    int count = 0, i = 0;
-    for (i = 1; i <= LAST_PROP; i++) {
-        if (!intrinsic_possible(i, ptr))
-            continue;
-        ++count;
-        /* a 1 in count chance of replacing the old choice
-           with this one, and a count-1 in count chance
-           of keeping the old choice (note that 1 in 1 and
-           0 in 1 are what we want for the first candidate) */
-        if (!rn2(count)) {
-            type = i;
-        }
-    }
+    int prop = corpse_intrinsic(ptr);
+    boolean vis = canseemon(mtmp);
+    const char* msg = NULL;
+    unsigned long intrinsic = 0; /* MR_* constant */
 
-    if (!cangivit(type, ptr))
+    if (!should_givit(prop, ptr, cooking))
         return; /* failed die roll */
 
-    switch (type) {
+    /* Pets don't have all the fields that the hero does, so they can't get all
+     * the same intrinsics. If it happens to choose strength gain or teleport
+     * control or whatever, ignore it. */
+    switch (prop) {
     case FIRE_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_FIRE)))
-            pline("%s shivers slightly.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_FIRE;
-        break;
-    case SLEEP_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_SLEEP)))
-            pline("%s looks wide awake.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_SLEEP;
+        intrinsic = MR_FIRE;
+        msg = "%s shivers slightly.";
         break;
     case COLD_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_COLD)))
-            pline("%s looks quite warm.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_COLD;
+        intrinsic = MR_COLD;
+        msg = "%s looks quite warm.";
+        break;
+    case SLEEP_RES:
+        intrinsic = MR_SLEEP;
+        msg = "%s looks wide awake.";
         break;
     case DISINT_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_DISINT)))
-            pline("%s seems more firm.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_DISINT;
+        intrinsic = MR_DISINT;
+        msg = "%s looks very firm.";
         break;
     case SHOCK_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_ELEC)))
-            pline("%s crackles with static electricity.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_ELEC;
+        intrinsic = MR_ELEC;
+        msg = "%s crackles with static electricity.";
         break;
     case POISON_RES:
-        if ((canseemon(mtmp)) && (!(mtmp->mintrinsics & MR_POISON)))
-            pline("%s looks very healthy.", Monnam(mtmp));
-        mtmp->mintrinsics |= MR_POISON;
+        intrinsic = MR_POISON;
+        msg = "%s looks very healthy.";
         break;
     case TELEPORT:
-    case TELEPORT_CONTROL:
+        intrinsic = MR2_TELEPORT;
+        msg = "%s looks very jumpy.";
+        break;
     case TELEPAT:
+        if (!mindless(mtmp->data)) {
+            intrinsic = MR2_TELEPATHY;
+            if (haseyes(mtmp->data))
+                msg = "%s blinks a few times.";
+        }
         break;
-    default:
-        debugpline0("Tried to give an impossible intrinsic");
-        break;
+    /*case TELEPAT:
+        if (!mindless(mtmp->data)) {
+            intrinsic = MR2_TELEPATHY;
+            if (haseyes(mtmp->data))
+                msg = "%s blinks a few times.";
+        } */
     }
-}
 
+    /* Don't give message if it already had this intrinsic */
+    if (mtmp->mextrinsics & intrinsic)
+        return;
+
+    if (intrinsic)
+        mtmp->mextrinsics |= intrinsic;
+
+    if (vis && msg)
+        pline(msg, Monnam(mtmp));
+}
 
 /* hunger effects -- returns TRUE on starvation */
 STATIC_OVL boolean
@@ -620,6 +659,9 @@ dog_hunger(mtmp, edog)
 struct monst *mtmp;
 struct edog *edog;
 {
+    /* This chunk of code is from grunt, but is currently commented out
+    because it was modifying pet nutrition. */
+    #if 0
     if (monstermoves > edog->hungrytime) {
   	    /* We're hungry; check if we're carrying anything we can eat
   	       Intelligent pets should be able to carry such food */
@@ -644,6 +686,7 @@ struct edog *edog;
     	      return(FALSE);
     	  }
     }
+    #endif
     if (monstermoves > edog->hungrytime + 500) {
         if (!carnivorous(mtmp->data) && !herbivorous(mtmp->data)) {
             edog->hungrytime = monstermoves + 500;
@@ -665,8 +708,9 @@ struct edog *edog;
             else
                 You_feel("worried about %s.", y_monnam(mtmp));
             stop_occupation();
-        } else if (monstermoves > edog->hungrytime + 750 || DEADMONSTER(mtmp)) {
-        dog_died:
+        } else if (monstermoves > edog->hungrytime + 750
+                   || DEADMONSTER(mtmp)) {
+ dog_died:
             if (mtmp->mleashed && mtmp != u.usteed)
                 Your("leash goes slack.");
             else if (cansee(mtmp->mx, mtmp->my))
@@ -743,7 +787,7 @@ int udist;
                         obj_extract_self(otmp);
                         newsym(omx, omy);
                         (void) mpickobj(mtmp, otmp);
-                        if (attacktype(mtmp->data, AT_WEAP)) {
+                        if (attacktype(mtmp->data, AT_WEAP) && mtmp->weapon_check == NEED_WEAPON) {
                             mtmp->weapon_check = NEED_HTH_WEAPON;
                             (void) mon_wield_item(mtmp);
                         }
@@ -904,7 +948,6 @@ int after, udist, whappr;
     return appr;
 }
 
-
 STATIC_OVL struct monst *
 find_targ(mtmp, dx, dy, maxdist)
 register struct monst *mtmp;
@@ -933,17 +976,14 @@ int maxdist;
         if (!m_cansee(mtmp, curx, cury))
             break;
 
-        targ = m_at(curx, cury);
-
         if (curx == mtmp->mux && cury == mtmp->muy)
             return &youmonst;
 
-        if (targ) {
+        if ((targ = m_at(curx, cury)) != 0) {
             /* Is the monster visible to the pet? */
-            if ((!targ->minvis || perceives(mtmp->data)) &&
-                !targ->mundetected)
+            if ((!targ->minvis || perceives(mtmp->data))
+                && !targ->mundetected)
                 break;
-
             /* If the pet can't see it, it assumes it aint there */
             targ = 0;
         }
@@ -1010,6 +1050,7 @@ struct monst *mtmp, *mtarg;
     /* Give 1 in 3 chance of safe breathing even if pet is confused or
      * if you're on the quest start level */
     if (!mtmp->mconf || !rn2(3) || Is_qstart(&u.uz)) {
+        int mtmp_lev;
         aligntyp align1 = A_NONE, align2 = A_NONE; /* For priests, minions */
         boolean faith1 = TRUE,  faith2 = TRUE;
 
@@ -1066,10 +1107,26 @@ struct monst *mtmp, *mtarg;
             || (mtmp->m_lev > 12 && mtarg->m_lev < mtmp->m_lev - 9
                 && u.ulevel > 8 && mtarg->m_lev < u.ulevel - 7))
             score -= 25;
+        /* for strength purposes, a vampshifter in weak form (vampire bat,
+           fog cloud, maybe wolf) will attack as if in vampire form;
+           otherwise if won't do much and usually wouldn't suffer enough
+           damage (from counterattacks) to switch back to vampire form;
+           make it be more aggressive by behaving as if stronger */
+        mtmp_lev = mtmp->m_lev;
+        if (is_vampshifter(mtmp) && mtmp->data->mlet != S_VAMPIRE) {
+            /* is_vampshifter() implies (mtmp->cham >= LOW_PM) */
+            mtmp_lev = mons[mtmp->cham].mlevel;
+            /* actual vampire level would range from 1.0*mlvl to 1.5*mlvl */
+            mtmp_lev += rn2(mtmp_lev / 2 + 1);
+            /* we don't expect actual level in weak form to exceed
+               base level of strong form, but handle that if it happens */
+            if (mtmp->m_lev > mtmp_lev)
+                mtmp_lev = mtmp->m_lev;
+        }
         /* And pets will hesitate to attack vastly stronger foes.
            This penalty will be discarded if master's in trouble. */
-        if (mtarg->m_lev > mtmp->m_lev + 4L)
-            score -= (mtarg->m_lev - mtmp->m_lev) * 20L;
+        if (mtarg->m_lev > mtmp_lev + 4L)
+            score -= (mtarg->m_lev - mtmp_lev) * 20L;
         /* All things being the same, go for the beefiest monster. This
            bonus should not be large enough to override the pet's aversion
            to attacking much stronger monsters. */
@@ -1083,7 +1140,6 @@ struct monst *mtmp, *mtarg;
         score -= 1000;
     return score;
 }
-
 
 STATIC_OVL struct monst *
 best_target(mtmp)
@@ -1474,12 +1530,10 @@ int after; /* this is extra fast monster movement */
         /* This causes unintended issues for pets trying to follow
            the hero. Thus, only run it if not leashed and >5 tiles
            away. */
-        if (!mtmp->mleashed &&
-            distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 5) {
+        if (!mtmp->mleashed && distmin(mtmp->mx, mtmp->my, u.ux, u.uy) > 5) {
             k = has_edog ? uncursedcnt : cnt;
             for (j = 0; j < MTSZ && j < k - 1; j++)
-                if (nx == mtmp->mtrack[j].x &&
-                    ny == mtmp->mtrack[j].y)
+                if (nx == mtmp->mtrack[j].x && ny == mtmp->mtrack[j].y)
                     if (rn2(MTSZ * (k - j)))
                         goto nxti;
         }
@@ -1495,7 +1549,7 @@ int after; /* this is extra fast monster movement */
                 chcnt = 0;
             chi = i;
         }
-    nxti:
+ nxti:
         ;
     }
 
@@ -1510,6 +1564,7 @@ int after; /* this is extra fast monster movement */
         /* How hungry is the pet? */
         if (!mtmp->isminion) {
             struct edog *dog = EDOG(mtmp);
+
             hungry = (monstermoves > (dog->hungrytime + 300));
         }
 
@@ -1555,7 +1610,7 @@ int after; /* this is extra fast monster movement */
         }
     }
 
-newdogpos:
+ newdogpos:
     if (nix != omx || niy != omy) {
         boolean wasseen;
 
@@ -1627,7 +1682,7 @@ newdogpos:
         }
         cc.x = mtmp->mx;
         cc.y = mtmp->my;
-    dognext:
+ dognext:
         if (!m_in_out_region(mtmp, nix, niy))
             return 1;
         remove_monster(mtmp->mx, mtmp->my);
@@ -1732,7 +1787,7 @@ finish_meating(mtmp)
 struct monst *mtmp;
 {
     mtmp->meating = 0;
-    if (mtmp->m_ap_type && mtmp->mappearance && mtmp->cham == NON_PM) {
+    if (M_AP_TYPE(mtmp) && mtmp->mappearance && mtmp->cham == NON_PM) {
         /* was eating a mimic and now appearance needs resetting */
         mtmp->m_ap_type = 0;
         mtmp->mappearance = 0;
@@ -1749,6 +1804,15 @@ struct monst *mtmp;
 
     if (Protection_from_shape_changers || !mtmp->meating)
         return;
+
+    /* with polymorph, the steed's equipment would be re-checked and its
+       saddle would come off, triggering DISMOUNT_FELL, but mimicking
+       doesn't impact monster's equipment; normally DISMOUNT_POLY is for
+       rider taking on an unsuitable shape, but its message works fine
+       for this and also avoids inflicting damage during forced dismount;
+       do this before changing so that dismount refers to original shape */
+    if (mtmp == u.usteed)
+        dismount_steed(DISMOUNT_POLY);
 
     do {
         idx = rn2(SIZE(qm));
@@ -1777,15 +1841,15 @@ struct monst *mtmp;
         newsym(mtmp->mx, mtmp->my);
         You("%s %s %sappear%s where %s was!",
             cansee(mtmp->mx, mtmp->my) ? "see" : "sense that",
-            (mtmp->m_ap_type == M_AP_FURNITURE)
+            (M_AP_TYPE(mtmp) == M_AP_FURNITURE)
                 ? an(defsyms[mtmp->mappearance].explanation)
-                : (mtmp->m_ap_type == M_AP_OBJECT
+                : (M_AP_TYPE(mtmp) == M_AP_OBJECT
                    && OBJ_DESCR(objects[mtmp->mappearance]))
                       ? an(OBJ_DESCR(objects[mtmp->mappearance]))
-                      : (mtmp->m_ap_type == M_AP_OBJECT
+                      : (M_AP_TYPE(mtmp) == M_AP_OBJECT
                          && OBJ_NAME(objects[mtmp->mappearance]))
                             ? an(OBJ_NAME(objects[mtmp->mappearance]))
-                            : (mtmp->m_ap_type == M_AP_MONSTER)
+                            : (M_AP_TYPE(mtmp) == M_AP_MONSTER)
                                   ? an(mons[mtmp->mappearance].mname)
                                   : something,
             cansee(mtmp->mx, mtmp->my) ? "" : "has ",

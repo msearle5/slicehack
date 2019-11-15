@@ -1,4 +1,4 @@
-/* NetHack 3.6	decl.c	$NHDT-Date: 1446975463 2015/11/08 09:37:43 $  $NHDT-Branch: master $:$NHDT-Revision: 1.62 $ */
+/* NetHack 3.6	decl.c	$NHDT-Date: 1571352532 2019/10/17 22:48:52 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.146 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -19,6 +19,7 @@ int locknum = 0; /* max num of simultaneous users */
 #ifdef DEF_PAGER
 char *catmore = 0; /* default pager */
 #endif
+char chosen_windowtype[WINTYPELEN];
 
 NEARDATA int bases[MAXOCLASSES] = DUMMY;
 
@@ -122,6 +123,7 @@ NEARDATA boolean mrg_to_wielded = FALSE;
 /* weapon picked is merged with wielded one */
 
 NEARDATA boolean in_steed_dismounting = FALSE;
+NEARDATA boolean has_strong_rngseed = FALSE;
 
 NEARDATA coord bhitpos = DUMMY;
 NEARDATA coord doors[DOORMAX] = { DUMMY };
@@ -132,6 +134,7 @@ struct mkroom *upstairs_room, *dnstairs_room, *sstairs_room;
 
 dlevel_t level; /* level map */
 struct trap *ftrap = (struct trap *) 0;
+struct engr *head_engr;
 NEARDATA struct monst youmonst = DUMMY;
 NEARDATA struct context_info context = DUMMY;
 NEARDATA struct flag flags = DUMMY;
@@ -173,6 +176,7 @@ NEARDATA struct obj
 #ifdef TEXTCOLOR
 /*
  *  This must be the same order as used for buzz() in zap.c.
+ *  (They're only used in mapglyph.c so probably shouldn't be here.)
  */
 const int zapcolors[NUM_ZAP] = {
     HI_ZAP,     /* 0 - missile */
@@ -181,10 +185,10 @@ const int zapcolors[NUM_ZAP] = {
     HI_ZAP,     /* 3 - sleep */
     CLR_BLACK,  /* 4 - death */
     CLR_WHITE,  /* 5 - lightning */
-    CLR_YELLOW, /* 6 - poison gas */
-    CLR_GREEN,  /* 7 - acid */
+    CLR_GREEN,  /* 6 - poison gas */
+    CLR_YELLOW, /* 7 - acid */
     CLR_GRAY,   /* 8 - sonic */
-    CLR_BLUE,   /* 9 - psychic */
+    CLR_MAGENTA,   /* 9 - psychic */
 };
 #endif /* text color */
 
@@ -208,10 +212,10 @@ NEARDATA struct obj *migrating_objs = (struct obj *) 0;
 NEARDATA struct obj *billobjs = (struct obj *) 0;
 
 /* used to zero all elements of a struct obj and a struct monst */
-NEARDATA struct obj zeroobj = DUMMY;
-NEARDATA struct monst zeromonst = DUMMY;
+NEARDATA const struct obj zeroobj = DUMMY;
+NEARDATA const struct monst zeromonst = DUMMY;
 /* used to zero out union any; initializer deliberately omitted */
-NEARDATA anything zeroany;
+NEARDATA const anything zeroany;
 
 /* originally from dog.c */
 NEARDATA char birdname[PL_PSIZ] = DUMMY;
@@ -219,13 +223,18 @@ NEARDATA char dogname[PL_PSIZ] = DUMMY;
 NEARDATA char dragonname[PL_PSIZ] = DUMMY;
 NEARDATA char catname[PL_PSIZ] = DUMMY;
 NEARDATA char horsename[PL_PSIZ] = DUMMY;
+NEARDATA char ratname[PL_PSIZ] = DUMMY;
 char preferred_pet; /* '\0', 'c', 'd', 'n' (none) */
 /* monsters that went down/up together with @ */
 NEARDATA struct monst *mydogs = (struct monst *) 0;
 /* monsters that are moving to another dungeon level */
 NEARDATA struct monst *migrating_mons = (struct monst *) 0;
+NEARDATA struct autopickup_exception *apelist =
+                            (struct autopickup_exception *)0;
 
 NEARDATA struct mvitals mvitals[NUMMONS];
+NEARDATA long domove_attempting = 0L;
+NEARDATA long domove_succeeded = 0L;
 
 NEARDATA struct c_color_names c_color_names = {
     "black",  "amber", "golden", "light blue", "red",   "green",
@@ -262,7 +271,8 @@ struct c_common_strings c_common_strings = { "Nothing happens.",
                                              "You can move again.",
                                              "Never mind.",
                                              "vision quickly clears.",
-                                             { "the", "your" } };
+                                             { "the", "your" },
+                                             { "mon", "you" } };
 
 /* NOTE: the order of these words exactly corresponds to the
    order of oc_material values #define'd in objclass.h. */
@@ -289,7 +299,7 @@ char *fqn_prefix[PREFIX_COUNT] = { (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0, (char *) 0, (char *) 0,
                                    (char *) 0 };
-
+                                   
 #ifdef PREFIXES_IN_USE
 char *fqn_prefix_names[PREFIX_COUNT] = {
     "hackdir",  "leveldir", "savedir",    "bonesdir",  "datadir",

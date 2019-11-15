@@ -80,18 +80,21 @@ VARDAT = $(VARDATD) $(VARDATND)
 # end of configuration
 #
 
+# The CSS file is required for HTML end-of-game dump logs.
+CSS = NHdump.css
+
 DATHELP = help hh cmdhelp keyhelp history opthelp wizhelp
 
 SPEC_LEVS = asmodeus.lev baalz.lev bigrm-*.lev castle-?.lev fakewiz?.lev \
 	juiblex.lev knox-?.lev medusa-?.lev minend-?.lev minefill.lev \
 	minetn-?.lev oracle.lev orcus.lev sanctum.lev soko?-*.lev \
 	tower?.lev valley.lev wizard?.lev \
-	astral.lev air.lev earth.lev fire.lev water.lev \
+	astral.lev air.lev earth.lev brass.lev fire.lev water.lev gemarray.lev storm.lev \
 	statuary.lev void.lev foogardens.lev mephisto.lev blkmar.lev \
-	icewaste.lev laboratory.lev
+	icewaste.lev laboratory.lev banquet.lev darkforest.lev
 QUEST_LEVS = ???-goal.lev ???-fil?.lev ???-loca.lev ???-strt.lev
 
-DATNODLB = $(VARDATND) license symbols
+DATNODLB = $(VARDATND) license symbols $(CSS)
 DATDLB = $(DATHELP) dungeon tribute $(SPEC_LEVS) $(QUEST_LEVS) $(VARDATD)
 DAT = $(DATNODLB) $(DATDLB)
 
@@ -297,7 +300,7 @@ clean:
 
 # 'make spotless' returns the source tree to near-distribution condition.
 # it removes .o files, executables, and compiled data files
-spotless:
+spotless::
 	( cd src ; $(MAKE) spotless )
 	( cd util ; $(MAKE) spotless )
 	( cd dat ; $(MAKE) spotless )

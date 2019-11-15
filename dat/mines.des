@@ -1,4 +1,4 @@
-# NetHack 3.6	mines.des	$NHDT-Date: 1432512783 2015/05/25 00:13:03 $  $NHDT-Branch: master $:$NHDT-Revision: 1.25 $
+# NetHack 3.6	mines.des	$NHDT-Date: 1548631704 2019/01/27 23:28:24 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.30 $
 #	Copyright (c) 1989-95 by Jean-Christophe Collet
 #	Copyright (c) 1991-95 by M. Stephenson
 # NetHack may be freely redistributed.  See license for details.
@@ -10,6 +10,7 @@
 #	specific levels as defined below.
 #
 MAZE: "minefill" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ' , true , true , random , true
 NOMAP
 #
@@ -53,7 +54,7 @@ TRAP: random, random
 # overrun by orcs.  Note the barricades (iron bars).
 #
 LEVEL: "minetn-1"
-FLAGS:mazelevel
+FLAGS:mazelevel,noflip
 INIT_MAP:mines,'.',' ',true,true,random,true
 GEOMETRY:center,center
 MAP
@@ -189,6 +190,7 @@ WALLIFY
 # "Town Square"
 #
 LEVEL: "minetn-2"
+FLAGS: noflip
 ROOM: "ordinary" , lit, (3,3), (center,center), (31,15) {
 FOUNTAIN: (17, 5)
 FOUNTAIN: (13, 8)
@@ -304,6 +306,7 @@ RANDOM_CORRIDORS
 # "Alley Town"
 #
 LEVEL: "minetn-3"
+FLAGS: noflip
 ROOM: "ordinary",lit,(3,3),(center,center),(31,15) {
 FOUNTAIN:(01,06)
 FOUNTAIN:(29,13)
@@ -413,6 +416,7 @@ RANDOM_CORRIDORS
 # "College Town"
 #
 LEVEL: "minetn-4"
+FLAGS: noflip
 ROOM: "ordinary",lit,(3,3),(center,center),(30,15) {
 FOUNTAIN:(08,07)
 FOUNTAIN:(18,07)
@@ -509,6 +513,7 @@ RANDOM_CORRIDORS
 # "Grotto Town" by Kelly Bailey
 #
 MAZE: "minetn-5",' '
+FLAGS: noflip
 GEOMETRY:center,center
 MAP
 -----         ---------                                                    
@@ -639,7 +644,7 @@ ALTAR:(31,03),align[0],shrine
 # "Bustling Town" by Kelly Bailey
 #
 MAZE: "minetn-6",' '
-FLAGS: inaccessibles
+FLAGS: inaccessibles, noflip
 INIT_MAP:mines,'.','-',true,true,lit,true
 GEOMETRY:center,top
 MAP
@@ -716,6 +721,7 @@ MONSTER: ('@', "watch captain"), random, peaceful
 # "Bazaar Town" by Kelly Bailey
 #
 LEVEL: "minetn-7"
+FLAGS: noflip
 ROOM: "ordinary" , lit, (3,3), (center,center), (30,15) {
 FOUNTAIN: (12, 07)
 FOUNTAIN: (11, 13)
@@ -1023,8 +1029,10 @@ NON_DIGGABLE:(00,00,52,17)
 NON_DIGGABLE:(53,00,74,00)
 NON_DIGGABLE:(53,17,74,17)
 NON_DIGGABLE:(74,01,74,16)
-NON_DIGGABLE:(53,07,55,07)
+NON_DIGGABLE:(53,07,53,07)
+NON_DIGGABLE:(58,12,58,13)
 NON_DIGGABLE:(53,14,61,14)
+NON_DIGGABLE:(61,15,61,16)
 # The Gnome King's wine cellar.
 # the Trespassers sign is a long-running joke
 ENGRAVING:(12,03),engrave,"You are now entering the Gnome King's wine cellar."
@@ -1040,6 +1048,7 @@ OBJECT:('!',"booze"),(10,09)
 OBJECT:('!',"object detection"),(10,09)
 # Objects
 # The Treasure chamber...
+OBJECT:('*',"luckstone"),(70,05)
 OBJECT:('*',"diamond"),(69,04)
 OBJECT:'*',(69,04)
 OBJECT:('*',"diamond"),(69,04)
@@ -1056,7 +1065,6 @@ OBJECT:('*',"ruby"),(70,05)
 OBJECT:('*',"amethyst"),(70,05)
 OBJECT:'*',(70,05)
 OBJECT:('*',"amethyst"),(70,05)
-OBJECT:('*',"luckstone"),(70,05)
 # Scattered gems...
 OBJECT:'*',random
 OBJECT:'*',random
@@ -1145,24 +1153,24 @@ STAIR:(42,8),up
 WALLIFY
 
 # Objects
-OBJECT:('*',"diamond"),random
-OBJECT:'*',random
-OBJECT:('*',"diamond"),random
-OBJECT:'*',random
-OBJECT:('*',"emerald"),random
-OBJECT:'*',random
-OBJECT:('*',"emerald"),random
-OBJECT:'*',random
-OBJECT:('*',"emerald"),random
-OBJECT:'*',random
-OBJECT:('*',"ruby"),random
-OBJECT:'*',random
-OBJECT:('*',"ruby"),random
-OBJECT:('*',"amethyst"),random
-OBJECT:'*',random
-OBJECT:('*',"amethyst"),random
 OBJECT:('*',"luckstone"),$place[0]
 OBJECT:('*',"flint"),$place[1]
+OBJECT:('*',"diamond"),random
+OBJECT:'*',random
+OBJECT:('*',"diamond"),random
+OBJECT:'*',random
+OBJECT:('*',"emerald"),random
+OBJECT:'*',random
+OBJECT:('*',"emerald"),random
+OBJECT:'*',random
+OBJECT:('*',"emerald"),random
+OBJECT:'*',random
+OBJECT:('*',"ruby"),random
+OBJECT:'*',random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"amethyst"),random
+OBJECT:'*',random
+OBJECT:('*',"amethyst"),random
 OBJECT:'?',random
 OBJECT:'?',random
 OBJECT:'?',random

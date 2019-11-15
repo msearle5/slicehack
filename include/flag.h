@@ -1,4 +1,4 @@
-/* NetHack 3.6	flag.h	$NHDT-Date: 1514071158 2017/12/23 23:19:18 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.132 $ */
+/* NetHack 3.6	flag.h	$NHDT-Date: 1569276988 2019/09/23 22:16:28 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.155 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -32,7 +32,15 @@ struct flag {
     boolean end_own; /* list all own scores */
     boolean explore; /* in exploration mode */
 #define discover flags.explore
-    boolean female;
+    int gender;
+#define GEND_M 0
+#define GEND_F 1
+#define GEND_N 2
+#define SEX_STRAIGHT 0
+#define SEX_GAY 1
+#define SEX_ACE 2
+#define SEX_BI 3 
+    int orientation;
     boolean friday13;        /* it's Friday the 13th */
     boolean help;            /* look in data file for info about stuff */
     boolean ignintr;         /* ignore interrupts */
@@ -163,6 +171,7 @@ struct flag {
     int initrole;  /* starting role      (index into roles[])   */
     int initrace;  /* starting race      (index into races[])   */
     int initgend;  /* starting gender    (index into genders[]) */
+    int initorientation; /* starting orientation (index into orientations[]) */
     int initalign; /* starting alignment (index into aligns[])  */
     int randomall; /* randomly assign everything not specified */
     int pantheon;  /* deity selection for priest character */
@@ -248,9 +257,12 @@ struct instance_flags {
      * behaviour of various NetHack functions and probably warrant
      * a structure of their own elsewhere some day.
      */
+    boolean debug_fuzzer;  /* fuzz testing */
     boolean defer_plname;  /* X11 hack: askname() might not set plname */
     boolean herecmd_menu;  /* use menu when mouseclick on yourself */
     boolean invis_goldsym; /* gold symbol is ' '? */
+    int at_midnight;       /* only valid during end of game disclosure */
+    int at_night;          /* also only valid during end of game disclosure */
     int failing_untrap;    /* move_into_trap() -> spoteffects() -> dotrap() */
     int in_lava_effects;   /* hack for Boots_off() */
     int last_msg;          /* indicator of last message player saw */
@@ -323,6 +335,7 @@ struct instance_flags {
     boolean rlecomp;          /* alternative to zerocomp; run-length encoding
                                * compression of levels when writing savefile */
     uchar num_pad_mode;
+    boolean cursesgraphics;     /* Use portable curses extended characters */
 #if 0   /* XXXgraphics superseded by symbol sets */
     boolean  DECgraphics;       /* use DEC VT-xxx extended character set */
     boolean  IBMgraphics;       /* use IBM extended character set */
@@ -332,14 +345,8 @@ struct instance_flags {
 #endif
 #endif
     uchar bouldersym; /* symbol for boulder display */
-#if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS)
     char prevmsg_window; /* type of old message window to use */
     boolean extmenu;     /* extended commands use menu interface */
-#endif
-#ifdef CURSES_GRAPHICS
-    boolean classic_status;  /* use 3-line NH4 status bar if false */
-#endif
-
 #ifdef MFLOPPY
     boolean checkspace; /* check disk space before writing files */
                         /* (in iflags to allow restore after moving
@@ -378,8 +385,10 @@ struct instance_flags {
 #ifdef TTY_TILES_ESCCODES
     boolean vt_tiledata;     /* output console codes for tile support in TTY */
 #endif
-    boolean wizweight;        /* display weight of everything in wizard mode */
-
+    boolean clicklook;       /* allow right-clicking for look */
+    boolean cmdassist;       /* provide detailed assistance for some comnds */
+    boolean time_botl;       /* context.botl for 'time' (moves) only */
+    boolean wizweight;       /* display weight of everything in wizard mode */
     /*
      * Window capability support.
      */
@@ -399,10 +408,8 @@ struct instance_flags {
     char *wc_backgrnd_menu; /* points to backgrnd color name for menu win   */
     char *wc_foregrnd_message; /* points to foregrnd color name for msg win */
     char *wc_backgrnd_message; /* points to backgrnd color name for msg win */
-    char *
-        wc_foregrnd_status; /* points to foregrnd color name for status win */
-    char *
-        wc_backgrnd_status; /* points to backgrnd color name for status win */
+    char *wc_foregrnd_status; /* points to foregrnd color name for status   */
+    char *wc_backgrnd_status; /* points to backgrnd color name for status   */
     char *wc_foregrnd_text; /* points to foregrnd color name for text win   */
     char *wc_backgrnd_text; /* points to backgrnd color name for text win   */
     char *wc_font_map;      /* points to font name for the map win */
@@ -424,26 +431,19 @@ struct instance_flags {
     boolean wc_popup_dialog;    /* put queries in pop up dialogs instead of
                                  * in the message window */
     boolean wc_eight_bit_input; /* allow eight bit input               */
-    boolean wc_mouse_support;   /* allow mouse support */
     boolean wc2_fullscreen;     /* run fullscreen */
     boolean wc2_softkeyboard;   /* use software keyboard */
     boolean wc2_wraptext;       /* wrap text */
     boolean wc2_selectsaved;    /* display a menu of user's saved games */
-    boolean wc2_darkgray;   /* try to use dark-gray color for black glyphs */
-    boolean wc2_hitpointbar;/* show graphical bar representing hit points */
-    int wc2_windowborders;  /* display borders around windows */
-    int wc2_term_cols;      /* terminal size x */
-    int wc2_term_rows;      /* terminal size y */
-    int wc2_petattr;        /* text attributes for pet */
-    boolean wc2_guicolor;   /* allow colours in gui (outside map) */
-    boolean cmdassist;      /* provide detailed assistance for some commands */
-    boolean clicklook;      /* allow right-clicking for look */
-    boolean msg_is_alert; /* suggest windowport should grab player's attention
-                           * and request <TAB> acknowlegement */
-    boolean obsolete;  /* obsolete options can point at this, it isn't used */
-    struct autopickup_exception *autopickup_exceptions[2];
-#define AP_LEAVE 0
-#define AP_GRAB 1
+    boolean wc2_darkgray;    /* try to use dark-gray color for black glyphs */
+    boolean wc2_hitpointbar;  /* show graphical bar representing hit points */
+    boolean wc2_guicolor;       /* allow colours in gui (outside map) */
+    int wc_mouse_support;       /* allow mouse support */
+    int wc2_term_cols;		/* terminal width, in characters */
+    int wc2_term_rows;		/* terminal height, in characters */
+    int wc2_statuslines;        /* default = 2, curses can handle 3 */
+    int wc2_windowborders;	/* display borders on NetHack windows */
+    int wc2_petattr;            /* text attributes for pet */
 #ifdef WIN32
 #define MAX_ALTKEYHANDLER 25
     char altkeyhandler[MAX_ALTKEYHANDLER];
@@ -460,6 +460,12 @@ struct instance_flags {
     short soko_prize_type1;     /* bag of holding or    */
     short soko_prize_type2;     /* amulet of reflection */
     struct debug_flags debug;
+    boolean windowtype_locked;  /* windowtype can't change from configfile */
+    boolean windowtype_deferred; /* pick a windowport and store it in
+                                    chosen_windowport[], but do not switch to
+                                    it in the midst of options processing */
+    genericptr_t returning_missile; /* 'struct obj *'; Mjollnir or aklys */
+    boolean obsolete;  /* obsolete options can point at this, it isn't used */
 };
 
 /*
@@ -499,7 +505,8 @@ enum plnmsg_types {
     PLNMSG_TOWER_OF_FLAME,      /* scroll of fire */
     PLNMSG_CAUGHT_IN_EXPLOSION, /* explode() feedback */
     PLNMSG_OBJ_GLOWS,           /* "the <obj> glows <color>" */
-    PLNMSG_OBJNAM_ONLY          /* xname/doname only, for #tip */
+    PLNMSG_OBJNAM_ONLY,         /* xname/doname only, for #tip */
+    PLNMSG_OK_DONT_DIE          /* overriding death in explore/wizard mode */
 };
 
 /* runmode options */

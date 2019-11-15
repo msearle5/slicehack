@@ -55,7 +55,9 @@ static struct trobj Cartomancer[] = {
     { DAGGER, 1, WEAPON_CLASS, 1, UNDEF_BLESS },
     { SHURIKEN, 0, GEM_CLASS, 60, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 4, UNDEF_BLESS },
-    { SCR_CREATE_MONSTER, 0, SCROLL_CLASS, 3, UNDEF_BLESS },
+    { SCR_CREATE_MONSTER, 0, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { SCR_CREATE_MONSTER, 1, SCROLL_CLASS, 1, UNDEF_BLESS },
+    { SCR_CREATE_MONSTER, 2, SCROLL_CLASS, 1, UNDEF_BLESS },
     { 0, 0, 0, 0, 0 }
 };
 static struct trobj Cave_man[] = {
@@ -73,6 +75,11 @@ static struct trobj Dragonmaster[] = {
     { FOOD_RATION, 0, FOOD_CLASS, 2, 0 },
     { TRIPE_RATION, 0, FOOD_CLASS, 2, 0 },
     { 0, 0, 0, 0, 0 }
+};
+static struct trobj Convict[] = {
+	{ ROCK, 0, GEM_CLASS, 1, 0 },
+	{ STRIPED_SHIRT, 0, ARMOR_CLASS, 1, 0 },
+	{ 0, 0, 0, 0, 0 }
 };
 static struct trobj Healer[] = {
     { SCALPEL, 0, WEAPON_CLASS, 1, UNDEF_BLESS },
@@ -110,7 +117,7 @@ static struct trobj Knight2[] = {
 static struct trobj Monk[] = {
 #define M_BOOK 2
     { GLOVES, 2, ARMOR_CLASS, 1, UNDEF_BLESS },
-    { ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { MYSTIC_ROBE, 1, ARMOR_CLASS, 1, UNDEF_BLESS },
     { UNDEF_TYP, UNDEF_SPE, SPBOOK_CLASS, 1, 1 },
     { UNDEF_TYP, UNDEF_SPE, SCROLL_CLASS, 1, UNDEF_BLESS },
     { POT_HEALING, 0, POTION_CLASS, 3, UNDEF_BLESS },
@@ -141,7 +148,7 @@ static struct trobj Pirate[] = {
 };
 static struct trobj Priest[] = {
     { MACE, 1, WEAPON_CLASS, 1, 1 },
-    { ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
+    { MYSTIC_ROBE, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { SMALL_SHIELD, 0, ARMOR_CLASS, 1, UNDEF_BLESS },
     { POT_WATER, 0, POTION_CLASS, 4, 1 }, /* holy water */
     { CLOVE_OF_GARLIC, 0, FOOD_CLASS, 1, 0 },
@@ -269,6 +276,7 @@ static struct inv_sub {
     /* { PM_ELF, SMALL_SHIELD, ELVEN_SHIELD }, */
     { PM_ELF, CLOAK_OF_DISPLACEMENT, ELVEN_CLOAK },
     { PM_ELF, CRAM_RATION, LEMBAS_WAFER },
+    { PM_MERFOLK, SACK, OILSKIN_SACK },
     { PM_MERFOLK, SPEAR, TRIDENT },
     { PM_MERFOLK, MACE, TRIDENT },
     { PM_MERFOLK, BOW, CROSSBOW },
@@ -295,6 +303,11 @@ static struct inv_sub {
     { PM_GIANT, ROBE, LOW_BOOTS },
     { PM_GIANT, RING_MAIL, HIGH_BOOTS },
     { PM_GIANT, LIGHT_ARMOR, LOW_BOOTS },
+    { PM_DROW, DAGGER, DARK_ELVEN_DAGGER },
+    { PM_DROW, SHORT_SWORD, DARK_ELVEN_SHORT_SWORD },
+    { PM_DROW, BOW, DARK_ELVEN_BOW },
+    { PM_DROW, ARROW, DARK_ELVEN_ARROW },
+    { PM_VAMPIRE, POT_FRUIT_JUICE, POT_BLOOD },
     { NON_PM, STRANGE_OBJECT, STRANGE_OBJECT }
 };
 
@@ -319,6 +332,7 @@ static const struct def_skill Skill_A[] = {
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_COOKING, P_EXPERT },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_B[] = {
@@ -370,6 +384,7 @@ static const struct def_skill Skill_Car[] = {
     { P_MATTER_SPELL, P_EXPERT },
     { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_SKILLED },
+    { P_COOKING, P_BASIC },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_C[] = {
@@ -393,6 +408,24 @@ static const struct def_skill Skill_C[] = {
     { P_BOOMERANG, P_EXPERT },
     { P_UNICORN_HORN, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_MASTER },
+    { P_NONE, 0 }
+};
+static const struct def_skill Skill_Con[] = {
+    { P_DAGGER, P_SKILLED },		
+    { P_KNIFE,  P_EXPERT },
+    { P_HAMMER, P_SKILLED },		
+    { P_PICK_AXE, P_EXPERT },
+    { P_CLUB, P_EXPERT },		    
+    { P_MACE, P_BASIC },
+    { P_DART, P_SKILLED },		    
+    { P_FLAIL, P_EXPERT },
+    { P_SHORT_SWORD, P_BASIC },		
+    { P_SLING, P_SKILLED },
+    { P_ATTACK_SPELL, P_BASIC },	
+    { P_ESCAPE_SPELL, P_EXPERT },
+    { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_BARE_HANDED_COMBAT, P_SKILLED },
+    { P_COOKING, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_D[] = {
@@ -422,6 +455,7 @@ static const struct def_skill Skill_D[] = {
     { P_RIDING, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
+    { P_COOKING, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_H[] = {
@@ -442,6 +476,7 @@ static const struct def_skill Skill_H[] = {
     { P_UNICORN_HORN, P_EXPERT },
     { P_HEALING_SPELL, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_BASIC },
+    { P_COOKING, P_EXPERT },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_K[] = {
@@ -472,6 +507,7 @@ static const struct def_skill Skill_K[] = {
     { P_RIDING, P_EXPERT },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_COOKING, P_BASIC },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_Mon[] = {
@@ -487,6 +523,7 @@ static const struct def_skill Skill_Mon[] = {
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_MATTER_SPELL, P_BASIC },
     { P_MARTIAL_ARTS, P_GRAND_MASTER },
+    { P_COOKING, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_P[] = {
@@ -511,6 +548,7 @@ static const struct def_skill Skill_P[] = {
     { P_DIVINATION_SPELL, P_EXPERT },
     { P_CLERIC_SPELL, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_BASIC },
+    { P_COOKING, P_BASIC },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_Pir[] = {
@@ -537,6 +575,7 @@ static const struct def_skill Skill_Pir[] = {
     { P_ESCAPE_SPELL, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_COOKING, P_EXPERT }, /* pirate chefs */
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_R[] = {
@@ -564,6 +603,7 @@ static const struct def_skill Skill_R[] = {
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_COOKING, P_BASIC },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_Ran[] = {
@@ -591,6 +631,7 @@ static const struct def_skill Skill_Ran[] = {
     { P_ESCAPE_SPELL, P_BASIC },
     { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_BASIC },
+    { P_COOKING, P_SKILLED },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_S[] = {
@@ -615,6 +656,7 @@ static const struct def_skill Skill_S[] = {
     { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_EXPERT },
     { P_MARTIAL_ARTS, P_MASTER },
+    { P_COOKING, P_EXPERT },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_T[] = {
@@ -651,6 +693,7 @@ static const struct def_skill Skill_T[] = {
     { P_RIDING, P_BASIC },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_SKILLED },
+    { P_COOKING, P_EXPERT },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_V[] = {
@@ -675,6 +718,7 @@ static const struct def_skill Skill_V[] = {
     { P_RIDING, P_SKILLED },
     { P_TWO_WEAPON_COMBAT, P_SKILLED },
     { P_BARE_HANDED_COMBAT, P_EXPERT },
+    { P_COOKING, P_BASIC },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_W[] = {
@@ -700,6 +744,7 @@ static const struct def_skill Skill_W[] = {
     { P_MATTER_SPELL, P_EXPERT },
     { P_RIDING, P_BASIC },
     { P_BARE_HANDED_COMBAT, P_BASIC },
+    { P_COOKING, P_BASIC },
     { P_NONE, 0 }
 };
 static const struct def_skill Skill_Alchemist[] = {
@@ -1059,7 +1104,7 @@ u_init()
     struct permonst* shambler = &mons[PM_SHAMBLING_HORROR];
     struct attack* attkptr;
 
-    flags.female = flags.initgend;
+    flags.gender = flags.initgend;
     flags.beginner = 1;
 
     /* WAC -- Clear Tech List since adjabil will init the 1st level techs*/
@@ -1106,11 +1151,7 @@ u_init()
     u.ukinghill = 0;
     u.protean = 0;
 
-    u.umonnum = u.umonster = (flags.female == 1 && urole.femalenum != NON_PM)
-                                 ? urole.femalenum
-                                 : (flags.female == 2 && urole.nbnum != NON_PM)
-                                    ? urole.nbnum
-                                    : urole.malenum;
+    u.umonnum = u.umonster = monnum_gender(flags.gender, FALSE);
     u.ulycn = NON_PM;
     set_uasmon();
 
@@ -1206,6 +1247,17 @@ u_init()
         knows_class(WEAPON_CLASS);
         knows_class(ARMOR_CLASS);
         skill_init(Skill_D);
+        break;
+    case PM_CONVICT:
+        ini_inv(Convict);
+        knows_object(SKELETON_KEY);
+        knows_object(GRAPPLING_HOOK);
+        skill_init(Skill_Con);
+        u.uhunger = 200;  /* On the verge of hungry */
+    	u.ualignbase[A_CURRENT] = u.ualignbase[A_ORIGINAL] =
+        u.ualign.type = A_CHAOTIC; /* Override racial alignment */
+        urace.hatemask |= urace.lovemask;   /* Hated by the race's allies */
+        urace.lovemask = 0; /* Convicts are pariahs of their race */
         break;
     case PM_HEALER:
         u.umoney0 = rn1(1000, 1001);
@@ -1403,6 +1455,14 @@ u_init()
         knows_object(ELVEN_BOOTS);
         knows_object(ELVEN_CLOAK);
         break;
+    case PM_DROW:
+  	    /* Drows can recognize all droven objects */
+  	    knows_object(DARK_ELVEN_SHORT_SWORD);
+  	    knows_object(DARK_ELVEN_ARROW);
+  	    knows_object(DARK_ELVEN_BOW);
+  	    knows_object(DARK_ELVEN_DAGGER);
+  	    knows_object(DARK_ELVEN_RING_MAIL);
+  	    break;
 
     case PM_DWARF:
         /* Dwarves can recognize all dwarvish objects */
@@ -1431,7 +1491,7 @@ u_init()
 
     case PM_ORC:
         /* compensate for generally inferior equipment */
-        if (!Role_if(PM_WIZARD))
+        if (!Role_if(PM_WIZARD) && !Role_if(PM_CONVICT))
             ini_inv(Xtra_food);
         /* Orcs can recognize all orcish objects */
         knows_object(ORCISH_SHORT_SWORD);
@@ -1445,6 +1505,14 @@ u_init()
         knows_object(URUK_HAI_SHIELD);
         knows_object(ORCISH_CLOAK);
         break;
+
+    case PM_VAMPIRE:
+        knows_object(POT_VAMPIRE_BLOOD);
+        knows_object(POT_BLOOD);
+	    /* Vampires start off with gods not as pleased, luck penalty */
+	    adjalign(-5); 
+	    change_luck(-1);
+	    break;
 
     case PM_HUMAN_WEREWOLF:
         set_ulycn(PM_WEREWOLF);
@@ -1541,7 +1609,7 @@ u_init()
   					attkptr->adtyp == AD_ENCH || attkptr->adtyp == AD_DISN ||
   					attkptr->adtyp == AD_PEST || attkptr->adtyp == AD_FAMN ||
             attkptr->adtyp == AD_HYDR || attkptr->adtyp == AD_QUIL ||
-            attkptr->adtyp == AD_LUCK) {
+            attkptr->adtyp == AD_LUCK || attkptr->adtyp == AD_SKEL) {
   			attkptr->adtyp = rn2(AD_HNGY);
   		}
   		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
@@ -1577,7 +1645,7 @@ u_init()
   	}
   	shambler->mflags2 &= ~M2_MERC;				/* no guards */
   	shambler->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
-  	shambler->mflags2 &= ~M2_WERE;				/* no lycanthropes */
+  	/* shambler->mflags2 &= ~M2_WERE; */
   	shambler->mflags2 &= ~M2_PNAME;				/* not a proper name */
 
     return;
@@ -1606,6 +1674,9 @@ int otyp;
         break;
     case PM_DRAGONMASTER:
         skills = Skill_D;
+        break;
+    case PM_CONVICT:
+        skills = Skill_Con;
         break;
     case PM_HEALER:
         skills = Skill_H;
@@ -1687,7 +1758,8 @@ ini_inv(trop)
 register struct trobj *trop;
 {
     struct obj *obj;
-    int otyp;
+    int otyp, i;
+    int corpses = 0;
 
     /* This will fail if the same list is used more than once */
     assert(trop->trquan > 0);
@@ -1739,6 +1811,8 @@ register struct trobj *trop;
                    || otyp == RIN_AGGRAVATE_MONSTER
                    || otyp == RIN_HUNGER
                    || otyp == WAN_NOTHING
+                   /* starting with pumpkins can give better AC */
+                   || otyp == PUMPKIN
                    /* orcs start with poison resistance */
                    || (otyp == RIN_POISON_RESISTANCE && Race_if(PM_ORC))
                    /* Monks don't use weapons */
@@ -1785,6 +1859,34 @@ register struct trobj *trop;
 
         otyp = race_trans(obj, trop, otyp);
 
+        /* Create ghoul corpses */
+        if (urace.malenum == PM_GHOUL && obj->oclass == FOOD_CLASS) {
+            dealloc_obj(obj);
+            if (corpses <= 2) {
+                obj = mksobj(CORPSE, TRUE, FALSE);
+                obj->corpsenm = PM_DEATH_MAGGOT;
+                obj->age = -100;
+                corpses++;
+            } else {
+                trop++;
+                continue;
+            }
+        }
+
+        /* Set up cartomancer cards */
+        if (urole.malenum == PM_CARTOMANCER && obj->otyp == SCR_CREATE_MONSTER) {
+            do {
+                i = rn2(NUMMONS);
+            } while ((type_is_pname(&mons[i]) || (mons[i].geno & G_UNIQ) || (mons[i].geno & G_NOGEN)));
+            obj->corpsenm = i;
+        }
+
+        /* Create vampire blood */
+        if (urace.malenum == PM_VAMPIRE && obj->otyp == FOOD_RATION) {
+            dealloc_obj(obj);
+            obj = mksobj(POT_VAMPIRE_BLOOD, TRUE, FALSE);
+        }
+
         /* nudist gets no armor */
         if (u.uroleplay.nudist && obj->oclass == ARMOR_CLASS) {
             dealloc_obj(obj);
@@ -1812,6 +1914,9 @@ register struct trobj *trop;
             } else if (obj->oclass == GEM_CLASS && is_graystone(obj)
                        && obj->otyp != FLINT) {
                 obj->quan = 1L;
+            }
+            if (obj->otyp == STRIPED_SHIRT ) {
+                obj->cursed = TRUE;
             }
             if (trop->trspe != UNDEF_SPE)
                 obj->spe = trop->trspe;

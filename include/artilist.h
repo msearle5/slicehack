@@ -1,4 +1,4 @@
-/* NetHack 3.6  artilist.h      $NHDT-Date: 1433050874 2015/05/31 05:41:14 $  $NHDT-Branch: master $:$NHDT-Revision: 1.16 $ */
+/* NetHack 3.6  artilist.h      $NHDT-Date: 1564351548 2019/07/28 22:05:48 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.20 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -38,6 +38,9 @@ static const char *artifact_names[] = {
 #define     FIRE(a,b)   {0,AD_FIRE,a,b}
 #define     ELEC(a,b)   {0,AD_ELEC,a,b}         /* electrical shock */
 #define     STUN(a,b)   {0,AD_STUN,a,b}         /* magical attack */
+#define     WIND(a,b)   {0,AD_WIND,a,b}         /* wind blast */
+#define     VOID(a,b)   {0,AD_VOID,a,b}
+#define     PLYS(a,b)   {0,AD_PLYS,a,b}         /* whip binding */
 /* clang-format on */
 
 STATIC_OVL NEARDATA struct artifact artilist[] = {
@@ -53,40 +56,14 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     A("", STRANGE_OBJECT, 0, 0, 0, NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE,
       NON_PM, NON_PM, 0L, NO_COLOR),
 
-    A("Excalibur", LONG_SWORD, (SPFX_NOGEN | SPFX_RESTR | SPFX_SEEK
-                                | SPFX_DEFN | SPFX_INTEL | SPFX_SEARCH),
-      0, 0, PHYS(5, 10), DRLI(0, 0), NO_CARY, 0, A_LAWFUL, PM_KNIGHT, NON_PM,
-      4000L, NO_COLOR),
-    /*
-     *      Stormbringer only has a 2 because it can drain a level,
-     *      providing 8 more.
-     */
-    A("Stormbringer", RUNESWORD,
-      (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
-      DRLI(5, 2), DRLI(0, 0), NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 8000L,
-      NO_COLOR),
+    /* SPLICE ARTIFACTS */
 
-    A("Thiefbane", TWO_HANDED_SWORD,
-  	(SPFX_NOGEN|SPFX_RESTR|SPFX_BEHEAD|SPFX_DCLAS|SPFX_DRLI), 0, S_HUMAN,
-  	DRLI(5,1), NO_DFNS,	NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 1500L,
-    NO_COLOR ),
-
-    A("Reaver",	SCIMITAR, (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), 0, 0,
-     	PHYS(5,8), NO_DFNS,	NO_CARY, 0, A_CHAOTIC, PM_PIRATE, NON_PM, 6000L,
-      NO_COLOR),
-    /*
-     *      Mjollnir will return to the hand of the wielder when thrown
-     *      if the wielder is a Valkyrie wearing Gauntlets of Power.
-     */
-    A("Mjollnir", WAR_HAMMER, /* Mjo:llnir */
-      (SPFX_RESTR | SPFX_ATTK), 0, 0, ELEC(5, 24), NO_DFNS, NO_CARY, 0,
-      A_NEUTRAL, PM_VALKYRIE, NON_PM, 4000L, NO_COLOR),
     /*
     *      Gungnir also returns to the hand of the wielder when thrown if
     *      the wielder is a Valkyrie, but there is no strength requirement.
     */
     A("Gungnir", DWARVISH_SPEAR, (SPFX_RESTR | SPFX_ATTK), 0, 0, ELEC(7, 20),
-      NO_DFNS, NO_CARY, 0, A_NEUTRAL, PM_VALKYRIE, NON_PM, 4000L, NO_COLOR),
+      NO_DFNS, NO_CARY, LIGHTNING_BOLT, A_NEUTRAL, PM_VALKYRIE, NON_PM, 4000L, NO_COLOR),
 
     /*
     *      Gae Bulg can be thrown as a last resort. If it hits, the attack
@@ -103,14 +80,14 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     *      should cancel their armor? This occurs 1/3 of the time.
     */
     A("Gae Dearg", ELVEN_SPEAR, (SPFX_RESTR | SPFX_ATTK | SPFX_CANC), 0, 0,
-      DRLI(2, 2), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+      DRLI(2, 5), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
       7000L, NO_COLOR),
 
     /*
     *      Gae Buidhe inflicts cursed wounds (drains levels).
     */
     A("Gae Buidhe", ELVEN_SPEAR, (SPFX_RESTR | SPFX_ATTK | SPFX_DRLI), 0, 0,
-      DRLI(3, 3), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM,
+      DRLI(3, 5), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM,
       7000L, NO_COLOR),
 
     /*
@@ -118,22 +95,20 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     *       overpowered. Used to be PM_KNIGHT.
     */
     A("Carnwennan", KNIFE, (SPFX_RESTR | SPFX_SEARCH | SPFX_STLTH), 0, 0,
-      PHYS(3, 3), NO_DFNS, NO_CARY, 0, A_LAWFUL,
+      PHYS(3, 8), NO_DFNS, NO_CARY, INVIS, A_LAWFUL,
       NON_PM, NON_PM, 400L, NO_COLOR),
 
     /*
     *       Seafoam grants waterbreathing, and is generated rustproof.
     */
-    A("Seafoam", TRIDENT, (SPFX_RESTR | SPFX_BREATHE), 0, 0, PHYS(3,7),
-      NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1500L, NO_COLOR),
+    A("Seafoam", TRIDENT, (SPFX_RESTR | SPFX_BREATHE), 0, 0, PHYS(3, 7),
+      NO_DFNS, NO_CARY, WWALKING, A_NONE, NON_PM, NON_PM, 1500L, NO_COLOR),
 
     /*
-    *       Based on Sumerian legends. Extremely powerful.
+    *       Mesopatamian in origin.
     */
-    A("Sharur", ORNATE_MACE,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK | SPFX_WARN),
-      0, 0, PHYS(5, 5), DFNS(AD_MAGM), NO_CARY, LION, A_LAWFUL, PM_DRAGONMASTER,
-      NON_PM, 4000L, NO_COLOR),
+    A("Imhullu", GLAIVE, (SPFX_RESTR), 0, 0, WIND(4, 5), NO_DFNS, NO_CARY, SEFFECT,
+      A_NEUTRAL, NON_PM, NON_PM, 2000L, NO_COLOR),
 
     /*
     *       May or may not be an obscure reference. Gains strength based
@@ -142,6 +117,7 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
     */
     A("Unlimited Moon", FLAIL, SPFX_RESTR, 0, 0, PHYS(2, 2), COLD(0, 0),
       NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 1500L, NO_COLOR),
+
     /*
     *       Based on the bindings used to trap Fenrir. This hook can grapple
     *       things regardless of size, and has a massive range.
@@ -161,32 +137,33 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR),
 
     /*
-    *       A fairly standard bane.
+    *       This lance does a lot of damage, and also automatically unseats any
+    *       mounted person it hits.
     */
-    A("Dismounter", LANCE, (SPFX_RESTR), 0, 0,
-      PHYS(5, 5), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 200L,
+    A("Bradamante\'s Fury", LANCE, (SPFX_RESTR), 0, 0,
+      PHYS(5, 10), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 800L,
       NO_COLOR),
 
     /*
-    *       Also a fairly standard bane.
+    *       Can temporarily paralyze a target.
     */
-    A("Final Death", BULLWHIP, (SPFX_RESTR | SPFX_DFLAG2 | SPFX_DEFN),
-      0, M2_UNDEAD,
-      PHYS(5, 0), DRLI(0,0), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 200L,
-      NO_COLOR),
+    A("Anaconda", BULLWHIP, (SPFX_RESTR),
+      0, 0,
+      PLYS(7, 7), DRLI(0,0), NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 200L,
+      CLR_RED),
 
     /*
     *       If not granted through sacrifice, the Grim Reaper is generated
     *       with this.
     */
-    A("Reaper", GRAIN_SCYTHE, (SPFX_RESTR | SPFX_DEFN), 0, 0, COLD(3, 20),
+    A("The End", GRAIN_SCYTHE, (SPFX_RESTR | SPFX_DEFN), 0, 0, COLD(3, 20),
       DRLI(0, 0), NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 6000L, NO_COLOR),
 
     /*
     *       Definitely no canonical problems here.
     */
     A("War\'s Sword", TWO_HANDED_SWORD,
-      (SPFX_RESTR | SPFX_CONFLICT), 0, 0, PHYS(3, 3), NO_DFNS, NO_CARY, 0,
+      (SPFX_RESTR | SPFX_CONFLICT), 0, 0, PHYS(3, 7), NO_DFNS, NO_CARY, 0,
       A_NONE, NON_PM, NON_PM, 7000L, NO_COLOR),
 
     /*
@@ -220,40 +197,111 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_ATTK, NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 1500L,
       CLR_MAGENTA),
 
-    /*
-    *      Wizardstaff, teleport control.
+   /*
+    *      Wizardstaff that grants teleport control, and also greatly increases
+    *      spellcasting ability (as a robe).
     */
     A("Balance", WIZARDSTAFF,
       (SPFX_RESTR | SPFX_TCTRL), 0, 0,
       PHYS(2, 3), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 2500L,
       CLR_MAGENTA),
-
+    
     /*
-    *      Self-explanatory.
+    *     Staff of Circe. 1/20 chance of turning target into an animal.
     */
-    /*A("Seven-League Boots", SPEED_BOOTS,
-      (SPFX_RESTR | SPFX_JUMP), 0, 0,
-      NO_ATTK, NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 1000L,
-      CLR_MAGENTA), */
+    A("Circe's Witchstaff", QUARTERSTAFF,
+      (SPFX_RESTR | SPFX_BEHEAD), 0, 0,
+      PHYS(4, 4), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 3500,
+      CLR_GREEN),
 
     /*
     *        Just for fun.
     */
     A("Vladsbane", FOOD_RATION,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2), 0, M2_UNDEAD,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH), 0, MH_UNDEAD,
       PHYS(-5, -5), NO_DFNS, NO_CARY, 0, A_NONE, NON_PM, NON_PM, 200L,
       CLR_MAGENTA),
 
-    /*
-    *        Summons a superboss.
-    */
-    A("The King in Yellow", SPE_FINGER_OF_DEATH,
-      (SPFX_NOGEN | SPFX_HALRES), 0, 0, NO_ATTK, NO_DFNS, NO_CARY,
-      KING, A_NONE, NON_PM, NON_PM, 30L, NO_COLOR),
+    /* PIRATE ARTIFACTS */
+
+    A("Reaver",	SCIMITAR, (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL), 0, 0,
+     	PHYS(5, 8), NO_DFNS,	NO_CARY, 0, A_CHAOTIC, PM_PIRATE, NON_PM, 6000L,
+      NO_COLOR),
 
     A("The Marauder's Map", SCR_MAGIC_MAPPING, SPFX_RESTR, 0, 0, NO_ATTK,
       NO_DFNS,	NO_CARY, OBJECT_DET,	A_CHAOTIC, PM_PIRATE, NON_PM, 2000L,
       NO_COLOR),
+
+    /* UNNETHACK ARTIFACTS */
+
+    A("Thiefbane", TWO_HANDED_SWORD,
+  	(SPFX_NOGEN|SPFX_RESTR|SPFX_BEHEAD|SPFX_DCLAS|SPFX_DRLI), 0, S_HUMAN,
+  	DRLI(5,1), NO_DFNS,	NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 1500L,
+    NO_COLOR ),
+
+    /* SLASHEM ARTIFACTS */
+
+    /* Unlike in SLASH'EM, the bat from hell is not rogue-specific. It can be
+     * considered one of the rarest artifacts, since baseball bats are only
+     * generated in junk shops. */
+    A("Bat from Hell", BASEBALL_BAT, SPFX_RESTR, 0, 0, PHYS(3,20), NO_DFNS,
+      NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 5000L, NO_COLOR),
+
+    A("Doomblade", ORCISH_SHORT_SWORD, SPFX_RESTR, 0, 0, PHYS(0, 10), NO_DFNS,
+      NO_CARY, 0, A_CHAOTIC, NON_PM, NON_PM, 1000L, NO_COLOR),
+
+    A("Luck Blade", BROADSWORD, (SPFX_RESTR | SPFX_LUCK | SPFX_INTEL), 0, 0,
+      PHYS(5,6),	NO_DFNS,	NO_CARY,	0, A_CHAOTIC, PM_CONVICT, NON_PM, 3000L,
+      NO_COLOR),
+
+    A("Sword of Balance", SHORT_SWORD, (SPFX_RESTR | SPFX_DALIGN), 0, 0,
+    	PHYS(2, 5), NO_DFNS, NO_CARY, 0, A_NEUTRAL, NON_PM, NON_PM, 5000L,
+      NO_COLOR),
+
+    /* Changed to broadsword */
+    A("Sword of Justice", BROADSWORD, (SPFX_RESTR | SPFX_DALIGN), 0, 0,
+    	PHYS(5,12), NO_DFNS, NO_CARY, 0, A_LAWFUL, NON_PM, NON_PM, 1500L,
+      NO_COLOR),
+
+    A("Plague", DARK_ELVEN_BOW,	/* KMH */
+    	(SPFX_RESTR | SPFX_DEFN), 0, 0, PHYS(5,7), DFNS(AD_DRST), NO_CARY, 0,
+      A_CHAOTIC, PM_DROW, NON_PM, 6000L, CLR_BRIGHT_GREEN),
+
+    /* If necromancers are ever added, they will use this. */
+    A("Serpent's Tongue", DAGGER, SPFX_RESTR, 0, 0, PHYS(2,0), NO_DFNS, NO_CARY,
+      0, A_CHAOTIC, NON_PM, NON_PM, 400L, NO_COLOR),
+
+    /* VANILLA ARTIFACTS */
+
+    A("Excalibur", LONG_SWORD, (SPFX_NOGEN | SPFX_RESTR | SPFX_SEEK
+                                | SPFX_DEFN | SPFX_INTEL | SPFX_SEARCH),
+      0, 0, PHYS(5, 10), DRLI(0, 0), NO_CARY, 0, A_LAWFUL, PM_KNIGHT, NON_PM,
+      4000L, NO_COLOR),
+    /*
+     *      Stormbringer only has a 2 because it can drain a level,
+     *      providing 8 more.
+     */
+    A("Stormbringer", RUNESWORD,
+      (SPFX_RESTR | SPFX_ATTK | SPFX_DEFN | SPFX_INTEL | SPFX_DRLI), 0, 0,
+      DRLI(5, 2), DRLI(0, 0), NO_CARY, SEFFECT, A_CHAOTIC, NON_PM, NON_PM, 8000L,
+      NO_COLOR),
+
+    /*
+     *      Mjollnir can be thrown when wielded if hero has 25 Strength
+     *      (usually via gauntlets of power but possible with rings of
+     *      gain strength).  If the thrower is a Valkyrie, Mjollnir will
+     *      usually (99%) return and then usually (separate 99%) be caught
+     *      and automatically be re-wielded.  When returning Mjollnir is
+     *      not caught, there is a 50:50 chance of hitting hero for damage
+     *      and its lightning shock might destroy some wands and/or rings.
+     *
+     *      Monsters don't throw Mjollnir regardless of strength (not even
+     *      fake-player valkyries).
+     */
+    A("Mjollnir", WAR_HAMMER, /* Mjo:llnir */
+      (SPFX_RESTR | SPFX_ATTK), 0, 0, ELEC(5, 24), NO_DFNS, NO_CARY, LIGHTNING_BOLT,
+      A_NEUTRAL, PM_VALKYRIE, NON_PM, 4000L, NO_COLOR),
+
     A("Cleaver", BATTLE_AXE, SPFX_RESTR, 0, 0, PHYS(3, 6), NO_DFNS, NO_CARY,
       0, A_NEUTRAL, PM_BARBARIAN, NON_PM, 1500L, NO_COLOR),
 
@@ -262,21 +310,21 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
      *      damage bonus applies to all targets rather than just elves
      *      (handled as special case in spec_dbon()).
      */
-    A("Grimtooth", ORCISH_DAGGER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAG2),
-      0, M2_ELF, PHYS(2, 6), NO_DFNS,
-      NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ORC, 1000L, CLR_RED),
+    A("Grimtooth", ORCISH_DAGGER, (SPFX_RESTR | SPFX_WARN | SPFX_DFLAGH),
+      0, MH_ELF, PHYS(2, 6), NO_DFNS,
+      NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ORC, 300L, CLR_RED),
     /*
      *      Orcrist and Sting have same alignment as elves.
      *
-     *      The combination of SPFX_WARN+SPFX_DFLAG2+M2_value will trigger
-     *      EWarn_of_mon for all monsters that have the M2_value flag.
-     *      Sting and Orcrist will warn of M2_ORC monsters.
+     *      The combination of SPFX_WARN+SPFX_DFLAGH+MH_value will trigger
+     *      EWarn_of_mon for all monsters that have the MH_value flag.
+     *      Sting and Orcrist will warn of MH_ORC monsters.
      */
-    A("Orcrist", ELVEN_BROADSWORD, (SPFX_WARN | SPFX_DFLAG2), 0, M2_ORC,
+    A("Orcrist", ELVEN_BROADSWORD, (SPFX_WARN | SPFX_DFLAGH), 0, MH_ORC,
       PHYS(5, 0), NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 2000L,
       CLR_BRIGHT_BLUE), /* bright blue is actually light blue */
 
-    A("Sting", ELVEN_DAGGER, (SPFX_WARN | SPFX_DFLAG2), 0, M2_ORC, PHYS(5, 0),
+    A("Sting", ELVEN_DAGGER, (SPFX_WARN | SPFX_DFLAGH), 0, MH_ORC, PHYS(5, 0),
       NO_DFNS, NO_CARY, 0, A_CHAOTIC, NON_PM, PM_ELF, 800L, CLR_BRIGHT_BLUE),
     /*
      *      Magicbane is a bit different!  Its magic fanfare
@@ -369,9 +417,20 @@ STATIC_OVL NEARDATA struct artifact artilist[] = {
       NO_COLOR),
 
     A("The Holographic Void Lily", CREDIT_CARD,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_DEFN),
-      (SPFX_EREGEN | SPFX_HSPDAM), 0, NO_ATTK, NO_DFNS, CARY(AD_CURS),
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
+      (SPFX_EREGEN | SPFX_HSPDAM | SPFX_REFLECT), 0, NO_ATTK, NO_DFNS, NO_CARY,
       SUMMONING, A_CHAOTIC, PM_CARTOMANCER, NON_PM, 7000L, NO_COLOR),
+
+    A("Sharur", ORNATE_MACE,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL | SPFX_SPEAK | SPFX_WARN),
+      0, 0, PHYS(5, 5), DFNS(AD_MAGM), NO_CARY, LION, A_LAWFUL, PM_DRAGONMASTER,
+      NON_PM, 4000L, NO_COLOR),
+    
+    A("The Iron Ball of Liberation", HEAVY_IRON_BALL,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL),
+      (SPFX_STLTH | SPFX_SEARCH | SPFX_WARN), 0,
+      NO_ATTK,	NO_DFNS,	CARY(AD_MAGM),
+      PHASING,	A_NEUTRAL, PM_PRISONER, NON_PM, 5000L, NO_COLOR),
 
 #if 0 /* OBSOLETE */
 A("The Palantir of Westernesse",        CRYSTAL_BALL,
@@ -398,8 +457,8 @@ A("The Palantir of Westernesse",        CRYSTAL_BALL,
       2500L, NO_COLOR),
 
     A("The Mitre of Holiness", HELM_OF_BRILLIANCE,
-      (SPFX_NOGEN | SPFX_RESTR | SPFX_DFLAG2 | SPFX_INTEL | SPFX_PROTECT), 0,
-      M2_UNDEAD, NO_ATTK, NO_DFNS, CARY(AD_FIRE), ENERGY_BOOST, A_LAWFUL,
+      (SPFX_NOGEN | SPFX_RESTR | SPFX_DFLAGH | SPFX_INTEL | SPFX_PROTECT), 0,
+      MH_UNDEAD, NO_ATTK, NO_DFNS, CARY(AD_FIRE), ENERGY_BOOST, A_LAWFUL,
       PM_PRIEST, NON_PM, 2000L, NO_COLOR),
 
     A("The Treasury of Proteus",	CHEST,
@@ -462,6 +521,9 @@ A("The Palantir of Westernesse",        CRYSTAL_BALL,
 #undef FIRE
 #undef ELEC
 #undef STUN
+#undef WIND
+#undef VOID
+#undef PLYS
 #endif
 
 /*artilist.h*/

@@ -1,4 +1,4 @@
-/* NetHack 3.6	wield.c	$NHDT-Date: 1525012623 2018/04/29 14:37:03 $  $NHDT-Branch: master $:$NHDT-Revision: 1.56 $ */
+/* NetHack 3.6	wield.c	$NHDT-Date: 1559670611 2019/06/04 17:50:11 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.59 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -116,7 +116,7 @@ boolean quiet;
     if (obj) {
         unweapon = (obj->oclass == WEAPON_CLASS)
                        ? is_launcher(obj) || is_ammo(obj) || is_missile(obj)
-                             || (is_pole(obj) && !u.usteed)
+                             || (is_pole(obj) && !u.usteed && obj->otyp != SPIKED_CHAIN)
                        : !is_weptool(obj) && !is_wet_towel(obj);
     } else
         unweapon = TRUE; /* for "bare hands" message */
@@ -189,7 +189,7 @@ struct obj *wep;
                   (wep->quan == 1L) ? "itself" : "themselves", /* a3 */
                   bimanual(wep) ? (const char *) makeplural(body_part(HAND))
                                 : body_part(HAND));
-            wep->bknown = TRUE;
+            set_bknown(wep, 1);
         } else {
             /* The message must be printed before setuwep (since
              * you might die and be revived from changing weapons),
@@ -594,8 +594,13 @@ const char *verb; /* "rub",&c */
     } else {
         struct obj *oldwep = uwep;
 
-        You("now wield %s.", doname(obj));
-        setuwep(obj);
+        if (will_weld(obj)) {
+            /* hope none of ready_weapon()'s early returns apply here... */
+            (void) ready_weapon(obj);
+        } else {
+            You("now wield %s.", doname(obj));
+            setuwep(obj);
+        }
         if (flags.pushweapon && oldwep && uwep != oldwep)
             setuswapwep(oldwep);
     }
@@ -620,7 +625,8 @@ can_twoweapon()
             You_cant("use two weapons in your current form.");
         else
             pline("%s aren't able to use two weapons at once.",
-                  makeplural((flags.female && urole.name.f) ? urole.name.f
+                  makeplural((flags.gender && urole.name.f) ? urole.name.f
+                             : (flags.gender && urole.name.f) ? urole.name.n
                                                             : urole.name.m));
     } else if (!uwep || !uswapwep)
         Your("%s%s%s empty.", uwep ? "left " : uswapwep ? "right " : "",
@@ -647,7 +653,7 @@ can_twoweapon()
         ; /* must be life-saved to reach here; return FALSE */
     } else if (Glib || uswapwep->cursed) {
         if (!Glib)
-            uswapwep->bknown = TRUE;
+            set_bknown(uswapwep, 1);
         drop_uswapwep();
     } else
         return TRUE;
@@ -755,7 +761,7 @@ register int amount;
             if (!Blind) {
                 Sprintf(buf, "%s with %s aura.",
                         Yobjnam2(uwep, "glow"), an(hcolor(NH_AMBER)));
-                uwep->bknown = !Hallucination;
+                uwep->bknown = !Hallucination; /* ok to bypass set_bknown() */
             } else {
                 /* cursed tin opener is wielded in right hand */
                 Sprintf(buf, "Your right %s tingles.", body_part(HAND));
@@ -882,7 +888,7 @@ welded(obj)
 register struct obj *obj;
 {
     if (obj && obj == uwep && will_weld(obj)) {
-        obj->bknown = TRUE;
+        set_bknown(obj, 1);
         return 1;
     }
     return 0;

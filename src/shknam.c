@@ -194,6 +194,22 @@ static const char *const shkblackmarket[] = {
     "One-Eyed Sam", 0
 };
 
+static const char *const shkarchery[] = {
+    /* Elven Names. Is the shopkeeper an elf? Probably not, but they
+       claim that it's just good business. */
+    "Dimaethor",   "Hador", "Grond",    "Hast",    "Maeth",
+    "Peng",        "Rom",   "Belegur",  "Camaen",  "Elvedui",
+    "Gwaedh",      "Maen",  "Maerphen", "Alagos",  "Gaeralagos",
+    "Faimben",     "Fain",  "Loss",     "Cugu",    0
+};
+
+static const char *const shkjunk[] = {
+    /* Silly names, clown names */
+    "=Spiffy", "=Bonko", "=Binky", "=Tubby", "=Zippy", "=Jumbo"
+    "=Mittens", "=Chuckles", "=Bam Bam", "=Larry", "=Curly",
+    "=Moe", "=Zaff", "=Punky", 0
+};
+
 /*
  * To add new shop types, all that is necessary is to edit the shtypes[]
  * array.  See mkroom.h for the structure definition.  Typically, you'll
@@ -212,7 +228,7 @@ static const char *const shkblackmarket[] = {
 const struct shclass shtypes[] = {
     { "general store",
       RANDOM_CLASS,
-      38,
+      36,
       D_SHOP,
       { { 100, RANDOM_CLASS },
         { 0, 0 },
@@ -269,12 +285,12 @@ const struct shclass shtypes[] = {
       FOOD_CLASS,
       5,
       D_SHOP,
-      { { 83, FOOD_CLASS },
+      { { 80, FOOD_CLASS },
         { 5, -POT_FRUIT_JUICE },
         { 4, -POT_BOOZE },
         { 5, -POT_WATER },
         { 3, -ICE_BOX },
-        { 0, 0 } },
+        { 3, -KEG } },
       shkfoods },
     { "jewelers",
       RING_CLASS,
@@ -325,21 +341,33 @@ const struct shclass shtypes[] = {
       { { 25, -BOW },
         { 20, -ARROW },
         { 15, -ELVEN_BOW },
-        { 20, -ELVEN_ARROW },
+        { 10, -ELVEN_ARROW },
+        { 10, -LIGHT_ARROW },
         { 8, -CROSSBOW },
         { 4, -YA },
         { 4, -CROSSBOW_BOLT },
         { 4, WEAPON_CLASS } },
-      shkweapons },
+      shkarchery },
     { "mask shop",
       RANDOM_CLASS,
       2,
       D_SHOP,
       { { 90, -MASK },
-        { 2, -TOWEL },
+        { 2, -EARMUFFS },
         { 3, -LENSES },
         { 5, -BLINDFOLD } },
       shkweapons },
+    { "junk shop",
+      RANDOM_CLASS,
+      2,
+      D_SHOP,
+      { { 65, RANDOM_CLASS },
+        { 10, -WINDMILL_BLADE },
+        { 10, -BASEBALL_BAT },
+        { 2,  -DECK_OF_FATE },
+        { 8, -IRON_CHAIN },
+        { 5, -WAN_NOTHING } },
+      shkjunk },
     { "health food store",
       FOOD_CLASS,
       2,
@@ -702,8 +730,11 @@ struct mkroom *sroom;
             shk = makemon(&mons[PM_ARMS_DEALER], sx, sy, MM_ESHK);
           }
     }
-    if (!shk) {
+    if (!shk && !In_endgame(&u.uz)) {
           if(!(shk = makemon(&mons[PM_SHOPKEEPER], sx, sy, MM_ESHK)))
+              return(-1);
+    } else if (!shk) {
+          if(!(shk = makemon(&mons[PM_EXTRAPLANAR_MERCHANT], sx, sy, MM_ESHK)))
               return(-1);
     }
     eshkp = ESHK(shk); /* makemon(...,MM_ESHK) allocates this */

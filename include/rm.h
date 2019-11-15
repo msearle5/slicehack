@@ -1,4 +1,4 @@
-/* NetHack 3.6	rm.h	$NHDT-Date: 1432512776 2015/05/25 00:12:56 $  $NHDT-Branch: master $:$NHDT-Revision: 1.41 $ */
+/* NetHack 3.6	rm.h	$NHDT-Date: 1571347960 2019/10/17 21:32:40 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.64 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -18,18 +18,18 @@
  */
 
 /*
- * TLCORNER	TDWALL		TRCORNER
- * +-		-+-		-+
- * |		 |		 |
+ * TLCORNER     TDWALL          TRCORNER
+ * +-           -+-             -+
+ * |             |               |
  *
- * TRWALL	CROSSWALL	TLWALL		HWALL
- * |		 |		 |
- * +-		-+-		-+		---
- * |		 |		 |
+ * TRWALL       CROSSWALL       TLWALL          HWALL
+ * |             |               |
+ * +-           -+-             -+              ---
+ * |             |               |
  *
- * BLCORNER	TUWALL		BRCORNER	VWALL
- * |		 |		 |		|
- * +-		-+-		-+		|
+ * BLCORNER     TUWALL          BRCORNER        VWALL
+ * |             |               |              |
+ * +-           -+-             -+              |
  */
 
 /* Level location types.  [Some debugging code in src/display.c
@@ -38,45 +38,45 @@
    or existing ones renumbered. There is also an array levltyp[]
    of names in cmd.c */
 enum levl_typ_types {
-    STONE = 0,
-    VWALL,
-    HWALL,
-    TLCORNER,
-    TRCORNER,
-    BLCORNER,
-    BRCORNER,
-    CROSSWALL, /* For pretty mazes and special levels */
-    TUWALL,
-    TDWALL,
-    TLWALL,
-    TRWALL,
-    DBWALL,
-    TREE, /* KMH */
-    SDOOR,
-    SCORR,
-    POOL,
-    MOAT, /* pool that doesn't boil, adjust messages */
-    WATER,
-    DRAWBRIDGE_UP,
-    LAVAPOOL,
-    IRONBARS, /* KMH */
-    DOOR,
-    CORR,
-    ROOM,
-    STAIRS,
-    LADDER,
-    FOUNTAIN,
-    THRONE,
-    SINK,
-    FURNACE,
-    GRAVE,
-    ALTAR,
-    ICE,
-    DRAWBRIDGE_DOWN,
-    AIR,
-    CLOUD,
+    STONE     =  0,
+    VWALL     =  1,
+    HWALL     =  2,
+    TLCORNER  =  3,
+    TRCORNER  =  4,
+    BLCORNER  =  5,
+    BRCORNER  =  6,
+    CROSSWALL =  7, /* For pretty mazes and special levels */
+    TUWALL    =  8,
+    TDWALL    =  9,
+    TLWALL    = 10,
+    TRWALL    = 11,
+    DBWALL    = 12,
+    TREE      = 13, /* KMH */
+    SDOOR     = 14,
+    SCORR     = 15,
+    POOL      = 16,
+    MOAT      = 17, /* pool that doesn't boil, adjust messages */
+    WATER     = 18,
+    DRAWBRIDGE_UP = 19,
+    LAVAPOOL  = 20,
+    IRONBARS  = 21, /* KMH */
+    DOOR      = 22,
+    CORR      = 23,
+    ROOM      = 24,
+    STAIRS    = 25,
+    LADDER    = 26,
+    FOUNTAIN  = 27,
+    THRONE    = 28,
+    SINK      = 29,
+    FURNACE   = 30,
+    GRAVE     = 31,
+    ALTAR     = 32,
+    ICE       = 33,
+    DRAWBRIDGE_DOWN = 34,
+    AIR       = 35,
+    CLOUD     = 36,
 
-    MAX_TYPE,
+    MAX_TYPE  = 37,
     INVALID_TYPE = 127
 };
 
@@ -112,129 +112,133 @@ enum levl_typ_types {
 /*
  * The screen symbols may be the default or defined at game startup time.
  * See drawing.c for defaults.
- * Note: {ibm|dec}_graphics[] arrays (also in drawing.c) must be kept in
+ * Note: {ibm|dec|curses}_graphics[] arrays (also in drawing.c) must be kept in
  * synch.
  */
 
 /* begin dungeon characters */
 enum screen_symbols {
-    S_stone = 0,
-    S_vwall,
-    S_hwall,
-    S_tlcorn,
-    S_trcorn,
-    S_blcorn,
-    S_brcorn,
-    S_crwall,
-    S_tuwall,
-    S_tdwall,
-    S_tlwall,
-    S_trwall,
-    S_ndoor,
-    S_vodoor,
-    S_hodoor,
-    S_vcdoor, /* closed door, vertical wall */
-    S_hcdoor, /* closed door, horizontal wall */
-    S_bars,   /* KMH -- iron bars */
-    S_tree,   /* KMH */
-    S_room,
-    S_darkroom,
-    S_corr,
-    S_litcorr,
-    S_upstair,
-    S_dnstair,
-    S_upladder,
-    S_dnladder,
-    S_altar,
-    S_grave,
-    S_throne,
-    S_sink,
-    S_furnace,
-    S_fountain,
-    S_pool,
-    S_ice,
-    S_lava,
-    S_vodbridge,
-    S_hodbridge,
-    S_vcdbridge, /* closed drawbridge, vertical wall */
-    S_hcdbridge, /* closed drawbridge, horizontal wall */
-    S_air,
-    S_cloud,
-    S_water,
+    S_stone     =  0,
+    S_vwall     =  1,
+    S_hwall     =  2,
+    S_tlcorn    =  3,
+    S_trcorn    =  4,
+    S_blcorn    =  5,
+    S_brcorn    =  6,
+    S_crwall    =  7,
+    S_tuwall    =  8,
+    S_tdwall    =  9,
+    S_tlwall    = 10,
+    S_trwall    = 11,
+    S_ndoor     = 12,
+    S_vodoor    = 13,
+    S_hodoor    = 14,
+    S_vcdoor    = 15, /* closed door, vertical wall */
+    S_hcdoor    = 16, /* closed door, horizontal wall */
+    S_bars      = 17, /* KMH -- iron bars */
+    S_tree      = 18, /* KMH */
+    S_room      = 19,
+    S_darkroom  = 20,
+    S_corr      = 21,
+    S_litcorr   = 22,
+    S_upstair   = 23,
+    S_dnstair   = 24,
+    S_upladder  = 25,
+    S_dnladder  = 26,
+    S_altar     = 27,
+    S_grave     = 28,
+    S_throne    = 29,
+    S_sink      = 30,
+    S_furnace   = 31,
+    S_fountain  = 32,
+    S_pool      = 33,
+    S_ice       = 34,
+    S_lava      = 35,
+    S_vodbridge = 36,
+    S_hodbridge = 37,
+    S_vcdbridge = 38, /* closed drawbridge, vertical wall */
+    S_hcdbridge = 39, /* closed drawbridge, horizontal wall */
+    S_air       = 40,
+    S_cloud     = 41,
+    S_water     = 42,
 
 /* end dungeon characters, begin traps */
 
-    S_arrow_trap,
-    S_dart_trap,
-    S_falling_rock_trap,
-    S_squeaky_board,
-    S_bear_trap,
-    S_land_mine,
-    S_rolling_boulder_trap,
-    S_sleeping_gas_trap,
-    S_rust_trap,
-    S_fire_trap,
-    S_buzzsaw_trap,
-    S_pit,
-    S_spiked_pit,
-    S_hole,
-    S_trap_door,
-    S_teleportation_trap,
-    S_level_teleporter,
-    S_magic_portal,
-    S_web,
-    S_statue_trap,
-    S_magic_trap,
-    S_anti_magic_trap,
-    S_polymorph_trap,
-    S_vibrating_square,
+    S_arrow_trap           = 43,
+    S_dart_trap            = 44,
+    S_falling_rock_trap    = 45,
+    S_squeaky_board        = 46,
+    S_bear_trap            = 47,
+    S_land_mine            = 48,
+    S_rolling_boulder_trap = 49,
+    S_sleeping_gas_trap    = 50,
+    S_rust_trap            = 51,
+    S_fire_trap            = 52,
+    S_buzzsaw_trap         = 53,
+    S_whirlwind_trap       = 54,
+    S_glyph_of_neutrality  = 55,
+    S_glyph_of_law         = 56,
+    S_glyph_of_chaos       = 57,
+    S_pit                  = 58,
+    S_spiked_pit           = 59,
+    S_hole                 = 60,
+    S_trap_door            = 61,
+    S_teleportation_trap   = 62,
+    S_level_teleporter     = 63,
+    S_magic_portal         = 64,
+    S_web                  = 65,
+    S_statue_trap          = 66,
+    S_magic_trap           = 67,
+    S_anti_magic_trap      = 68,
+    S_polymorph_trap       = 69,
+    S_vibrating_square     = 70, /* for display rather than any trap effect */
 
 /* end traps, begin special effects */
 
-    S_vbeam,  /* The 4 zap beam symbols.  Do NOT separate. */
-    S_hbeam,  /* To change order or add, see function     */
-    S_lslant, /* zapdir_to_glyph() in display.c.	    */
-    S_rslant,
-    S_digbeam,   /* dig beam symbol */
-    S_flashbeam, /* camera flash symbol */
-    S_boomleft,  /* thrown boomerang, open left, e.g ')'    */
-    S_boomright, /* thrown boomerang, open right, e.g. '('  */
-    S_ss1,       /* 4 magic shield glyphs */
-    S_ss2,
-    S_ss3,
-    S_ss4,
-    S_poisoncloud,
-    S_goodpos, /* valid position for targeting */
+    S_vbeam     = 71, /* The 4 zap beam symbols.  Do NOT separate. */
+    S_hbeam     = 72, /* To change order or add, see function      */
+    S_lslant    = 73, /* zapdir_to_glyph() in display.c.           */
+    S_rslant    = 74,
+    S_digbeam   = 75, /* dig beam symbol */
+    S_flashbeam = 76, /* camera flash symbol */
+    S_boomleft  = 77, /* thrown boomerang, open left, e.g ')'    */
+    S_boomright = 78, /* thrown boomerang, open right, e.g. '('  */
+    S_ss1       = 79, /* 4 magic shield ("resistance sparkle") glyphs */
+    S_ss2       = 80,
+    S_ss3       = 81,
+    S_ss4       = 82,
+    S_poisoncloud = 83,
+    S_goodpos   = 84, /* valid position for targeting via getpos() */
 
-/* The 8 swallow symbols.  Do NOT separate.  To change order or add, see */
-/* the function swallow_to_glyph() in display.c.			 */
-    S_sw_tl, /* swallow top left [1]             */
-    S_sw_tc, /* swallow top center [2]    Order: */
-    S_sw_tr, /* swallow top right [3]            */
-    S_sw_ml, /* swallow middle left [4]   1 2 3  */
-    S_sw_mr, /* swallow middle right [6]  4 5 6  */
-    S_sw_bl, /* swallow bottom left [7]   7 8 9  */
-    S_sw_bc, /* swallow bottom center [8]        */
-    S_sw_br, /* swallow bottom right [9]         */
+/* The 8 swallow symbols.  Do NOT separate.  To change order or add, */
+/* see the function swallow_to_glyph() in display.c.                 */
+    S_sw_tl     = 85, /* swallow top left [1]             */
+    S_sw_tc     = 86, /* swallow top center [2]    Order: */
+    S_sw_tr     = 87, /* swallow top right [3]            */
+    S_sw_ml     = 88, /* swallow middle left [4]   1 2 3  */
+    S_sw_mr     = 89, /* swallow middle right [6]  4 5 6  */
+    S_sw_bl     = 90, /* swallow bottom left [7]   7 8 9  */
+    S_sw_bc     = 91, /* swallow bottom center [8]        */
+    S_sw_br     = 92, /* swallow bottom right [9]         */
 
-    S_explode1, /* explosion top left			*/
-    S_explode2, /* explosion top center			*/
-    S_explode3, /* explosion top right	   Ex.	*/
-    S_explode4, /* explosion middle left		*/
-    S_explode5, /* explosion middle center /-\	*/
-    S_explode6, /* explosion middle right  |@|	*/
-    S_explode7, /* explosion bottom left   \-/	*/
-    S_explode8, /* explosion bottom center		*/
-    S_explode9, /* explosion bottom right		*/
+    S_explode1  = 93, /* explosion top left               */
+    S_explode2  = 94, /* explosion top center             */
+    S_explode3  = 95, /* explosion top right        Ex.   */
+    S_explode4  = 96, /* explosion middle left            */
+    S_explode5  = 97, /* explosion middle center    /-\   */
+    S_explode6  = 98, /* explosion middle right     |@|   */
+    S_explode7  = 99, /* explosion bottom left      \-/   */
+    S_explode8  = 100, /* explosion bottom center         */
+    S_explode9  = 101, /* explosion bottom right          */
 
 /* end effects */
 
-    MAXPCHARS   /* maximum number of mapped characters */
+    MAXPCHARS   = 102  /* maximum number of mapped characters */
 };
 
-#define MAXDCHARS (S_water - S_stone + 1)  /* maximum of mapped dungeon characters */
-#define MAXTCHARS (S_vibrating_square - S_arrow_trap + 1)  /* maximum of mapped trap characters */
-#define MAXECHARS (S_explode9 - S_vbeam + 1)  /* maximum of mapped effects characters */
+#define MAXDCHARS (S_water - S_stone + 1) /* mapped dungeon characters */
+#define MAXTCHARS (S_vibrating_square - S_arrow_trap + 1) /* trap chars */
+#define MAXECHARS (S_explode9 - S_vbeam + 1) /* mapped effects characters */
 #define MAXEXPCHARS 9 /* number of explosion characters */
 
 #define DARKROOMSYM (Is_rogue_level(&u.uz) ? S_stone : S_darkroom)
@@ -272,7 +276,9 @@ struct symparse {
 /* misc symbol definitions */
 #define SYM_BOULDER 0
 #define SYM_INVISIBLE 1
-#define MAXOTHER 2
+#define SYM_PET_OVERRIDE 2
+#define SYM_PLAYER_OVERRIDE 3
+#define MAXOTHER 4
 
 /* linked list of symsets and their characteristics */
 struct symsetentry {
@@ -284,7 +290,8 @@ struct symsetentry {
     Bitfield(nocolor, 1);     /* don't use color if set               */
     Bitfield(primary, 1);     /* restricted for use as primary set    */
     Bitfield(rogue, 1);       /* restricted for use as rogue lev set  */
-                              /* 5 free bits */
+    Bitfield(explicitly, 1);  /* explicit symset set                  */
+                              /* 4 free bits */
 };
 
 /*
@@ -300,17 +307,21 @@ struct symsetentry {
  * Must match the order of the known_handlers strings
  * in drawing.c
  */
-#define H_UNK 0
-#define H_IBM 1
-#define H_DEC 2
-#define H_CURS 3
+#define H_UNK     0
+#define H_IBM     1
+#define H_DEC     2
+#define H_CURS    3
+#define H_MAC     4 /* obsolete; needed so that the listing of available
+                     * symsets by 'O' can skip it for !MAC_GRAPHICS_ENV */
 
 extern const struct symdef defsyms[MAXPCHARS]; /* defaults */
 extern const struct symdef def_warnsyms[WARNCOUNT];
 extern int currentgraphics; /* from drawing.c */
 extern nhsym showsyms[];
-extern nhsym l_syms[];
-extern nhsym r_syms[];
+extern nhsym primary_syms[];
+extern nhsym rogue_syms[];
+extern nhsym ov_primary_syms[];
+extern nhsym ov_rogue_syms[];
 
 extern struct symsetentry symset[NUM_GRAPHICS]; /* from drawing.c */
 #define SYMHANDLING(ht) (symset[currentgraphics].handling == (ht))
@@ -456,30 +467,30 @@ struct rm {
  *
  * The following should cover all of the cases.
  *
- *	type	mode				Examples: R=rock, F=finished
- *	-----	----				----------------------------
- *	WALL:	0 none				hwall, mode 1
- *		1 left/top (1/2 rock)			RRR
- *		2 right/bottom (1/2 rock)		---
- *							FFF
+ *      type    mode                            Examples: R=rock, F=finished
+ *      -----   ----                            ----------------------------
+ *      WALL:   0 none                          hwall, mode 1
+ *              1 left/top (1/2 rock)                   RRR
+ *              2 right/bottom (1/2 rock)               ---
+ *                                                      FFF
  *
- *	CORNER: 0 none				trcorn, mode 2
- *		1 outer (3/4 rock)			FFF
- *		2 inner (1/4 rock)			F+-
- *							F|R
+ *      CORNER: 0 none                          trcorn, mode 2
+ *              1 outer (3/4 rock)                      FFF
+ *              2 inner (1/4 rock)                      F+-
+ *                                                      F|R
  *
- *	TWALL:	0 none				tlwall, mode 3
- *		1 long edge (1/2 rock)			F|F
- *		2 bottom left (on a tdwall)		-+F
- *		3 bottom right (on a tdwall)		R|F
+ *      TWALL:  0 none                          tlwall, mode 3
+ *              1 long edge (1/2 rock)                  F|F
+ *              2 bottom left (on a tdwall)             -+F
+ *              3 bottom right (on a tdwall)            R|F
  *
- *	CRWALL: 0 none				crwall, mode 5
- *		1 top left (1/4 rock)			R|F
- *		2 top right (1/4 rock)			-+-
- *		3 bottom left (1/4 rock)		F|R
- *		4 bottom right (1/4 rock)
- *		5 top left & bottom right (1/2 rock)
- *		6 bottom left & top right (1/2 rock)
+ *      CRWALL: 0 none                          crwall, mode 5
+ *              1 top left (1/4 rock)                   R|F
+ *              2 top right (1/4 rock)                  -+-
+ *              3 bottom left (1/4 rock)                F|R
+ *              4 bottom right (1/4 rock)
+ *              5 top left & bottom right (1/2 rock)
+ *              6 bottom left & top right (1/2 rock)
  */
 
 #define WM_W_LEFT 1 /* vertical or horizontal wall */
@@ -502,25 +513,25 @@ struct rm {
 #define WM_X_BLTR 6
 
 /*
- * Seen vector values.	The seen vector is an array of 8 bits, one for each
+ * Seen vector values.  The seen vector is an array of 8 bits, one for each
  * octant around a given center x:
  *
- *			0 1 2
- *			7 x 3
- *			6 5 4
+ *              0 1 2
+ *              7 x 3
+ *              6 5 4
  *
  * In the case of walls, a single wall square can be viewed from 8 possible
- * directions.	If we know the type of wall and the directions from which
+ * directions.  If we know the type of wall and the directions from which
  * it has been seen, then we can determine what it looks like to the hero.
  */
-#define SV0 0x1
-#define SV1 0x2
-#define SV2 0x4
-#define SV3 0x8
-#define SV4 0x10
-#define SV5 0x20
-#define SV6 0x40
-#define SV7 0x80
+#define SV0   0x01
+#define SV1   0x02
+#define SV2   0x04
+#define SV3   0x08
+#define SV4   0x10
+#define SV5   0x20
+#define SV6   0x40
+#define SV7   0x80
 #define SVALL 0xFF
 
 #define doormask flags
@@ -569,9 +580,10 @@ struct levelflags {
     Bitfield(has_beehive, 1);
     Bitfield(has_lab, 1);
     Bitfield(has_den, 1);
+    Bitfield(has_armory, 1);
     Bitfield(has_barracks, 1);
     Bitfield(has_temple, 1);
-
+    Bitfield(has_lemurepit, 1);
     Bitfield(has_swamp, 1);
     Bitfield(noteleport, 1);
     Bitfield(hardfloor, 1);
@@ -633,14 +645,33 @@ extern dlevel_t level; /* structure describing the current level */
 /*
  * Macros for encapsulation of level.monsters references.
  */
+#if 0
 #define MON_AT(x, y)                            \
     (level.monsters[x][y] != (struct monst *) 0 \
      && !(level.monsters[x][y])->mburied)
 #define MON_BURIED_AT(x, y)                     \
     (level.monsters[x][y] != (struct monst *) 0 \
      && (level.monsters[x][y])->mburied)
+#else   /* without 'mburied' */
+#define MON_AT(x, y) (level.monsters[x][y] != (struct monst *) 0)
+#endif
+#ifdef EXTRA_SANITY_CHECKS
+#define place_worm_seg(m, x, y) \
+    do {                                                        \
+        if (level.monsters[x][y] && level.monsters[x][y] != m)  \
+            impossible("place_worm_seg over mon");              \
+        level.monsters[x][y] = m;                               \
+    } while(0)
+#define remove_monster(x, y) \
+    do {                                                \
+        if (!level.monsters[x][y])                      \
+            impossible("no monster to remove");         \
+        level.monsters[x][y] = (struct monst *) 0;      \
+    } while(0)
+#else
 #define place_worm_seg(m, x, y) level.monsters[x][y] = m
 #define remove_monster(x, y) level.monsters[x][y] = (struct monst *) 0
+#endif
 #define m_at(x, y) (MON_AT(x, y) ? level.monsters[x][y] : (struct monst *) 0)
 #define m_buried_at(x, y) \
     (MON_BURIED_AT(x, y) ? level.monsters[x][y] : (struct monst *) 0)

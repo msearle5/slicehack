@@ -99,6 +99,7 @@
 
 /* ### fountain.c ### */
 #define gush(x, y, poolcnt) gush_(x, y, poolcnt)
+#define docook() docook_()
 
 /* ### hack.c ### */
 #define dopickup() dopickup_()

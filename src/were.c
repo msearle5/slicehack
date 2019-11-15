@@ -1,4 +1,4 @@
-/* NetHack 3.6	were.c	$NHDT-Date: 1505214877 2017/09/12 11:14:37 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.21 $ */
+/* NetHack 3.6	were.c	$NHDT-Date: 1550524568 2019/02/18 21:16:08 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.23 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -23,6 +23,14 @@ register struct monst *mon;
                 const char *howler, *howl;
 
                 switch (monsndx(mon->data)) {
+                case PM_WERETIGER:
+                    howler = "tiger";
+                    howl = "yowling";
+                    break;
+                case PM_WERECOCKATRICE:
+                    howler = "chicken";
+                    howl = "squawking";
+                    break;
                 case PM_WEREBEAR:
                     howler = "bear";
                     howl = "roaring";
@@ -33,6 +41,10 @@ register struct monst *mon;
                     break;
                 case PM_WEREWOLF:
                     howler = "wolf";
+                    howl = "howling";
+                    break;
+                case PM_DRAUGLIR:
+                    howler = "great wolf";
                     howl = "howling";
                     break;
                 case PM_WEREJACKAL:
@@ -59,7 +71,8 @@ register struct monst *mon;
             }
         }
     } else if (!rn2(30) || Protection_from_shape_changers) {
-        new_were(mon); /* change back into human form */
+        if (mon->data != &mons[PM_DRAUGLIR])
+            new_were(mon); /* change back into human form */
     }
     /* update innate intrinsics (mainly Drain_resistance) */
     set_uasmon(); /* new_were() doesn't do this */
@@ -74,6 +87,7 @@ int pm;
         return PM_PACK_LORD;
     case PM_PACK_LORD:
         return PM_ALPHA_WEREWOLF;
+    case PM_DRAUGLIR:
     case PM_WEREWOLF:
         return PM_HUMAN_WEREWOLF;
     case PM_HUMAN_WEREWOLF:
@@ -82,6 +96,14 @@ int pm;
         return PM_HUMAN_WEREBEAR;
     case PM_HUMAN_WEREBEAR:
         return PM_WEREBEAR;
+    case PM_WERECOCKATRICE:
+        return PM_HUMAN_WERECOCKATRICE;
+    case PM_HUMAN_WERECOCKATRICE:
+        return PM_WERECOCKATRICE;
+    case PM_WERETIGER:
+        return PM_HUMAN_WERETIGER;
+    case PM_HUMAN_WERETIGER:
+        return PM_WERETIGER;
     case PM_WEREJACKAL:
         return PM_HUMAN_WEREJACKAL;
     case PM_HUMAN_WEREJACKAL:
@@ -101,6 +123,14 @@ were_beastie(pm)
 int pm;
 {
     switch (pm) {
+    case PM_WERECOCKATRICE:
+    case PM_COCKATRICE:
+    case PM_CHICKATRICE:
+    case PM_PYROLISK:
+        return PM_WERECOCKATRICE;
+    case PM_TIGER:
+    case PM_WERETIGER:
+        return PM_TIGER;
     case PM_WEREBEAR:
     case PM_OWLBEAR:
     case PM_BEAR:
@@ -135,6 +165,17 @@ register struct monst *mon;
     register int pm;
 
     pm = counter_were(monsndx(mon->data));
+    if (mon->data == &mons[PM_DRAUGLIR]) {
+        if (mon->msleeping || !mon->mcanmove) {
+            mon->msleeping = 0;
+            mon->mcanmove = 1;
+        }
+        if (canseemon(mon)) {
+            pline("The fur of %s ripples.", mon_nam(mon));
+            mon->mhp += (mon->mhpmax - mon->mhp) / 4;
+            return;
+        }
+    }
     if (pm < LOW_PM) {
         impossible("unknown lycanthrope %s.", mon->data->mname);
         return;
@@ -144,7 +185,7 @@ register struct monst *mon;
         pline("%s changes into a %s.", Monnam(mon),
               is_human(&mons[pm]) ? "human" : mons[pm].mname + 4);
 
-    set_mon_data(mon, &mons[pm], 0);
+    set_mon_data(mon, &mons[pm]);
     if (mon->msleeping || !mon->mcanmove) {
         /* transformation wakens and/or revitalizes */
         mon->msleeping = 0;
@@ -194,10 +235,25 @@ char *genbuf;
             if (genbuf)
                 Strcpy(genbuf, "jackal");
             break;
+        case PM_WERECOCKATRICE:
+        case PM_HUMAN_WERECOCKATRICE:
+            typ = rn2(3) ? PM_CHICKATRICE : rn2(3) ? PM_PYROLISK : PM_CHICKATRICE;
+            if (genbuf)
+                Strcpy(genbuf, "cockatrice");
+            break;
+        case PM_WERETIGER:
+            typ = PM_TIGER;
+            if (genbuf)
+                Strcpy(genbuf, "tiger");
+            break;
+        case PM_HUMAN_WEREBEAR:
         case PM_WEREBEAR:
             typ = rn2(15) ? PM_BEAR : PM_HELLBEAR;
             if (genbuf)
                 Strcpy(genbuf, "bear");
+            break;
+        case PM_DRAUGLIR:
+            typ = rn2(2) ? PM_THOUGHT_HOUND : PM_MEMORY_HOUND;
             break;
         case PM_WEREWOLF:
         case PM_HUMAN_WEREWOLF:

@@ -1,4 +1,4 @@
-/* NetHack 3.6	dungeon.c	$NHDT-Date: 1523308357 2018/04/09 21:12:37 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.87 $ */
+/* NetHack 3.6	dungeon.c	$NHDT-Date: 1559476918 2019/06/02 12:01:58 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.95 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -73,7 +73,6 @@ STATIC_DCL void FDECL(traverse_mapseenchn, (BOOLEAN_P, winid,
                                             int, int, int *));
 STATIC_DCL const char *FDECL(seen_string, (XCHAR_P, const char *));
 STATIC_DCL const char *FDECL(br_string2, (branch *));
-STATIC_DCL const char *FDECL(endgamelevelname, (char *, int));
 STATIC_DCL const char *FDECL(shop_string, (int));
 STATIC_DCL char *FDECL(tunesuffix, (mapseen *, char *));
 
@@ -184,6 +183,8 @@ boolean perform_write, free_data;
             next_ms = curr_ms->next;
             if (curr_ms->custom)
                 free((genericptr_t) curr_ms->custom);
+            if (curr_ms->final_resting_place)
+                savecemetery(fd, FREE_SAVE, &curr_ms->final_resting_place);
             free((genericptr_t) curr_ms);
         }
         mapseenchn = 0;
@@ -687,8 +688,10 @@ struct level_map {
                   { "astral", &astral_level },
                   { "baalz", &baalzebub_level },
                   { "bigrm", &bigroom_level },
+                  { "brass", &brass_level },
                   { "castle", &stronghold_level },
                   { "earth", &earth_level },
+                  { "gemarray", &gem_level },
                   { "fakewiz1", &portal_level },
                   { "fire", &fire_level },
                   { "juiblex", &juiblex_level },
@@ -699,6 +702,7 @@ struct level_map {
                   { "orcus", &orcus_level },
                   { "rogue", &rogue_level },
                   { "sanctum", &sanctum_level },
+                  { "storm", &storm_level },
                   { "valley", &valley_level },
                   { "void",   &void_level },
                   { "water", &water_level },
@@ -972,7 +976,7 @@ init_dungeons()
         if (dunlevs_in_dungeon(&x->dlevel) > 1 - dungeons[i].depth_start)
             dungeons[i].depth_start -= 1;
         /* TODO: strip "dummy" out all the way here,
-           so that it's hidden from <ctrl/O> feedback. */
+           so that it's hidden from '#wizwhere' feedback. */
     }
 
 #ifdef DEBUG
@@ -1193,6 +1197,13 @@ void
 u_on_newpos(x, y)
 int x, y;
 {
+    if (!isok(x, y)) { /* validate location */
+        void VDECL((*func), (const char *, ...)) PRINTF_F(1, 2);
+
+        func = (x < 0 || y < 0 || x > COLNO - 1 || y > ROWNO - 1) ? panic
+               : impossible;
+        (*func)("u_on_newpos: trying to place hero off map <%d,%d>", x, y);
+    }
     u.ux = x;
     u.uy = y;
 #ifdef CLIPPING
@@ -1207,7 +1218,7 @@ int x, y;
         u.ux0 = u.ux, u.uy0 = u.uy;
 }
 
-/* place you on a random location */
+/* place you on a random location when arriving on a level */
 void
 u_on_rndspot(upflag)
 int upflag;
@@ -1235,6 +1246,9 @@ int upflag;
         place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
                       dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
                       LR_DOWNTELE, (d_level *) 0);
+
+    /* might have just left solid rock and unblocked levitation */
+    switch_terrain();
 }
 
 /* place you on the special staircase */
@@ -1671,7 +1685,7 @@ const char *nam;
             *(eos(buf) - 6) = '\0';
         }
         /* hell is the old name, and wouldn't match; gehennom would match its
-           branch, yielding the castle level instead of the valley of the dead */
+           branch, yielding the castle level instead of valley of the dead */
         if (!strcmpi(nam, "gehennom") || !strcmpi(nam, "hell")) {
             if (In_V_tower(&u.uz))
                 nam = " to Vlad's tower"; /* branch to... */
@@ -1983,6 +1997,7 @@ xchar *rdgn;
         /* only report "no portal found" when actually expecting a portal */
         else if (Is_earthlevel(&u.uz) || Is_waterlevel(&u.uz)
                  || Is_firelevel(&u.uz) || Is_airlevel(&u.uz)
+                 || Is_gemlevel(&u.uz)
                  || Is_qstart(&u.uz) || at_dgn_entrance("The Quest")
                  || Is_knox(&u.uz))
             Strcpy(buf, "No portal found.");
@@ -2163,7 +2178,8 @@ int ledger_num;
     struct cemetery *bp, *bpnext;
 
     for (mptr = mapseenchn; mptr; mprev = mptr, mptr = mptr->next)
-        if (dungeons[mptr->lev.dnum].ledger_start + mptr->lev.dlevel == ledger_num)
+        if (dungeons[mptr->lev.dnum].ledger_start + mptr->lev.dlevel
+            == ledger_num)
             break;
 
     if (!mptr)
@@ -2207,7 +2223,7 @@ mapseen *mptr;
     bwrite(fd, (genericptr_t) &mptr->custom_lth, sizeof mptr->custom_lth);
     if (mptr->custom_lth)
         bwrite(fd, (genericptr_t) mptr->custom, mptr->custom_lth);
-    bwrite(fd, (genericptr_t) &mptr->msrooms, sizeof mptr->msrooms);
+    bwrite(fd, (genericptr_t) mptr->msrooms, sizeof mptr->msrooms);
     savecemetery(fd, WRITE_SAVE, &mptr->final_resting_place);
 }
 
@@ -2238,7 +2254,7 @@ int fd;
         load->custom[load->custom_lth] = '\0';
     } else
         load->custom = 0;
-    mread(fd, (genericptr_t) &load->msrooms, sizeof load->msrooms);
+    mread(fd, (genericptr_t) load->msrooms, sizeof load->msrooms);
     restcemetery(fd, &load->final_resting_place);
 
     return load;
@@ -2530,7 +2546,7 @@ recalc_mapseen()
                 if (ltyp == DRAWBRIDGE_UP)
                     ltyp = db_under_typ(levl[x][y].drawbridgemask);
                 if ((mtmp = m_at(x, y)) != 0
-                    && mtmp->m_ap_type == M_AP_FURNITURE && canseemon(mtmp))
+                    && M_AP_TYPE(mtmp) == M_AP_FURNITURE && canseemon(mtmp))
                     ltyp = cmap_to_type(mtmp->mappearance);
                 lastseentyp[x][y] = ltyp;
             }
@@ -2671,8 +2687,7 @@ recalc_mapseen()
 }
 
 /*ARGUSED*/
-/* valley and sanctum levels get automatic annotation once temple is entered
- */
+/* valley and sanctum levels get automatic annotation once temple is entered */
 void
 mapseen_temple(priest)
 struct monst *priest UNUSED; /* currently unused; might be useful someday */
@@ -2796,7 +2811,7 @@ branch *br;
 }
 
 /* get the name of an endgame level; topten.c does something similar */
-STATIC_OVL const char *
+const char *
 endgamelevelname(outbuf, indx)
 char *outbuf;
 int indx;
@@ -2805,17 +2820,26 @@ int indx;
 
     *outbuf = '\0';
     switch (indx) {
-    case -5:
+    case -8:
         Strcpy(outbuf, "Astral Plane");
         break;
-    case -4:
+    case -7:
         planename = "Water";
         break;
-    case -3:
+    case -6:
+        planename = "Fire, City of Brass";
+        break;
+    case -5:
         planename = "Fire";
         break;
-    case -2:
+    case -4:
+        planename = "Air, Eternal Storm";
+        break;
+    case -3:
         planename = "Air";
+        break;
+    case -2:
+        planename = "Earth, Gemstone Array";
         break;
     case -1:
         planename = "Earth";
@@ -2871,6 +2895,9 @@ int rtype;
         break;
     case MASKSHOP:
         str = "mask shop";
+        break;
+    case JUNKSHOP:
+        str = "junk shop";
         break;
     case FODDERSHOP:
         str = "health food store";
@@ -2966,7 +2993,7 @@ boolean printdun;
             Sprintf(buf, "%s: levels %d to %d",
                     dungeons[dnum].dname, depthstart,
                     depthstart + dungeons[dnum].dunlev_ureached - 1);
-        putstr(win, !final ? ATR_INVERSE : 0, buf);
+        putstr(win, !final ? ATR_INVERSE : ATR_SUBHEAD, buf);
     }
 
     /* calculate level number */
@@ -2991,7 +3018,7 @@ boolean printdun;
                 (!final || (final == 1 && how == ASCENDED)) ? "are"
                   : (final == 1 && how == ESCAPED) ? "left from"
                     : "were");
-    putstr(win, !final ? ATR_BOLD : 0, buf);
+    putstr(win, !final ? ATR_BOLD : ATR_PREFORM, buf);
 
     if (mptr->flags.forgot)
         return;
@@ -3037,7 +3064,7 @@ boolean printdun;
         buf[i] = highc(buf[i]);
         /* capitalizing it makes it a sentence; terminate with '.' */
         Strcat(buf, ".");
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     }
 
     /* we assume that these are mutually exclusive */
@@ -3071,11 +3098,11 @@ boolean printdun;
         Sprintf(buf, "%sMoloch's Sanctum.", PREFIX);
     }
     if (*buf)
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     /* quest entrance is not mutually-exclusive with bigroom or rogue level */
     if (mptr->flags.quest_summons) {
         Sprintf(buf, "%sSummoned by %s.", PREFIX, ldrname());
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     }
 
     /* print out branches */
@@ -3090,7 +3117,7 @@ boolean printdun;
         if (mptr->br->end1_up && !In_endgame(&(mptr->br->end2)))
             Sprintf(eos(buf), ", level %d", depth(&(mptr->br->end2)));
         Strcat(buf, ".");
-        putstr(win, 0, buf);
+        putstr(win, ATR_PREFORM, buf);
     }
 
     /* maybe print out bones details */
@@ -3103,7 +3130,7 @@ boolean printdun;
                 ++kncnt;
         if (kncnt) {
             Sprintf(buf, "%s%s", PREFIX, "Final resting place for");
-            putstr(win, 0, buf);
+            putstr(win, ATR_PREFORM, buf);
             if (died_here) {
                 /* disclosure occurs before bones creation, so listing dead
                    hero here doesn't give away whether bones are produced */
@@ -3115,13 +3142,13 @@ boolean printdun;
                 (void) strsubst(tmpbuf, " her ", " your ");
                 Sprintf(buf, "%s%syou, %s%c", PREFIX, TAB, tmpbuf,
                         --kncnt ? ',' : '.');
-                putstr(win, 0, buf);
+                putstr(win, ATR_PREFORM, buf);
             }
             for (bp = mptr->final_resting_place; bp; bp = bp->next) {
                 if (bp->bonesknown || wizard || final) {
                     Sprintf(buf, "%s%s%s, %s%c", PREFIX, TAB, bp->who,
                             bp->how, --kncnt ? ',' : '.');
-                    putstr(win, 0, buf);
+                    putstr(win, ATR_PREFORM, buf);
                 }
             }
         }

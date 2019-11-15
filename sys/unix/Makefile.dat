@@ -136,11 +136,13 @@ options:	../util/makedefs
 # so messing up maps. The awk script to remove // comments is because traditional
 # mode also doesn't remove comments.
 spec_levs: ../util/lev_comp \
-	bigroom.des castle.des endgame.des gehennom.des knox.des medusa.des \
+	bigroom.des banquet.des castle.des endgame.des gehennom.des knox.des medusa.des \
 	mines.des oracle.des sokoban.des statuary.des tower.des void.des yendor.des \
-	blkmar.des icewaste.des laboratory.des
+	blkmar.des icewaste.des laboratory.des darkforest.des
+	../util/lev_comp banquet.des
 	../util/lev_comp bigroom.des
 	../util/lev_comp castle.des
+	../util/lev_comp darkforest.des
 	../util/lev_comp endgame.des
 	../util/lev_comp gehennom.des
 	../util/lev_comp knox.des
@@ -161,12 +163,13 @@ spec_levs: ../util/lev_comp \
 quest_levs: ../util/lev_comp \
 	Arch.des Barb.des Caveman.des Cartomancer.des Healer.des Knight.des Monk.des \
 	Priest.des Ranger.des Rogue.des Samurai.des Tourist.des Valkyrie.des \
-	Wizard.des Drag.des Pirate.des
+	Wizard.des Drag.des Pirate.des Convict.des
 	../util/lev_comp Arch.des
 	../util/lev_comp Barb.des
 	../util/lev_comp Cartomancer.des
 	../util/lev_comp Caveman.des
 	../util/lev_comp Drag.des
+	../util/lev_comp Convict.des
 	../util/lev_comp Healer.des
 	../util/lev_comp Knight.des
 	../util/lev_comp Monk.des

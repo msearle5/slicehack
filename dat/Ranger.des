@@ -295,6 +295,7 @@ WALLIFY
 #
 
 MAZE: "Ran-fila" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , 'T', true, true, random, true
 NOMAP
 #
@@ -323,6 +324,7 @@ MONSTER: 'C', random, hostile
 MONSTER: ('s', "scorpion"), random, hostile
 
 MAZE: "Ran-filb" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ', true, true, random, true
 NOMAP
 #

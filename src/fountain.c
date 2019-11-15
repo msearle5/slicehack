@@ -1,4 +1,4 @@
-/* NetHack 3.6	fountain.c	$NHDT-Date: 1455402364 2016/02/13 22:26:04 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.56 $ */
+/* NetHack 3.6	fountain.c	$NHDT-Date: 1544442711 2018/12/10 11:51:51 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.60 $ */
 /*      Copyright Scott R. Turner, srt@ucla, 10/27/86 */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -14,6 +14,7 @@ STATIC_DCL void NDECL(dowaternymph);
 STATIC_PTR void FDECL(gush, (int, int, genericptr_t));
 STATIC_DCL void NDECL(dofindgem);
 STATIC_DCL void FDECL(blowupfurnace, (int, int));
+STATIC_DCL boolean FDECL(cookeffects, (struct obj *, BOOLEAN_P));
 
 /* used when trying to dip in or drink from fountain or sink or pool while
    levitating above it, or when trying to move downwards in that state */
@@ -140,7 +141,7 @@ genericptr_t poolcnt;
         pline("Water gushes forth from the overflowing fountain!");
 
     /* Put a pool at x, y */
-    levl[x][y].typ = POOL;
+    levl[x][y].typ = POOL, levl[x][y].flags = 0;
     /* No kelp! */
     del_engr_at(x, y);
     water_damage_chain(level.objects[x][y], TRUE);
@@ -208,8 +209,7 @@ boolean isyou;
                 return;
         }
         /* replace the fountain with ordinary floor */
-        levl[x][y].typ = ROOM;
-        levl[x][y].looted = 0;
+        levl[x][y].typ = ROOM, levl[x][y].flags = 0;
         levl[x][y].blessedftn = 0;
         if (cansee(x, y))
             pline_The("fountain dries up!");
@@ -234,22 +234,163 @@ register struct obj *obj;
             bless(obj);
             break;
         case 4:
-        case 5:
-        case 6:
+            if (!Blind)
+                pline("%s flickers with purple light.", Doname2(obj));
+            else
+                pline("%s shudders slightly in your grip.", Doname2(obj));
             obj->oerodeproof = 1;
             break;
-        case 7:
+        case 5:
             blowupfurnace(u.ux, u.uy);
             break;
-        case 8: /* Strange feeling */
-            pline("A strange tingling runs up your %s.", body_part(ARM));
+        case 6: /* Strange feeling */
+            pline("An unsettling tingling runs up your %s.", body_part(ARM));
             break;
-        case 9: /* Strange feeling */
+        case 7: /* Strange feeling */
             You_feel("a sudden flare of heat.");
+            break;
+        default:
+            pline("The lava in the furnace bubbles.");
             break;
     }
     lava_damage(obj, u.ux, u.uy);
     update_inventory();
+}
+
+static const char *const cooking_verbs[] = {
+    "saute", "flambeau", "stir fry",   "fry",
+    "boil",  "steam",    "grill",    "roast",
+};
+
+static NEARDATA const char cookables[] = { FOOD_CLASS, 0 };
+
+int
+docook()
+{
+    
+    register struct obj *obj;
+    struct monst *mon;
+    /* register struct obj *heat; */
+    boolean furnace, source = FALSE;
+
+    furnace = TRUE; /* Placeholder */
+
+    if (IS_FURNACE(levl[u.ux][u.uy].typ)) {
+        furnace = TRUE;
+        source = TRUE;
+    } else if (is_lava(u.ux, u.uy)) {
+        source = TRUE;
+    }/* else if((heat=getobj("use as a heat source"))) {
+       source = TRUE; 
+    } */
+
+    if (!source) {
+        You("have no source of heat to cook with.");
+        return 0;
+    }
+
+    /* Find cookables */
+    if (!(obj = getobj(cookables, "cook")))
+        return 0;
+    /* If it isn't cookable, return. */
+    if (!is_cookable(obj)) {
+        You("can't cook that!");
+        return 0;
+    }
+    /* Don't let players overcook food too much. */
+    if (obj->oeroded >= 3) {
+        pline("That is already very well done.");
+        return 0;
+    }
+
+    /* Cooking someone's friend is generally a poor idea. */
+    for (mon = fmon; mon; mon = mon->nmon) {
+        if (DEADMONSTER(mon))
+            continue;
+        if (m_canseeu(mon) && same_race(mon->data, &mons[obj->corpsenm])) {
+            setmangry(mon, FALSE);
+        }
+    }
+
+    /* Check for special effects of cooking */
+    if (cookeffects(obj, furnace))
+        return 0;
+    
+    if (!rn2(1 + P_SKILL(P_COOKING))) {
+        You("accidentally burn %s!", doname(obj));
+        obj->oeroded = min(3, obj->oeroded + 2 + rn2(2));
+    } else if (P_SKILL(P_COOKING) == P_EXPERT) {
+        You("%s %s", cooking_verbs[rn2(SIZE(cooking_verbs))], doname(obj));
+        obj->oeroded = min(3, obj->oeroded + 1);
+    } else { 
+        You("cook %s.", doname(obj));
+        obj->oeroded = min(3, obj->oeroded + 1);
+    }
+
+    use_skill(P_COOKING, 1);
+    /* Cooking takes creativity! */
+    exercise(A_INT, TRUE);
+    return 1;
+}
+
+STATIC_OVL boolean
+cookeffects(obj, furnace)
+register struct obj *obj;
+boolean furnace;
+{
+    boolean stop_cook = TRUE;
+    /* corpse-specific effects */
+    switch(obj->corpsenm) {
+    case PM_WINTER_WOLF:
+        You("thoroughly defrost your %s.", doname(obj));
+        obj->corpsenm = PM_WOLF;
+        break;
+    case PM_PHOENIX:
+        if (furnace) {
+            blowupfurnace(u.ux, u.uy);
+        }
+        exercise(A_INT, FALSE);
+        lava_damage(obj, u.ux, u.uy);
+        break;
+    case PM_GIANT_SKUNK:
+        pline("The %s explodes in your %s!", doname(obj), makeplural(body_part(HAND)));
+        create_gas_cloud(u.ux, u.uy, 2 + rn2(3), 3);
+        exercise(A_INT, FALSE);
+        delobj(obj);
+        break;
+    case PM_HUNGER_HULK:
+        pline("Cooking this %s makes your %s growl!", body_part(STOMACH), doname(obj));
+        morehungry(5 + d(3, 4));
+        break;
+    case PM_COCKATRICE:
+    case PM_CHICKATRICE:
+    case PM_WERECOCKATRICE:
+    case PM_HUMAN_WERECOCKATRICE:
+        pline("Yum, fried chicken!");
+        feel_cockatrice(obj, TRUE);
+        stop_cook = FALSE;
+        break;
+    case PM_WIZARD_OF_YENDOR:
+        You("get the sense that may have been a bad idea...");
+        intervene();
+        break;
+    case PM_COW:
+        pline("That's some good \'burg.");
+        stop_cook = FALSE;
+        break;
+    case PM_BROWN_MOLD:
+        if (furnace)
+            pline("Mold covers the furnace!");
+        else
+            pline("The %s reacts to the heat!", doname(obj));
+        exercise(A_INT, FALSE);
+        revive_corpse(obj, TRUE);
+        break;
+    default:
+        stop_cook = FALSE;
+        break;
+    }
+    return stop_cook;
 }
 
 void
@@ -432,8 +573,7 @@ register struct obj *obj;
 	    livelog_printf(LL_ARTIFACT, "had Excalibur thrown at %s by some watery tart",uhim()); /* Monty Python and the Holy Grail ;) */
         }
         update_inventory();
-        levl[u.ux][u.uy].typ = ROOM;
-        levl[u.ux][u.uy].looted = 0;
+        levl[u.ux][u.uy].typ = ROOM, levl[u.ux][u.uy].flags = 0;
         newsym(u.ux, u.uy);
         level.flags.nfountains--;
         if (in_town(u.ux, u.uy))
@@ -606,8 +746,9 @@ int x, y;
     if (cansee(x, y) || (x == u.ux && y == u.uy))
         pline_The("pipes break!  Water spurts out!");
     level.flags.nsinks--;
-    levl[x][y].doormask = 0;
-    levl[x][y].typ = FOUNTAIN;
+    levl[x][y].typ = FOUNTAIN, levl[x][y].looted = 0;
+    levl[x][y].blessedftn = 0;
+    SET_FOUNTAIN_LOOTED(x, y);
     level.flags.nfountains++;
     newsym(x, y);
 }

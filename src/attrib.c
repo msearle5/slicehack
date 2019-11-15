@@ -1,4 +1,4 @@
-/* NetHack 3.6	attrib.c	$NHDT-Date: 1494034337 2017/05/06 01:32:17 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.62 $ */
+/* NetHack 3.6	attrib.c	$NHDT-Date: 1553363417 2019/03/23 17:50:17 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.65 $ */
 /*      Copyright 1988, 1989, 1990, 1992, M. Stephenson           */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -42,6 +42,10 @@ static const struct innate {
   car_abil[] = { { 1, &(HSearching), "perceptive", "" },
                  { 7, &(HWarning), "sensitive", "" },
                  { 0, 0, 0, 0 } },
+  con_abil[] = { { 1, &(HSick_resistance), "", "" },
+                 { 7, &(HPoison_resistance), "healthy", "" },
+                 { 20, &(HSearching), "perceptive", "unaware" },
+                 { 0, 0, 0, 0 } },
   dra_abil[] = { { 7, &(HFast), "quick", "slow" },
                  { 15, &(HPoison_resistance), "healthy", "" },
                  { 16, &(HSleep_resistance), "awake", "tired" },
@@ -69,7 +73,7 @@ static const struct innate {
                  { 17, &(HTeleport_control), "controlled", "uncontrolled" },
                  { 0, 0, 0, 0 } },
 
-   pir_abil[] = {	{1, &(HSwimming), "", ""  },
+  pir_abil[] = {	{1, &(HSwimming), "", ""  },
                   {	7, &(HStealth), "stealthy", ""  },	/* with cat-like tread ... */
                   {  11, &(HFast), "quick", "slow" },
                   {	 0, 0, 0, 0 } },
@@ -116,6 +120,10 @@ static const struct innate {
                  { 4, &HSleep_resistance, "awake", "tired" },
                  { 0, 0, 0, 0 } },
 
+  ghu_abil[] = { { 1, &HDrain_resistance, "", "" },
+                 { 1, &HPoison_resistance, "", "" },
+                 { 0, 0, 0, 0 } },
+
   gno_abil[] = { { 1, &HInfravision, "", "" },
                  { 0, 0, 0, 0 } },
 
@@ -158,7 +166,7 @@ adjattrib(ndx, incr, msgflg)
 int ndx, incr;
 int msgflg; /* positive => no message, zero => message, and */
 {           /* negative => conditional (msg if change made) */
-    int old_acurr, old_abase;
+    int old_acurr, old_abase, old_amax, decr;
     boolean abonflg;
     const char *attrstr;
 
@@ -173,26 +181,42 @@ int msgflg; /* positive => no message, zero => message, and */
 
     old_acurr = ACURR(ndx);
     old_abase = ABASE(ndx);
+    old_amax = AMAX(ndx);
+    ABASE(ndx) += incr; /* when incr is negative, this reduces ABASE() */
     if (incr > 0) {
         /* Avoid overflow */
         while ((ABASE(ndx) + incr) >= 128)
             incr--;
         ABASE(ndx) += incr;
         if (ABASE(ndx) > AMAX(ndx)) {
-            incr = ABASE(ndx) - AMAX(ndx);
-            AMAX(ndx) += incr;
+            AMAX(ndx) = ABASE(ndx);
             if (AMAX(ndx) > ATTRMAX(ndx))
-                AMAX(ndx) = ATTRMAX(ndx);
-            ABASE(ndx) = AMAX(ndx);
+                ABASE(ndx) = AMAX(ndx) = ATTRMAX(ndx);
         }
         attrstr = plusattr[ndx];
         abonflg = (ABON(ndx) < 0);
-    } else {
-        ABASE(ndx) += incr;
+    } else { /* incr is negative */
         if (ABASE(ndx) < ATTRMIN(ndx)) {
-            incr = ABASE(ndx) - ATTRMIN(ndx);
+            /*
+             * If base value has dropped so low that it is trying to be
+             * taken below the minimum, reduce max value (peak reached)
+             * instead.  That means that restore ability and repeated
+             * applications of unicorn horn will not be able to recover
+             * all the lost value.  Starting will 3.6.2, we only take away
+             * some (average half, possibly zero) of the excess from max
+             * instead of all of it, but without intervening recovery, it
+             * can still eventually drop to the minimum allowed.  After
+             * that, it can't be recovered, only improved with new gains.
+             *
+             * This used to assign a new negative value to incr and then
+             * add it, but that could affect messages below, possibly
+             * making a large decrease be described as a small one.
+             *
+             * decr = rn2(-(ABASE - ATTRMIN) + 1);
+             */
+            decr = rn2(ATTRMIN(ndx) - ABASE(ndx) + 1);
             ABASE(ndx) = ATTRMIN(ndx);
-            AMAX(ndx) += incr;
+            AMAX(ndx) -= decr;
             if (AMAX(ndx) < ATTRMIN(ndx))
                 AMAX(ndx) = ATTRMIN(ndx);
         }
@@ -201,12 +225,15 @@ int msgflg; /* positive => no message, zero => message, and */
     }
     if (ACURR(ndx) == old_acurr) {
         if (msgflg == 0 && flags.verbose) {
-            if (ABASE(ndx) == old_abase)
+            if (ABASE(ndx) == old_abase && AMAX(ndx) == old_amax) {
                 pline("You're %s as %s as you can get.",
                       abonflg ? "currently" : "already", attrstr);
-            else /* current stayed the same but base value changed */
+            } else {
+                /* current stayed the same but base value changed, or
+                   base is at minimum and reduction caused max to drop */
                 Your("innate %s has %s.", attrname[ndx],
                      (incr > 0) ? "improved" : "declined");
+            }
         }
         return FALSE;
     }
@@ -214,8 +241,8 @@ int msgflg; /* positive => no message, zero => message, and */
     adjust_con_hp();
     if (msgflg <= 0)
         You_feel("%s%s!", (incr > 1 || incr < -1) ? "very " : "", attrstr);
-    context.botl = 1;
-    if (moves > 1 && (ndx == A_STR || ndx == A_CON))
+    context.botl = TRUE;
+    if (program_state.in_moveloop && (ndx == A_STR || ndx == A_CON))
         (void) encumber_msg();
     return TRUE;
 }
@@ -454,7 +481,7 @@ restore_attrib()
         if (ATEMP(i) != equilibrium && ATIME(i) != 0) {
             if (!(--(ATIME(i)))) { /* countdown for change */
                 ATEMP(i) += (ATEMP(i) > 0) ? -1 : 1;
-                context.botl = 1;
+                context.botl = TRUE;
                 if (ATEMP(i)) /* reset timer */
                     ATIME(i) = 100 / ACURR(A_CON);
             }
@@ -575,7 +602,7 @@ exerper()
    phrased as "You must have been [][0]." or "You haven't been [][1]." */
 static NEARDATA const char *const exertext[A_MAX][2] = {
     { "exercising diligently", "exercising properly" },           /* Str */
-    { 0, 0 },                                                     /* Int */
+    { "using your brain", "thinking very much" },                 /* Int */
     { "very observant", "paying attention" },                     /* Wis */
     { "working on your reflexes", "working on reflexes lately" }, /* Dex */
     { "leading a healthy life-style", "watching your health" },   /* Con */
@@ -659,7 +686,7 @@ exerchk()
                     (mod_val > 0) ? "must have been" : "haven't been",
                     exertext[i][(mod_val > 0) ? 0 : 1]);
             }
-        nextattrib:
+ nextattrib:
             /* this used to be ``AEXE(i) /= 2'' but that would produce
                platform-dependent rounding/truncation for negative vals */
             AEXE(i) = (abs(ax) / 2) * mod_val;
@@ -776,6 +803,7 @@ int r;
         { PM_BARBARIAN, bar_abil },
         { PM_CAVEMAN, cav_abil },
         { PM_CARTOMANCER, car_abil},
+        { PM_CONVICT, con_abil},
         { PM_DRAGONMASTER, dra_abil},
         { PM_HEALER, hea_abil },
         { PM_KNIGHT, kni_abil },
@@ -811,8 +839,12 @@ long frommask;
         case PM_DWARF:
             abil = dwa_abil;
             break;
+        case PM_DROW:
         case PM_ELF:
             abil = elf_abil;
+            break;
+        case PM_GHOUL:
+            abil = ghu_abil;
             break;
         case PM_GNOME:
             abil = gno_abil;
@@ -1015,6 +1047,7 @@ int oldlevel, newlevel;
     case PM_MERFOLK:
         rabil = mer_abil;
         break;
+    case PM_DROW:
     case PM_ELF:
         rabil = elf_abil;
         break;
@@ -1028,6 +1061,7 @@ int oldlevel, newlevel;
     case PM_HUMAN:
     case PM_DWARF:
     case PM_GNOME:
+    case PM_VAMPIRE:
     default:
         rabil = 0;
         break;
@@ -1262,7 +1296,8 @@ int x;
     register int tmp = (u.abon.a[x] + u.atemp.a[x] + u.acurr.a[x]);
 
     if (x == A_STR) {
-        if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER))
+        if (tmp >= 125 || (uarmg && uarmg->otyp == GAUNTLETS_OF_POWER) ||
+              u.umonnum == PM_AVATAR_OF_AKASHA)
             return (schar) 125;
         else
 #ifdef WIN32_BUG
@@ -1364,8 +1399,10 @@ int reason; /* 0==conversion, 1==helm-of-OA on, 2==helm-of-OA off */
 {
     aligntyp oldalign = u.ualign.type;
 
-    u.ublessed = 0;   /* lose divine protection */
-    context.botl = 1; /* status line needs updating */
+    u.ublessed = 0; /* lose divine protection */
+    /* You/Your/pline message with call flush_screen(), triggering bot(),
+       so the actual data change needs to come before the message */
+    context.botl = TRUE; /* status line needs updating */
     if (reason == 0) {
         /* conversion via altar */
         u.ualignbase[A_CURRENT] = (aligntyp) newalign;
@@ -1384,7 +1421,6 @@ int reason; /* 0==conversion, 1==helm-of-OA on, 2==helm-of-OA off */
                                     ? "much of a muchness"
                                     : "back in sync with your body");
     }
-
     if (u.ualign.type != oldalign) {
         u.ualign.record = 0; /* slate is wiped clean */
         retouch_equipment(0);

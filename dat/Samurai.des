@@ -356,6 +356,7 @@ MONSTER:('E',"stalker"),random
 #
 
 MAZE: "Sam-fila", ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , 'P', true, true, random, true
 NOMAP
 #

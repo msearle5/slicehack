@@ -1,4 +1,4 @@
-/* NetHack 3.6  makedefs.c  $NHDT-Date: 1520022901 2018/03/02 20:35:01 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.121 $ */
+/* NetHack 3.6  makedefs.c  $NHDT-Date: 1562180226 2019/07/03 18:57:06 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.149 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Kenneth Lorber, Kensington, Maryland, 2015. */
 /* Copyright (c) M. Stephenson, 1990, 1991.                       */
@@ -55,7 +55,7 @@
 #endif
 
 #if defined(UNIX) && !defined(LINT) && !defined(GCC_WARN)
-static const char SCCS_Id[] = "@(#)makedefs.c\t3.6\t2018/03/02";
+static const char SCCS_Id[] UNUSED = "@(#)makedefs.c\t3.6\t2019/05/07";
 #endif
 
 /* names of files to be generated */
@@ -138,7 +138,9 @@ static char xclear[MAX_ROW][MAX_COL];
 #endif
 /*-end of vision defs-*/
 
-static char filename[600];
+#define MAXFNAMELEN 600
+
+static char filename[MAXFNAMELEN];
 
 #ifdef FILE_PREFIX
 /* if defined, a first argument not starting with - is
@@ -185,10 +187,9 @@ static boolean FDECL(get_gitinfo, (char *, char *));
 static void FDECL(do_rnd_access_file, (const char *));
 static boolean FDECL(d_filter, (char *));
 static boolean FDECL(h_filter, (char *));
-static boolean FDECL(ranged_attk, (struct permonst *));
-static int FDECL(mstrength, (struct permonst *));
 static void NDECL(build_savebones_compat_string);
 static void NDECL(windowing_sanity);
+static void FDECL(opt_out_words, (char *, int *));
 
 static boolean FDECL(qt_comment, (char *));
 static boolean FDECL(qt_control, (char *));
@@ -218,6 +219,13 @@ static int FDECL(case_insensitive_comp, (const char *, const char *));
 
 /* input, output, tmp */
 static FILE *ifp, *ofp, *tfp;
+
+static boolean use_enum =
+#ifdef ENUM_PM
+    TRUE;
+#else
+    FALSE;
+#endif
 
 #if defined(__BORLANDC__) && !defined(_WIN32)
 extern unsigned _stklen = STKSIZ;
@@ -301,6 +309,7 @@ link_sanity_check()
     */
     monst_init();
     objects_init();
+
 }
 
 void
@@ -891,7 +900,7 @@ int *rumor_count;
 long *rumor_size;
 unsigned long old_rumor_offset;
 {
-    char infile[600];
+    char infile[MAXFNAMELEN];
     char *line;
     unsigned long rumor_offset;
 
@@ -945,7 +954,7 @@ unsigned long old_rumor_offset;
     return rumor_offset;
 }
 
-void
+static void
 do_rnd_access_file(fname)
 const char *fname;
 {
@@ -990,7 +999,7 @@ do_rumors()
     char *line;
     static const char rumors_header[] =
         "%s%04d,%06ld,%06lx;%04d,%06ld,%06lx;0,0,%06lx\n";
-    char tempfile[600];
+    char tempfile[MAXFNAMELEN];
     int true_rumor_count, false_rumor_count;
     long true_rumor_size, false_rumor_size;
     unsigned long true_rumor_offset, false_rumor_offset, eof_offset;
@@ -1033,7 +1042,7 @@ do_rumors()
         goto rumors_failure;
 
     /* get ready to transfer the contents of temp file to output file */
-    line = malloc(256);
+    line = malloc(BUFSZ + MAXFNAMELEN);
     Sprintf(line, "rewind of \"%s\"", tempfile);
     if (rewind(tfp) != 0) {
         perror(line);
@@ -1183,7 +1192,7 @@ const char *delim;
 {
     Sprintf(outbuf, "%d%s%d%s%d", VERSION_MAJOR, delim, VERSION_MINOR, delim,
             PATCHLEVEL);
-#ifdef BETA
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     Sprintf(eos(outbuf), "-%d", EDITLEVEL);
 #endif
     return outbuf;
@@ -1197,8 +1206,12 @@ const char *build_date;
     char subbuf[64], versbuf[64];
     char betabuf[64];
 
-#ifdef BETA
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+#if (NH_DEVEL_STATUS == NH_STATUS_BETA)
     Strcpy(betabuf, " Beta");
+#else
+    Strcpy(betabuf, " Work-in-progress");
+#endif
 #else
     betabuf[0] = '\0';
 #endif
@@ -1227,8 +1240,12 @@ const char *build_date;
     subbuf[0] = ' ';
     Strcpy(&subbuf[1], PORT_SUB_ID);
 #endif
-#ifdef BETA
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+#if (NH_DEVEL_STATUS == NH_STATUS_BETA)
     Strcat(subbuf, " Beta");
+#else
+    Strcat(subbuf, " Work-in-progress");
+#endif
 #endif
 
     Sprintf(outbuf, "         Version %s %s%s, %s %s.",
@@ -1402,13 +1419,13 @@ do_date()
     return;
 }
 
-boolean
+static boolean
 get_gitinfo(githash, gitbranch)
 char *githash, *gitbranch;
 {
     FILE *gifp;
     size_t len;
-    char infile[600];
+    char infile[MAXFNAMELEN];
     char *line, *strval, *opt, *c, *end;
     boolean havebranch = FALSE, havehash = FALSE;
 
@@ -1453,6 +1470,7 @@ char *githash, *gitbranch;
                 havehash = TRUE;
             }
 	}
+        free(line);
     }
     Fclose(gifp);
     if (havebranch && havehash)
@@ -1511,8 +1529,10 @@ static const char *build_opts[] = {
 #ifdef TEXTCOLOR
     "color",
 #endif
+#ifdef TTY_GRAPHICS
 #ifdef TTY_TILES_ESCCODES
     "console escape codes for tile hinting",
+#endif
 #endif
 #ifdef COM_COMPL
     "command line completion",
@@ -1527,7 +1547,11 @@ static const char *build_opts[] = {
     "ZLIB data file compression",
 #endif
 #ifdef DLB
+#ifndef VERSION_IN_DLB_FILENAME
     "data librarian",
+#else
+    "data librarian with a version-dependent name",
+#endif
 #endif
 #ifdef DUMPLOG
     "end-of-game dumplogs",
@@ -1575,6 +1599,27 @@ static const char *build_opts[] = {
 #endif
     /* pattern matching method will be substituted by nethack at run time */
     "pattern matching via :PATMATCH:",
+#ifdef USE_ISAAC64
+    "pseudo random numbers generated by ISAAC64",
+#ifdef DEV_RANDOM
+#ifdef NHSTDC
+    /* include which specific one */
+    "strong PRNG seed available from " DEV_RANDOM,
+#else
+    "strong PRNG seed available from DEV_RANDOM",
+#endif
+#else
+#ifdef WIN32
+    "strong PRNG seed available from CNG BCryptGenRandom()",
+#endif
+#endif  /* DEV_RANDOM */    
+#else   /* ISAAC64 */
+#ifdef RANDOM
+    "pseudo random numbers generated by random()",
+#else
+    "pseudo random numbers generated by C rand()",
+#endif
+#endif
 #ifdef SELECTSAVED
     "restore saved games via menu",
 #endif
@@ -1613,14 +1658,25 @@ static const char *build_opts[] = {
 #ifdef SUSPEND
     "suspend command",
 #endif
+#ifdef TTY_GRAPHICS
 #ifdef TERMINFO
     "terminal info library",
 #else
-#if defined(TERMLIB) \
-    || ((!defined(MICRO) && !defined(WIN32)) && defined(TTY_GRAPHICS))
+#if defined(TERMLIB) || (!defined(MICRO) && !defined(WIN32))
     "terminal capability library",
 #endif
 #endif
+#endif /*TTY_GRAPHICS*/
+/*#ifdef X11_GRAPHICS*/
+#ifdef USE_XPM
+    "tiles file in XPM format",
+#endif
+/*#endif*/
+/*#if (defined(QT_GRAPHICS) || defined(X11_GRAPHICS)*/
+#ifdef GRAPHIC_TOMBSTONE
+    "graphical RIP screen",
+#endif
+/*#endif*/
 #ifdef TIMED_DELAY
     "timed wait for display effects",
 #endif
@@ -1652,33 +1708,46 @@ struct win_info {
 };
 static struct win_info window_opts[] = {
 #ifdef TTY_GRAPHICS
-    { "tty", "traditional tty-based graphics" },
+    { "tty",
+      /* testing 'USE_TILES' here would bring confusion because it could
+         apply to another interface such as X11, so check MSDOS explicitly
+         instead; even checking TTY_TILES_ESCCODES would probably be
+         confusing to most users (and it will already be listed separately
+         in the compiled options section so users aware of it can find it) */
+#ifdef MSDOS
+      "traditional text with optional 'tiles' graphics"
+#else
+      /* assume that one or more of IBMgraphics, DECgraphics, or MACgraphics
+         can be enabled; we can't tell from here whether that is accurate */
+      "traditional text with optional line-drawing"
+#endif
+    },
 #endif
 #ifdef CURSES_GRAPHICS
-    { "curses", "terminal-based graphics using curses libraries" },
+    { "curses", "terminal-based graphics" },
 #endif
 #ifdef X11_GRAPHICS
     { "X11", "X11" },
 #endif
-#ifdef QT_GRAPHICS
+#ifdef QT_GRAPHICS /* too vague; there are multiple incompatible versions */
     { "Qt", "Qt" },
 #endif
-#ifdef GNOME_GRAPHICS
+#ifdef GNOME_GRAPHICS /* unmaintained/defunct */
     { "Gnome", "Gnome" },
 #endif
-#ifdef MAC
+#ifdef MAC /* defunct OS 9 interface */
     { "mac", "Mac" },
 #endif
-#ifdef AMIGA_INTUITION
+#ifdef AMIGA_INTUITION /* unmaintained/defunct */
     { "amii", "Amiga Intuition" },
 #endif
-#ifdef GEM_GRAPHICS
+#ifdef GEM_GRAPHICS /* defunct Atari interface */
     { "Gem", "Gem" },
 #endif
-#ifdef MSWIN_GRAPHICS
+#ifdef MSWIN_GRAPHICS /* win32 */
     { "mswin", "mswin" },
 #endif
-#ifdef BEOS_GRAPHICS
+#ifdef BEOS_GRAPHICS /* unmaintained/defunct */
     { "BeOS", "BeOS InterfaceKit" },
 #endif
     { 0, 0 }
@@ -1723,12 +1792,38 @@ windowing_sanity()
 #endif /*DEFAULT_WINDOW_SYS*/
 }
 
+static const char opt_indent[] = "    ";
+
+static void
+opt_out_words(str, length_p)
+char *str; /* input, but modified during processing */
+int *length_p; /* in/out */
+{
+    char *word;
+
+    while (*str) {
+        word = index(str, ' ');
+#if 0
+        /* treat " (" as unbreakable space */
+        if (word && *(word + 1) == '(')
+            word = index(word + 1,  ' ');
+#endif
+        if (word)
+            *word = '\0';
+        if (*length_p + (int) strlen(str) > COLNO - 5)
+            Fprintf(ofp, "\n%s", opt_indent),
+                *length_p = (int) strlen(opt_indent);
+        else
+            Fprintf(ofp, " "), (*length_p)++;
+        Fprintf(ofp, "%s", str), *length_p += (int) strlen(str);
+        str += strlen(str) + (word ? 1 : 0);
+    }
+}
+
 void
 do_options()
 {
-    static const char indent[] = "    ";
-    const char *str, *sep;
-    char *word, buf[BUFSZ];
+    char buf[BUFSZ];
     int i, length, winsyscnt;
 
     windowing_sanity();
@@ -1744,56 +1839,56 @@ do_options()
     }
 
     build_savebones_compat_string();
-    Fprintf(ofp,
-#ifdef BETA
-            "\n    NetHack version %d.%d.%d [beta]\n",
+    Fprintf(ofp, "\n%sNetHack version %d.%d.%d%s\n",
+            opt_indent,
+            VERSION_MAJOR, VERSION_MINOR, PATCHLEVEL,
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+#if (NH_DEVEL_STATUS == NH_STATUS_BETA)
+            " [beta]"
 #else
-            "\n    NetHack version %d.%d.%d\n",
+            " [work-in-progress]"
 #endif
-            VERSION_MAJOR, VERSION_MINOR, PATCHLEVEL);
+#else
+            ""
+#endif
+            );
 
     Fprintf(ofp, "\nOptions compiled into this edition:\n");
     length = COLNO + 1; /* force 1st item onto new line */
     for (i = 0; i < SIZE(build_opts); i++) {
-        str = strcat(strcpy(buf, build_opts[i]),
-                     (i < SIZE(build_opts) - 1) ? "," : ".");
-        while (*str) {
-            word = index(str, ' ');
-            if (word)
-                *word = '\0';
-            if (length + strlen(str) > COLNO - 5)
-                Fprintf(ofp, "\n%s", indent), length = strlen(indent);
-            else
-                Fprintf(ofp, " "), length++;
-            Fprintf(ofp, "%s", str), length += strlen(str);
-            str += strlen(str) + (word ? 1 : 0);
-        }
+        opt_out_words(strcat(strcpy(buf, build_opts[i]),
+                             (i < SIZE(build_opts) - 1) ? "," : "."),
+                      &length);
     }
+    Fprintf(ofp, "\n"); /* terminate last line of words */
 
     winsyscnt = SIZE(window_opts) - 1;
-    Fprintf(ofp, "\n\nSupported windowing system%s:\n",
+    Fprintf(ofp, "\nSupported windowing system%s:\n",
             (winsyscnt > 1) ? "s" : "");
     length = COLNO + 1; /* force 1st item onto new line */
     for (i = 0; i < winsyscnt; i++) {
-        str = window_opts[i].name;
-        if (length + strlen(str) > COLNO - 5)
-            Fprintf(ofp, "\n%s", indent), length = strlen(indent);
-        else
-            Fprintf(ofp, " "), length++;
-        Fprintf(ofp, "%s", str), length += strlen(str);
-        sep = (winsyscnt == 1)
-                  ? "."
-                  : (winsyscnt == 2)
-                        ? ((i == 0) ? " and" : "")
-                        : (i < winsyscnt - 2)
-                              ? ","
-                              : ((i == winsyscnt - 2) ? ", and" : "");
-        Fprintf(ofp, "%s", sep), length += strlen(sep);
+        Sprintf(buf, "\"%s\"", window_opts[i].id);
+        if (strcmp(window_opts[i].name, window_opts[i].id))
+            Sprintf(eos(buf), " (%s)", window_opts[i].name);
+        /*
+         * 1 : foo.
+         * 2 : foo and bar  (note no period; comes from 'with default' below)
+         * 3+: for, bar, and quux
+         */
+        opt_out_words(strcat(buf, (winsyscnt == 1) ? "." /* no 'default' */
+                                  : (winsyscnt == 2 && i == 0) ? " and"
+                                    : (i == winsyscnt - 2) ? ", and"
+                                      : ","),
+                      &length);
     }
-    if (winsyscnt > 1)
-        Fprintf(ofp, "\n%swith a default of %s.", indent, DEFAULT_WINDOW_SYS);
-    Fprintf(ofp, "\n\n");
+    if (winsyscnt > 1) {
+        Sprintf(buf, "with a default of \"%s\".", DEFAULT_WINDOW_SYS);
+        opt_out_words(buf, &length);
+    }
+    Fprintf(ofp, "\n"); /* terminate last line of words */
 
+    /* end with a blank line */
+    Fprintf(ofp, "\n");
     Fclose(ofp);
     return;
 }
@@ -1903,7 +1998,7 @@ do_data()
     Fclose(ifp); /* all done with original input file */
 
     /* reprocess the scratch file; 1st format an error msg, just in case */
-    line = malloc(256);
+    line = malloc(BUFSZ + MAXFNAMELEN);
     Sprintf(line, "rewind of \"%s\"", tempfile);
     if (rewind(tfp) != 0)
         goto dead_data;
@@ -1919,7 +2014,7 @@ do_data()
     Unlink(tempfile); /* remove it */
 
     /* update the first record of the output file; prepare error msg 1st */
-    line = malloc(256);
+    line = malloc(BUFSZ + MAXFNAMELEN);
     Sprintf(line, "rewind of \"%s\"", filename);
     ok = (rewind(ofp) == 0);
     if (ok) {
@@ -2076,7 +2171,7 @@ do_oracles()
     Fclose(ifp); /* all done with original input file */
 
     /* reprocess the scratch file; 1st format an error msg, just in case */
-    line = malloc(256);
+    line = malloc(BUFSZ + MAXFNAMELEN);
     Sprintf(line, "rewind of \"%s\"", tempfile);
     if (rewind(tfp) != 0)
         goto dead_data;
@@ -2092,7 +2187,7 @@ do_oracles()
     Unlink(tempfile); /* remove it */
 
     /* update the first record of the output file; prepare error msg 1st */
-    line = malloc(256);
+    line = malloc(BUFSZ + MAXFNAMELEN);
     Sprintf(line, "rewind of \"%s\"", filename);
     ok = (rewind(ofp) == 0);
     if (ok) {
@@ -2189,89 +2284,18 @@ do_dungeon()
     return;
 }
 
-static boolean
-ranged_attk(ptr) /* returns TRUE if monster can attack at range */
-register struct permonst *ptr;
-{
-    register int i, j;
-    register int atk_mask = (1 << AT_BREA) | (1 << AT_SPIT) | (1 << AT_GAZE);
-
-    for (i = 0; i < NATTK; i++) {
-        if ((j = ptr->mattk[i].aatyp) >= AT_WEAP || (atk_mask & (1 << j)))
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
-/* This routine is designed to return an integer value which represents
- * an approximation of monster strength.  It uses a similar method of
- * determination as "experience()" to arrive at the strength.
- */
-static int
-mstrength(ptr)
-struct permonst *ptr;
-{
-    int i, tmp2, n, tmp = ptr->mlevel;
-
-    if (tmp > 49) /* special fixed hp monster */
-        tmp = 2 * (tmp - 6) / 4;
-
-    /*  For creation in groups */
-    n = (!!(ptr->geno & G_SGROUP));
-    n += (!!(ptr->geno & G_LGROUP)) << 1;
-
-    /*  For ranged attacks */
-    if (ranged_attk(ptr))
-        n++;
-
-    /*  For higher ac values */
-    n += (ptr->ac < 4);
-    n += (ptr->ac < 0);
-
-    /*  For very fast monsters */
-    n += (ptr->mmove >= 18);
-
-    /*  For each attack and "special" attack */
-    for (i = 0; i < NATTK; i++) {
-        tmp2 = ptr->mattk[i].aatyp;
-        n += (tmp2 > 0);
-        n += (tmp2 == AT_MAGC);
-        n += (tmp2 == AT_WEAP && (ptr->mflags2 & M2_STRONG));
-    }
-
-    /*  For each "special" damage type */
-    for (i = 0; i < NATTK; i++) {
-        tmp2 = ptr->mattk[i].adtyp;
-        if ((tmp2 == AD_DRLI) || (tmp2 == AD_STON) || (tmp2 == AD_DRST)
-            || (tmp2 == AD_DRDX) || (tmp2 == AD_DRCO) || (tmp2 == AD_WERE))
-            n += 2;
-        else if (strcmp(ptr->mname, "grid bug"))
-            n += (tmp2 != AD_PHYS);
-        n += ((int) (ptr->mattk[i].damd * ptr->mattk[i].damn) > 23);
-    }
-
-    /*  Leprechauns are special cases.  They have many hit dice so they can
-        hit and are hard to kill, but they don't really do much damage. */
-    if (!strcmp(ptr->mname, "leprechaun"))
-        n -= 2;
-
-    /*  Finally, adjust the monster level  0 <= n <= 24 (approx.) */
-    if (n == 0)
-        tmp--;
-    else if (n >= 6)
-        tmp += (n / 2);
-    else
-        tmp += (n / 3 + 1);
-
-    return (tmp >= 0) ? tmp : 0;
-}
-
 void
 do_monstr()
 {
-    register struct permonst *ptr;
-    register int i, j;
+    /* Don't break anything for ports that haven't been updated. */
+    printf("DEPRECATION WARNINGS:\n");
+    printf("'makedefs -m' is deprecated.  Remove all references\n");
+    printf("  to it from the build process.\n");
+    printf("'monstr.c' is deprecated.  Remove all references to\n");
+    printf("  it from the build process.\n");
+    printf("monstr[] is deprecated.  Replace monstr[x] with\n");
+    printf("  mons[x].difficulty\n");
+    printf("monstr_init() is deprecated.  Remove all references to it.\n");
 
     /*
      * create the source file, "monstr.c"
@@ -2287,15 +2311,18 @@ do_monstr()
     }
     Fprintf(ofp, "%s", Dont_Edit_Code);
     Fprintf(ofp, "#include \"config.h\"\n");
-    Fprintf(ofp, "\nconst int monstr[] = {\n");
-    for (ptr = &mons[0], j = 0; ptr->mlet; ptr++) {
-        SpinCursor(3);
-
-        i = mstrength(ptr);
-        Fprintf(ofp, "%2d,%c", i, (++j & 15) ? ' ' : '\n');
-    }
-    /* might want to insert a final 0 entry here instead of just newline */
-    Fprintf(ofp, "%s};\n", (j & 15) ? "\n" : "");
+    Fprintf(ofp, "\nconst int monstrXXX[] = {\n");
+    Fprintf(ofp, "0};\n");
+    Fprintf(ofp, "/*\n");
+    Fprintf(ofp, "DEPRECATION WARNINGS:\n");
+    Fprintf(ofp, "'makedefs -m' is deprecated.  Remove all references\n");
+    Fprintf(ofp, "  to it from the build process.\n");
+    Fprintf(ofp, "'monstr.c' is deprecated.  Remove all references to\n");
+    Fprintf(ofp, "  it from the build process.\n");
+    Fprintf(ofp, "monstr[] is deprecated.  Replace monstr[x] with\n");
+    Fprintf(ofp, "  mons[x].difficulty\n");
+    Fprintf(ofp, "monstr_init() is deprecated.  Remove all references to it.\n");
+    Fprintf(ofp, "*/\n");
 
     Fprintf(ofp, "\nvoid NDECL(monstr_init);\n");
     Fprintf(ofp, "\nvoid\n");
@@ -2327,10 +2354,20 @@ do_permonst()
     Fprintf(ofp, "%s", Dont_Edit_Code);
     Fprintf(ofp, "#ifndef PM_H\n#define PM_H\n");
 
+    if (use_enum) {
+        Fprintf(ofp, "\nenum monnums {");
+#if 0
+        /* need #define ENUM_PM for the full NetHack build to include these */
+        Fprintf(ofp, "\n        NON_PM = -1,");
+        Fprintf(ofp, "\n        LOW_PM = 0,");
+#endif
+    }
     for (i = 0; mons[i].mlet; i++) {
         SpinCursor(3);
-
-        Fprintf(ofp, "\n#define\tPM_");
+        if (use_enum)
+            Fprintf(ofp, "\n        PM_");
+        else
+            Fprintf(ofp, "\n#define\tPM_");
         if (mons[i].mlet == S_HUMAN && !strncmp(mons[i].mname, "were", 4))
             Fprintf(ofp, "HUMAN_");
         for (nam = c = tmpdup(mons[i].mname); *c; c++)
@@ -2338,9 +2375,17 @@ do_permonst()
                 *c -= (char) ('a' - 'A');
             else if (*c < 'A' || *c > 'Z')
                 *c = '_';
-        Fprintf(ofp, "%s\t%d", nam, i);
+        if (use_enum)
+            Fprintf(ofp, "%s = %d,", nam, i);
+        else
+            Fprintf(ofp, "%s\t%d", nam, i);
     }
-    Fprintf(ofp, "\n\n#define\tNUMMONS\t%d\n", i);
+    if (use_enum) {
+        Fprintf(ofp, "\n\n        NUMMONS = %d", i);
+        Fprintf(ofp, "\n};\n");
+    } else {
+        Fprintf(ofp, "\n\n#define\tNUMMONS\t%d\n", i);
+    }
     Fprintf(ofp, "\n#endif /* PM_H */\n");
     Fclose(ofp);
     return;
@@ -2705,12 +2750,11 @@ int pref;
 void
 do_objs()
 {
-    int i, sum = 0;
+    int i;
     char *c, *objnam;
     int nspell = 0;
     int prefix = 0;
     char class = '\0';
-    boolean sumerr = FALSE;
 
     filename[0] = '\0';
 #ifdef FILE_PREFIX
@@ -2733,7 +2777,6 @@ do_objs()
 
         if (objects[i].oc_class != class) {
             class = objects[i].oc_class;
-            sum = 0;
         }
 
         for (c = objnam; *c; c++)
@@ -2817,8 +2860,6 @@ do_objs()
     Fprintf(ofp, "#define\tNROFARTIFACTS\t%d\n", i - 1);
     Fprintf(ofp, "\n#endif /* ONAMES_H */\n");
     Fclose(ofp);
-    if (sumerr)
-        exit(EXIT_FAILURE);
     return;
 }
 

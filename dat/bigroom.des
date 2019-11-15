@@ -386,6 +386,7 @@ MONSTER:random,random
 #	Try an oval room...
 
 MAZE:"bigrm-5",' '
+FLAGS:noflip
 GEOMETRY:center,center
 MAP
                             ------------------                            
@@ -472,7 +473,7 @@ MONSTER:random,random
 # The Four Circles
 
 LEVEL:"bigrm-6"
-FLAGS:mazelevel
+FLAGS:mazelevel,noflip
 INIT_MAP:solidfill,' '
 GEOMETRY:center,center
 MAP
@@ -620,7 +621,7 @@ LOOP [28] {
 # The Eye
 
 LEVEL:"bigrm-9"
-FLAGS:mazelevel
+FLAGS:mazelevel,noflip
 GEOMETRY:center,center
 MAP
 }}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
@@ -667,7 +668,7 @@ LOOP [28] {
 # Fog Maze
 
 LEVEL:"bigrm-10"
-FLAGS:mazelevel
+FLAGS:mazelevel,noflip
 GEOMETRY:center,center
 MAP
 .......................................................................

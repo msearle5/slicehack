@@ -1,4 +1,4 @@
-/* NetHack 3.6	monst.h	$NHDT-Date: 1461028522 2016/04/19 01:15:22 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.24 $ */
+/* NetHack 3.6	monst.h	$NHDT-Date: 1561053561 2019/06/20 17:59:21 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.33 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -23,13 +23,13 @@
  * weapon that this is impractical.  --KAA
  */
 enum wpn_chk_flags {
-    NO_WEAPON_WANTED = 0,
-    NEED_WEAPON,
-    NEED_RANGED_WEAPON,
-    NEED_HTH_WEAPON,
-    NEED_PICK_AXE,
-    NEED_AXE,
-    NEED_PICK_OR_AXE
+    NO_WEAPON_WANTED    = 0,
+    NEED_WEAPON         = 1,
+    NEED_RANGED_WEAPON  = 2,
+    NEED_HTH_WEAPON     = 3,
+    NEED_PICK_AXE       = 4,
+    NEED_AXE            = 5,
+    NEED_PICK_OR_AXE    = 6
 };
 
 /* The following flags are used for the second argument to display_minventory
@@ -44,12 +44,31 @@ enum wpn_chk_flags {
 #define MINV_NOLET    0x04
 #define MINV_ALL      0x08
 
+/* monster appearance types */
 enum m_ap_types {
-    M_AP_NOTHING = 0, /* mappearance unused--monster appears as itself */
-    M_AP_FURNITURE,   /* stairs, a door, an altar, etc. */
-    M_AP_OBJECT,      /* an object */
-    M_AP_MONSTER      /* a monster */
+    M_AP_NOTHING   = 0, /* mappearance unused--monster appears as itself */
+    M_AP_FURNITURE = 1, /* stairs, a door, an altar, etc. */
+    M_AP_OBJECT    = 2, /* an object */
+    M_AP_MONSTER   = 3  /* a monster; mostly used for cloned Wizard */
 };
+
+#define MON_FLOOR        0x00
+#define MON_OFFMAP       0x01
+#define MON_DETACH       0x02
+#define MON_MIGRATING    0x04
+#define MON_LIMBO        0x08
+#define MON_BUBBLEMOVE   0x10
+#define MON_ENDGAME_FREE 0x20
+#define MON_ENDGAME_MIGR 0x40
+#define MON_OBLITERATE   0x80
+#define MSTATE_MASK      0xFF
+
+#define M_AP_TYPMASK  0x7
+#define M_AP_F_DKNOWN 0x8
+#define U_AP_TYPE (youmonst.m_ap_type & M_AP_TYPMASK)
+#define U_AP_FLAG (youmonst.m_ap_type & ~M_AP_TYPMASK)
+#define M_AP_TYPE(m) ((m)->m_ap_type & M_AP_TYPMASK)
+#define M_AP_FLAG(m) ((m)->m_ap_type & ~M_AP_TYPMASK)
 
 struct monst {
     struct monst *nmon;
@@ -71,7 +90,7 @@ struct monst {
     uchar m_ap_type;      /* what mappearance is describing, m_ap_types */
 
     schar mtame;                /* level of tameness, implies peaceful */
-    unsigned long mintrinsics; /* low 10 correspond to mresists */
+    unsigned long mextrinsics; /* low 10 correspond to mresists */
     int mspec_used;             /* monster's special ability attack timeout */
 
     Bitfield(female, 1);      /* is female */
@@ -80,11 +99,13 @@ struct monst {
     Bitfield(perminvis, 1);   /* intrinsic minvis value */
     Bitfield(mcan, 1);        /* has been cancelled */
     Bitfield(mburied, 1);     /* has been buried */
+#define mtemplit mburied      /* since buried isn't implemented, use bit for
+                               * monsters shown by transient light source;
+                               * only valid during bhit() execution        */
     Bitfield(mundetected, 1); /* not seen in present hiding place;
                                * implies one of M1_CONCEAL or M1_HIDE,
                                * but not mimic (that is, snake, spider,
-                               * trapper, piercer, eel)
-                               */
+                               * trapper, piercer, eel) */
     Bitfield(mcansee, 1);   /* cansee 1, temp.blinded 0, blind 0 */
 
     Bitfield(mspeed, 2);    /* current speed */
@@ -116,7 +137,8 @@ struct monst {
     Bitfield(iswiz, 1);     /* is the Wizard of Yendor */
     Bitfield(wormno, 5);    /* at most 31 worms on any level */
     Bitfield(monmount, 1);  /* whether this monster is a mount of another */
-    /* 1 free bits */
+    Bitfield(mwither, 1);   /* is withering */
+    /* 0 free bits */
 
 #define MAX_NUM_WORMS 32    /* should be 2^(wormno bitfield size) */
 
@@ -134,6 +156,7 @@ struct monst {
 #define STRAT_GROUND    0x04000000L
 #define STRAT_MONSTR    0x02000000L
 #define STRAT_PLAYER    0x01000000L
+#define STRAT_SHOUTOUT  0x00800000L
 #define STRAT_NONE      0x00000000L
 #define STRAT_STRATMASK 0x0f000000L
 #define STRAT_XMASK     0x00ff0000L
@@ -145,13 +168,14 @@ struct monst {
     long mtrapseen;        /* bitmap of traps we've been trapped in */
     long mlstmv;           /* for catching up with lost time */
     long mspare1;
+#define mstate mspare1      /* only for debug exam right now, not code flow */
     struct obj *minvent;   /* mon's inventory */
-
     struct obj *mw;        /* mon's weapon */
     long misc_worn_check;  /* mon's wornmask */
     xchar weapon_check;    /* flag for whether to try switching weapons */
 
     int meating;           /* monster is eating timeout */
+    int mfading;           /* monster is fading away timeout */
     struct mextra *mextra; /* point to mextra struct */
 };
 
@@ -174,15 +198,15 @@ struct monst {
 /* mimic appearances that block vision/light */
 #define is_lightblocker_mappear(mon)                       \
     (is_obj_mappear(mon, BOULDER)                          \
-     || ((mon)->m_ap_type == M_AP_FURNITURE                \
+     || (M_AP_TYPE(mon) == M_AP_FURNITURE                    \
          && ((mon)->mappearance == S_hcdoor                \
              || (mon)->mappearance == S_vcdoor             \
              || (mon)->mappearance < S_ndoor /* = walls */ \
              || (mon)->mappearance == S_tree)))
-#define is_door_mappear(mon) ((mon)->m_ap_type == M_AP_FURNITURE \
+#define is_door_mappear(mon) (M_AP_TYPE(mon) == M_AP_FURNITURE   \
                               && ((mon)->mappearance == S_hcdoor \
                                   || (mon)->mappearance == S_vcdoor))
-#define is_obj_mappear(mon,otyp) ((mon)->m_ap_type == M_AP_OBJECT \
+#define is_obj_mappear(mon,otyp) (M_AP_TYPE(mon) == M_AP_OBJECT \
                                   && (mon)->mappearance == (otyp))
 
 #endif /* MONST_H */

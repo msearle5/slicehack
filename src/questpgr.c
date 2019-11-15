@@ -338,19 +338,19 @@ char c;
         str = plname;
         break;
     case 'c':
-        str = (flags.female && urole.name.f) ? urole.name.f : urole.name.m;
+        str = (flags.gender && urole.name.f) ? urole.name.f : urole.name.m;
         break;
     case 'r':
-        str = rank_of(u.ulevel, Role_switch, flags.female);
+        str = rank_of(u.ulevel, Role_switch, flags.gender);
         break;
     case 'R':
-        str = rank_of(MIN_QUEST_LEVEL, Role_switch, flags.female);
+        str = rank_of(MIN_QUEST_LEVEL, Role_switch, flags.gender);
         break;
     case 's':
-        str = (flags.female) ? "sister" : "brother";
+        str = sibling_gender();
         break;
     case 'S':
-        str = (flags.female) ? "daughter" : "son";
+        str = child_gender();
         break;
     case 'l':
         str = ldrname();
@@ -565,7 +565,7 @@ int how;
     if (qt_msg->summary_size) {
         (void) dlb_fgets(in_line, sizeof in_line, msg_file);
         convert_line(in_line, out_line);
-#ifdef BETA
+#if (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
     } else if (qt_msg->delivery == 'c') { /* skip for 'qtdump' of 'p' */
         /* delivery 'c' and !summary_size, summary expected but not present;
            this doesn't prefix the number with role code vs 'general'
@@ -578,7 +578,7 @@ int how;
         putmsghistory(out_line, FALSE);
 }
 
-boolean
+STATIC_OVL boolean
 skip_pager(common)
 boolean common;
 {

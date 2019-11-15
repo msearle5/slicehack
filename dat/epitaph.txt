@@ -410,7 +410,7 @@ Sure is dark in here.
 Hindsight is 20/20
 Who dug this grave?
 What a world, what a world!
-Peter Fyde, tripped over a cockatrice corpse.
+Peter Fyde -- Tripped over a cockatrice corpse.
 HE COMES
 Lifetime guarantee
 Onward to the next adventure!
@@ -420,20 +420,20 @@ Here lies a hero named Theseus, he was struck in the trapezius.
 Here lies the body of Ernest, he chugged some lava straight out of a furnace.
 Does anyone read these?
 Antigulp was here
-Here lies a mysterious force, dummied out as a matter of course
+Here lies a mysterious force, dummied out as a matter of course.
 Mystic scarab mass grave
 Hopes and Dreams
-RIP the Lord of the Foocubi, few were sad to see them die
+RIP the Lord of the Foocubi, few were sad to see them die.
 LOL, GWWOD. YASD.
-A miserable pile of secrets
+A miserable pile of secrets.
 Doh!
 Don't let my death be in vain.
 For sale by owner
-"Zombie life insurance" isn't all it was cracked up to be
+"Zombie life insurance" isn't all it was cracked up to be.
 That's it?
-Failed the death warp
+Failed the death warp.
 He was #1.
-Dig here for a wand of wishing
+Dig here for a wand of wishing.
 20XX
 I now face Elbereth and walk backwards into Gehennom.
 Here we go again!
@@ -455,3 +455,25 @@ In this grave sits Astolfo the knight, his fault was he never ran from a fight.
 IOWA WE CASK NIACIN WE IX APOGEE IOWA
 I would have liked to have seen the Astral Plane
 Use your light but awful chains
+Ghoul marinating below, please be quiet.
+I slammed with the best, now I jam at rest.
+Witness me!
+I am the bones of my sword.
+I would have liked to have seen the Astral Plane.
+Use your light but awful chains.
+Don't dig up! Dead inside!
+How could the elves do this to me?
+The orcs betrayed me!
+Here lies Brock, he was killed by a falling rock.
+Here lies Jade, her debt to a shopkeeper finally paid.
+Help! They're inside me!
+From dust I came, and to dust I have returned.
+A wizard did it.
+Amulet? More like choker!
+Quit stepping on me!
+BOO!
+I slipped while making dinner. Wrist in peas.
+If you die in real life, you die in the game.
+Davreak Strongpick: Tombstones at a low price!
+Bea Hedded -- Killed by the Vorpal Sword
+>>>>>>> 6c995fa9622e5659391a28c899fb40e68dd324af

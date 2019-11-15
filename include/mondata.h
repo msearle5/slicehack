@@ -1,4 +1,4 @@
-/* NetHack 3.6	mondata.h	$NHDT-Date: 1513297342 2017/12/15 00:22:22 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.33 $ */
+/* NetHack 3.6	mondata.h	$NHDT-Date: 1550524558 2019/02/18 21:15:58 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.37 $ */
 /* Copyright (c) 1989 Mike Threepoint				  */
 /* NetHack may be freely redistributed.  See license for details. */
 /* Edited 5/12/18 by NullCGT */
@@ -12,21 +12,35 @@
 
 #define pm_resistance(ptr, typ) (((ptr)->mresists & (typ)) != 0)
 
-#define resists_fire(mon) (((mon)->mintrinsics & MR_FIRE) != 0)
-#define resists_cold(mon) (((mon)->mintrinsics & MR_COLD) != 0)
-#define resists_sleep(mon) (((mon)->mintrinsics & MR_SLEEP) != 0)
-#define resists_disint(mon) (((mon)->mintrinsics & MR_DISINT) != 0)
-#define resists_elec(mon) (((mon)->mintrinsics & MR_ELEC) != 0)
-#define resists_poison(mon) (((mon)->mintrinsics & MR_POISON) != 0)
-#define resists_acid(mon) (((mon)->mintrinsics & MR_ACID) != 0)
-#define resists_ston(mon) (((mon)->mintrinsics & MR_STONE) != 0)
-#define resists_sonic(mon) (((mon)->mintrinsics & MR_SONIC) != 0)
-#define resists_psychic(mon) (((mon)->mintrinsics & MR_PSYCHIC) != 0 || \
-                              mindless((mon->data)))
+#define resists_fire(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_FIRE) != 0)
+#define resists_cold(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_COLD) != 0)
+#define resists_sleep(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_SLEEP) != 0)
+#define resists_disint(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_DISINT) != 0)
+#define resists_elec(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_ELEC) != 0)
+#define resists_poison(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_POISON) != 0)
+#define resists_acid(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_ACID) != 0)
+#define resists_ston(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_STONE) != 0)
+#define resists_sonic(mon) \
+    ((((mon)->data->mresists | (mon)->mextrinsics) & MR_SONIC) != 0)
+#define resists_psychic(mon) \
+     ((((mon)->data->mresists | (mon)->mextrinsics) & MR_PSYCHIC) != 0)
 
-#define can_wwalk(mon) (((mon)->mintrinsics & MR2_WATERWALK) != 0)
-#define can_jump(mon)  (((mon)->mintrinsics & MR2_JUMPING) != 0)
-#define has_displacement(mon) (((mon)->mintrinsics & MR2_DISPLACED) != 0)
+#define has_telepathy(mon) \
+    (telepathic((mon)->data) || ((mon)->mextrinsics & MR2_TELEPATHY) != 0)
+
+#define can_wwalk(mon) (((mon)->mextrinsics & MR2_WATERWALK) != 0)
+#define can_jump(mon)  (((mon)->mextrinsics & MR2_JUMPING) != 0)
+#define teleporter(mon) (((mon)->mextrinsics & MR2_TELEPORT) != 0 || \
+                          (mon->data->mflags1 & M1_TPORT) != 0L)
+#define has_displacement(mon) (((mon)->mextrinsics & MR2_DISPLACED) != 0)
 
 #define resists_mgc(ptr) \
     (dmgtype(ptr, AD_MAGM) || ptr == &mons[PM_BABY_GRAY_DRAGON] \
@@ -37,15 +51,15 @@
      || ptr == &mons[PM_DEATH] || ptr == &mons[PM_GRIM_REAPER])
 /* is_were() doesn't handle hero in human form */
 
+#define resists_death(ptr) \
+    ((ptr == &mons[PM_MOVANIC_DEVA]) || \
+     (ptr == &mons[PM_MONADIC_DEVA]) || \
+     (ptr == &mons[PM_ASTRAL_DEVA]) || \
+     (ptr == &mons[PM_PLANETAR]) || \
+     (ptr == &mons[PM_SOLAR]))
+
 #define is_lminion(mon) \
     (is_minion((mon)->data) && mon_aligntyp(mon) == A_LAWFUL)
-/* This definitely needs to become a flag, once reflagging takes place. */
-#define is_jumper(ptr) ((ptr) == &mons[PM_JUMPING_SPIDER] || \
-                        (ptr) == &mons[PM_EARTHSHARK] || \
-                        (ptr) == &mons[PM_WALLABY] || \
-                        (ptr) == &mons[PM_WALLAROO] || \
-                        (ptr) == &mons[PM_KANGAROO] || \
-                        (ptr) == &mons[PM_ANUBITE])
 #define is_flyer(ptr) (((ptr)->mflags1 & M1_FLY) != 0L)
 #define is_floater(ptr) ((ptr)->mlet == S_EYE || (ptr)->mlet == S_LIGHT)
 #define is_clinger(ptr) (((ptr)->mflags1 & M1_CLING) != 0L)
@@ -74,6 +88,7 @@
 #define has_horns(ptr) (num_horns(ptr) > 0)
 #define has_beak(ptr)          (is_bird(ptr) || \
                                (ptr) == &mons[PM_TENGU] || \
+                               (ptr) == &mons[PM_FELL_BEAST] || \
                                (ptr) == &mons[PM_VROCK])
 #define is_whirly(ptr) \
     ((ptr)->mlet == S_VORTEX || (ptr) == &mons[PM_AIR_ELEMENTAL] || \
@@ -94,17 +109,18 @@
 #define slithy(ptr) (((ptr)->mflags1 & M1_SLITHY) != 0L)
 #define is_wooden(ptr) ((ptr) == &mons[PM_WOOD_GOLEM] || (ptr->mlet) == S_PLANT)
 #define thick_skinned(ptr) (((ptr)->mflags1 & M1_THICK_HIDE) != 0L)
+#define hug_throttles(ptr) ((ptr) == &mons[PM_ROPE_GOLEM])
 #define slimeproof(ptr) \
     ((ptr) == &mons[PM_GREEN_SLIME] || flaming(ptr) || noncorporeal(ptr))
 #define lays_eggs(ptr) (((ptr)->mflags1 & M1_OVIPAROUS) != 0L)
+#define eggs_in_water(ptr) \
+    (lays_eggs(ptr) && (ptr)->mlet == S_EEL && is_swimmer(ptr))
 #define regenerates(ptr) (((ptr)->mflags1 & M1_REGEN) != 0L)
 #define perceives(ptr) (((ptr)->mflags1 & M1_SEE_INVIS) != 0L)
 #define can_teleport(ptr) (((ptr)->mflags1 & M1_TPORT) != 0L)
 #define control_teleport(ptr) (((ptr)->mflags1 & M1_TPORT_CNTRL) != 0L)
 #define telepathic(ptr)                                                \
-    ((ptr) == &mons[PM_FLOATING_EYE] || (ptr) == &mons[PM_MIND_FLAYER] \
-     || (ptr) == &mons[PM_MASTER_MIND_FLAYER] \
-     || (ptr) == &mons[PM_ANCIENT_BRAIN])
+    ((ptr) == &mons[PM_FLOATING_EYE] || is_mind_flayer(ptr))
 #define is_armed(ptr) attacktype(ptr, AT_WEAP)
 #define acidic(ptr) (((ptr)->mflags1 & M1_ACID) != 0L)
 #define poisonous(ptr) (((ptr)->mflags1 & M1_POIS) != 0L)
@@ -113,28 +129,41 @@
 #define metallivorous(ptr) (((ptr)->mflags1 & M1_METALLIVORE) != 0L)
 #define polyok(ptr) (((ptr)->mflags2 & M2_NOPOLY) == 0L)
 #define is_shapeshifter(ptr) (((ptr)->mflags2 & M2_SHAPESHIFTER) != 0L)
-#define is_undead(ptr) (((ptr)->mflags2 & M2_UNDEAD) != 0L)
-#define is_were(ptr) (((ptr)->mflags2 & M2_WERE) != 0L)
-#define is_elf(ptr) (((ptr)->mflags2 & M2_ELF) != 0L)
-#define is_dwarf(ptr) (((ptr)->mflags2 & M2_DWARF) != 0L)
-#define is_gnome(ptr) (((ptr)->mflags2 & M2_GNOME) != 0L)
-#define is_orc(ptr) (((ptr)->mflags2 & M2_ORC) != 0L)
-#define is_human(ptr) (((ptr)->mflags2 & M2_HUMAN) != 0L)
-#define your_race(ptr) (((ptr)->mflags2 & urace.selfmask) != 0L)
+#define is_undead(ptr) (((ptr)->mhflags & MH_UNDEAD) != 0L)
+#define is_were(ptr) (((ptr)->mhflags & MH_WERE) != 0L)
+#define is_elf(ptr) (((ptr)->mhflags & MH_ELF) != 0L)
+#define is_dwarf(ptr) (((ptr)->mhflags & MH_DWARF) != 0L)
+#define is_gnome(ptr) (((ptr)->mhflags & MH_GNOME) != 0L)
+#define is_orc(ptr) (((ptr)->mhflags & MH_ORC) != 0L)
+#define is_human(ptr) (((ptr)->mhflags & MH_HUMAN) != 0L)
+#define is_vampire(ptr)	(((ptr)->mhflags & MH_VAMPIRE) != 0L)
+#define your_race(ptr) (((ptr)->mhflags & urace.selfmask) != 0L)
 #define is_bat(ptr)                                         \
     ((ptr) == &mons[PM_BAT] || (ptr) == &mons[PM_GIANT_BAT] \
      || (ptr) == &mons[PM_VAMPIRE_BAT])
 #define is_bird(ptr) ((ptr)->mlet == S_BAT && !is_bat(ptr))
-#define is_giant(ptr) (((ptr)->mflags2 & M2_GIANT) != 0L)
+# define is_rat(ptr)		((ptr) == &mons[PM_SEWER_RAT] || \
+				 (ptr) == &mons[PM_GIANT_RAT] || \
+				 (ptr) == &mons[PM_RABID_RAT] || \
+				 (ptr) == &mons[PM_ENORMOUS_RAT] || \
+				 (ptr) == &mons[PM_PACKRAT] || \
+				 (ptr) == &mons[PM_HELLRAT] || \
+				 (ptr) == &mons[PM_RODENT_OF_UNUSUAL_SIZE])
+#define is_giant(ptr) (((ptr)->mhflags & MH_GIANT) != 0L)
 #define is_marsupial(ptr) ((ptr) == &mons[PM_WALLABY] || \
                           (ptr) == &mons[PM_WALLAROO] || \
                           (ptr) == &mons[PM_KANGAROO])
 #define is_golem(ptr) ((ptr)->mlet == S_GOLEM)
+
 #define is_domestic(ptr) ((((ptr)->mflags2 & M2_DOMESTIC) != 0L) \
      || (Role_if(PM_DRAGONMASTER) && (((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
                              (ptr) <= &mons[PM_GREEN_DRAGON]) || \
                              (ptr) == &mons[PM_YELLOW_DRAGON])))
 #define is_demon(ptr) (((ptr)->mflags2 & M2_DEMON) != 0L)
+
+#define is_jumper(ptr) (((ptr)->mflags3 & M3_JUMPER) != 0L)
+#define is_mind_flayer(ptr) (((ptr)->mhflags & MH_FLAYER) != 0L)
+#define is_ghoul(ptr) (((ptr)->mhflags & MH_GHOUL) != 0L)
 #define is_mercenary(ptr) (((ptr)->mflags2 & M2_MERC) != 0L)
 #define is_male(ptr) (((ptr)->mflags2 & M2_MALE) != 0L)
 #define is_female(ptr) (((ptr)->mflags2 & M2_FEMALE) != 0L)
@@ -142,8 +171,8 @@
 #define is_wanderer(ptr) (((ptr)->mflags2 & M2_WANDER) != 0L)
 #define always_hostile(ptr) (((ptr)->mflags2 & M2_HOSTILE) != 0L)
 #define always_peaceful(ptr) (((ptr)->mflags2 & M2_PEACEFUL) != 0L)
-#define race_hostile(ptr) (((ptr)->mflags2 & urace.hatemask) != 0L)
-#define race_peaceful(ptr) (((ptr)->mflags2 & urace.lovemask) != 0L)
+#define race_hostile(ptr) (((ptr)->mhflags & urace.hatemask) != 0L)
+#define race_peaceful(ptr) (((ptr)->mhflags & urace.lovemask) != 0L)
 #define extra_nasty(ptr) (((ptr)->mflags2 & M2_NASTY) != 0L)
 #define strongmonst(ptr) (((ptr)->mflags2 & M2_STRONG) != 0L)
 #define can_breathe(ptr) attacktype(ptr, AT_BREA)
@@ -153,7 +182,7 @@
 #define throws_rocks(ptr) (((ptr)->mflags2 & M2_ROCKTHROW) != 0L)
 #define type_is_pname(ptr) (((ptr)->mflags2 & M2_PNAME) != 0L)
 #define is_dragon(ptr) ((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
-                        (ptr) <= &mons[PM_YELLOW_DRAGON])
+                        (ptr) <= &mons[PM_VOID_DRAGON])
 #define is_baby_dragon(ptr) ((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
                         (ptr) <= &mons[PM_BABY_YELLOW_DRAGON])
 #define is_feline(ptr) ((ptr)->mlet == S_FELINE)
@@ -174,13 +203,14 @@
 #define is_longworm(ptr)                                                   \
     (((ptr) == &mons[PM_BABY_LONG_WORM]) || ((ptr) == &mons[PM_LONG_WORM]) \
      || ((ptr) == &mons[PM_LONG_WORM_TAIL]))
-#define is_covetous(ptr) ((ptr->mflags3 & M3_COVETOUS))
-#define infravision(ptr) ((ptr->mflags3 & M3_INFRAVISION))
-#define infravisible(ptr) ((ptr->mflags3 & M3_INFRAVISIBLE))
+#define is_covetous(ptr) (((ptr)->mflags3 & M3_COVETOUS))
+#define infravision(ptr) (((ptr)->mflags3 & M3_INFRAVISION))
+#define infravisible(ptr) (((ptr)->mflags3 & M3_INFRAVISIBLE))
 #define is_displacer(ptr) (((ptr)->mflags3 & M3_DISPLACES) != 0L)
 #define is_displaced(ptr) ((ptr) == &mons[PM_SHIMMERING_DRAGON] || \
     (ptr) == &mons[PM_BABY_SHIMMERING_DRAGON] || \
     (ptr) == &mons[PM_CHESHIRE_CAT])
+#define is_organized(ptr)  (((ptr)->mflags3 & M3_ORGANIZED))
 #define is_mplayer(ptr) \
     (((ptr) >= &mons[PM_ARCHEOLOGIST]) && ((ptr) <= &mons[PM_WIZARD]))
 #define is_watch(ptr) \
@@ -198,9 +228,11 @@
     ((ptr) == &mons[PM_SILVER_GOLEM])
 #define is_placeholder(ptr)                             \
     ((ptr) == &mons[PM_ORC] || (ptr) == &mons[PM_GIANT] \
-     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN])
+     || (ptr) == &mons[PM_ELF] || (ptr) == &mons[PM_HUMAN] \
+     || (ptr) == &mons[PM_MINOR_ANGEL] || (ptr) == &mons[PM_INFERNAL])
 /* return TRUE if the monster tends to revive */
-#define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL)
+#define is_reviver(ptr) (is_rider(ptr) || (ptr)->mlet == S_TROLL \
+                         || (ptr) == &mons[PM_SLOTH])
 /* monsters whose corpses and statues need special handling;
    note that high priests and the Wizard of Yendor are flagged
    as unique even though they really aren't; that's ok here */
@@ -212,13 +244,16 @@
     (((ptr)->mlet == S_LIGHT || (ptr) == &mons[PM_FLAMING_SPHERE] \
       || (ptr) == &mons[PM_SHOCKING_SPHERE]                       \
       || (ptr) == &mons[PM_FIRE_VORTEX]                          \
+      || (ptr) == &mons[PM_GOLD_DRAGON]                          \
+      || (ptr) == &mons[PM_BABY_GOLD_DRAGON]                     \
       || (ptr) == &mons[PM_WAX_GOLEM])                           \
-         ? 1                                                      \
+         ? 1                                                     \
          : ((ptr) == &mons[PM_FIRE_ELEMENTAL]) ? 1 : 0)
 /*	[note: the light ranges above were reduced to 1 for performance...] */
 #define likes_lava(ptr) \
     (ptr == &mons[PM_FIRE_ELEMENTAL] || ptr == &mons[PM_SALAMANDER] \
-          || ptr == &mons[PM_MAGMA_ELEMENTAL])
+          || ptr == &mons[PM_MAGMA_ELEMENTAL] \
+          || ptr == &mons[PM_VENT_WURM])
 #define pm_invisible(ptr) \
     ((ptr) == &mons[PM_STALKER] || (ptr) == &mons[PM_BLACK_LIGHT] \
       || (ptr) == &mons[PM_HELLCAT])
@@ -229,7 +264,8 @@
      || likes_lava(ptr))
 
 #define touch_petrifies(ptr) \
-    ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE])
+    ((ptr) == &mons[PM_COCKATRICE] || (ptr) == &mons[PM_CHICKATRICE] \
+     || (ptr) == &mons[PM_WERECOCKATRICE] || (ptr) == &mons[PM_HUMAN_WERECOCKATRICE])
 
 /* monster types that cause hero to be turned into stone if eaten */
 #define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
@@ -240,13 +276,16 @@
       || (ptr) == &mons[PM_ANCIENT_BRAIN])
 
 #define is_vampire(ptr) ((ptr)->mlet == S_VAMPIRE)
+
 #define is_pirate(ptr) \
     ((ptr) == &mons[PM_PIRATE] || (ptr) == &mons[PM_SKELETAL_PIRATE] \
       || (ptr) == &mons[PM_DAMNED_PIRATE] || (ptr) == &mons[PM_PLANAR_PIRATE] \
       || (ptr) == &mons[PM_MAYOR_CUMMERBUND] || (ptr) == &mons[PM_PIRATE_BROTHER])
+#define is_shopkeeper(ptr) \
+    ((ptr) == &mons[PM_SHOPKEEPER] || (ptr) == &mons[PM_EXTRAPLANAR_MERCHANT])
 
 #define hates_light(ptr) ((ptr) == &mons[PM_GREMLIN] \
-      || (ptr) == &mons[PM_NOSFERATU])
+      || (ptr) == &mons[PM_NOSFERATU] || (ptr) == &mons[PM_DRAUGLIR])
 
 /* used to vary a few messages */
 #define weirdnonliving(ptr) (is_golem(ptr) || (ptr)->mlet == S_VORTEX)
@@ -281,13 +320,20 @@
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
      ? (obj)->otyp == BANANA                                             \
-     : ((ptr) == &mons[PM_KOALA])                                          \
+     : ((ptr) == &mons[PM_KOALA])                                        \
       ? (obj)->otyp == EUCALYPTUS_LEAF                                   \
-       : (is_domestic(ptr) && (obj)->oclass == FOOD_CLASS                \
+       : ((is_domestic(ptr) ||                                           \
+        (is_rat(ptr) && (Role_if(PM_CONVICT) || (obj)->otyp == CHEESE))) \
+          && (obj)->oclass == FOOD_CLASS                                 \
           && ((ptr)->mlet != S_UNICORN                                   \
-              || obj->material == VEGGY               \
+              || obj->material == VEGGY                                  \
               || ((obj)->otyp == CORPSE && ((obj)->corpsenm == PM_LICHEN \
                     || (obj)->corpsenm == PM_LEGENDARY_LICHEN)))))
+
+/* For vampires */
+#define has_blood(ptr)	(!vegetarian(ptr) && \
+				   (ptr)->mlet != S_GOLEM && \
+				   (!is_undead(ptr) || is_vampire(ptr)))
 
 #define is_blkmktstaff(ptr)	(Is_blackmarket(&u.uz) && \
 				  (ptr) == &mons[PM_ARMS_DEALER])

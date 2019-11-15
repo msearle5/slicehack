@@ -201,7 +201,7 @@ FormatStatusString(char *text, int format)
         }
         Sprintf(nb = eos(nb), mbot);
     } else
-        Sprintf(nb = eos(nb), rank_of(u.ulevel, Role_switch, flags.female));
+        Sprintf(nb = eos(nb), rank_of(u.ulevel, Role_switch, flags.gender));
 
     if (format == NHSTAT_LINES_4)
         Sprintf(nb = eos(nb), "\r\n");

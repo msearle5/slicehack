@@ -25,9 +25,10 @@
 #define AT_BOOM 12  /* explodes when killed */
 #define AT_GAZE 13  /* gaze - ranged */
 #define AT_TENT 14  /* tentacles */
+#define AT_SCRE 15  /* scream - sonic attack */
 
-#define AT_WEAP 15 /* uses weapon */
-#define AT_MAGC 16 /* uses magic spell(s) */
+#define AT_WEAP 16 /* uses weapon */
+#define AT_MAGC 17 /* uses magic spell(s) */
 #define LAST_AT AT_MAGC
 
 /*	Add new damage types below.
@@ -94,16 +95,19 @@
 #define AD_TCKL 55	/* Tickle (Nightgaunts) */
 #define AD_POLY 56  /* Polymorph (Genetic Engineer) */
 #define AD_LARV 57  /* Inject Larvae (Brood Wasp) */
-#define AD_HNGY 58 /* a mini version of FAMN, should fake a higher
-                           hunger rating instead  */
-#define AD_CLRC 59 /* random clerical spell */
-#define AD_SPEL 60 /* random magic spell */
-#define AD_RBRE 61 /* random breath weapon */
-#define AD_SAMU 62 /* hits, may steal Amulet (Wizard) */
-#define AD_CURS 63 /* random curse (ex. gremlin) */
-#define AD_ZOMB	64 /* temp int drain/confusion (Zombie) */
-
-#define LAST_AD AD_ZOMB
+#define AD_SKEL 58  /* Generate skeletons (Bone Beast) */
+#define AD_HNGY 59 /* a mini version of FAMN, should fake a higher hunger rating instead  */
+#define AD_POTN 60 /* potion effect (gel) */
+#define AD_KDNP 61 /* kidnap (bar-lgura) */
+#define AD_FUMB 62 /* fumbling (Kostchtchie) */
+#define AD_CLOB 65 /* knockback */
+#define AD_CLRC 66 /* random clerical spell */
+#define AD_SPEL 67 /* random magic spell */
+#define AD_RBRE 68 /* random breath weapon */
+#define AD_SAMU 69 /* hits, may steal Amulet (Wizard) */
+#define AD_ZOMB	70 /* temp int drain/confusion (Zombie) */
+#define AD_CURS 71 /* random curse (ex. gremlin) */
+#define LAST_AD AD_CURS
 
 /*
  *  Monster to monster attacks.  When a monster attacks another (mattackm),

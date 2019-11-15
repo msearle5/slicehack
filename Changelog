@@ -716,6 +716,503 @@ changelog for SpliceHack.
 
 
                         SpliceHack -- Changelog
+                    
+                    Version 0.7.0: Stranger Days
+
+Cooking
+- Cooking is done through the extended #cook command.
+- Cooking uses the cooking skill. Raising this skill increases the chances
+  of successfully cooking a corpse. The cooking skill can be increased by
+  cooking food.
+- Cooking a corpse increases nutrition the chance to gain an intrinsic, but 
+  overcooking greatly reduces that chance and have lower nutrition. Cooked
+  food is less likely to be rotted, and more likely to be safe to eat.
+- Rotten and homemade tinned food is considered to be uncooked, but all
+  other tins found by the player are treated as having a random amount of
+  cooking. Corpses found in ice boxes have a small chance of being cooked.
+- Monsters killed via fire usually leave burned corpses.
+- Cooked corpses cannot be sacrificed.
+- Cooking in front of a monster of the same race as the corpse being cooked
+  will cause them to become angry.
+
+Dungeon Changes
+- The Banquet Hall, found in the level just above Mine's End. A very large
+  throne room containing numerous dwarves and giants. Loot includes historic
+  statues, potions of booze, kegs, and a throne.
+- The Dark Forest. Contains a gauranteed moonstone, gaurded by an army of
+  bizarre werecreatures.
+
+Endgame Rewrite
+- The following levels are now part of the endgame:
+  - The City of Brass
+    - City with shops inside the plane of fire.
+  - The Gemstone Array
+    - Earthquakes occur regularly in this level. It is filled
+      with many boulders, and many crystal golems.
+  - The Eternal Storm
+    - Unlike the plane of air, this level is completely dark.
+- On each plane, one of the seven deadly sins appears. They are
+  not required to beat the game, and are very dangerous, so
+  avoiding them is highly important.
+- Upon performing the ascension ritual, all monsters generated only
+  in gehennom can be generated throughout the regular dungeon.
+
+Monsters
+- New Monster: Fat Cat
+    - A large cat can grow up into a fat cat, but only by eating
+      a wraith corpse.
+    - The tile for a fat cat has a monocle. I just wanted to
+      mention that.
+- New Monster: Bar-Lgura
+    - From SLASH'EM.
+    - Different from their SLASH'EM incarnation in that they can
+      kidnap players.
+- New Monster: Baphomet
+    - A new demon lord.
+    - Does a large amount of damage, and breaths unholy water at
+      the player, making him very dangerous.
+    - One of the few demon lords to be truly dangerous on the
+      ascension run, due to his breath weapon.
+- New Monster: Kostchtchie
+    - Another new demon lord.
+    - Can cause fumbling with his attack.
+- New Monster: Gold Dragon
+    - Sourced from Nephi's Gold Dragon Patch.
+- New Monster: Vent Wurm
+  - Only appears in the planes.
+- New Monster: Crevasse Wurm
+  - Only appears in the planes.
+- New Monster: God Piercer
+  - Only appears in the planes.
+- New Monster: Efreet
+  - Only appears in the planes.
+- New Monster: Dream Thief
+  - Only appears in the planes.
+- New Monster: Werecockatrice
+  - Only appears in the Dark Forest.
+  - Petrifies on touch, just like a cockatrice.
+- New Monster: Weretiger
+  - Only appears in the Dark Forest.
+  - From SLASH'EM.
+- New Monster: Drauglir
+  - Boss monster of the dark forest.
+  - Can regenerate hit points spontaneously.
+  - Drauglir is a werewolf, but instead of changing form, he gains the
+    hit points and revitalization a werewolf would while maintaining
+    his usual form.
+  - Summons thought hounds and memory hounds when summoning.
+  - Is harmed by light.
+- New Monster: Wrath
+- New Monster: Envy
+- New Monster: Sloth
+- New Monster: Gluttony
+- New Monster: Pride
+- New Monster: Greed
+- New Monster: Lust
+  - One of each of the seven sins appears on the planes.
+- New Monster: Extraplanar Merchant
+  - Only appears in shops on the planes.
+- New Monster: Concussive Sphere
+- New Monster: Psionic Sphere
+- New Monster: Bullet Ant
+- New Monster: Grave Troll
+- New Monster: Cave Troll
+- New Monster: Vampiric Mind Flayer
+- Monsters will use cursed scrolls of light to attempt to blind the player.
+- Monsters are more aggressive about using expensive cameras.
+- Monsters can wear rings. For the sake of keeping the code simple, each
+  monster is only capable of wearing a single ring. This has the indirect
+  effect of buffing Nazgul, since they spawn with rings of invisiblity.
+- Monsters can get teleportation extrinsically.
+- Some monsters will use pack tactics. When they find you, they will shout
+  something, drawing all monsters of the same race to your location.
+- Nosferatu are harmed by light.
+- The riders are now immune to sonic, as they were always supposed to be.
+- The Wizard of Yendor has a weapon attack.
+- Instead of a wand of striking, Dispater receives a random spellbook,
+  making him much more dangerous than in vanilla.
+- Efreet are capable of wishing for items.
+- Yeenoghu wields a triple flail, which does an extremely large amount of
+  damage.
+- Some monsters (giants, ogre kings, Kostchtchie, the Drakemother) can send
+  the player hurtling with their attacks.
+- Switch to XNetHack's system of monster naming and introduction.
+- Monsters are no longer affected by the mysteriuos force.
+- Bird pets have been changed to penguins, which have the same stats as cats
+  and dogs.
+- Demon lords and princes can steal intrinsics, deal damage, and cause the player to
+  wither by chanting in the dark speech.
+- Implemented EvilHack buffs to the steeds of the riders.
+
+Items
+- New Object: Moonstone
+    - A permanent light source whose light radius depends on the moon phase.
+      - Within one step of new: Radius 2.
+      - Full moon: Radius 4.
+      - Otherwise: Radius 3.
+    - Moonstones are used by rubbing them.
+    - Currently only possible to obtain via wishing, applying a deck of fate
+      with positive luck and drawing the Moon, or in the Dark Forest.
+- New Object: Coffin    
+    - Replaces chests in Vlad's, like in Unnethack.
+    - Otherwise, appears occasionally as a normal container.
+- New Item: Triple Flail
+- New Item: Ring of Sonic Resistance (Glass Ring)
+
+- New Item: Gold Dragon Scales
+- New Item: Gold Dragon Scale Mail
+    - Both of these items shed light when worn. Sourced from Nephi's
+      Gold Dragon patch.
+
+- New Item: Spellbook of Poison Blast (tattered)
+- New Item: Spellbook of Acid Stream (colrful)
+- New Item: Spellbook of Lightning (rainbow)
+    - Pulled from SLASH'EM, with light modification of probabilities.
+
+- New Item: Spellbook of Sonicboom (ghostly)
+- New Item: Spellbook of Psystrike (worn out)
+    - Function similarly to cone of cold.
+
+- New Item: Keg
+    - Contains a large number of potions of booze.
+    - Applying it will drink one potion of booze.
+    - Burning kegs explode.
+    - Quaffing a keg is a Bad Idea.
+- New Item: Slice of Cake
+    - Cake takes a long time to eat, but it very filling. Cursed cake abuses 
+      dexterity, while blessed and uncursed cake heals ability damage.
+- New Item: Pineapple
+    - When thrown, pineapples are accurate and deal extra damage. Monsters
+      will attempt to throw them.
+- New Item: Pumpkin
+    - Can be worn as a helmet, or eaten.
+    - Monsters will pick up and put on pumpkins.
+    - Headless horsemen always carry a pumpkin.
+    - On halloween, humanoid monsters have a 1/30 chance of being generated
+      with a pumpkin.
+- New Item: Cheese
+    - Ported from SLASH'EM. The food, to be specific.
+- New Item: Bag of Rats
+    - Functionally very similar to the bag of tricks, except it only
+      produces rats, and lots of them.
+    - Reference to D&D, in which many problems can be solved with the simple
+      application of a bag full of an arbitrary number of rats.
+- New Item: Robe of Stasis (Bleached Robe)
+    - Confers unchanging when worn, and is generated erodeproof. Cannot
+      be polymorphed.
+- New Item: Robe of the Blood Magus (Starry Robe)
+    - Confers blood magic when worn.
+    - Engravings made using the finger of the player are made in blood.
+    - Upon being reduced to extremely low hit points, the player will vomit
+      out a blood pudding and gain a few hp. The robe curses itself.
+- New Item: Light Arrow
+    - High damage, very deadly arrow. Only generated in shops and with 
+      Avenger Archons.
+- New Item: Potion of Regeneration (Soupy Potion)
+    - Grants regeneration for a certain number of turns.
+    - A cursed potion inflicts withering.
+- Robes are renamed to mystic robes.
+- Earmuffs are now treated as a tool, instead of as a helmet. They are also
+  pluralized correctly. Basically, earmuffs are actually a viable item for
+  the first time.
+- Deck of Fate redone to be more useful.
+
+Artifacts
+- New Artifact: Circe's Witchstaff
+  - Has a 1/20 chance of polymorphing the target into a boar or a
+    cow.
+- New Artifact: Anaconda.
+  - Artifact bullwhip. Replaces Final.
+  - +1d7 to hit and damage.
+  - Has a 1/7 chance of wrapping the target in magic coils, paralyzing them
+    for two turns.
+- Removed the King in Yellow.
+- Mjollnir can now be invoked for a powerful lightning bolt. From XNetHack.
+- Altars have a 50% chance to break apart when an artifact is granted once the
+  player has already been gifted two artifacts.
+- Increased damage for Unlimited Moon, Gae Dearg, Gae Buidhe, Carnwennan,
+  Seafoam, War's Sword, Origin.
+- Most artifacts have a special incantation recited by the player when invoked.
+- New Invocation Effects
+    - Imhullu: As blessed scroll of air.
+    - Stormbringer: As blessed scroll of scare monster.
+    - Gungnir: Lightning bolt.
+    - Mjollnir: Lightning bolt.
+    - Demonbane: Flying.
+
+Roles, Races, and Character Creation
+- Sexual Orientation
+  - Sexual orientation affects whether you are seduced by succubi, incubi,
+    both, or neither.
+  - Options are gay, lesbian, bisexual, and asexual.
+  - Please note that this is an experimental implementation, and as such
+    only a few orientations are included, and the in-game representation
+    may not be a perfect reflection of real life. This is a work in
+    progress.
+  - Sexual orientation is defined in the rc file.
+- Nonbinary Gender
+  - Resolved numerous bugs and corner cases which would cause the player
+    to be referred to incorrectly. Nonbinary characters should be referred
+    to with they/them pronouns in all cases.
+  - Nonbinary characters are more likely to receive prompts on armor removal
+    via foocubus.
+  - Nonbinary characters cannot lay eggs.
+  - Eggs hatched in the inventory of nonbinary characters always hatch
+    peaceful monsters.
+  - Nonbinary characters are not seduced by incubi or succubi, unless
+    they are bisexual.
+- The following role and race combinations are now available:
+  - Dwarf Barbarian
+  - Dwarf Cartomancer
+  - Dwarf Knight
+  - Dwarf Monk
+  - Dwarf Priest
+  - Dwarf Ranger
+  - Dwarf Wizard
+  - Elf Healer
+  - Elf Rogue
+  - Drow Rogue
+  - Orc Monk
+  - Orc Pirate
+  - Orc Priest
+  - Gnome Pirate
+  - Gnome Rogue
+- New Race: Vampire
+  - Ported vampires from Slash'em.
+  - The race is fully intact, although this was far harder to port to 3.6.x
+    than any other piece of code I have encountered.
+  - Vampires have a few additional roles available.
+  - Vampires CANNOT drain blood from cooked corpses.
+- New Role: Convict
+  - Added the Convict Patch, originally written by Karl Garrison. The
+    convict role is now fully 3.6.x compatible.
+- Dragonmaster Changes 
+  - Dragonmasters now start with a random type of pet dragon (except
+    black).
+  - Dragons summoned by the Dragon Call technique only have a 50%
+    chance of being friendly, and the baby dragons can be of any
+    type.
+  - Dragonmasters can no longer eat dragons without it being considered
+    cannibalism. In exchange, they gain intrinsics on level up. This is
+    from SliceHack.
+- Cartomancer Changes
+  - Every time a cartomancer kills a monster, there is a 1/20 chance that a
+    spell card of create monster drops instead of a corpse. This card 
+    (unless cursed) will summon a tame version of the monster to fight by
+    the side of the player.
+  - Cartomancers start with create monster scrolls keyed to random monsters.
+  - The Soul of the Cards technique gives the cartomancer a card which might
+    fix their current problem (or a random card otherwise) and instantly
+    reads it.
+  - Cartomancers can use decks of cards as if blessed.
+  - Cartomancers have a new technique: Card Capture.
+    Card Capture allows a cartomancer to morph a nearby monster into a
+    spell card, then play that card to create a tame version of them.
+- Merfolk Changes
+  - Undertow has a failure rate
+  - Remove turning 1/3 of levels into rivers.
+
+Features
+- Phoenix eggs hatch instantly when exposed to lava, and are not damaged
+  by fire.
+- Added YAFM explaining hydras losing heads when hit by a level-draining attack.
+- Autorecover patch to allow the player to continue crashed games.
+- Added a few additional death messages.
+- Flipped levels patch has been enabled, after adding fixes from UnNetHack.
+- Unique names for junk shop and archery shop shopkeers.
+- Wands of psionics now have an engrave message, as requested by Hothraxxa.
+- YAFM when praying near a praying mantis.
+- Additional sounds and YAFMS for chatting with various monsters.
+- Monsters in the endgame attempt to find altars to sacrifice the amulet on
+  if they manage to steal it.
+- Crowning grants the player character a unique technique dependent on their
+  alignment.
+- Improved formatting for the technique menu.
+- Masks are generated randomly from the list of monsters, making the chance 
+  of obtaining a useful mask much higher.
+- Track the number of techniques used in a game as a conduct.
+- Track the celibate conduct.
+- Withering status effect. Blocks normal HP regeneration, and causes the
+  player to lose 1 HP per turn. Having regeneration and withering at the
+  same time nullifies HP regeneration, but there is no HP loss over time.
+
+Fixes
+- Purple dragons breathe "A wave of pure sound" instead of merely breathing
+  sonic.
+- Switched to using aosdict's fix for object probabilities over 1000.
+- Holographic Void Lily has correctly attributed effects, and no longer
+  relies on a massive kludge in order to function.
+- Expensive cameras used by monsters will hurt players that are polymorphed into
+  light-hating monsters.
+- Fixed boabhan-sith spawning as random monsters.
+- Fixed intelligent pet patch issue where monsters would repeatedly wield polearms.
+- Fixed intelligent pet patch issue where monsters would treat polearms as having
+  the same range as bows, and would stand motionless far away from the player.
+- Fixed inconsistent cause of death across livelog, top ten list, and gravestone
+  when receiving a random death message.
+- Fixed monster steeds not teleporting with their masters, lagging behind by
+  one turn.
+- Fixed bad feedback when monster steeds have invisible riders.
+- Unintentional fallthrough when chatting with types of djinn.
+- Numerous other minor bugs.
+- Named figurines applied by monsters create named monsters.
+- Fixed some feedback issues when monsters offer on altars.
+- Fixed players polymorphed into non-shapeshifting vampires being prompted to
+  shapeshift.
+- High score list is no longer checked in marathon mode.
+- Fixed a bug where turning undead as a knight would consistently fail.
+- Switched psychic rays color from blue to magenta.
+
+Balance Changes
+- Pull Under now has a failure rate, so that players do not use it to reliably
+  slay boss monsters. The higher your level and the lower the monster's level,
+  the more likely it is for the attack to succed.
+- Scrolls of time cause the reader to become more hungry, and grant less
+  movement points. This is in order to prevent abuse in the endgame.
+- Nerfed Banshees. Previously, they bypassed fixed abilities and deafness,
+  and could sap an endgame character's strength in only a few turns.
+- Gae Bulg disappears with 100% certainty after successfully being thrown to 
+  kill a monster. This event is livelogged if playing on a public server.
+- Scrolls of scare monster no longer have any effect on unique monsters.
+
+                    Version 0.6.4: Broken Things
+
+Features
+- New sounds for birds. They now let you know if you are abusing them.
+- New monster gaze attacks implemented for polymorphed players.
+- Changed how amalgamations and bad clones function.
+    - This was a difficult but necessary decision. Amalgamations and
+      bad clones were too buggy and poorly implemented to continue on
+      as they were. They now function as regular monsters, but
+      occasionally use the attacks of random, level-appropriate monsters
+      in place of their own. Hopefully this system is less frustrating.
+
+New Monsters
+- Molydeus:
+    - Molydei are one of the most dangerous monsters in the game. They are high
+      level, and able to dish out a lot of damage with their greataxes.
+    - Any creature hit by their bite attack has a chance of being polymorphed
+      into a manes. Poison resistance reduces the chance of this occurring, but
+      will not prevent it. The only way to truly be safe is to be unchanging.
+    - In order to balance them, they cannot summon any type of demon through
+      hell-p, just more manes.
+    - If a player polymorphs into one, all demon lords will be automatically
+      hostile to them.
+    - Due to their abilities, Molydei are one of the best choices for pets.
+      Conversely, they are one of the most dangerous to your own pets.
+- Hippo
+    - Hippos are fairly unremarkable. They yawn when angry, just like real
+      hippos. They are also quite dangerous and aggressive, just like real
+      hippos.
+
+Bug Fixes
+- Numerous fixes to monster steeds.
+- Fixed glyph traps exploding in blasts of lightning.
+- Fixed Dal Zethire instantly dying.
+- Alucard no longer begins polymorphed, which should fix the bad weapon restore
+  errors players were running into during Junethack.
+- Many other fixes.
+
+                    Version 0.6.3: Junethack Ahoy!
+
+Features
+- Modified XNetHack / SLASH'EM fungus growth. Generating mold warriors is
+  highly unlikely.
+- Addition of G_PLANES and G_NOPLANES tags. The SLASH'EM angels and devas
+  can only be generated in the planes. Marids no longer generate in the planes.
+  This should allow greater control over the late game, and hopefully make the
+  planes feel a little bit more distinctive.
+- Began selectively implementing maps and features from the Lethe patch.
+
+Special Rooms
+- Added L's Dilapidated Armory Patch.
+- Improved abandoned laboratories.
+- Reduced frequency of felines in dens.
+
+New Items
+- Spiked Chains: Combine the best features of polearms and melee weapons. This
+  is a reference to D&D 3.5, where spiked chains are horrifyingly broken.
+- Encyclopedias: Contain identities of a number of items.
+
+
+New Monsters
+- From SLASH'EM:
+    - Movanic Deva
+    - Mondadic Deva
+    - Astral Deva
+    - Planetar
+    - Solar
+- Zuggotomoy
+    - Zuggotomoy's passive attack does random elemental damage, and she can
+      infest corpses to create aspects of herself. She is extremely dangerous,
+      but has no lair as of yet.
+- Aspect of Zuggotomoy
+
+Bug Fixes
+- Stabilized amalgamations and gels.
+- Various other fixes.
+- Fixed numerous issues with ghouls.
+- Fixed bug that caused fell beasts to spawn normally.
+
+                    Version 0.6.2: Critical Errors
+
+Features
+- Hobbits and Nazgul are affected by the grudge patch.
+- Monster intrinsic gain improved.
+
+Items
+- Ported from SLASH'EM:
+    - Serpent's Tongue
+    - Bat from Hell
+
+Bug Fixes
+- Free Action no longer protects against magic flutes.
+- Fixed domestic animals not generating normally.
+- Roaring monsters fail when hallucinating.
+- Various other fixes.
+
+
+
+                    Version 0.6.1: Madness Follows
+
+Features
+- YAFM for getting killed by a T-Rex.
+- Ghouls are now a playable race.
+- Wands of windstorm identify when zapped, and monsters are less likely to use
+  them to stunlock the player.
+- Junk shops: Junk shops sell a variety of "junk items"
+- T-Rexes have been changed from white to red for clarity purposes.
+- Removed rooks. In terms of flavor, they simply do not fit, and are not
+  interesting.
+- Roles and races receive tips on the start of the game.
+
+New Items
+- Junk Items:
+    - Baseball Bat
+    - Giant Shuriken
+
+New Monsters
+- Baobhan-Sith
+- Redcap
+- Avatar of Akasha
+- Nova Fox
+- Bone Beast
+- Mystery Gel
+
+New Traps
+- Aligned Glyph
+- Whirlwind Trap
+
+Bug Fixes
+- Numerous fixes from SliceHack.
+- Wandering cacti are no longer smart.
+- Drop bears no longer hide in the floor.
+- Statues are no longer colored in tiled mode.
+- Artifact materials can no longer be warped.
+- Blood puddings no longer drop stacks of zero potions.
+- Various other fixes.
+- Fixed pirates being more well-equiped than they should be.
+- Fixed magma elementals not being buffed on the plane of fire.
 
                     Version 0.6.0 - Diversity and Danger
 

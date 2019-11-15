@@ -1,4 +1,4 @@
-/* NetHack 3.6	mthrowu.c	$NHDT-Date: 1514152830 2017/12/24 22:00:30 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.73 $ */
+/* NetHack 3.6	mthrowu.c	$NHDT-Date: 1564767726 2019/08/02 17:42:06 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.85 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Pasi Kallinen, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -23,8 +23,8 @@ STATIC_DCL int FDECL(drop_throw, (struct obj *, BOOLEAN_P, int, int));
  */
 STATIC_OVL NEARDATA const char *breathwep[] = {
     "fragments", "fire", "frost", "sleep gas", "a disintegration blast",
-    "lightning", "poison gas", "acid", "sonic",
-    "psychic beam"
+    "lightning", "poison gas", "acid", "a beam of pure sound",
+    "a psychic beam"
 };
 
 extern boolean notonhead; /* for long worms */
@@ -209,7 +209,10 @@ struct obj *otmp, *mwep;
         /* Elven Craftsmanship makes for light, quick bows */
         if (otmp->otyp == ELVEN_ARROW && !otmp->cursed)
             multishot++;
-        if (ammo_and_launcher(otmp, uwep) && mwep->otyp == ELVEN_BOW
+        /* for arrow, we checked bow&arrow when entering block, but for
+           bow, so far we've only validated that otmp is a weapon stack;
+           need to verify that it's a stack of arrows rather than darts */
+        if (mwep && mwep->otyp == ELVEN_BOW && ammo_and_launcher(otmp, mwep)
             && !mwep->cursed)
             multishot++;
         /* 1/3 of launcher enchantment */
@@ -253,7 +256,9 @@ struct obj *otmp, *mwep;
             || (is_orc(mtmp->data) && otmp->otyp == ORCISH_ARROW
                 && mwep->otyp == ORCISH_BOW)
             || (is_gnome(mtmp->data) && otmp->otyp == CROSSBOW_BOLT
-                && mwep->otyp == CROSSBOW))
+                && mwep->otyp == CROSSBOW)
+            || (mtmp->data == &mons[PM_DROW] && otmp->otyp == DARK_ELVEN_ARROW
+                && mwep->otyp == DARK_ELVEN_BOW))
             multishot++;
     }
 
@@ -322,8 +327,6 @@ struct obj *otmp, *mwep;
     m_shot.s = FALSE;
      	/* nomul(0); NOT SURE WHAT THIS DOES */
      }
-
-     extern int monstr[];
 
      /* Find a target for a ranged attack. */
      struct monst *
@@ -419,8 +422,8 @@ struct obj *otmp, *mwep;
      	        if (mtmp->mtame && !mat->mtame &&
      		    acceptable_pet_target(mtmp, mat, TRUE) && i > 0) {
      		    if ((!oldmret) ||
-     		        (monstr[monsndx(mat->data)] >
-     			 monstr[monsndx(oldmret->data)]))
+     		        (mons[monsndx(mat->data)].difficulty >
+     			 mons[monsndx(oldmret->data)].difficulty))
      		    	mret = mat;
      		}
      		else if ((mm_aggression(mtmp, mat) & ALLOW_M)
@@ -439,8 +442,8 @@ struct obj *otmp, *mwep;
      		        (!(mtmp->mtame && mat->mtame) || !rn2(5))) &&
      			i > 0) {
      		    	if ((!oldmret) ||
-     		            (monstr[monsndx(mat->data)] >
-     			     monstr[monsndx(oldmret->data)]))
+     		            (mons[monsndx(mat->data)].difficulty >
+     			     mons[monsndx(oldmret->data)].difficulty))
      		        	mret = mat;
      		    }
      		}
@@ -485,7 +488,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
     struct obj *mon_launcher = archer ? MON_WEP(archer) : NULL;
 
     notonhead = (bhitpos.x != mtmp->mx || bhitpos.y != mtmp->my);
-    ismimic = mtmp->m_ap_type && mtmp->m_ap_type != M_AP_MONSTER;
+    ismimic = M_AP_TYPE(mtmp) && M_AP_TYPE(mtmp) != M_AP_MONSTER;
     vis = cansee(bhitpos.x, bhitpos.y);
 
     tmp = 5 + find_mac(mtmp) + omon_adj(mtmp, otmp, FALSE);
@@ -529,12 +532,12 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         mtmp->msleeping = 0;
         if (vis) {
             if (otmp->otyp == EGG)
-                pline("Splat! %s is hit with %s egg!", Monnam(mtmp),
+                pline("Splat!  %s is hit with %s egg!", Monnam(mtmp),
                       otmp->known ? an(mons[otmp->corpsenm].mname) : "an");
             else
                 hit(distant_name(otmp, mshot_xname), mtmp, exclam(damage));
         } else if (verbose && !target)
-            pline("%s%s is hit%s", (otmp->otyp == EGG) ? "Splat! " : "",
+            pline("%s%s is hit%s", (otmp->otyp == EGG) ? "Splat!  " : "",
                   Monnam(mtmp), exclam(damage));
 
         if (otmp->opoisoned && is_poisonable(otmp)) {
@@ -585,7 +588,7 @@ boolean verbose;    /* give message(s) even when you can't see what happened */
         if (otmp->oartifact == ART_GAE_BULG && cansee(mtmp->mx, mtmp->my)) {
             pline_The("barbed spear flies through the air and impales %s!",
                       mon_nam(mtmp));
-            damage += 200;
+            damage += mtmp->mhp;
         }
         if (!DEADMONSTER(mtmp)) { /* might already be dead (if petrified) */
             mtmp->mhp -= damage;
@@ -659,7 +662,7 @@ struct obj *obj;         /* missile (or stack providing it) */
 register boolean verbose;
 {
     struct monst *mtmp;
-    struct obj *singleobj;
+    struct obj *singleobj, *mwep;
     char sym = obj->oclass;
     int hitu = 0, oldumort, blindinc = 0;
 
@@ -692,6 +695,15 @@ register boolean verbose;
 
     singleobj->owornmask = 0; /* threw one of multiple weapons in hand? */
 
+    if (mon) mwep = MON_WEP(mon);
+  	else mwep = (struct obj *) 0;
+
+    /* D: Special launcher effects */
+  	if (mwep && is_ammo(singleobj) && ammo_and_launcher(singleobj, mwep)) {
+  	    if (mwep->oartifact == ART_PLAGUE && is_poisonable(singleobj))
+  			singleobj->opoisoned = 1;
+  	}
+
     if ((singleobj->cursed || singleobj->greased) && (dx || dy) && !rn2(7)) {
         if (canseemon(mon) && flags.verbose) {
             if (is_ammo(singleobj))
@@ -720,7 +732,7 @@ register boolean verbose;
      * be careful not to use either one after it's been freed.
      */
     if (sym)
-        tmp_at(DISP_FLASH, obj_to_glyph(singleobj));
+        tmp_at(DISP_FLASH, obj_to_glyph(singleobj, rn2_on_display_rng));
     while (range-- > 0) { /* Actually the loop is always exited by break */
         bhitpos.x += dx;
         bhitpos.y += dy;
@@ -775,7 +787,7 @@ register boolean verbose;
             default:
                 dam = dmgval(singleobj, &youmonst);
                 if (singleobj->oartifact == ART_GAE_BULG) {
-                    dam += 200;
+                    dam += u.uhp;
                 }
                 hitv = 3 - distmin(u.ux, u.uy, mon->mx, mon->my);
                 if (hitv < -4)
@@ -1005,7 +1017,7 @@ struct attack  *mattk;
             if ((typ >= AD_MAGM) && (typ <= AD_PSYC)) {
                 if (canseemon(mtmp))
                     pline("%s breathes %s!", Monnam(mtmp), breathwep[typ - 1]);
-                dobuzz((int) (-20 - (typ - 1)), (int)mattk->damn,
+                dobuzz((int) (-20 - (typ - 1)), (int) mattk->damn,
                        mtmp->mx, mtmp->my, sgn(tbx), sgn(tby), FALSE);
                 nomul(0);
                 /* breath runs out sometimes. Also, give monster some
@@ -1072,7 +1084,7 @@ struct monst *mtmp;
     const char *onm;
 
     /* Rearranged beginning so monsters can use polearms not in a line */
-    if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)) {
+    if ((mtmp->weapon_check == NEED_WEAPON && MON_WEP(mtmp) && !is_pole(MON_WEP(mtmp))) || !MON_WEP(mtmp)) {
    	    if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 8) {
    	        mtmp->weapon_check = NEED_HTH_WEAPON;
    	        if (mon_wield_item(mtmp) != 0) return;
@@ -1099,7 +1111,8 @@ struct monst *mtmp;
 
         if (canseemon(mtmp)) {
             onm = xname(otmp);
-            pline("%s thrusts %s.", Monnam(mtmp),
+            pline("%s %s %s.", Monnam(mtmp),
+                  otmp->otyp == SPIKED_CHAIN ? "flicks" : "thrusts",
                   obj_is_pname(otmp) ? the(onm) : an(onm));
         }
 
@@ -1218,6 +1231,13 @@ struct attack *mattk;
                     mtmp->mspec_used = 10 + rn2(20);
                 if (typ == AD_SLEE && !Sleep_resistance)
                     mtmp->mspec_used += rnd(20);
+            } else if (typ == AD_CURS) {
+                if (canseemon(mtmp))
+                    pline("%s spits a geyser of turgid water at you!", Monnam(mtmp));
+                    rndcurse();
+                if (!rn2(3))
+                    mtmp->mspec_used = 10 + rn2(20);
+                nomul(0);
             } else
                 impossible("Breath weapon %d used", typ - 1);
         }
@@ -1312,8 +1332,8 @@ register struct monst *mtmp;
 
     /* hero concealment usually trumps monst awareness of being lined up */
     if (Upolyd && rn2(25)
-        && (u.uundetected || (youmonst.m_ap_type != M_AP_NOTHING
-                              && youmonst.m_ap_type != M_AP_MONSTER)))
+        && (u.uundetected || (U_AP_TYPE != M_AP_NOTHING
+                              && U_AP_TYPE != M_AP_MONSTER)))
         return FALSE;
 
     ignore_boulders = (throws_rocks(mtmp->data)

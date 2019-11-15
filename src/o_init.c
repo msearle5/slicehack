@@ -1,4 +1,4 @@
-/* NetHack 3.6	o_init.c	$NHDT-Date: 1528332336 2018/06/07 00:45:36 $  $NHDT-Branch: NetHack-3.6.2 $:$NHDT-Revision: 1.24 $ */
+/* NetHack 3.6	o_init.c	$NHDT-Date: 1545383615 2018/12/21 09:13:35 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.25 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -129,7 +129,7 @@ boolean domaterial;
 void
 init_objects()
 {
-    register int i, first, last, sum;
+    register int i, first, last;
     register char oclass;
 #ifdef TEXTCOLOR
 #define COPY_OBJ_DESCR(o_dst, o_src) \
@@ -217,6 +217,8 @@ int *lo_p, *hi_p; /* output: range that item belongs among */
             *lo_p = GLOVES, *hi_p = GAUNTLETS_OF_DEXTERITY;
         else if (otyp >= CLOAK_OF_PROTECTION && otyp <= CLOAK_OF_DISPLACEMENT)
             *lo_p = CLOAK_OF_PROTECTION, *hi_p = CLOAK_OF_DISPLACEMENT;
+        else if (otyp >= MYSTIC_ROBE && otyp <= ROBE_OF_STASIS)
+            *lo_p = MYSTIC_ROBE, *hi_p = ROBE_OF_STASIS;
         else if (otyp >= SPEED_BOOTS && otyp <= LEVITATION_BOOTS)
             *lo_p = SPEED_BOOTS, *hi_p = LEVITATION_BOOTS;
         break;
@@ -263,7 +265,7 @@ shuffle_all()
     };
     /* sub-class type ranges (one item from each group) */
     static short shuffle_types[] = {
-        HELMET, GLOVES, CLOAK_OF_PROTECTION, SPEED_BOOTS, VENOM_CLASS,
+        HELMET, GLOVES, CLOAK_OF_PROTECTION, MYSTIC_ROBE, SPEED_BOOTS, VENOM_CLASS,
     };
     int first, last, idx;
 
@@ -408,12 +410,15 @@ boolean credit_hero;
         }
         /* moves==1L => initial inventory, gameover => final disclosure */
         if (moves > 1L && !program_state.gameover) {
-             update_inventory();
             if ((mark_as_known) && (credit_hero) &&
                 (objects[oindx].oc_class == POTION_CLASS) &&
                 (oindx != POT_WATER) && (oindx != POT_FRUIT_JUICE)) {
                 use_skill(P_ALCHEMY, 1);
             }
+
+            if (objects[oindx].oc_class == GEM_CLASS)
+                gem_learned(oindx); /* could affect price of unpaid gems */
+            update_inventory();
         }
     }
 }
@@ -443,6 +448,8 @@ register int oindx;
             pline("bad obj: %d", oindx);
             impossible("named object not in disco");
         }
+        if (objects[oindx].oc_class == GEM_CLASS)
+            gem_learned(oindx); /* ok, it's actually been unlearned */
         update_inventory();
     }
 }

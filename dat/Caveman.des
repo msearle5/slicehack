@@ -254,6 +254,7 @@ WALLIFY
 #
 
 MAZE: "Cav-fila" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ' , true , true , random , true
 NOMAP
 #

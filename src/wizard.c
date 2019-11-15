@@ -1,4 +1,4 @@
-/* NetHack 3.6	wizard.c	$NHDT-Date: 1456618999 2016/02/28 00:23:19 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.48 $ */
+/* NetHack 3.6	wizard.c	$NHDT-Date: 1561336025 2019/06/24 00:27:05 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.56 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -12,8 +12,6 @@
 
 #include "hack.h"
 #include "qtext.h"
-
-extern const int monstr[];
 
 STATIC_DCL short FDECL(which_arti, (int));
 STATIC_DCL boolean FDECL(mon_has_arti, (struct monst *, SHORT_P));
@@ -249,7 +247,7 @@ register struct monst *mtmp;
     register struct obj *otmp;
     register struct monst *mtmp2;
 
-    if (!M_Wants(mask))
+    if (!M_Wants(mask) && !is_mplayer(mtmp->data))
         return (unsigned long) STRAT_NONE;
 
     otyp = which_arti(mask);
@@ -264,6 +262,26 @@ register struct monst *mtmp;
                  && (otyp != AMULET_OF_YENDOR
                      || (!mtmp2->iswiz && !inhistemple(mtmp2))))
             return STRAT(STRAT_MONSTR, mtmp2->mx, mtmp2->my, mask);
+
+        #define a_align(x, y) ((aligntyp) Amask2align(levl[x][y].altarmask & AM_MASK))
+
+        /* Do we have the Amulet? Alrighty then... */
+        if (Is_astralevel(&u.uz)) {
+            int targetx = u.ux, targety = u.uy;
+            aligntyp malign = sgn(mtmp->data->maligntyp);
+
+            if (IS_ALTAR(levl[10][10].typ)
+                    && a_align(10, 10) == malign)
+                    targetx = 10, targety = 10;
+            else if (IS_ALTAR(levl[40][6].typ)
+                        && a_align(40, 6) == malign)
+                    targetx = 40, targety = 6;
+            else if (IS_ALTAR(levl[70][10].typ)
+                        && a_align(70, 10) == malign)
+                    targetx = 70, targety = 10;
+
+            return STRAT(STRAT_NONE, targetx, targety, mask);
+        }
     }
     return (unsigned long) STRAT_NONE;
 }
@@ -363,7 +381,6 @@ xchar *sy;
         *sx = x;
         *sy = y;
     }
-
 }
 
 int
@@ -371,28 +388,33 @@ tactics(mtmp)
 register struct monst *mtmp;
 {
     unsigned long strat = strategy(mtmp);
-    xchar sx = 0, sy = 0;
+    xchar sx = 0, sy = 0, mx, my;
 
     mtmp->mstrategy =
         (mtmp->mstrategy & (STRAT_WAITMASK | STRAT_APPEARMSG)) | strat;
 
     switch (strat) {
     case STRAT_HEAL: /* hide and recover */
+        mx = mtmp->mx, my = mtmp->my;
         /* if wounded, hole up on or near the stairs (to block them) */
         choose_stairs(&sx, &sy);
         mtmp->mavenge = 1; /* covetous monsters attack while fleeing */
-        if (In_W_tower(mtmp->mx, mtmp->my, &u.uz)
+        if (In_W_tower(mx, my, &u.uz)
             || (mtmp->iswiz && !sx && !mon_has_amulet(mtmp))) {
             if (!rn2(3 + mtmp->mhp / 10))
                 (void) rloc(mtmp, TRUE);
-        } else if (sx && (mtmp->mx != sx || mtmp->my != sy)) {
+        } else if (sx && (mx != sx || my != sy)) {
             if (!mnearto(mtmp, sx, sy, TRUE)) {
-                m_into_limbo(mtmp);
+                /* couldn't move to the target spot for some reason,
+                   so stay where we are (don't actually need rloc_to()
+                   because mtmp is still on the map at <mx,my>... */
+                rloc_to(mtmp, mx, my);
                 return 0;
             }
+            mx = mtmp->mx, my = mtmp->my; /* update cached location */
         }
         /* if you're not around, cast healing spells */
-        if (distu(mtmp->mx, mtmp->my) > (BOLT_LIM * BOLT_LIM))
+        if (distu(mx, my) > (BOLT_LIM * BOLT_LIM))
             if (mtmp->mhp <= mtmp->mhpmax - 8) {
                 mtmp->mhp += rnd(8);
                 return 1;
@@ -442,12 +464,13 @@ register struct monst *mtmp;
                 return 0;
             }
         } else { /* a monster has it - 'port beside it. */
+            mx = mtmp->mx, my = mtmp->my;
             if (!mnearto(mtmp, tx, ty, FALSE))
-                m_into_limbo(mtmp);
+                rloc_to(mtmp, mx, my); /* no room? stay put */
             return 0;
         }
-    }
-    }
+    } /* default case */
+    } /* switch */
     /*NOTREACHED*/
     return 0;
 }
@@ -593,7 +616,8 @@ struct monst *summoner;
                     m_cls = mons[makeindex].mlet;
                 } while (summoner
                          && ((attacktype(&mons[makeindex], AT_MAGC)
-                              && monstr[makeindex] >= monstr[summoner->mnum])
+                              && mons[makeindex].difficulty
+                                 >= mons[summoner->mnum].difficulty)
                              || (s_cls == S_DEMON && m_cls == S_ANGEL)
                              || (s_cls == S_ANGEL && m_cls == S_DEMON)));
                 /* do this after picking the monster to place */

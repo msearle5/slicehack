@@ -1,4 +1,4 @@
-/* NetHack 3.6	you.h	$NHDT-Date: 1450231172 2015/12/16 01:59:32 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.30 $ */
+/* NetHack 3.6	you.h	$NHDT-Date: 1547514642 2019/01/15 01:10:42 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.35 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2016. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -101,6 +101,8 @@ struct u_conduct {     /* number of times... */
     long wishes;       /* used a wish */
     long wisharti;     /* wished for an artifact */
     long elbereth;     /* engraved Elbereth */
+    long notech;       /* activated a technique */
+    long celibate;     /* never have sex */
     /* genocides already listed at end of game */
 };
 
@@ -141,7 +143,9 @@ struct Role {
     short questarti; /* index (ART_) of quest artifact (questpgr.c) */
 
     /*** Bitmasks ***/
+    long mhrace;
     short allow;                  /* bit mask of allowed variations */
+
 #define ROLE_RACEMASK  0x1ff8     /* allowable races */
 #define ROLE_GENDMASK  0xf000     /* allowable genders */
 #define ROLE_MALE      0x2000
@@ -205,6 +209,7 @@ struct Race {
     /*** Indices of important monsters and objects ***/
     short malenum, /* PM_ as a male monster */
         femalenum, /* ...or as a female (NON_PM == same) */
+        nbnum,     /* ...or as a nonbinary (NON_PM == same) */
         mummynum,  /* PM_ as a mummy */
         zombienum; /* PM_ as a zombie */
 
@@ -278,14 +283,20 @@ struct Gender {
     const char *filecode; /* file code */
     short allow;          /* equivalent ROLE_ mask */
 };
+struct Orientation {
+    const char *adj;      /* gay/straight/bi/ace */
+    boolean tar;          /* target of attraction */
+};
 #define ROLE_GENDERS 3    /* number of permitted player genders
                              increment to 3 if you allow neuter roles */
+#define ROLE_ORIENTATIONS 4 /* number of permitted player orientations */
 
 extern const struct Gender genders[]; /* table of available genders */
+extern const struct Orientation orientations[]; /* table of available orientations */
 /* pronouns for the hero */
-#define uhe()      (genders[flags.female].he)
-#define uhim()     (genders[flags.female].him)
-#define uhis()     (genders[flags.female].his)
+#define uhe()      (genders[flags.gender].he)
+#define uhim()     (genders[flags.gender].him)
+#define uhis()     (genders[flags.gender].his)
 /* corresponding pronouns for monsters; yields "it" when mtmp can't be seen */
 #define mhe(mtmp)  (genders[pronoun_gender(mtmp, FALSE)].he)
 #define mhim(mtmp) (genders[pronoun_gender(mtmp, FALSE)].him)
@@ -308,12 +319,12 @@ struct Align {
 extern const struct Align aligns[]; /* table of available alignments */
 
 enum utraptypes {
-    TT_BEARTRAP = 0,
-    TT_PIT,
-    TT_WEB,
-    TT_LAVA,
-    TT_INFLOOR,
-    TT_BURIEDBALL
+    TT_BEARTRAP   = 0,
+    TT_PIT        = 1,
+    TT_WEB        = 2,
+    TT_LAVA       = 3,
+    TT_INFLOOR    = 4,
+    TT_BURIEDBALL = 5
 };
 
 /* Alchemy recipe */
@@ -376,6 +387,7 @@ struct you {
     int cglyph;       /* glyph under the chain */
     int bc_order;     /* ball & chain order [see bc_order() in ball.c] */
     int bc_felt;      /* mask for ball/chain being felt */
+    int ugender;      /* saved human value of flags.gender */
 
     int umonster;               /* hero's "real" monster num */
     int umonnum;                /* current monster number */
@@ -392,10 +404,10 @@ struct you {
     Bitfield(uinwater, 1);      /* if you're currently in water (only
                                    underwater possible currently) */
     Bitfield(uundetected, 1);   /* if you're a hiding monster/piercer */
-    Bitfield(mfemale, 1);       /* saved human value of flags.female */
     Bitfield(uinvulnerable, 1); /* you're invulnerable (praying) */
     Bitfield(uburied, 1);       /* you're buried */
     Bitfield(uedibility, 1);    /* blessed food detect; sense unsafe food */
+
     Bitfield(uquick, 1);        /* last action was a successful hit from Quick Blade */
 
     unsigned udg_cnt;           /* how long you have been demigod */

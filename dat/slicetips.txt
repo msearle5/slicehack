@@ -71,7 +71,6 @@ Wands of wonder cannot grant wishes - unless you are really determined...
 Have a good JuneNethack! (Well, it'll be June eventually.)
 Dragonmasters cannot wear dragon scale mail.
 Dragonmasters can tame chromatic dragons.
-Amalgamations and bad clones are combinations of two monsters.
 Altars are colored based on their alignment.
 Looking up a monster or object will give you statistics about it.
 Floating eyes are a bit less common in the dungeon these days.
@@ -137,3 +136,18 @@ Packrats will pick up just about anything.
 Keep your pets far away from porcupines.
 A helm of opaque thoughts will make your head flayer-proof!
 Use #technique to use special role and race-specific powers.
+If you are a dwarf or gnome, giants may be hostile.
+Ghouls can paralyze opponents by way of touch.
+The touch of a drow can put even the hardiest of monsters to sleep.
+A ghoulish monk is going to have a tough time staying fed.
+Sacrificing a kobold? I wouldn't try it.
+Sapphire, silver, and crystal golems are known for their reflective abilities.
+A hydra can regrow heads and become more powerful when attacked with a slashing weapon.
+Brood wasp stings can have delayed symptoms.
+Werewolves are a tough race for beginning players.
+If you donate enough at a temple, they might just teach you how to perform a blessing.
+If you encounter a bug, please report it on the github page, or contact Antigulp on #hardfought.
+Steel golems can disenchant your items, so keep your distance.
+You will level up more quickly at high levels in SpliceHack than in vanilla NetHack.
+Nazgul will often shriek, and are known to ride fell beasts.
+Monsters are capable of riding other monsters.

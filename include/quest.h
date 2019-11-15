@@ -11,6 +11,7 @@ struct q_score {              /* Quest "scorecard" */
     Bitfield(not_ready, 3);   /* rejected due to alignment, etc. */
     Bitfield(pissed_off, 1);  /* got the leader angry */
     Bitfield(got_quest, 1);   /* got the quest assignment */
+    Bitfield(killed_leader, 1); /* killed the quest leader */
 
     Bitfield(first_locate, 1); /* only set the first time */
     Bitfield(met_intermed, 1); /* used if the locate is a person. */
@@ -43,6 +44,7 @@ struct q_score {              /* Quest "scorecard" */
 #define MIN_QUEST_ALIGN 20 /* at least this align.record to start */
 /* note: align 20 matches "pious" as reported by enlightenment (cmd.c) */
 #define MIN_QUEST_LEVEL 10 /* at least this u.ulevel to start */
+
 /* note: exp.lev. 10 is threshold level for 4th rank (class title, role.c -
  * calculated by xlev_to_rank in botl.c)
  **/

@@ -1,4 +1,4 @@
-/* NetHack 3.6	dog.c	$NHDT-Date: 1502753406 2017/08/14 23:30:06 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.60 $ */
+/* NetHack 3.6	dog.c	$NHDT-Date: 1554580624 2019/04/06 19:57:04 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.85 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -58,6 +58,8 @@ register struct monst *mtmp;
 STATIC_OVL int
 pet_type()
 {
+    int dragon_type;
+
     if (urole.petnum != NON_PM)
         return  urole.petnum;
     else if (preferred_pet == 'c')
@@ -65,14 +67,23 @@ pet_type()
     else if (preferred_pet == 'd')
         return  PM_LITTLE_DOG;
     else if (preferred_pet == 'b')
-        return PM_LITTLE_BIRD;
+        return PM_PENGUIN;
     else if (Role_if(PM_PIRATE)) {
         if (preferred_pet == 'B')
               return (PM_PARROT);
-        else if(preferred_pet == 'Y')
+        else if (preferred_pet == 'Y')
               return PM_MONKEY;
         else
               return (rn2(2) ? PM_PARROT : PM_MONKEY);
+    } else if (Role_if(PM_DRAGONMASTER)) {
+        /* baby black dragons are not chosen as starting pets, since
+           black dragons are arguably some of the most powerful pets
+           in SpliceHack. */
+        dragon_type = PM_BABY_SILVER_DRAGON 
+            + rn2(PM_BABY_YELLOW_DRAGON - PM_BABY_SILVER_DRAGON);
+        if (dragon_type == PM_BABY_BLACK_DRAGON)
+            dragon_type = PM_BABY_GRAY_DRAGON;
+        return dragon_type;
     } else {
         switch(rn2(3+(Role_if(PM_ARCHEOLOGIST)))) {
             case 0:
@@ -100,6 +111,7 @@ boolean quietly;
     do {
         if (otmp) { /* figurine; otherwise spell */
             int mndx = otmp->corpsenm;
+
             pm = &mons[mndx];
             /* activating a figurine provides one way to exceed the
                maximum number of the target critter created--unless
@@ -123,7 +135,7 @@ boolean quietly;
             }
         }
 
-        mtmp = makemon(pm, x, y, MM_EDOG | MM_IGNOREWATER | NO_MINVENT);
+        mtmp = makemon(pm, x, y, MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOERID);
         if (otmp && !mtmp) { /* monster was genocided or square occupied */
             if (!quietly)
                 pline_The("figurine writhes and then shatters into pieces!");
@@ -185,10 +197,12 @@ makedog()
         petname = dogname;
     else if (pettype == PM_PONY)
         petname = horsename;
-    else if (pettype == PM_LITTLE_BIRD)
+    else if (pettype == PM_PENGUIN)
         petname = birdname;
-    else if (pettype == PM_BABY_RED_DRAGON)
+    else if (is_dragon(&mons[pettype]))
         petname = dragonname;
+    else if (pettype == PM_SEWER_RAT)
+		petname = ratname;
     else
         petname = catname;
 
@@ -205,9 +219,13 @@ makedog()
             petname = "Sirius"; /* Orion's dog */
         if (Role_if(PM_CARTOMANCER))
             petname = "Joey"; /* Obscure SliceHack reference (tm) */
-    } else if (!*petname && pettype == PM_LITTLE_BIRD) {
+    } else if (!*petname && pettype == PM_PENGUIN) {
         if (Role_if(PM_RANGER))
-            petname = "Quothe";
+            petname = "Topper";
+    } else if (!*petname && pettype == PM_SEWER_RAT) {
+        if(Role_if(PM_CONVICT)) petname = "Nicodemus"; /* Rats of NIMH */
+    } else if (!*petname && pettype == PM_BABY_RED_DRAGON) {
+        if(Role_if(PM_DRAGONMASTER)) petname = "Flame"; /* D&D */
     }
 
     mtmp = makemon(&mons[pettype], u.ux, u.uy, MM_EDOG);
@@ -217,7 +235,7 @@ makedog()
 
     context.startingpet_mid = mtmp->m_id;
     /* Horses already wear a saddle */
-    if ((pettype == PM_PONY || pettype == PM_BABY_RED_DRAGON)
+    if ((pettype == PM_PONY || is_dragon(&mons[pettype]))
         && !!(otmp = mksobj(SADDLE, TRUE, FALSE))) {
         otmp->dknown = otmp->bknown = otmp->rknown = 1;
         put_saddle_on_mon(otmp, mtmp);
@@ -249,7 +267,7 @@ update_mlstmv()
 void
 losedogs()
 {
-    register struct monst *mtmp, *mtmp0 = 0, *mtmp2;
+    register struct monst *mtmp, *mtmp0, *mtmp2;
     int dismissKops = 0;
 
     /*
@@ -304,17 +322,26 @@ losedogs()
         mon_arrive(mtmp, TRUE);
     }
 
-    /* time for migrating monsters to arrive */
+    /* time for migrating monsters to arrive;
+       monsters who belong on this level but fail to arrive get put
+       back onto the list (at head), so traversing it is tricky */
     for (mtmp = migrating_mons; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
         if (mtmp->mux == u.uz.dnum && mtmp->muy == u.uz.dlevel) {
-            if (mtmp == migrating_mons)
+            /* remove mtmp from migrating_mons list */
+            if (mtmp == migrating_mons) {
                 migrating_mons = mtmp->nmon;
-            else
-                mtmp0->nmon = mtmp->nmon;
+            } else {
+                for (mtmp0 = migrating_mons; mtmp0; mtmp0 = mtmp0->nmon)
+                    if (mtmp0->nmon == mtmp) {
+                        mtmp0->nmon = mtmp->nmon;
+                        break;
+                    }
+                if (!mtmp0)
+                    panic("losedogs: can't find migrating mon");
+            }
             mon_arrive(mtmp, FALSE);
-        } else
-            mtmp0 = mtmp;
+        }
     }
 }
 
@@ -327,6 +354,7 @@ boolean with_you;
     struct trap *t;
     xchar xlocale, ylocale, xyloc, xyflags, wander;
     int num_segs;
+    boolean failed_to_place = FALSE;
 
     mtmp->nmon = fmon;
     fmon = mtmp;
@@ -352,7 +380,7 @@ boolean with_you;
     xyflags = mtmp->mtrack[0].y;
     xlocale = mtmp->mtrack[1].x;
     ylocale = mtmp->mtrack[1].y;
-    memset(mtmp->mtrack, 0, sizeof(mtmp->mtrack));
+    memset(mtmp->mtrack, 0, sizeof mtmp->mtrack);
 
     if (mtmp == u.usteed || mtmp->monmount == 1)
         return; /* don't place steed on the map */
@@ -449,8 +477,10 @@ boolean with_you;
         /* monster moved a bit; pick a nearby location */
         /* mnearto() deals w/stone, et al */
         char *r = in_rooms(xlocale, ylocale, 0);
+
         if (r && *r) {
             coord c;
+
             /* somexy() handles irregular rooms */
             if (somexy(&rooms[*r - ROOMOFFSET], &c))
                 xlocale = c.x, ylocale = c.y;
@@ -458,6 +488,7 @@ boolean with_you;
                 xlocale = ylocale = 0;
         } else { /* not in a room */
             int i, j;
+
             i = max(1, xlocale - wander);
             j = min(COLNO - 1, xlocale + wander);
             xlocale = rn1(j - i, i);
@@ -469,36 +500,14 @@ boolean with_you;
 
     mtmp->mx = 0; /*(already is 0)*/
     mtmp->my = xyflags;
-    if (xlocale) {
-        if (!mnearto(mtmp, xlocale, ylocale, FALSE))
-            goto fail_mon_placement;
-    } else {
-        if (!rloc(mtmp, TRUE)) {
-            /*
-             * Failed to place migrating monster,
-             * probably because the level is full.
-             * Dump the monster's cargo and leave the monster dead.
-             */
-            struct obj *obj;
-fail_mon_placement:
-            while ((obj = mtmp->minvent) != 0) {
-                obj_extract_self(obj);
-                obj_no_longer_held(obj);
-                if (obj->owornmask & W_WEP)
-                    setmnotwielded(mtmp, obj);
-                obj->owornmask = 0L;
-                if (xlocale && ylocale)
-                    place_object(obj, xlocale, ylocale);
-                else if (rloco(obj)) {
-                    if (!get_obj_location(obj, &xlocale, &ylocale, 0))
-                        impossible("Can't find relocated object.");
-                }
-            }
-            (void) mkcorpstat(CORPSE, (struct monst *) 0, mtmp->data, xlocale,
-                              ylocale, CORPSTAT_NONE);
-            mongone(mtmp);
-        }
-    }
+    if (xlocale)
+        failed_to_place = !mnearto(mtmp, xlocale, ylocale, FALSE);
+    else
+        failed_to_place = !rloc(mtmp, TRUE);
+
+    if (failed_to_place)
+        m_into_limbo(mtmp); /* try again next time hero comes to this level */
+
     update_monsteed(mtmp);
 }
 
@@ -510,7 +519,8 @@ long nmv; /* number of moves */
 {
     int imv = 0; /* avoid zillions of casts and lint warnings */
 
-#if defined(DEBUG) || defined(BETA)
+#if defined(DEBUG) || (NH_DEVEL_STATUS != NH_STATUS_RELEASED)
+
     if (nmv < 0L) { /* crash likely... */
         panic("catchup from future time?");
         /*NOTREACHED*/
@@ -599,6 +609,27 @@ long nmv; /* number of moves */
         mtmp->mhp = mtmp->mhpmax;
     else
         mtmp->mhp += imv;
+}
+
+void
+demonic_horde(newlevel)
+d_level *newlevel;
+{
+    struct monst *mtmp, *mtmp2;
+    for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+        mtmp2 = mtmp->nmon;
+        if (!is_demon(mtmp->data) || monnear(mtmp, u.ux, u.uy) || mtmp->mpeaceful)
+            continue;
+        if (DEADMONSTER(mtmp))
+            continue;
+        if ((mtmp->mextra && ERID(mtmp)) || mtmp->monmount)
+            continue;
+
+        migrate_to_level(mtmp, ledger_no(newlevel), MIGR_EXACT_XY,
+                             (coord *) 0);
+    }
+    if (!Deaf)
+        You_hear("screeching from the demonic horde pursuing you!");
 }
 
 /* called when you move to another level */
@@ -691,6 +722,7 @@ boolean stairs;
                 cnt = count_wsegs(mtmp);
                 num_segs = min(cnt, MAX_NUM_WORMS - 1);
                 wormgone(mtmp);
+                place_monster(mtmp, mtmp->mx, mtmp->my);
             } else
                 num_segs = 0;
 
@@ -734,7 +766,7 @@ xchar tolev; /* destination level */
 xchar xyloc; /* MIGR_xxx destination xy location: */
 coord *cc;   /* optional destination coordinates */
 {
-    register struct obj *obj;
+    struct obj *obj;
     d_level new_lev;
     xchar xyflags;
     int num_segs = 0; /* count of worm segments */
@@ -748,11 +780,13 @@ coord *cc;   /* optional destination coordinates */
         set_residency(mtmp, TRUE);
 
     if (mtmp->wormno) {
-        register int cnt;
+        int cnt = count_wsegs(mtmp);
+
         /* **** NOTE: worm is truncated to # segs = max wormno size **** */
-        cnt = count_wsegs(mtmp);
-        num_segs = min(cnt, MAX_NUM_WORMS - 1);
-        wormgone(mtmp);
+        num_segs = min(cnt, MAX_NUM_WORMS - 1); /* used below */
+        wormgone(mtmp); /* destroys tail and takes head off map */
+        /* there used to be a place_monster() here for the relmon() below,
+           but it doesn't require the monster to be on the map anymore */
     }
 
     /* set minvent's obj->no_charge to 0 */
@@ -785,7 +819,7 @@ coord *cc;   /* optional destination coordinates */
     mtmp->muy = new_lev.dlevel;
     mtmp->mx = mtmp->my = 0; /* this implies migration */
     if (mtmp == context.polearm.hitmon)
-        context.polearm.hitmon = NULL;
+        context.polearm.hitmon = (struct monst *) 0;
 }
 
 /* return quality of food; the lower the better */
@@ -838,6 +872,15 @@ register struct obj *obj;
                 return stale_egg(obj) ? CADAVER : starving ? ACCFOOD : POISON;
             return TABU;
         }
+        /* vampires only "eat" very fresh corpses ... 
+	     * Assume meat -> blood
+	     */
+	    if (is_vampire(mon->data)) {
+	    	return (obj->otyp == CORPSE &&
+		      has_blood(&mons[obj->corpsenm]) && !obj->oeaten &&
+	    	  peek_at_iced_corpse_age(obj) + 5 >= monstermoves) ?
+			    DOGFOOD : TABU;
+	    }
 
         switch (obj->otyp) {
         case TRIPE_RATION:
@@ -860,7 +903,7 @@ register struct obj *obj;
             /* turning into slime is preferable to starvation */
             else if (fptr == &mons[PM_GREEN_SLIME] && !slimeproof(mon->data))
                 return starving ? ACCFOOD : POISON;
-            else if ((fptr == &mons[PM_CHAMELEON]) && !obj->invlet)
+            else if (is_shapeshifter(fptr) && !obj->invlet)
                 return starving ? ACCFOOD : MANFOOD;
             else if (vegan(fptr))
                 return herbi ? CADAVER : MANFOOD;
@@ -955,6 +998,12 @@ register struct obj *obj;
     if (flags.moonphase == FULL_MOON && night() && rn2(6) && obj
         && mtmp->data->mlet == S_DOG)
         return FALSE;
+
+    if (Role_if(PM_CONVICT) && (is_domestic(mtmp->data) && obj)) {
+        /* Domestic animals are wary of the Convict */
+        pline("%s still looks wary of you.", Monnam(mtmp));
+        return FALSE;
+    }
 
     /* If we cannot tame it, at least it's no longer afraid. */
     mtmp->mflee = 0;

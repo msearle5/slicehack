@@ -1,4 +1,4 @@
-/* NetHack 3.6	files.c	$NHDT-Date: 1526382938 2018/05/15 11:15:38 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.240 $ */
+/* NetHack 3.6	files.c	$NHDT-Date: 1573066357 2019/11/06 18:52:37 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.260 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -770,7 +770,7 @@ boolean playing; /**< True if game is running.  */
 #endif
 	        urole.filecode,
 	        urace.filecode,
-	        genders[flags.female].filecode,
+	        genders[flags.gender].filecode,
 	        aligns[1-u.ualign.type].filecode,
 #ifdef RECORD_CONDUCT
 	        encodeconduct(),
@@ -1060,7 +1060,7 @@ boolean regularize_it;
 
         /* Obtain the name of the logged on user and incorporate
          * it into the name. */
-        Sprintf(fnamebuf, "%s-%s", get_username(0), plname);
+        Sprintf(fnamebuf, "%s", plname);
         if (regularize_it)
             ++legal; /* skip '*' wildcard character */
         (void) fname_encode(legal, '%', fnamebuf, encodedfnamebuf, BUFSZ);
@@ -1254,6 +1254,10 @@ get_saved_games()
     {
         char *foundfile;
         const char *fq_save;
+        const char *fq_new_save;
+        const char *fq_old_save;
+        char **files = 0;
+        int i;
 
         Strcpy(plname, "*");
         set_savefile_name(FALSE);
@@ -1269,20 +1273,44 @@ get_saved_games()
                 ++n;
             } while (findnext());
         }
+
         if (n > 0) {
-            result = (char **) alloc((n + 1) * sizeof(char *)); /* at most */
-            (void) memset((genericptr_t) result, 0, (n + 1) * sizeof(char *));
+            files = (char **) alloc((n + 1) * sizeof(char *)); /* at most */
+            (void) memset((genericptr_t) files, 0, (n + 1) * sizeof(char *));
             if (findfirst((char *) fq_save)) {
-                j = n = 0;
+                i = 0;
                 do {
-                    char *r;
-                    r = plname_from_file(foundfile);
-                    if (r)
-                        result[j++] = r;
-                    ++n;
+                    files[i++] = strdup(foundfile);
                 } while (findnext());
             }
         }
+
+        if (n > 0) {
+            result = (char **) alloc((n + 1) * sizeof(char *)); /* at most */
+            (void) memset((genericptr_t) result, 0, (n + 1) * sizeof(char *));
+            for(i = 0; i < n; i++) {
+                char *r;
+                r = plname_from_file(files[i]);
+
+                if (r) {
+
+                    /* rename file if it is not named as expected */
+                    Strcpy(plname, r);
+                    set_savefile_name(FALSE);
+                    fq_new_save = fqname(SAVEF, SAVEPREFIX, 0);
+                    fq_old_save = fqname(files[i], SAVEPREFIX, 1);
+
+                    if(strcmp(fq_old_save, fq_new_save) != 0 &&
+                        !file_exists(fq_new_save))
+                        rename(fq_old_save, fq_new_save);
+
+                    result[j++] = r;
+                }
+            }
+        }
+
+        free_saved_games(files);
+
     }
 #endif
 #if defined(UNIX) && defined(QT_GRAPHICS)
@@ -1395,7 +1423,7 @@ boolean uncomp;
     int i = 0;
     int f;
 #ifdef TTY_GRAPHICS
-    boolean istty = !strncmpi(windowprocs.name, "tty", 3);
+    boolean istty = WINDOWPORT("tty");
 #endif
 
     Strcpy(cfn, filename);
@@ -1732,7 +1760,7 @@ boolean uncomp;
 static int nesting = 0;
 
 #if defined(NO_FILE_LINKS) || defined(USE_FCNTL) /* implies UNIX */
-static int lockfd; /* for lock_file() to pass to unlock_file() */
+static int lockfd = -1; /* for lock_file() to pass to unlock_file() */
 #endif
 #ifdef USE_FCNTL
 struct flock sflock; /* for unlocking, same as above */
@@ -1820,7 +1848,7 @@ boolean silent;
     lockfd = open(filename, O_RDWR);
     if (lockfd == -1) {
         if (!silent) {
-            HUP raw_printf("Cannot open file %s. Is NetHack installed correctly?",
+            HUP raw_printf("Cannot open file %s. Is SliceHack installed correctly?",
                             filename);
         }
         nesting--;
@@ -1846,8 +1874,8 @@ boolean silent;
 #ifdef USE_FCNTL
         if (retryct--) {
             HUP raw_printf(
-                "Waiting for release of fcntl lock on %s. (%d retries left).",
-                filename, retryct);
+               "Waiting for release of fcntl lock on %s.  (%d retries left.)",
+                           filename, retryct);
             sleep(1);
         } else {
             HUP(void) raw_print("I give up.  Sorry.");
@@ -1857,7 +1885,7 @@ boolean silent;
             return FALSE;
         }
 #else
-        register int errnosv = errno;
+        int errnosv = errno;
 
         switch (errnosv) { /* George Barbanis */
         case EEXIST:
@@ -1968,9 +1996,10 @@ const char *filename;
     if (nesting == 1) {
 #ifdef USE_FCNTL
         sflock.l_type = F_UNLCK;
-        if (fcntl(lockfd, F_SETLK, &sflock) == -1) {
-            HUP raw_printf("Can't remove fcntl lock on %s.", filename);
-            (void) close(lockfd);
+        if (lockfd >= 0) {
+            if (fcntl(lockfd, F_SETLK, &sflock) == -1)
+                HUP raw_printf("Can't remove fcntl lock on %s.", filename);
+            (void) close(lockfd), lockfd = -1;
         }
 #else
         lockname = make_lockname(filename, locknambuf);
@@ -1982,7 +2011,7 @@ const char *filename;
         if (unlink(lockname) < 0)
             HUP raw_printf("Can't unlink %s.", lockname);
 #ifdef NO_FILE_LINKS
-        (void) nhclose(lockfd);
+        (void) nhclose(lockfd), lockfd = -1;
 #endif
 
 #endif /* UNIX || VMS */
@@ -2011,7 +2040,7 @@ const char *default_configfile =
     "NetHack Defaults";
 #else
 #if defined(MSDOS) || defined(WIN32)
-    "defaults.nh";
+    CONFIG_FILE;
 #else
     "NetHack.cnf";
 #endif
@@ -2240,7 +2269,7 @@ const char *name; /* name of option for error message */
             break;
 
         default:
-        gi_error:
+ gi_error:
             raw_printf("Syntax error in %s", name);
             wait_synch();
             return count;
@@ -2511,6 +2540,8 @@ char *origbuf;
         (void) strncpy(dogname, bufp, PL_PSIZ - 1);
     } else if (match_varname(buf, "CATNAME", 3)) {
         (void) strncpy(catname, bufp, PL_PSIZ - 1);
+    } else if (match_varname(buf, "RATNAME", 3)) {
+	    (void) strncpy(catname, bufp, PL_PSIZ-1);
 
 #ifdef SYSCF
     } else if (src == SET_IN_SYS && match_varname(buf, "WIZARDS", 7)) {
@@ -2548,11 +2579,11 @@ char *origbuf;
             free((genericptr_t) sysopt.dumplogfile);
         sysopt.dumplogfile = dupstr(bufp);
 #endif
-    } else if (src == SET_IN_SYS && match_varname(buf, "DUMPLOGURL", 10)) {
-        #ifdef DUMPLOG
-        if (sysopt.dumplogurl)
-            free((genericptr_t) sysopt.dumplogurl);
-        sysopt.dumplogurl = dupstr(bufp);
+    } else if (src == SET_IN_SYS && match_varname(buf, "DUMPHTMLFILE", 7)) {
+#ifdef DUMPHTML
+        if (sysopt.dumphtmlfile)
+            free((genericptr_t) sysopt.dumphtmlfile);
+        sysopt.dumphtmlfile = dupstr(bufp);
 #endif
     } else if (src == SET_IN_SYS && match_varname(buf, "GENERICUSERS", 12)) {
         if (sysopt.genericusers)
@@ -2632,7 +2663,7 @@ char *origbuf;
         n = atoi(bufp);
         if (n < 1) {
             config_error_add(
-                "Illegal value in MAX_STATUENAME_RANK (minimum is 1).");
+                      "Illegal value in MAX_STATUENAME_RANK (minimum is 1).");
             return FALSE;
         }
         sysopt.tt_oname_maxrank = n;
@@ -2696,10 +2727,18 @@ char *origbuf;
         if (sysopt.greppath)
             free((genericptr_t) sysopt.greppath);
         sysopt.greppath = dupstr(bufp);
+    } else if (src == SET_IN_SYS
+               && match_varname(buf, "ACCESSIBILITY", 13)) {
+        n = atoi(bufp);
+        if (n < 0 || n > 1) {
+            config_error_add("Illegal value in ACCESSIBILITY (not 0,1).");
+            return FALSE;
+        }
+        sysopt.accessibility = n;
 #endif /* SYSCF */
 
     } else if (match_varname(buf, "BOULDER", 3)) {
-        (void) get_uchars(bufp, &iflags.bouldersym, TRUE, 1,
+        (void) get_uchars(bufp, &ov_primary_syms[SYM_BOULDER + SYM_OFF_X], TRUE, 1,
                           "BOULDER");
     } else if (match_varname(buf, "MENUCOLOR", 9)) {
         if (!add_menu_coloring(bufp))
@@ -2713,8 +2752,14 @@ char *origbuf;
         (void) get_uchars(bufp, translate, FALSE, WARNCOUNT,
                           "WARNINGS");
         assign_warnings(translate);
+    } else if (match_varname(buf, "ROGUESYMBOLS", 4)) {
+        if (!parsesymbols(bufp, ROGUESET)) {
+            config_error_add("Error in ROGUESYMBOLS definition '%s'", bufp);
+            retval = FALSE;
+        }
+        switch_symbols(TRUE);
     } else if (match_varname(buf, "SYMBOLS", 4)) {
-        if (!parsesymbols(bufp)) {
+        if (!parsesymbols(bufp, PRIMARY)) {
             config_error_add("Error in SYMBOLS definition '%s'", bufp);
             retval = FALSE;
         }
@@ -2892,7 +2937,7 @@ struct _config_error_frame {
     struct _config_error_frame *next;
 };
 
-struct _config_error_frame *config_error_data = (struct _config_error_frame *)0;
+static struct _config_error_frame *config_error_data = 0;
 
 void
 config_error_init(from_file, sourcename, secure)
@@ -2901,7 +2946,7 @@ const char *sourcename;
 boolean secure;
 {
     struct _config_error_frame *tmp = (struct _config_error_frame *)
-        alloc(sizeof(struct _config_error_frame));
+        alloc(sizeof (struct _config_error_frame));
 
     tmp->line_num = 0;
     tmp->num_errors = 0;
@@ -2910,8 +2955,8 @@ boolean secure;
     tmp->secure = secure;
     tmp->origline[0] = '\0';
     if (sourcename && sourcename[0]) {
-        (void) strncpy(tmp->source, sourcename, sizeof(tmp->source)-1);
-        tmp->source[sizeof(tmp->source)-1] = '\0';
+        (void) strncpy(tmp->source, sourcename, sizeof (tmp->source) - 1);
+        tmp->source[sizeof (tmp->source) - 1] = '\0';
     } else
         tmp->source[0] = '\0';
 
@@ -2934,49 +2979,44 @@ const char *line;
     ced->line_num++;
     ced->origline_shown = FALSE;
     if (line && line[0]) {
-        (void) strncpy(ced->origline, line, sizeof(ced->origline)-1);
-        ced->origline[sizeof(ced->origline)-1] = '\0';
+        (void) strncpy(ced->origline, line, sizeof (ced->origline) - 1);
+        ced->origline[sizeof (ced->origline) - 1] = '\0';
     } else
         ced->origline[0] = '\0';
 
     return TRUE;
 }
 
-/*VARARGS1*/
-void config_error_add
-VA_DECL(const char *, str)
+/* varargs 'config_error_add()' moved to pline.c */
+void
+config_erradd(buf)
+const char *buf;
 {
-    char buf[BUFSZ];
     char lineno[QBUFSZ];
 
-    VA_START(str);
-    VA_INIT(str, char *);
-
-    Vsprintf(buf, str, VA_ARGS);
+    if (!buf || !*buf)
+        buf = "Unknown error";
 
     if (!config_error_data) {
-        pline("%s.", *buf ? buf : "Unknown error");
+        /* either very early, where pline() will use raw_print(), or
+           player gave bad value when prompted by interactive 'O' command */
+        pline("%s%s.", !iflags.window_inited ? "config_error_add: " : "", buf);
         wait_synch();
         return;
     }
 
     config_error_data->num_errors++;
-    if (!config_error_data->origline_shown
-        && !config_error_data->secure) {
+    if (!config_error_data->origline_shown && !config_error_data->secure) {
         pline("\n%s", config_error_data->origline);
         config_error_data->origline_shown = TRUE;
     }
-    if (config_error_data->line_num > 0
-        && !config_error_data->secure) {
-        Sprintf(lineno, "Line %i: ", config_error_data->line_num);
+    if (config_error_data->line_num > 0 && !config_error_data->secure) {
+        Sprintf(lineno, "Line %d: ", config_error_data->line_num);
     } else
         lineno[0] = '\0';
-    pline("%s %s%s.",
-          config_error_data->secure ? "Error:" : " *",
-          lineno,
-          *buf ? buf : "Unknown error");
 
-    VA_END();
+    pline("%s %s%s.", config_error_data->secure ? "Error:" : " *",
+          lineno, buf);
 }
 
 int
@@ -2989,17 +3029,14 @@ config_error_done()
         return 0;
     n = config_error_data->num_errors;
     if (n) {
-        pline("\n%i error%s in %s.\n", n,
+        pline("\n%d error%s in %s.\n", n,
                    (n > 1) ? "s" : "",
                    *config_error_data->source
               ? config_error_data->source : configfile);
         wait_synch();
     }
-
     config_error_data = tmp->next;
-
     free(tmp);
-
     return n;
 }
 
@@ -3110,7 +3147,7 @@ struct obj *obj;
     /* subset of starting inventory pre-ID */
     obj->dknown = 1;
     if (Role_if(PM_PRIEST))
-        obj->bknown = 1;
+        obj->bknown = 1; /* ok to bypass set_bknown() */
     /* same criteria as lift_object()'s check for available inventory slot */
     if (obj->oclass != COIN_CLASS && inv_cnt(FALSE) >= 52
         && !merge_choice(invent, obj)) {
@@ -3215,8 +3252,9 @@ boolean FDECL((*proc), (char *));
                     *ep = '\0';
 
                 /* trim off spaces at end of line */
-                while (--ep >= inbuf && (*ep == ' ' || *ep == '\t' || *ep == '\r'))
-                    *ep = '\0';
+                while (ep >= inbuf
+                       && (*ep == ' ' || *ep == '\t' || *ep == '\r'))
+                    *ep-- = '\0';
 
                 if (!config_error_nextline(inbuf)) {
                     rv = FALSE;
@@ -3226,9 +3264,10 @@ boolean FDECL((*proc), (char *));
                 }
 
                 ep = inbuf;
-                while (*ep == ' ' || *ep == '\t') ep++;
+                while (*ep == ' ' || *ep == '\t')
+                    ++ep;
 
-                /* lines beginning with '#' are comments. ignore empty lines. */
+                /* ignore empty lines and full-line comment lines */
                 if (!*ep || *ep == '#')
                     ignoreline = TRUE;
 
@@ -3237,9 +3276,9 @@ boolean FDECL((*proc), (char *));
 
                 /* merge now read line with previous ones, if necessary */
                 if (!ignoreline) {
-                    len = strlen(inbuf) + 1;
+                    len = (int) strlen(inbuf) + 1;
                     if (buf)
-                        len += strlen(buf);
+                        len += (int) strlen(buf);
                     tmpbuf = (char *) alloc(len);
                     if (buf) {
                         Sprintf(tmpbuf, "%s %s", buf, inbuf);
@@ -3263,8 +3302,10 @@ boolean FDECL((*proc), (char *));
                 if (match_varname(buf, "CHOOSE", 6)) {
                     char *section;
                     char *bufp = find_optparam(buf);
+
                     if (!bufp) {
-                        config_error_add("Format is CHOOSE=section1,section2,...");
+                        config_error_add(
+                                    "Format is CHOOSE=section1,section2,...");
                         rv = FALSE;
                         free(buf);
                         buf = (char *) 0;
@@ -3302,7 +3343,6 @@ boolean FDECL((*proc), (char *));
 }
 
 extern struct symsetentry *symset_list;  /* options.c */
-extern struct symparse loadsyms[];       /* drawing.c */
 extern const char *known_handling[];     /* drawing.c */
 extern const char *known_restrictions[]; /* drawing.c */
 static int symset_count = 0;             /* for pick-list building only */
@@ -3316,6 +3356,7 @@ fopen_sym_file()
     FILE *fp;
 
     fp = fopen_datafile(SYMBOLS, "r", HACKPREFIX);
+
     return fp;
 }
 
@@ -3329,9 +3370,11 @@ int which_set;
 {
     FILE *fp;
 
+    symset[which_set].explicitly = FALSE;
     if (!(fp = fopen_sym_file()))
         return 0;
 
+    symset[which_set].explicitly = TRUE;
     symset_count = 0;
     chosen_symset_start = chosen_symset_end = FALSE;
     symset_which_set = which_set;
@@ -3358,15 +3401,20 @@ int which_set;
                 ))
             clear_symsetentry(which_set, TRUE);
         config_error_done();
-        return (symset[which_set].name == 0) ? 1 : 0;
+
+        /* If name was defined, it was invalid... Then we're loading fallback */
+        if (symset[which_set].name) {
+            symset[which_set].explicitly = FALSE;
+            return 0;
+        }
+
+        return 1;
     }
     if (!chosen_symset_end)
         config_error_add("Missing finish for symset \"%s\"",
-                   symset[which_set].name ? symset[which_set].name
-                                          : "unknown");
-
+                         symset[which_set].name ? symset[which_set].name
+                                                : "unknown");
     config_error_done();
-
     return 1;
 }
 
@@ -3384,7 +3432,7 @@ char *buf;
 int which_set;
 {
     int val, i;
-    struct symparse *symp = (struct symparse *) 0;
+    struct symparse *symp;
     char *bufp, *commentp, *altp;
 
     /* convert each instance of whitespace (tabs, consecutive spaces)
@@ -3431,50 +3479,46 @@ int which_set;
            building a pick-list of possible symset
            values from the file, so only do that */
         if (symp->range == SYM_CONTROL) {
-            struct symsetentry *tmpsp;
+            struct symsetentry *tmpsp, *lastsp;
 
+            for (lastsp = symset_list; lastsp; lastsp = lastsp->next)
+                if (!lastsp->next)
+                    break;
             switch (symp->idx) {
             case 0:
-                tmpsp =
-                    (struct symsetentry *) alloc(sizeof (struct symsetentry));
+                tmpsp = (struct symsetentry *) alloc(sizeof *tmpsp);
                 tmpsp->next = (struct symsetentry *) 0;
-                if (!symset_list) {
+                if (!lastsp)
                     symset_list = tmpsp;
-                    symset_count = 0;
-                } else {
-                    symset_count++;
-                    tmpsp->next = symset_list;
-                    symset_list = tmpsp;
-                }
-                tmpsp->idx = symset_count;
+                else
+                    lastsp->next = tmpsp;
+                tmpsp->idx = symset_count++;
                 tmpsp->name = dupstr(bufp);
                 tmpsp->desc = (char *) 0;
-                tmpsp->nocolor = 0;
+                tmpsp->handling = H_UNK;
                 /* initialize restriction bits */
+                tmpsp->nocolor = 0;
                 tmpsp->primary = 0;
                 tmpsp->rogue = 0;
                 break;
             case 2:
                 /* handler type identified */
-                tmpsp = symset_list; /* most recent symset */
-                tmpsp->handling = H_UNK;
-                i = 0;
-                while (known_handling[i]) {
+                tmpsp = lastsp; /* most recent symset */
+                for (i = 0; known_handling[i]; ++i)
                     if (!strcmpi(known_handling[i], bufp)) {
                         tmpsp->handling = i;
-                        break; /* while loop */
+                        break; /* for loop */
                     }
-                    i++;
-                }
                 break;
-            case 3:                  /* description:something */
-                tmpsp = symset_list; /* most recent symset */
+            case 3:
+                /* description:something */
+                tmpsp = lastsp; /* most recent symset */
                 if (tmpsp && !tmpsp->desc)
                     tmpsp->desc = dupstr(bufp);
                 break;
             case 5:
                 /* restrictions: xxxx*/
-                tmpsp = symset_list; /* most recent symset */
+                tmpsp = lastsp; /* most recent symset */
                 for (i = 0; known_restrictions[i]; ++i) {
                     if (!strcmpi(known_restrictions[i], bufp)) {
                         switch (i) {
@@ -3503,9 +3547,9 @@ int which_set;
                     chosen_symset_start = TRUE;
                     /* these init_*() functions clear symset fields too */
                     if (which_set == ROGUESET)
-                        init_r_symbols();
+                        init_rogue_symbols();
                     else if (which_set == PRIMARY)
-                        init_l_symbols();
+                        init_primary_symbols();
                 }
                 break;
             case 1:
@@ -3558,9 +3602,9 @@ int which_set;
             val = sym_val(bufp);
             if (chosen_symset_start) {
                 if (which_set == PRIMARY) {
-                    update_l_symset(symp, val);
+                    update_primary_symset(symp, val);
                 } else if (which_set == ROGUESET) {
-                    update_r_symset(symp, val);
+                    update_rogue_symset(symp, val);
                 }
             }
         }
@@ -4286,7 +4330,7 @@ unsigned oid; /* book identifier */
         }
     }
 
-cleanup:
+ cleanup:
     (void) dlb_fclose(fp);
     if (nowin_buf) {
         /* one-line buffer */
@@ -4368,7 +4412,7 @@ const char *buffer;
                      LLOG_SEP,
                      urace.filecode,
                      LLOG_SEP,
-                     genders[flags.female].filecode,
+                     genders[flags.gender].filecode,
                      LLOG_SEP,
                      aligns[1-u.ualign.type].filecode,
                      LLOG_SEP,

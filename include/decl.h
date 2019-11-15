@@ -1,4 +1,4 @@
-/* NetHack 3.6  decl.h  $NHDT-Date: 1496531104 2017/06/03 23:05:04 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.82 $ */
+/* NetHack 3.6  decl.h  $NHDT-Date: 1559601011 2019/06/03 22:30:11 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.150 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2007. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -26,6 +26,10 @@ E char SAVEF[];
 #ifdef MICRO
 E char SAVEP[];
 #endif
+
+/* max size of a windowtype option */
+#define WINTYPELEN 16
+E char chosen_windowtype[WINTYPELEN];
 
 E NEARDATA int bases[MAXOCLASSES];
 
@@ -62,8 +66,11 @@ E struct dgn_topology { /* special dungeon levels for speed */
     d_level d_portal_level;    /* only in goto_level() [do.c] */
     d_level d_sanctum_level;
     d_level d_earth_level;
+    d_level d_gem_level;
     d_level d_water_level;
+    d_level d_brass_level;
     d_level d_fire_level;
+    d_level d_storm_level;
     d_level d_air_level;
     d_level d_astral_level;
     xchar d_tower_dnum;
@@ -95,8 +102,11 @@ E struct dgn_topology { /* special dungeon levels for speed */
 #define portal_level            (dungeon_topology.d_portal_level)
 #define sanctum_level           (dungeon_topology.d_sanctum_level)
 #define earth_level             (dungeon_topology.d_earth_level)
+#define gem_level             (dungeon_topology.d_gem_level)
 #define water_level             (dungeon_topology.d_water_level)
+#define brass_level             (dungeon_topology.d_brass_level)
 #define fire_level              (dungeon_topology.d_fire_level)
+#define storm_level             (dungeon_topology.d_storm_level)
 #define air_level               (dungeon_topology.d_air_level)
 #define astral_level            (dungeon_topology.d_astral_level)
 #define tower_dnum              (dungeon_topology.d_tower_dnum)
@@ -205,6 +215,7 @@ E NEARDATA char dogname[];
 E NEARDATA char dragonname[];
 E NEARDATA char catname[];
 E NEARDATA char horsename[];
+E NEARDATA char ratname[];
 E char preferred_pet;
 E const char *occtxt; /* defined when occupation != NULL */
 E const char *nomovemsg;
@@ -230,6 +241,7 @@ E NEARDATA boolean mrg_to_wielded;
 E NEARDATA boolean defer_see_monsters;
 
 E NEARDATA boolean in_steed_dismounting;
+E NEARDATA boolean has_strong_rngseed;
 
 E const int shield_static[];
 
@@ -261,9 +273,13 @@ E NEARDATA struct obj *migrating_objs;
 E NEARDATA struct obj *billobjs;
 E NEARDATA struct obj *current_wand, *thrownobj, *kickedobj;
 
-E NEARDATA struct obj zeroobj; /* for init; &zeroobj used as special value */
+E NEARDATA const struct obj zeroobj; /* for init; also, &zeroobj is used
+                                      * as special value */
 
-E NEARDATA anything zeroany;   /* init'd and defined in decl.c */
+E NEARDATA const anything zeroany;   /* init'd and defined in decl.c */
+
+#include "engrave.h"
+E struct engr *head_engr;
 
 #include "you.h"
 E NEARDATA struct you u;
@@ -275,7 +291,7 @@ E NEARDATA struct u_realtime urealtime;
 #include "pm.h"
 #endif
 
-E NEARDATA struct monst zeromonst; /* for init of new or temp monsters */
+E NEARDATA const struct monst zeromonst; /* for init of new or temp monsters */
 E NEARDATA struct monst youmonst; /* monster details when hero is poly'd */
 E NEARDATA struct monst *mydogs, *migrating_mons;
 
@@ -284,6 +300,11 @@ E NEARDATA struct mvitals {
     uchar died;
     uchar mvflags;
 } mvitals[NUMMONS];
+
+E NEARDATA long domove_attempting;
+E NEARDATA long domove_succeeded;
+#define DOMOVE_WALK         0x00000001
+#define DOMOVE_RUSH         0x00000002
 
 E NEARDATA struct c_color_names {
     const char *const c_black, *const c_amber, *const c_golden,
@@ -309,7 +330,8 @@ E struct c_common_strings {
     const char *const c_nothing_happens, *const c_thats_enough_tries,
         *const c_silly_thing_to, *const c_shudder_for_moment,
         *const c_something, *const c_Something, *const c_You_can_move_again,
-        *const c_Never_mind, *c_vision_clears, *const c_the_your[2];
+        *const c_Never_mind, *c_vision_clears, *const c_the_your[2],
+        *const c_fakename[2];
 } c_common_strings;
 #define nothing_happens c_common_strings.c_nothing_happens
 #define thats_enough_tries c_common_strings.c_thats_enough_tries
@@ -321,6 +343,9 @@ E struct c_common_strings {
 #define Never_mind c_common_strings.c_Never_mind
 #define vision_clears c_common_strings.c_vision_clears
 #define the_your c_common_strings.c_the_your
+/* fakename[] used occasionally so vtense() won't be fooled by an assigned
+   name ending in 's' */
+#define fakename c_common_strings.c_fakename
 
 /* material strings */
 E const char *materialnm[];
@@ -421,6 +446,7 @@ struct autopickup_exception {
     boolean grab;
     struct autopickup_exception *next;
 };
+E struct autopickup_exception *apelist;
 
 struct plinemsg_type {
     xchar msgtype;  /* one of MSGTYP_foo */
@@ -439,11 +465,22 @@ struct plinemsg_type {
 
 E struct plinemsg_type *plinemsg_types;
 
+enum bcargs {override_restriction = -1};
+struct breadcrumbs {
+    const char *funcnm;
+    int linenum;
+    boolean in_effect;
+};
+
 #ifdef PANICTRACE
 E const char *ARGV0;
 #endif
 
-enum earlyarg {ARG_DEBUG, ARG_VERSION};
+enum earlyarg {ARG_DEBUG, ARG_VERSION
+#ifdef WIN32
+    ,ARG_WINDOWS
+#endif
+};
 
 struct early_opt {
     enum earlyarg e;

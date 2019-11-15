@@ -1,4 +1,7 @@
 /* vim:set cin ft=c sw=4 sts=4 ts=8 et ai cino=Ls\:0t0(0 : -*- mode:c;fill-column:80;tab-width:8;c-basic-offset:4;indent-tabs-mode:nil;c-file-style:"k&r" -*-*/
+/* NetHack 3.6 curswins.c */
+/* Copyright (c) Karl Garrison, 2010. */
+/* NetHack may be freely redistributed.  See license for details. */
 
 #include "curses.h"
 #include "hack.h"
@@ -46,7 +49,7 @@ static void clear_map(void);
 WINDOW *
 curses_create_window(int width, int height, orient orientation)
 {
-    int mapx, mapy, maph, mapw = 0;
+    int mapx = 0, mapy = 0, maph = 0, mapw = 0;
     int startx = 0;
     int starty = 0;
     WINDOW *win;
@@ -75,9 +78,16 @@ curses_create_window(int width, int height, orient orientation)
     width += 2;                 /* leave room for bounding box */
     height += 2;
 
-    if ((width > term_cols) || (height > term_rows))
-        panic("curses_create_window: Terminal too small for dialog window");
+    if ((width > term_cols) || (height > term_rows)) {
+        impossible(
+                "curses_create_window: Terminal too small for dialog window");
+        width = term_cols;
+        height = term_rows;
+    }
     switch (orientation) {
+    default:
+        impossible("curses_create_window: Bad orientation");
+        /* fall through to centre */
     case CENTER:
         startx = (term_cols / 2) - (width / 2);
         starty = (term_rows / 2) - (height / 2);
@@ -116,9 +126,6 @@ curses_create_window(int width, int height, orient orientation)
 
         starty = 0;
         break;
-    default:
-        panic("curses_create_window: Bad orientation");
-        break;
     }
 
     if (startx < 0) {
@@ -140,7 +147,7 @@ curses_create_window(int width, int height, orient orientation)
 /* Erase and delete curses window, and refresh standard windows */
 
 void
-curses_destroy_win(WINDOW * win)
+curses_destroy_win(WINDOW *win)
 {
     werase(win);
     wrefresh(win);
@@ -187,7 +194,9 @@ WINDOW *
 curses_get_nhwin(winid wid)
 {
     if (!is_main_window(wid)) {
-        panic("curses_get_nhwin: wid out of range. Not a main window.");
+        impossible("curses_get_nhwin: wid %d out of range. Not a main window.",
+                   wid);
+        return NULL;
     }
 
     return nhwins[wid].curwin;
@@ -205,7 +214,9 @@ curses_add_nhwin(winid wid, int height, int width, int y, int x,
     int real_height = height;
 
     if (!is_main_window(wid)) {
-        panic("curses_add_nhwin: wid out of range. Not a main window.");
+        impossible("curses_add_nhwin: wid %d out of range. Not a main window.",
+                   wid);
+        return;
     }
 
     nhwins[wid].nhwin = wid;
@@ -258,7 +269,7 @@ curses_add_wid(winid wid)
     nethack_wid *new_wid;
     nethack_wid *widptr = nhwids;
 
-    new_wid = malloc(sizeof (nethack_wid));
+    new_wid = (nethack_wid *) alloc((unsigned) sizeof (nethack_wid));
     new_wid->nhwid = wid;
 
     new_wid->next_wid = NULL;
@@ -292,14 +303,18 @@ void
 curses_del_nhwin(winid wid)
 {
     if (curses_is_menu(wid) || curses_is_text(wid)) {
-        curses_del_menu(wid);
+        curses_del_menu(wid, TRUE);
         return;
+    } else if (wid == INV_WIN) {
+        curses_del_menu(wid, TRUE);
+        /* don't return yet */
     }
 
     if (!is_main_window(wid)) {
-        panic("curses_del_nhwin: wid out of range. Not a main window.");
+        impossible("curses_del_nhwin: wid %d out of range. Not a main window.",
+                   wid);
+        return;
     }
-
     nhwins[wid].curwin = NULL;
     nhwins[wid].nhwin = -1;
 }
@@ -311,41 +326,47 @@ void
 curses_del_wid(winid wid)
 {
     nethack_wid *tmpwid;
-    nethack_wid *widptr = nhwids;
+    nethack_wid *widptr;
 
     if (curses_is_menu(wid) || curses_is_text(wid)) {
-        curses_del_menu(wid);
+        curses_del_menu(wid, FALSE);
     }
 
-    while (widptr != NULL) {
+    for (widptr = nhwids; widptr; widptr = widptr->next_wid) {
         if (widptr->nhwid == wid) {
-            if (widptr->prev_wid != NULL) {
-                tmpwid = widptr->prev_wid;
+            if ((tmpwid = widptr->prev_wid) != NULL) {
                 tmpwid->next_wid = widptr->next_wid;
             } else {
                 nhwids = widptr->next_wid;      /* New head mode, or NULL */
             }
-            if (widptr->next_wid != NULL) {
-                tmpwid = widptr->next_wid;
+            if ((tmpwid = widptr->next_wid) != NULL) {
                 tmpwid->prev_wid = widptr->prev_wid;
             }
             free(widptr);
             break;
         }
-        widptr = widptr->next_wid;
     }
 }
 
+/* called by destroy_nhwindows() prior to exit */
+void
+curs_destroy_all_wins()
+{
+    curses_count_window((char *) 0); /* clean up orphan */
+
+    while (nhwids)
+        curses_del_wid(nhwids->nhwid);
+}
 
 /* Print a single character in the given window at the given coordinates */
 
 void
 curses_putch(winid wid, int x, int y, int ch, int color, int attr)
 {
+    static boolean map_initted = FALSE;
     int sx, sy, ex, ey;
     boolean border = curses_window_has_border(wid);
     nethack_char nch;
-    static boolean map_initted = FALSE;
 /*
     if (wid == STATUS_WIN) {
         curses_update_stats();
@@ -360,6 +381,7 @@ curses_putch(winid wid, int x, int y, int ch, int color, int attr)
         map_initted = TRUE;
     }
 
+    --x; /* map column [0] is not used; draw column [1] in first screen col */
     map[y][x].ch = ch;
     map[y][x].color = color;
     map[y][x].attr = attr;
@@ -387,7 +409,12 @@ void
 curses_get_window_xy(winid wid, int *x, int *y)
 {
     if (!is_main_window(wid)) {
-        panic("curses_get_window_xy: wid out of range. Not a main window.");
+        impossible(
+              "curses_get_window_xy: wid %d out of range. Not a main window.",
+                   wid);
+        *x = 0;
+        *y = 0;
+        return;
     }
 
     *x = nhwins[wid].x;
@@ -419,15 +446,11 @@ curses_window_has_border(winid wid)
 boolean
 curses_window_exists(winid wid)
 {
-    nethack_wid *widptr = nhwids;
+    nethack_wid *widptr;
 
-    while (widptr != NULL) {
-        if (widptr->nhwid == wid) {
+    for (widptr = nhwids; widptr; widptr = widptr->next_wid)
+        if (widptr->nhwid == wid)
             return TRUE;
-        }
-
-        widptr = widptr->next_wid;
-    }
 
     return FALSE;
 }
@@ -439,8 +462,10 @@ int
 curses_get_window_orientation(winid wid)
 {
     if (!is_main_window(wid)) {
-        panic
-            ("curses_get_window_orientation: wid out of range. Not a main window.");
+        impossible(
+     "curses_get_window_orientation: wid %d out of range. Not a main window.",
+                   wid);
+        return CENTER;
     }
 
     return nhwins[wid].orientation;
@@ -448,12 +473,12 @@ curses_get_window_orientation(winid wid)
 
 
 /* Output a line of text to specified NetHack window with given coordinates
-and text attributes */
+   and text attributes */
 
 void
 curses_puts(winid wid, int attr, const char *text)
 {
-    anything *identifier;
+    anything Id;
     WINDOW *win = NULL;
 
     if (is_main_window(wid)) {
@@ -461,6 +486,10 @@ curses_puts(winid wid, int attr, const char *text)
     }
 
     if (wid == MESSAGE_WIN) {
+        /* if a no-history message is being shown, remove it */
+        if (counting)
+            curses_count_window((char *) 0);
+
         curses_message_win_puts(text, FALSE);
         return;
     }
@@ -468,21 +497,19 @@ curses_puts(winid wid, int attr, const char *text)
 #if 0
     if (wid == STATUS_WIN) {
         curses_update_stats();     /* We will do the write ourselves */
-        /* Inventory updating isn't performed on redraws, so
-           also update inventory here... */
-        curses_update_inventory();
         return;
     }
 #endif
 
     if (curses_is_menu(wid) || curses_is_text(wid)) {
         if (!curses_menu_exists(wid)) {
-            panic("curses_puts: Attempted write to nonexistant window!");
+            impossible(
+                     "curses_puts: Attempted write to nonexistant window %d!",
+                       wid);
+            return;
         }
-        identifier = malloc(sizeof (anything));
-        identifier->a_void = NULL;
-        curses_add_nhmenu_item(wid, NO_GLYPH, identifier, 0, 0, attr, text,
-                               FALSE);
+        Id = zeroany;
+        curses_add_nhmenu_item(wid, NO_GLYPH, &Id, 0, 0, attr, text, FALSE);
     } else {
         waddstr(win, text);
         wnoutrefresh(win);
@@ -541,11 +568,11 @@ curses_alert_main_borders(boolean onoff)
 static boolean
 is_main_window(winid wid)
 {
-    if ((wid == MESSAGE_WIN) || (wid == MAP_WIN) || (wid == STATUS_WIN) || wid == INV_WIN) {
+    if (wid == MESSAGE_WIN || wid == MAP_WIN
+        || wid == STATUS_WIN || wid == INV_WIN)
         return TRUE;
-    } else {
-        return FALSE;
-    }
+
+    return FALSE;
 }
 
 
@@ -597,9 +624,14 @@ curses_draw_map(int sx, int sy, int ex, int ey)
     vsb_bar.attr = A_NORMAL;
 
     /* Horizontal scrollbar */
-    if ((sx > 0) || (ex < (COLNO - 1))) {
-        sbsx = (sx * ((float) (ex - sx + 1) / COLNO));
-        sbex = (ex * ((float) (ex - sx + 1) / COLNO));
+    if (sx > 0 || ex < (COLNO - 1)) {
+         sbsx = (int) (((long) sx * (long) (ex - sx + 1)) / (long) COLNO);
+         sbex = (int) (((long) ex * (long) (ex - sx + 1)) / (long) COLNO);
+
+        if (sx > 0 && sbsx == 0)
+            ++sbsx;
+        if (ex < ROWNO - 1 && sbex == ROWNO - 1)
+            --sbex;
 
         for (count = 0; count < sbsx; count++) {
             write_char(mapwin, count + bspace, ey - sy + 1 + bspace, hsb_back);
@@ -615,9 +647,14 @@ curses_draw_map(int sx, int sy, int ex, int ey)
     }
 
     /* Vertical scrollbar */
-    if ((sy > 0) || (ey < (ROWNO - 1))) {
-        sbsy = (sy * ((float) (ey - sy + 1) / ROWNO));
-        sbey = (ey * ((float) (ey - sy + 1) / ROWNO));
+    if (sy > 0 || ey < (ROWNO - 1)) {
+        sbsy = (int) (((long) sy * (long) (ey - sy + 1)) / (long) ROWNO);
+        sbey = (int) (((long) ey * (long) (ey - sy + 1)) / (long) ROWNO);
+
+        if (sy > 0 && sbsy == 0)
+            ++sbsy;
+        if (ey < ROWNO - 1 && sbey == ROWNO - 1)
+            --sbey;
 
         for (count = 0; count < sbsy; count++) {
             write_char(mapwin, ex - sx + 1 + bspace, count + bspace, vsb_back);

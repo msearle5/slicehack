@@ -1,4 +1,4 @@
-/* NetHack 3.6	sounds.c	$NHDT-Date: 1452992329 2016/01/17 00:58:49 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.78 $ */
+/* NetHack 3.6	sounds.c	$NHDT-Date: 1570844005 2019/10/12 01:33:25 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.83 $ */
 /*      Copyright (c) 1989 Janet Walz, Mike Threepoint */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -154,6 +154,49 @@ dosounds()
             }
         }
     }
+    if (level.flags.has_lemurepit && !rn2(20)) {
+        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (DEADMONSTER(mtmp)) continue;
+            if ( mtmp->data == &mons[PM_LEMURE]
+            && mon_in_room(mtmp, LEMUREPIT) ) {
+            if (hallu) {
+                switch (rn2(3)) {
+                    case 0:
+                    You_hear("screams of lust!");
+                    break;
+                    case 1:
+                    You_hear("the crack of your mistress's whip!");
+                    break;
+                    case 2:
+                    You_hear("a weeping willow!");
+                    break;
+                }	
+            } else {
+                switch (rn2(6)) {
+                    case 0:
+                    You_hear("the crack of a barbed whip!");
+                    break;
+                    case 1:
+                    You_hear("the screams of tortured souls!");
+                    break;
+                    case 2:
+                    You_hear("a wail of eternal anguish!");
+                    break;
+                    case 3:
+                    You_hear("diabolical laughter!");
+                    break;
+                    case 4:
+                    You_hear("cries of repentance!");
+                    break;
+                    case 5:
+                    You_hear("futile pleas for mercy!");
+                    break;
+                }
+            }
+            return;
+            }
+        }
+     }
     if (level.flags.has_lab && !rn2(200)) {
         for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (DEADMONSTER(mtmp))
@@ -370,6 +413,73 @@ static const char *const h_sounds[] = {
 };
 
 const char *
+callout_sound(mtmp)
+register struct monst *mtmp;
+{
+    const char *ret;
+    switch (mtmp->data->msound) {
+    case MS_BARK:
+        ret = "howl";
+        break;
+    case MS_MEW:
+        ret = is_feline(mtmp->data) ? "caterwaul" : "yowl";
+        break;
+    case MS_GRUNT:
+    case MS_GROWL:
+        ret = is_feline(mtmp->data) ? "yowl" : "bellow";
+        break;
+    case MS_PIRATE:
+        verbalize("To me, ye scurvy dogs!");
+        ret = NULL;
+        break;
+    case MS_CUSS:
+        cuss(mtmp);
+        ret = NULL;
+        break;
+    case MS_GNOLL:
+        pline("%s lets out a series of high pitched barks, then cackles madly.", Monnam(mtmp));
+        ret = NULL;
+        break;
+    case MS_BOAST:
+        pline("%s yells, \"I found a live one!\"", Monnam(mtmp));
+        ret = NULL;
+        break;
+    case MS_ARREST:
+        verbalize("Suspect is hostile! Where\'s my team?");
+        ret = NULL;
+        break;
+    case MS_VAMPIRE:
+        verbalize("Look, siblings: Fresh blood.");
+        ret = NULL;
+        break;
+    case MS_SOLDIER:
+    case MS_BRIBE:
+        pline("%s yells, \"Over here!\"", Monnam(mtmp));
+        ret = NULL;
+        break;
+    case MS_SELL:
+        verbalize("You\'ll pay for this!");
+        ret = NULL;
+        break;
+    case MS_ONEEYEDSAM:
+        verbalize("Kill %s.", uhe());
+        ret = NULL;
+        break;
+    case MS_GUARD:
+        verbalize("Target is armed and dangerous!");
+        ret = NULL;
+        break;
+    case MS_RIDER:
+        pline("%s calls out,\"Ah, siblings. It seems our estranged %s has come to call.\"", Monnam(mtmp), sibling_gender());
+        ret = NULL;
+        break;
+    default:
+        ret = growl_sound(mtmp);
+    }
+    return ret;
+}
+
+const char *
 growl_sound(mtmp)
 register struct monst *mtmp;
 {
@@ -380,11 +490,14 @@ register struct monst *mtmp;
         ret = "moan";
         break;
     case MS_MOO:
-        ret = "moo";
+        ret = "low";
         break;
     case MS_MEW:
     case MS_HISS:
         ret = "hiss";
+        break;
+    case MS_YAWN:
+        ret = "laugh";
         break;
     case MS_BARK:
     case MS_GROWL:
@@ -392,7 +505,6 @@ register struct monst *mtmp;
         break;
     case MS_ROAR:
         ret = "roar";
-        aggravate();
         break;
     case MS_BUZZ:
         ret = "buzz";
@@ -421,6 +533,9 @@ register struct monst *mtmp;
     case MS_PIRATE:
         ret = "curse";
         break;
+    case MS_ANT:
+        ret = "chitter";
+        break;
     default:
         ret = "scream";
     }
@@ -437,13 +552,18 @@ register struct monst *mtmp;
     if (mtmp->msleeping || !mtmp->mcanmove || !mtmp->data->msound)
         return;
 
+    if (mtmp->data->msound == MS_ROAR)
+        aggravate();
     /* presumably nearness and soundok checks have already been made */
     if (Hallucination)
         growl_verb = h_sounds[rn2(SIZE(h_sounds))];
+    else if (!mtmp->mpeaceful && !mtmp->mtame && is_organized(mtmp->data))
+        growl_verb = callout_sound(mtmp);
     else
         growl_verb = growl_sound(mtmp);
     if (growl_verb) {
-        pline("%s %s!", Monnam(mtmp), vtense((char *) 0, growl_verb));
+        if (!Deaf)
+            pline("%s %s!", Monnam(mtmp), vtense((char *) 0, growl_verb));
         if (context.run)
             nomul(0);
         wake_nearto(mtmp->mx, mtmp->my, mtmp->data->mlevel * 18);
@@ -465,6 +585,9 @@ register struct monst *mtmp;
         yelp_verb = h_sounds[rn2(SIZE(h_sounds))];
     else
         switch (mtmp->data->msound) {
+        case MS_YAWN:
+            yelp_verb = (!Deaf) ? "roar" : "yawn";
+            break;
         case MS_MAD:
         case MS_MEW:
             yelp_verb = (!Deaf) ? "yowl" : "arch";
@@ -518,6 +641,7 @@ register struct monst *mtmp;
         case MS_BARK:
             whimper_verb = "whine";
             break;
+        case MS_YAWN:
         case MS_SQEEK:
             whimper_verb = "squeal";
             break;
@@ -578,7 +702,7 @@ register struct monst *mtmp;
         *verbl_msg = 0,                 /* verbalize() */
         *verbl_msg_mcan = 0;            /* verbalize() if cancelled */
     struct permonst *ptr = mtmp->data;
-    int msound = ptr->msound;
+    int msound = ptr->msound, gnomeplan = 0;
 
     /* presumably nearness and sleep checks have already been made */
     if (Deaf)
@@ -594,8 +718,9 @@ register struct monst *mtmp;
         msound = mons[genus(monsndx(ptr), 1)].msound;
     /* some normally non-speaking types can/will speak if hero is similar */
     else if (msound == MS_ORC         /* note: MS_ORC is same as MS_GRUNT */
-             && (same_race(ptr, youmonst.data)           /* current form, */
-                 || same_race(ptr, &mons[Race_switch]))) /* unpoly'd form */
+             && ((same_race(ptr, youmonst.data)          /* current form, */
+                  || same_race(ptr, &mons[Race_switch])) /* unpoly'd form */
+                 || Hallucination))
         msound = MS_HUMANOID;
     /* silliness, with slight chance to interfere with shopping */
     else if (Hallucination && mon_is_gecko(mtmp))
@@ -633,15 +758,12 @@ register struct monst *mtmp;
         /* vampire messages are varied by tameness, peacefulness, and time of
          * night */
         boolean isnight = night();
-        boolean kindred = (Upolyd && (u.umonnum == PM_VAMPIRE
-                                      || u.umonnum == PM_VAMPIRE_LORD
-                                      || u.umonnum == PM_VAMPIRE_MAGE
-                                      || u.umonnum == PM_NOSFERATU));
+        boolean kindred = maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE));
         boolean nightchild =
             (Upolyd && (u.umonnum == PM_WOLF || u.umonnum == PM_WINTER_WOLF
                         || u.umonnum == PM_WINTER_WOLF_CUB));
         const char *racenoun =
-            (flags.female && urace.individual.f)
+            (flags.gender && urace.individual.f)
                 ? urace.individual.f
                 : (urace.individual.m) ? urace.individual.m : urace.noun;
 
@@ -663,8 +785,7 @@ register struct monst *mtmp;
             }
         } else if (mtmp->mpeaceful) {
             if (kindred && isnight) {
-                Sprintf(verbuf, "Good feeding %s!",
-                        flags.female ? "sister" : "brother");
+                Sprintf(verbuf, "Good feeding, %s!", sibling_gender());
                 verbl_msg = verbuf;
             } else if (nightchild && isnight) {
                 Sprintf(verbuf, "How nice to hear you, child of the night!");
@@ -672,7 +793,6 @@ register struct monst *mtmp;
             } else
                 verbl_msg = "I only drink... potions.";
         } else {
-            int vampindex;
             static const char *const vampmsg[] = {
                 /* These first two (0 and 1) are specially handled below */
                 "I vant to suck your %s!",
@@ -682,13 +802,15 @@ register struct monst *mtmp;
                 "Don't open it.", /* VTM:B */
                 /* other famous vampire quotes can follow here if desired */
             };
+            int vampindex;
+
             if (kindred)
                 verbl_msg =
                     "This is my hunting ground that you dare to prowl!";
             else if (youmonst.data == &mons[PM_SILVER_DRAGON]
                      || youmonst.data == &mons[PM_BABY_SILVER_DRAGON]) {
                 /* Silver dragons are silver in color, not made of silver */
-                Sprintf(verbuf, "%s! Your silver sheen does not frighten me!",
+                Sprintf(verbuf, "%s!  Your silver sheen does not frighten me!",
                         youmonst.data == &mons[PM_SILVER_DRAGON]
                             ? "Fool"
                             : "Young Fool");
@@ -736,6 +858,9 @@ register struct monst *mtmp;
         } else {
             pline_msg = "growls.";
         }
+        break;
+    case MS_YAWN:
+        pline_msg = mtmp->mpeaceful ? "hums." : "yawns!";
         break;
     case MS_MEW:
         if (mtmp->mtame) {
@@ -853,7 +978,9 @@ register struct monst *mtmp;
         } else if (mtmp->mpeaceful) {
             if (ptr == &mons[PM_WATER_DEMON])
                 pline_msg = "gurgles.";
-            if (ptr == &mons[PM_DESERT_JINN])
+            else if (ptr == &mons[PM_LAVA_DEMON])
+                pline_msg = "gargles.";
+            else if (ptr == &mons[PM_DESERT_JINN])
                 pline_msg = "discusses the nature of free will.";
             else
                 verbl_msg = "I'm free!";
@@ -919,6 +1046,18 @@ register struct monst *mtmp;
             pline_msg = "talks about spellcraft.";
         else if (ptr->mlet == S_CENTAUR)
             pline_msg = "discusses hunting.";
+        else if (is_gnome(ptr) && Hallucination && (gnomeplan = rn2(4)) % 2)
+            /* skipped for rn2(4) result of 0 or 2;
+               gag from an early episode of South Park called "Gnomes";
+               initially, Tweek (introduced in that episode) is the only
+               one aware of the tiny gnomes after spotting them sneaking
+               about; they are embarked upon a three-step business plan;
+               a diagram of the plan shows:
+                         Phase 1         Phase 2      Phase 3
+                   Collect underpants       ?          Profit
+               and they never verbalize step 2 so we don't either */
+            verbl_msg = (gnomeplan == 1) ? "Phase one, collect underpants."
+                                         : "Phase three, profit!";
         else
             switch (monsndx(ptr)) {
             case PM_HOBBIT:
@@ -937,8 +1076,15 @@ register struct monst *mtmp;
             case PM_TOURIST:
                 verbl_msg = "Aloha.";
                 break;
+            case PM_WIZARD:
+                pline_msg =
+                "discusses spellbooks.";
+                break;
+            case PM_RANGER:
+                verbl_msg = Hallucination ? "I am the bone of my sword." : "I can't talk for long, I'm on the hunt.";
+                break;
             case PM_CARTOMANCER:
-                pline_msg = "Tells you that their deck lacks cards which could be considered pathetic.";
+                pline_msg = "informs you that their deck has no pathetic cards.";
                 break;
             case PM_DRAGONMASTER:
                 verbl_msg = "The only authority I answer to is that of the wyrm.";
@@ -978,7 +1124,7 @@ register struct monst *mtmp;
     } break;
     case MS_ARREST:
         if (mtmp->mpeaceful)
-            verbalize("Just the facts, %s.", flags.female ? "Ma'am" : "Sir");
+            verbalize("Just the facts, %s.", flags.gender ? "Ma'am" : "Sir");
         else if (mtmp->data == &mons[PM_KORRUPT_KOP])
             verbalize("Stop resisting arrest!");
         else {
@@ -989,6 +1135,17 @@ register struct monst *mtmp;
             verbl_msg = arrest_msg[rn2(3)];
         }
         break;
+    case MS_SIN:
+        if (monsndx(ptr) == PM_WRATH) {
+            verbl_msg = "...";
+            break;
+        }
+        static const char * const sin_msg[3] = {
+                "You're no better than us, War.",
+                "You know what you are doing is wrong, but just like us, you don't care.",
+                "Is this all really worth it? Just give in."};
+            verbl_msg = sin_msg[rn2(3)];
+        break;
     case MS_MAD:
         if (mtmp->mpeaceful)
             verbalize("Oh, we're all mad here!");
@@ -998,12 +1155,34 @@ register struct monst *mtmp;
     case MS_GNOLL:
         if (mtmp->mpeaceful)
             pline("%s cackles conspiratorially.", Monnam(mtmp));
-        else {
+        else if (mtmp->data == &mons[PM_MOLYDEUS]) {
+            pline("%s cackles at you, then hisses.", Monnam(mtmp));
+        } else {
             pline("%s cackles at you.", Monnam(mtmp));
         }
         break;
     case MS_BRIBE:
-        if (mtmp->mpeaceful && !mtmp->mtame) {
+       if (monsndx(ptr) == PM_PRISON_GUARD) {
+            long gdemand = 500 * u.ulevel;
+            long goffer = 0;
+
+    	    if (!mtmp->mpeaceful && !mtmp->mtame) {
+                pline("%s demands %ld %s to avoid re-arrest.",
+                 Amonnam(mtmp), gdemand, currency(gdemand));
+                if ((goffer = bribe(mtmp)) >= gdemand) {
+                    verbl_msg = "Good.  Now beat it, scum!";
+            	    mtmp->mpeaceful = 1;
+            	    set_malign(mtmp);
+                    break;
+                } else {
+                    pline("I said %ld!", gdemand);
+                    mtmp->mspec_used = 1000;
+                    break;
+                }
+            } else {
+                verbl_msg = "Out of my way, scum!"; /* still a jerk */
+            }
+        } else if (mtmp->mpeaceful && !mtmp->mtame) {
             (void) demon_talk(mtmp);
             break;
         }
@@ -1073,7 +1252,7 @@ register struct monst *mtmp;
         /* 3.6 tribute */
         if (ms_Death && !context.tribute.Deathnotice
             && (book = u_have_novel()) != 0) {
-            if ((tribtitle = noveltitle(&book->novelidx)) != 0) {
+            if ((tribtitle = noveltitle(&book->novelidx, FALSE)) != 0) {
                 Sprintf(verbuf, "Ah, so you have a copy of /%s/.", tribtitle);
                 /* no Death featured in these two, so exclude them */
                 if (strcmpi(tribtitle, "Snuff")
@@ -1222,8 +1401,8 @@ dochat()
         return 0;
     }
 
-    if (!mtmp || mtmp->mundetected || mtmp->m_ap_type == M_AP_FURNITURE
-        || mtmp->m_ap_type == M_AP_OBJECT)
+    if (!mtmp || mtmp->mundetected || M_AP_TYPE(mtmp) == M_AP_FURNITURE
+        || M_AP_TYPE(mtmp) == M_AP_OBJECT)
         return 0;
 
     /* sleeping monsters won't talk, except priests (who wake up) */
@@ -1245,6 +1424,23 @@ dochat()
         return 0;
     }
 
+    if (Role_if(PM_CONVICT) && is_rat(mtmp->data) && !mtmp->mpeaceful &&
+     !mtmp->mtame) {
+        You("attempt to soothe the %s with chittering sounds.",
+         l_monnam(mtmp));
+        if (rnl(10) < 2) {
+            (void) tamedog(mtmp, (struct obj *) 0);
+        } else {
+            if (rnl(10) > 8) {
+                pline("%s unfortunately ignores your overtures.",
+                 Monnam(mtmp));
+                return 0;
+            }
+            mtmp->mpeaceful = 1;
+            set_malign(mtmp);
+        }
+        return 0;
+    }
     return domonnoise(mtmp);
 }
 

@@ -1,4 +1,4 @@
-/* NetHack 3.6	worn.c	$NHDT-Date: 1537234121 2018/09/18 01:28:41 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.55 $ */
+/* NetHack 3.6	worn.c	$NHDT-Date: 1550524569 2019/02/18 21:16:09 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.56 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -205,7 +205,7 @@ struct obj *obj;
         break;
     case TOOL_CLASS:
         if (otyp == BLINDFOLD || otyp == TOWEL || otyp == LENSES
-            || otyp == MASK)
+            || otyp == MASK || otyp == EARMUFFS)
             res = W_TOOL; /* WORN_BLINDF */
         else if (is_weptool(obj) || otyp == TIN_OPENER)
             res = W_WEP | W_SWAPWEP;
@@ -215,6 +215,8 @@ struct obj *obj;
     case FOOD_CLASS:
         if (obj->otyp == MEAT_RING)
             res = W_RINGL | W_RINGR;
+        else if (obj->otyp == PUMPKIN)
+            res = W_ARMH;
         break;
     case GEM_CLASS:
         res = W_QUIVER;
@@ -321,7 +323,8 @@ struct obj *obj; /* item to make known if effect can be seen */
     }
 }
 
-/* armor put on or taken off; might be magical variety */
+/* armor put on or taken off; might be magical variety
+   [TODO: rename to 'update_mon_extrinsics()' and change all callers...] */
 void
 update_mon_intrinsics(mon, obj, on, silently)
 struct monst *mon;
@@ -334,6 +337,16 @@ boolean on, silently;
     int which = (int) objects[obj->otyp].oc_oprop;
 
     unseen = !canseemon(mon);
+
+    if(obj->otyp == GOLD_DRAGON_SCALE_MAIL || obj->otyp == GOLD_DRAGON_SCALES) {
+		if(on)
+			begin_burn(obj,FALSE);
+		else
+			end_burn(obj,FALSE);
+		if(!unseen && !silently)
+			if(on) pline("%s begins to glow.", The(xname(obj)));
+	}
+
     if (!which)
         goto maybe_blocks;
 
@@ -350,14 +363,17 @@ boolean on, silently;
             in_mklev = save_in_mklev;
             break;
         }
+        case TELEPORT:
+            mon->mextrinsics |= MR2_TELEPORT;
+            break;
         case WWALKING:
-            mon->mintrinsics |= MR2_WATERWALK;
+            mon->mextrinsics |= MR2_WATERWALK;
             break;
         case JUMPING:
-            mon->mintrinsics |= MR2_JUMPING;
+            mon->mextrinsics |= MR2_JUMPING;
             break;
         case DISPLACED:
-            mon->mintrinsics |= MR2_DISPLACED;
+            mon->mextrinsics |= MR2_DISPLACED;
             break;
         /* properties handled elsewhere */
         case ANTIMAGIC:
@@ -371,16 +387,24 @@ boolean on, silently;
         /* properties which should have an effect but aren't implemented */
         case LEVITATION:
             break;
-        /* properties which maybe should have an effect but don't */
-        case FUMBLING:
-        case PROTECTION:
-            break;
-        default:
+        case FIRE_RES:
+        case COLD_RES:
+        case SLEEP_RES:
+        case DISINT_RES:
+        case SHOCK_RES:
+        case POISON_RES:
+        case ACID_RES:
+        case STONE_RES:
+        case SONIC_RES:
+        case PSYCHIC_RES:
             if (which <= 10) { /* 1 thru 10 correspond to MR_xxx mask values */
                 /* FIRE,COLD,SLEEP,DISINT,SHOCK,POISON,ACID,STONE,SONIC,PSYCHIC */
                 mask = (uchar) (1 << (which - 1));
-                mon->mintrinsics |= (unsigned long) mask;
+                mon->mextrinsics |= (unsigned long) mask;
             }
+            break;
+        /* properties which maybe should have an effect but don't */
+        default:
             break;
         }
     } else { /* off */
@@ -410,25 +434,22 @@ boolean on, silently;
         case SONIC_RES:
         case PSYCHIC_RES:
             mask = (uchar) (1 << (which - 1));
-            /* If the monster doesn't have this resistance intrinsically,
-               check whether any other worn item confers it.  Note that
-               we don't currently check for anything conferred via simply
-               carrying an object. */
-            if (!(mon->data->mresists & mask)) {
-                for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
-                    if (otmp->owornmask
-                        && (int) objects[otmp->otyp].oc_oprop == which)
-                        break;
-                if (!otmp)
-                    mon->mintrinsics &= ~((unsigned long) mask);
-            }
+            /* update monster's extrinsics (for worn objects only;
+               'obj' itself might still be worn or already unworn) */
+            for (otmp = mon->minvent; otmp; otmp = otmp->nobj)
+                if (otmp != obj
+                    && otmp->owornmask
+                    && (int) objects[otmp->otyp].oc_oprop == which)
+                    break;
+            if (!otmp)
+                mon->mextrinsics &= ~((unsigned long) mask);
             break;
         default:
             break;
         }
     }
 
-maybe_blocks:
+ maybe_blocks:
     /* obj->owornmask has been cleared by this point, so we can't use it.
        However, since monsters don't wield armor, we don't have to guard
        against that and can get away with a blanket worn-mask value. */
@@ -503,6 +524,7 @@ boolean creation;
         return;
 
     m_dowear_type(mon, W_AMUL, creation, FALSE);
+    m_dowear_type(mon, W_RING, creation, FALSE);
     /* can't put on shirt if already wearing suit */
     if (!cantweararm(mon->data) && !(mon->misc_worn_check & W_ARM))
         m_dowear_type(mon, W_ARMU, creation, FALSE);
@@ -546,6 +568,8 @@ boolean racialexception;
         return;
     if (old && flag == W_AMUL)
         return; /* no such thing as better amulets */
+    if (old && flag == W_RING)
+        return;
     best = old;
 
     for (obj = mon->minvent; obj; obj = obj->nobj) {
@@ -553,10 +577,19 @@ boolean racialexception;
         case W_AMUL:
             if (obj->oclass != AMULET_CLASS
                 || (obj->otyp != AMULET_OF_LIFE_SAVING
-                    && obj->otyp != AMULET_OF_REFLECTION))
+                    && obj->otyp != AMULET_OF_REFLECTION
+                    && obj->otyp != AMULET_OF_REINCARNATION))
                 continue;
             best = obj;
             goto outer_break; /* no such thing as better amulets */
+        case W_RING:
+            /* For now, wear all rings and see what happens */
+            if (obj->oclass != RING_CLASS 
+                || (obj->oclass == PROT_FROM_SHAPE_CHANGERS 
+                    && is_shapeshifter(mon->data)))
+                continue;
+            best = obj;
+            goto outer_break;
         case W_ARMU:
             if (!is_shirt(obj))
                 continue;

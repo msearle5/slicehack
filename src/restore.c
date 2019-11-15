@@ -1,4 +1,4 @@
-/* NetHack 3.6	restore.c	$NHDT-Date: 1451082255 2015/12/25 22:24:15 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.103 $ */
+/* NetHack 3.6	restore.c	$NHDT-Date: 1561485720 2019/06/25 18:02:00 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.131 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2009. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -39,7 +39,7 @@ STATIC_DCL void FDECL(freefruitchn, (struct fruit *));
 STATIC_DCL void FDECL(ghostfruit, (struct obj *));
 STATIC_DCL boolean
 FDECL(restgamestate, (int, unsigned int *, unsigned int *));
-STATIC_DCL void NDECL(restmonsteeds);
+STATIC_DCL void FDECL(restmonsteeds, (BOOLEAN_P));
 STATIC_DCL void FDECL(restlevelstate, (unsigned int, unsigned int));
 STATIC_DCL int FDECL(restlevelfile, (int, XCHAR_P));
 STATIC_OVL void FDECL(restore_msghistory, (int));
@@ -196,7 +196,7 @@ boolean ghostly;
                 struct monst *shkp = shop_keeper(*shp);
 
                 if (shkp && inhishop(shkp)
-                    && repair_damage(shkp, tmp_dam, TRUE))
+                    && repair_damage(shkp, tmp_dam, (int *) 0, TRUE))
                     break;
             }
         }
@@ -302,10 +302,32 @@ boolean ghostly, frozen;
         /* get contents of a container or statue */
         if (Has_contents(otmp)) {
             struct obj *otmp3;
+
             otmp->cobj = restobjchn(fd, ghostly, Is_IceBox(otmp));
             /* restore container back pointers */
             for (otmp3 = otmp->cobj; otmp3; otmp3 = otmp3->nobj)
                 otmp3->ocontainer = otmp;
+        } else if (SchroedingersBox(otmp)) {
+            struct obj *catcorpse;
+
+            /*
+             * TODO:  Remove this after 3.6.x save compatibility is dropped.
+             *
+             * For 3.6.2, SchroedingersBox() always has a cat corpse in it.
+             * For 3.6.[01], it was empty and its weight was falsified
+             * to have the value it would have had if there was one inside.
+             * Put a non-rotting cat corpse in this box to convert to 3.6.2.
+             *
+             * [Note: after this fix up, future save/restore of this object
+             * will take the Has_contents() code path above.]
+             */
+            if ((catcorpse = mksobj(CORPSE, TRUE, FALSE)) != 0) {
+                otmp->spe = 1; /* flag for special SchroedingersBox */
+                set_corpsenm(catcorpse, PM_HOUSECAT);
+                (void) stop_timer(ROT_CORPSE, obj_to_any(catcorpse));
+                add_to_container(otmp, catcorpse);
+                otmp->owt = weight(otmp);
+            }
         }
         if (otmp->bypass)
             otmp->bypass = 0;
@@ -379,12 +401,6 @@ struct monst *mtmp;
         if (buflen > 0) {
             newedog(mtmp);
             mread(fd, (genericptr_t) EDOG(mtmp), sizeof(struct edog));
-        }
-        /* eama - amalgamation */
-        mread(fd, (genericptr_t) &buflen, sizeof(buflen));
-        if (buflen > 0) {
-            neweama(mtmp);
-            mread(fd, (genericptr_t) EAMA(mtmp), sizeof(struct eama));
         }
         /* erid - steed */
         mread(fd, (genericptr_t) &buflen, sizeof(buflen));
@@ -533,7 +549,9 @@ unsigned int *stuckid, *steedid;
 #ifdef SYSFLAGS
     struct sysflag newgamesysflags;
 #endif
-    struct obj *otmp, *tmp_bc;
+    struct context_info newgamecontext; /* all 0, but has some pointers */
+    struct obj *otmp;
+    struct obj *bc_obj;
     char timebuf[15];
     unsigned long uid;
     boolean defer_perm_invent;
@@ -548,9 +566,15 @@ unsigned int *stuckid, *steedid;
         if (!wizard)
             return FALSE;
     }
+
+    newgamecontext = context; /* copy statically init'd context */
     mread(fd, (genericptr_t) &context, sizeof (struct context_info));
-    if (context.warntype.speciesidx >= LOW_PM)
-        context.warntype.species = &mons[context.warntype.speciesidx];
+    context.warntype.species = (context.warntype.speciesidx >= LOW_PM)
+                                  ? &mons[context.warntype.speciesidx]
+                                  : (struct permonst *) 0;
+    /* context.victual.piece, .tin.tin, .spellbook.book, and .polearm.hitmon
+       are pointers which get set to Null during save and will be recovered
+       via corresponding o_id or m_id while objs or mons are being restored */
 
     /* we want to be able to revert to command line/environment/config
        file option values instead of keeping old save file option values
@@ -620,6 +644,7 @@ unsigned int *stuckid, *steedid;
 #ifdef SYSFLAGS
         sysflags = newgamesysflags;
 #endif
+        context = newgamecontext;
         return FALSE;
     }
     /* in case hangup save occurred in midst of level change */
@@ -631,23 +656,24 @@ unsigned int *stuckid, *steedid;
     restore_light_sources(fd);
     invent = restobjchn(fd, FALSE, FALSE);
     for(i=0;i<10;i++) magic_chest_objs[i] = restobjchn(fd, FALSE, FALSE);
+
     /* tmp_bc only gets set here if the ball & chain were orphaned
        because you were swallowed; otherwise they will be on the floor
        or in your inventory */
-    tmp_bc = restobjchn(fd, FALSE, FALSE);
-    if (tmp_bc) {
-        for (otmp = tmp_bc; otmp; otmp = otmp->nobj) {
-            if (otmp->owornmask)
-                setworn(otmp, otmp->owornmask, TRUE);
-        }
-        if (!uball || !uchain)
-            impossible("restgamestate: lost ball & chain");
+    bc_obj = restobjchn(fd, FALSE, FALSE);
+    while (bc_obj) {
+        struct obj *nobj = bc_obj->nobj;
+
+        if (bc_obj->owornmask)
+            setworn(bc_obj, bc_obj->owornmask);
+        bc_obj->nobj = (struct obj *) 0;
+        bc_obj = nobj;
     }
 
     migrating_objs = restobjchn(fd, FALSE, FALSE);
     migrating_mons = restmonchn(fd, FALSE);
-    restmonsteeds();
-    mread(fd, (genericptr_t) mvitals, sizeof(mvitals));
+    restmonsteeds(FALSE);
+    mread(fd, (genericptr_t) mvitals, sizeof mvitals);
 
     /*
      * There are some things after this that can have unintended display
@@ -661,6 +687,8 @@ unsigned int *stuckid, *steedid;
     for (otmp = invent; otmp; otmp = otmp->nobj)
         if (otmp->owornmask)
             setworn(otmp, otmp->owornmask, TRUE);
+
+>>>>>>> 6c995fa9622e5659391a28c899fb40e68dd324af
     /* reset weapon so that player will get a reminder about "bashing"
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
@@ -702,20 +730,31 @@ unsigned int *stuckid, *steedid;
 
 /* TODO: Drop this down so it does not take O(n^2) time */
 STATIC_OVL void
-restmonsteeds()
+restmonsteeds(ghostly)
+boolean ghostly;
 {
     register struct monst *mtmp;
     register struct monst *mon;
+    unsigned int steed_id;
 
     for (mon = fmon; mon; mon = mon->nmon) {
         if (mon->mextra && ERID(mon)) {
+             /* The steed id will change on loading a bones file */
+            if(ghostly) {
+                lookup_id_mapping(ERID(mon)->mid, &steed_id);
+            } else {
+                steed_id = ERID(mon)->mid;
+            }
             for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
-              if (mtmp->m_id == ERID(mon)->mid)
+              if (mtmp->m_id == steed_id)
                   break;
             }
-            if (!mtmp)
-                panic("Cannot find monster steed.");
-            ERID(mon)->m1 = mtmp;
+            if (!mtmp) {
+                /* steed probably died but was not cleaned up due to other issues */
+                impossible("Cannot find monster steed.");
+                free_erid(mon);
+            } else 
+                ERID(mon)->m1 = mtmp;
         }
     }
 
@@ -859,7 +898,7 @@ register int fd;
 #ifdef AMII_GRAPHICS
     {
         extern struct window_procs amii_procs;
-        if (windowprocs.win_init_nhwindows == amii_procs.win_init_nhwindows) {
+        if (WINDOWPORT("amii") {
             extern winid WIN_BASE;
             clear_nhwindow(WIN_BASE); /* hack until there's a hook for this */
         }
@@ -875,7 +914,7 @@ register int fd;
     curs(WIN_MAP, 1, 1);
     dotcnt = 0;
     dotrow = 2;
-    if (strncmpi("X11", windowprocs.name, 3))
+    if (!WINDOWPORT("X11"))
         putstr(WIN_MAP, 0, "Restoring:");
 #endif
     restoreprocs.mread_flags = 1; /* return despite error */
@@ -890,7 +929,7 @@ register int fd;
             dotrow++;
             dotcnt = 0;
         }
-        if (strncmpi("X11", windowprocs.name, 3)) {
+        if (!WINDOWPORT("X11")) {
             putstr(WIN_MAP, 0, ".");
         }
         mark_synch();
@@ -935,6 +974,13 @@ register int fd;
     for (otmp = fobj; otmp; otmp = otmp->nobj)
         if (otmp->owornmask)
             setworn(otmp, otmp->owornmask, TRUE);
+
+    if ((uball && !uchain) || (uchain && !uball)) {
+        impossible("restgamestate: lost ball & chain");
+        /* poor man's unpunish() */
+        setworn((struct obj *) 0, W_CHAIN);
+        setworn((struct obj *) 0, W_BALL);
+    }
 
     /* in_use processing must be after:
      *    + The inventory has been read so that freeinv() works.
@@ -1106,7 +1152,7 @@ boolean ghostly;
     restore_timers(fd, RANGE_LEVEL, ghostly, elapsed);
     restore_light_sources(fd);
     fmon = restmonchn(fd, ghostly);
-    restmonsteeds();
+    restmonsteeds(ghostly);
 
     rest_worm(fd); /* restore worm information */
     ftrap = 0;
@@ -1134,7 +1180,7 @@ boolean ghostly;
             set_residency(mtmp, FALSE);
         place_monster(mtmp, mtmp->mx, mtmp->my);
         if (mtmp->wormno)
-            place_wsegs(mtmp);
+            place_wsegs(mtmp, NULL);
 
         /* regenerate monsters while on another level */
         if (!u.uz.dlevel)
@@ -1156,7 +1202,7 @@ boolean ghostly;
            them is different now than when the level was saved */
         restore_cham(mtmp);
         /* give hiders a chance to hide before their next move */
-        if (ghostly || elapsed > (long) rnd(10))
+        if (ghostly || (elapsed > 00 && elapsed > (long) rnd(10)))
             hide_monst(mtmp);
     }
 

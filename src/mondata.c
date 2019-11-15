@@ -1,4 +1,4 @@
-/* NetHack 3.6	mondata.c	$NHDT-Date: 1539938825 2018/10/19 08:47:05 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.67 $ */
+/* NetHack 3.6	mondata.c	$NHDT-Date: 1550525093 2019/02/18 21:24:53 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.72 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2011. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -10,30 +10,30 @@
 
 /* set up an individual monster's base type (initial creation, shapechange) */
 void
-set_mon_data(mon, ptr, flag)
+set_mon_data(mon, ptr)
 struct monst *mon;
 struct permonst *ptr;
-int flag;
 {
     int new_speed, old_speed = mon->data ? mon->data->mmove : 0;
 
     mon->data = ptr;
     mon->mnum = (short) monsndx(ptr);
-    if (flag == -1)
-        return; /* "don't care" */
-
-    if (flag == 1)
-        mon->mintrinsics |= (ptr->mresists & 0x000000FFL);
-    else
-        mon->mintrinsics = (ptr->mresists & 0x000000FFL);
 
     if (mon->movement) { /* same adjustment as poly'd hero undergoes */
         new_speed = ptr->mmove;
         /* prorate unused movement if new form is slower so that
            it doesn't get extra moves leftover from previous form;
            if new form is faster, leave unused movement as is */
-        if (new_speed < old_speed)
-            mon->movement = new_speed * mon->movement / old_speed;
+        if (new_speed < old_speed) {
+            /*
+             * Some static analysis warns that this might divide by 0
+               mon->movement = new_speed * mon->movement / old_speed;
+             * so add a redundant test to suppress that.
+             */
+            mon->movement *= new_speed;
+            if (old_speed > 0) /* old > new and new >= 0, so always True */
+                mon->movement /= old_speed;
+        }
     }
     return;
 }
@@ -104,6 +104,11 @@ struct monst *mon;
         /* is_were() doesn't handle hero in human form */
         || (mon == &youmonst && u.ulycn >= LOW_PM)
         || ptr == &mons[PM_DEATH] || is_vampshifter(mon))
+        return TRUE;
+    /* Added in the vampire patch to ensure that vampires have racial abilities */
+    if (!Upolyd && mon == &youmonst 
+        && (is_undead(&mons[urace.malenum])
+            || is_were(&mons[urace.malenum])))
         return TRUE;
     wep = (mon == &youmonst) ? uwep : MON_WEP(mon);
     return (boolean) (wep && wep->oartifact && defends(AD_DRLI, wep));
@@ -319,7 +324,7 @@ int material;
     if (material == SILVER) {
         if (ptr->mlet == S_IMP) {
             /* impish creatures that aren't actually demonic */
-            if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_LEPRECHAUN])
+            if (ptr == &mons[PM_TENGU] || ptr == &mons[PM_RED_CAP])
                 return FALSE;
         }
         return (is_were(ptr) || ptr->mlet == S_VAMPIRE
@@ -329,7 +334,7 @@ int material;
     else if (material == IRON) {
         /* cold iron: fairy/fae creatures hate it */
         return (is_elf(ptr) || ptr->mlet == S_NYMPH
-                || ptr->mlet == S_IMP);
+                || ptr->mlet == S_IMP || ptr == &mons[PM_BAOBHAN_SITH]);
     }
     else if (material == COPPER) {
         /* copper has antibacterial and antifungal properties,
@@ -744,11 +749,12 @@ const char *in_str;
     else if (!strncmp(str, "the ", 4))
         str += 4;
 
-    /* Amalgamations and bad clones are a special case. */
-    if (!strncmp(str, "fused ", 6))
-        return PM_AMALGAMATION;
-    else if (!strncmp(str, "merged ", 7))
+    if (!strncmp(str, "merged ", 7))
         return PM_BAD_CLONE;
+    else if (strstr(str, " gel") != NULL)
+        return PM_GEL;
+    else if (strstr(str, " hydra") != NULL)
+        return PM_HYDRA;
 
     slen = strlen(str);
     term = str + slen;
@@ -788,7 +794,12 @@ const char *in_str;
             /* Outdated names */
             { "invisible stalker", PM_STALKER },
             { "high-elf", PM_ELVENKING }, /* PM_HIGH_ELF is obsolete */
+            /* other misspellings or incorrect words */
+            { "wood-elf", PM_WOODLAND_ELF },
+            { "wood elf", PM_WOODLAND_ELF },
+            { "woodland nymph", PM_WOOD_NYMPH },
             { "halfling", PM_HOBBIT },    /* potential guess for polyself */
+            { "ifrit", PM_EFREET },
             { "genie", PM_DJINNI }, /* potential guess for ^G/#wizgenesis */
             /* Hyphenated names -- it would be nice to handle these via
                fuzzymatch() but it isn't able to ignore trailing stuff */
@@ -811,6 +822,7 @@ const char *in_str;
             { "lurkers above", PM_LURKER_ABOVE },
             { "cavemen", PM_CAVEMAN },
             { "cavewomen", PM_CAVEWOMAN },
+            { "watchmen", PM_WATCHMAN },
             { "djinn", PM_DJINNI },
             { "mumakil", PM_MUMAK },
             { "erinyes", PM_ERINYS },
@@ -825,11 +837,12 @@ const char *in_str;
     }
 
     for (len = 0, i = LOW_PM; i < NUMMONS; i++) {
-        register int m_i_len = strlen(mons[i].mname);
+        register int m_i_len = (int) strlen(mons[i].mname);
 
         if (m_i_len > len && !strncmpi(mons[i].mname, str, m_i_len)) {
             if (m_i_len == slen) {
-                return i; /* exact match */
+                mntmp = i;
+                break; /* exact match */
             } else if (slen > m_i_len
                        && (str[m_i_len] == ' '
                            || !strcmpi(&str[m_i_len], "s")
@@ -885,7 +898,7 @@ int *mndx_p;
         { 0, NON_PM }
     };
     const char *p, *x;
-    int i;
+    int i, len;
 
     if (mndx_p)
         *mndx_p = NON_PM; /* haven't [yet] matched a specific type */
@@ -907,6 +920,8 @@ int *mndx_p;
         return i;
     } else {
         /* multiple characters */
+        if (!strcmpi(in_str, "long")) /* not enough to match "long worm" */
+            return 0; /* avoid false whole-word match with "long worm tail" */
         in_str = makesingular(in_str);
         /* check for special cases */
         for (i = 0; falsematch[i]; i++)
@@ -922,9 +937,12 @@ int *mndx_p;
                 return mons[i].mlet;
             }
         /* check monster class descriptions */
+        len = (int) strlen(in_str);
         for (i = 1; i < MAXMCLASSES; i++) {
             x = def_monsyms[i].explain;
-            if ((p = strstri(x, in_str)) != 0 && (p == x || *(p - 1) == ' '))
+            if ((p = strstri(x, in_str)) != 0 && (p == x || *(p - 1) == ' ')
+                && ((int) strlen(p) >= len
+                    && (p[len] == '\0' || p[len] == ' ')))
                 return i;
         }
         /* check individual species names */
@@ -987,8 +1005,8 @@ static const short grownups[][2] = {
     { PM_CHICKATRICE, PM_COCKATRICE },
     { PM_LITTLE_DOG, PM_DOG },
     { PM_DOG, PM_LARGE_DOG },
-    { PM_LITTLE_BIRD, PM_FALCON },
-    { PM_FALCON, PM_GIANT_FALCON },
+    { PM_BABY_PENGUIN, PM_PENGUIN },
+    { PM_PENGUIN, PM_EMPEROR_PENGUIN },
     { PM_HELL_HOUND_PUP, PM_HELL_HOUND },
     { PM_WINTER_WOLF_CUB, PM_WINTER_WOLF },
     { PM_KITTEN, PM_HOUSECAT },
@@ -1007,6 +1025,8 @@ static const short grownups[][2] = {
     { PM_MORDOR_ORC, PM_ORC_CAPTAIN },
     { PM_URUK_HAI, PM_ORC_CAPTAIN },
     { PM_SEWER_RAT, PM_GIANT_RAT },
+    { PM_GIANT_RAT, PM_ENORMOUS_RAT },
+	{ PM_ENORMOUS_RAT, PM_RODENT_OF_UNUSUAL_SIZE },
     { PM_CAVE_SPIDER, PM_GIANT_SPIDER },
     { PM_GIANT_SPIDER, PM_MONSTROUS_SPIDER },
     { PM_OGRE, PM_OGRE_LORD },
@@ -1031,6 +1051,7 @@ static const short grownups[][2] = {
     { PM_BABY_BLACK_DRAGON, PM_BLACK_DRAGON },
     { PM_BABY_BLUE_DRAGON, PM_BLUE_DRAGON },
     { PM_BABY_GREEN_DRAGON, PM_GREEN_DRAGON },
+    { PM_BABY_GOLD_DRAGON, PM_GOLD_DRAGON },
     { PM_BABY_YELLOW_DRAGON, PM_YELLOW_DRAGON },
     { PM_RED_NAGA_HATCHLING, PM_RED_NAGA },
     { PM_BLACK_NAGA_HATCHLING, PM_BLACK_NAGA },
@@ -1059,10 +1080,14 @@ static const short grownups[][2] = {
     { PM_KEYSTONE_KOP, PM_KOP_SERGEANT },
     { PM_KOP_SERGEANT, PM_KOP_LIEUTENANT },
     { PM_KOP_LIEUTENANT, PM_KOP_KAPTAIN },
-    {PM_DEEP_ONE, PM_DEEPER_ONE},
-    {PM_DEEPER_ONE, PM_DEEPEST_ONE},
-    {PM_BABY_BROOD_WASP, PM_BROOD_WASP},
-    {PM_WANDERING_CACTUS, PM_CRAZY_CACTUS},
+    { PM_DEEP_ONE, PM_DEEPER_ONE },
+    { PM_DEEPER_ONE, PM_DEEPEST_ONE },
+    { PM_BABY_BROOD_WASP, PM_BROOD_WASP },
+    { PM_WANDERING_CACTUS, PM_CRAZY_CACTUS },
+    { PM_RED_MOLD, PM_RED_MOLD_WARRIOR },
+    { PM_YELLOW_MOLD, PM_YELLOW_MOLD_WARRIOR },
+    { PM_GREEN_MOLD, PM_GREEN_MOLD_WARRIOR },
+    { PM_BROWN_MOLD, PM_BROWN_MOLD_WARRIOR },
     { NON_PM, NON_PM }
 };
 
@@ -1202,7 +1227,6 @@ struct attack *mattk;
         what = "melting";
         break;
     case PM_STONE_GOLEM:
-    case PM_ROOK:
     case PM_CLAY_GOLEM:
     case PM_GOLD_GOLEM:
     case PM_AIR_ELEMENTAL:

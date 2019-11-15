@@ -550,7 +550,7 @@ mac_askname()
         currrole = flags.initrole;
     /* Check for backward compatibility */
     else if ((currrole = str2role(pl_character)) < 0)
-        currrole = randrole();
+        currrole = randrole(FALSE);
 
     /* Initialize the race popup menu */
     if (!(askmenu[RSRC_ASK_RACE] = NewMenu(RSRC_ASK_RACE, "\p")))
@@ -575,7 +575,7 @@ mac_askname()
     InsertMenu(askmenu[RSRC_ASK_GEND], hierMenu);
     if (flags.initgend >= 0)
         currgend = flags.initgend;
-    else if (flags.female)
+    else if (flags.gender)
         currgend = 1;
     else
         currgend = randgend(currrole, currrace);
@@ -776,7 +776,7 @@ mac_askname()
     flags.initrace = currrace;
 
     /* Process the gender */
-    flags.female = flags.initgend = currgend;
+    flags.gender = flags.initgend = currgend;
 
     /* Process the alignment */
     flags.initalign = curralign;

@@ -1,0 +1,63 @@
+# The Banquet Hall
+#
+# It's a party for everyone...
+
+MAZE: "banquet",' '
+MESSAGE:"The air is filled with the sound of boisterous laughter and the clanking of tankards!"
+GEOMETRY: center, center
+MAP
+    ......................................................    
+    ......................................................    
+..............................................................
+...............LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.............\..
+...............LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL................
+..............................................................
+    ......................................................    
+    ......................................................    
+ENDMAP
+REGION:(00,00,61,07),lit,"throne" , unfilled
+
+# Features
+BRANCH:(30,01,30,01),(0,0,0,0)
+STAIR: (30,01), down
+OBJECT:('`',"statue"),(08,01),montype:'H',1
+OBJECT:('`',"statue"),(52,01),montype:'H',1
+OBJECT:('`',"statue"),(08,06),montype:'H',1
+OBJECT:('`',"statue"),(52,06),montype:'H',1
+
+# Creatures
+MONSTER:('h',"dwarf"),random,hostile
+MONSTER:('h',"dwarf"),random,hostile
+MONSTER:('h',"dwarf"),random,hostile
+MONSTER:('h',"dwarf"),random,hostile
+MONSTER:('h',"dwarf"),random,hostile
+MONSTER:('h',"dwarf wrestler"),random,hostile
+MONSTER:('h',"dwarf wrestler"),random,hostile
+MONSTER:('h',"dwarf lord"),random,hostile
+MONSTER:('h',"dwarf lord"),random,hostile
+MONSTER:('h',"dwarf"),random
+MONSTER:('h',"dwarf"),random
+MONSTER: 'h', random
+MONSTER: 'h', random
+MONSTER: 'h', random
+MONSTER: 'H', random
+MONSTER: 'H', random
+MONSTER:('H',"storm giant"),(61,03),"Lord Belaphius",hostile
+MONSTER:('H',"storm giant"),(61,03),"Vizer Dophomor",hostile
+
+# Treasure
+OBJECT:('(',"chest"),(61,03)
+OBJECT:('(',"chest"),(61,06)
+OBJECT:('(',"keg"),random
+OBJECT:('(',"keg"),random
+OBJECT:('(',"keg"),random
+OBJECT:('!',"booze"),random
+OBJECT:('!',"booze"),random
+OBJECT:('!',"booze"),random
+OBJECT:('!',"booze"),random
+OBJECT:('!',"booze"),random
+OBJECT:('!',"booze"),random
+OBJECT:('!',"booze"),random
+OBJECT:random,random
+OBJECT:random,random
+OBJECT:random,random

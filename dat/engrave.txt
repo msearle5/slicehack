@@ -9,6 +9,9 @@
 Vlad was here
 ad aerarium
 
+# The Shining
+All work and no play makes Urdo a dull priest.
+
 # The NetHack Song, by Rob Balder
 ASCII stupid question and you'll get a stupid ANSI.
 
@@ -19,6 +22,7 @@ Improved Tin Openers rule!
 Owlbreath
 Galadriel
 Kilroy was here
+Frodo lives
 
 # Creepypasta
 Watch the Sky.
@@ -68,6 +72,7 @@ You've got mail!
 As if!
 # 200x incarnation of Dr.Who
 BAD WOLF
+Don't blink.
 
 # Gang tag
 Arooo!  Werewolves of Yendor!
@@ -91,6 +96,7 @@ The Vibrating Square
 This is a pit!
 This is not the dungeon you are looking for.
 Watch out, there's a gnome with a wand of death behind that door!
+Look out behind you!
 
 # Misc fun
 This square deliberately left blank.
@@ -102,9 +108,13 @@ Haermund Hardaxe carved these runes
 Need a light?  Come visit the Minetown branch of Izchak's Lighting Store!
 Snakes on the Astral Plane - Soon in a dungeon near you
 You are the one millionth visitor to this place!  Please wait 200 turns for your wand of wishing.
+One-Eyed Sam's: For all of your extralegal needs.
 
 # DnD
 Warning, Exploding runes!
 
 # "Whispers Underground" Ben Aaronovitch
 If you can read these words then you are not only a nerd but probably dead.
+
+# Portal
+The cake is a lie

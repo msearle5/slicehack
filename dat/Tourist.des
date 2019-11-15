@@ -459,6 +459,7 @@ WALLIFY
 #
 
 MAZE: "Tou-fila" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ', true, true, random, true
 NOMAP
 #
@@ -487,6 +488,7 @@ MONSTER: 'H', random, hostile
 MONSTER: 'C', random, hostile
 
 MAZE: "Tou-filb" , ' '
+FLAGS: noflip
 INIT_MAP: mines, '.' , ' ', true, true, random, true
 NOMAP
 #

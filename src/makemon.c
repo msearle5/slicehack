@@ -1,4 +1,4 @@
-/* NetHack 3.6	makemon.c	$NHDT-Date: 1537477761 2018/09/20 21:09:21 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.124 $ */
+/* NetHack 3.6	makemon.c	$NHDT-Date: 1571531888 2019/10/20 00:38:08 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.141 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -20,63 +20,29 @@ STATIC_DCL boolean FDECL(uncommon, (int));
 STATIC_DCL int FDECL(align_shift, (struct permonst *));
 STATIC_DCL boolean FDECL(mk_gen_ok, (int, int, int));
 STATIC_DCL boolean FDECL(wrong_elem_type, (struct permonst *));
-STATIC_DCL void FDECL(m_initgrp, (struct monst *, int, int, int));
+STATIC_DCL void FDECL(m_initgrp, (struct monst *, int, int, int, int));
 STATIC_DCL void FDECL(m_initthrow, (struct monst *, int, int));
 STATIC_DCL void FDECL(m_initweap, (struct monst *));
 STATIC_DCL void FDECL(m_initinv, (struct monst *));
 STATIC_DCL boolean FDECL(makemon_rnd_goodpos, (struct monst *,
                                                unsigned, coord *));
 
-extern const int monstr[];
-
-#define m_initsgrp(mtmp, x, y) m_initgrp(mtmp, x, y, 3)
-#define m_initlgrp(mtmp, x, y) m_initgrp(mtmp, x, y, 10)
-#define toostrong(monindx, lev) (monstr[monindx] > lev)
-#define tooweak(monindx, lev) (monstr[monindx] < lev)
+#define m_initsgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 3, mmf)
+#define m_initlgrp(mtmp, x, y, mmf) m_initgrp(mtmp, x, y, 10, mmf)
+#define toostrong(monindx, lev) (mons[monindx].difficulty > lev)
+#define tooweak(monindx, lev) (mons[monindx].difficulty < lev)
 
 struct permonst*
 rnd_point() {
     register struct permonst *ptr;
     register int i;
     unsigned short excludeflags;
-    excludeflags = G_UNIQ | G_NOGEN | (Inhell ? G_NOHELL : G_HELL);
+    excludeflags = G_UNIQ | G_NOGEN | (Inhell ? G_NOHELL : G_HELL) | (In_endgame(&u.uz) ? G_NOPLANES : G_PLANES);
     do {
         i = rn1(SPECIAL_PM - LOW_PM, LOW_PM);
         ptr = &mons[i];
     } while ((ptr->geno & excludeflags) != 0);
     return ptr;
-}
-
-void
-neweama(mtmp)
-struct monst *mtmp;
-{
-    if (!mtmp->mextra)
-        mtmp->mextra = newmextra();
-    if (!EAMA(mtmp)) {
-        EAMA(mtmp) = (struct eama *) alloc(sizeof(struct eama));
-        (void) memset((genericptr_t) EAMA(mtmp), 0, sizeof(struct eama));
-    }
-
-    EAMA(mtmp)->m1 = rnd_point();
-    EAMA(mtmp)->m2 = rnd_point();
-    /* this needs to happen in order to avoid an xname chain crash. */
-    if (monsndx(EAMA(mtmp)->m1) == PM_AMALGAMATION
-        || (monsndx(EAMA(mtmp)->m1) == PM_BAD_CLONE))
-        EAMA(mtmp)->m1 = &mons[PM_FIRE_ELEMENTAL];
-    if (monsndx(EAMA(mtmp)->m2) == PM_AMALGAMATION
-        || (monsndx(EAMA(mtmp)->m2) == PM_BAD_CLONE))
-        EAMA(mtmp)->m2 = &mons[PM_WATER_ELEMENTAL];
-}
-
-void
-free_eama(mtmp)
-struct monst *mtmp;
-{
-    if (mtmp->mextra && EAMA(mtmp)) {
-        free((genericptr_t) EAMA(mtmp));
-        EAMA(mtmp) = (struct eama *) 0;
-    }
 }
 
 boolean
@@ -88,10 +54,11 @@ struct permonst *ptr;
         case PM_STORM_ELEMENTAL:
         case PM_AIR_ELEMENTAL:
             return Is_airlevel(&u.uz);
+        case PM_MAGMA_ELEMENTAL:
         case PM_FIRE_ELEMENTAL:
             return Is_firelevel(&u.uz);
         case PM_EARTH_ELEMENTAL:
-            return Is_earthlevel(&u.uz);
+            return Is_earthlevel(&u.uz) || Is_gemlevel(&u.uz);
         case PM_WATER_ELEMENTAL:
             return Is_waterlevel(&u.uz);
         case PM_FUSION_ELEMENTAL:
@@ -109,7 +76,7 @@ struct permonst *ptr;
 {
     if (ptr->mlet == S_ELEMENTAL) {
         return (boolean) !is_home_elemental(ptr);
-    } else if (Is_earthlevel(&u.uz)) {
+    } else if (Is_earthlevel(&u.uz) || Is_gemlevel(&u.uz)) {
         /* no restrictions? */
     } else if (Is_waterlevel(&u.uz)) {
         /* just monsters that can swim */
@@ -128,9 +95,9 @@ struct permonst *ptr;
 
 /* make a group just like mtmp */
 STATIC_OVL void
-m_initgrp(mtmp, x, y, n)
-register struct monst *mtmp;
-register int x, y, n;
+m_initgrp(mtmp, x, y, n, mmflags)
+struct monst *mtmp;
+int x, y, n, mmflags;
 {
     coord mm;
     register int cnt = rnd(n);
@@ -181,7 +148,7 @@ register int x, y, n;
          * smaller group.
          */
         if (enexto(&mm, mm.x, mm.y, mtmp->data)) {
-            mon = makemon(mtmp->data, mm.x, mm.y, NO_MM_FLAGS);
+            mon = makemon(mtmp->data, mm.x, mm.y, (mmflags | MM_NOGRP));
             if (mon) {
                 mon->mpeaceful = FALSE;
                 mon->mavenge = 0;
@@ -267,9 +234,16 @@ register struct monst *mtmp;
               (void) mongets(mtmp, BOULDER);
         }
         break;
+    case S_IMP:
+        if (mm == PM_RED_CAP) {
+            (void) mongets(mtmp, GRAIN_SCYTHE);
+        }
+        break;
     case S_EEL:
-        if (rn2(2) && mm == PM_MERFOLK)
+        if (rn2(2) && mm == PM_MERFOLK) {
             (void) mongets(mtmp, TRIDENT);
+            break;
+        }
         /* fall thru */
     case S_HUMAN:
         if (is_mercenary(ptr)) {
@@ -289,6 +263,7 @@ register struct monst *mtmp;
             case PM_LIEUTENANT:
                 w1 = rn2(2) ? BROADSWORD : LONG_SWORD;
                 break;
+            case PM_PRISON_GUARD:
             case PM_CAPTAIN:
             case PM_WATCH_CAPTAIN:
                 w1 = rn2(2) ? LONG_SWORD : SABER;
@@ -307,54 +282,70 @@ register struct monst *mtmp;
             if (w2)
                 (void) mongets(mtmp, w2);
         } else if (is_elf(ptr)) {
-            if (rn2(2))
-                (void) mongets(mtmp,
-                               rn2(2) ? ELVEN_RING_MAIL : ELVEN_CLOAK);
-            if (rn2(2))
-                (void) mongets(mtmp, ELVEN_HELM);
-            else if (!rn2(4))
-                (void) mongets(mtmp, ELVEN_BOOTS);
-            if (rn2(2))
-                (void) mongets(mtmp, ELVEN_DAGGER);
-            switch (rn2(3)) {
-            case 0:
-                if (!rn2(4))
-                    (void) mongets(mtmp, ELVEN_SHIELD);
-                if (rn2(3))
-                    (void) mongets(mtmp, ELVEN_SHORT_SWORD);
-                (void) mongets(mtmp, ELVEN_BOW);
-                m_initthrow(mtmp, ELVEN_ARROW, 12);
-                break;
-            case 1:
-                (void) mongets(mtmp, ELVEN_BROADSWORD);
+            if (mm == PM_DROW) {
+                (void) mongets(mtmp, DARK_ELVEN_RING_MAIL);
+                (void) mongets(mtmp, DARK_ELVEN_SHORT_SWORD);
+                (void) mongets(mtmp, DARK_ELVEN_BOW);
+                m_initthrow(mtmp, DARK_ELVEN_ARROW, 12);
+            } else {
                 if (rn2(2))
-                    (void) mongets(mtmp, ELVEN_SHIELD);
-                break;
-            case 2:
-                if (rn2(2)) {
-                    (void) mongets(mtmp, ELVEN_SPEAR);
-                    (void) mongets(mtmp, ELVEN_SHIELD);
+                    (void) mongets(mtmp,
+                                   rn2(2) ? ELVEN_RING_MAIL : ELVEN_CLOAK);
+                if (rn2(2))
+                    (void) mongets(mtmp, ELVEN_HELM);
+                else if (!rn2(4))
+                    (void) mongets(mtmp, ELVEN_BOOTS);
+                if (rn2(2))
+                    (void) mongets(mtmp, ELVEN_DAGGER);
+                switch (rn2(3)) {
+                case 0:
+                    if (!rn2(4))
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    if (rn2(3))
+                        (void) mongets(mtmp, ELVEN_SHORT_SWORD);
+                    (void) mongets(mtmp, ELVEN_BOW);
+                    m_initthrow(mtmp, ELVEN_ARROW, 12);
+                    break;
+                case 1:
+                    (void) mongets(mtmp, ELVEN_BROADSWORD);
+                    if (rn2(2))
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    break;
+                case 2:
+                    if (rn2(2)) {
+                        (void) mongets(mtmp, ELVEN_SPEAR);
+                        (void) mongets(mtmp, ELVEN_SHIELD);
+                    }
+                    break;
                 }
-                break;
-            }
-            if (mm == PM_ELVENKING) {
-                if (rn2(3) || (in_mklev && Is_earthlevel(&u.uz)))
-                    (void) mongets(mtmp, PICK_AXE);
-                if (!rn2(50))
-                    (void) mongets(mtmp, CRYSTAL_BALL);
+                if (mm == PM_ELVENKING) {
+                    if (rn2(3) || (in_mklev && Is_earthlevel(&u.uz)))
+                        (void) mongets(mtmp, PICK_AXE);
+                    if (!rn2(50))
+                        (void) mongets(mtmp, CRYSTAL_BALL);
+                }
             }
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_PRIEST)) {
             otmp = mksobj(MACE, FALSE, FALSE);
-            if (otmp) {
-                otmp->spe = rnd(3);
-                if (!rn2(2))
-                    curse(otmp);
-                (void) mpickobj(mtmp, otmp);
-            }
+            otmp->spe = rnd(3);
+            if (!rn2(2))
+                curse(otmp);
+            (void) mpickobj(mtmp, otmp);
         } else if (mm == PM_NINJA) { /* extra quest villains */
             (void) mongets(mtmp, rn2(4) ? SHURIKEN : DART);
             (void) mongets(mtmp, rn2(4) ? SHORT_SWORD : AXE);
+        } else if (mm == PM_KING_ARTHUR) {
+            /* If it has not yet been generate, of course
+               Arthur gets Excalibur */
+            otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+            otmp = oname(otmp, artiname(ART_EXCALIBUR));
+            bless(otmp);
+            otmp->oerodeproof = TRUE;
+            spe2 = rn2(4);
+            otmp->spe = max(otmp->spe, spe2);
+            (void) mpickobj(mtmp, otmp);
+            (void)mongets(mtmp, TOWER_SHIELD);
      		} else if (mm == PM_PIRATE_BROTHER){
      			  (void)mongets(mtmp, SCIMITAR);
      			  (void)mongets(mtmp, LIGHT_ARMOR);
@@ -464,7 +455,7 @@ register struct monst *mtmp;
             otmp->spe = max(otmp->spe, spe2);
             (void) mpickobj(mtmp, otmp);
 
-            m_initthrow(mtmp, YA, 50);
+            m_initthrow(mtmp, LIGHT_ARROW, 50);
             (void) mongets(mtmp, rnd_defensive_item(mtmp));
             (void) mongets(mtmp, rnd_misc_item(mtmp));
             break;
@@ -474,39 +465,41 @@ register struct monst *mtmp;
             otmp = mksobj(FLAIL, FALSE, FALSE);
             bless(otmp);
             otmp->oerodeproof = TRUE;
-            spe2 = rn2(5);
-            otmp->spe = max(otmp->spe, spe2);
+            otmp->spe = rn2(4);
             (void) mpickobj(mtmp, otmp);
 
-            otmp = mksobj(SMALL_SHIELD, FALSE, FALSE);
-            otmp->cursed = FALSE;
+            otmp = mksobj(!rn2(4) || is_lord(ptr) ? SHIELD_OF_REFLECTION
+                                                  : LARGE_SHIELD,
+                          FALSE, FALSE);
+            /* uncurse(otmp); -- mksobj(,FALSE,) item is always uncursed */
             otmp->oerodeproof = TRUE;
             otmp->spe = 0;
             (void) mpickobj(mtmp, otmp);
             break;
         default:
-            if (humanoid(ptr)) {
+            if (mm == PM_ARCHON || mm == PM_ALEAX || mm == PM_ANGEL) {
+                int art = 0;
                 /* create minion stuff; can't use mongets */
-                otmp = mksobj(LONG_SWORD, FALSE, FALSE);
 
                 /* maybe make it special */
                 if (!rn2(20) || is_lord(ptr)) {
                     const int arti[3] = { ART_DEMONBANE, ART_SUNSWORD, ART_UNLIMITED_MOON };
-                    int art = mongetsart(arti[rn2(3)]);
+                    art = mongetsart(arti[rn2(3)]);
+                }
 
-                    if (!art) {
-                        otmp = mksobj(LONG_SWORD, FALSE, FALSE);
-                        bless(otmp);
-                        otmp->oerodeproof = TRUE;
-                        spe2 = rn2(4);
-                        otmp->spe = max(otmp->spe, spe2);
-                        (void) mpickobj(mtmp, otmp);
-                    }
+                if (!art) {
+                    otmp = mksobj(LONG_SWORD, FALSE, FALSE);
+                    bless(otmp);
+                    otmp->oerodeproof = TRUE;
+                    spe2 = rn2(5);
+                    otmp->spe = max(otmp->spe, spe2);
+                    (void) mpickobj(mtmp, otmp);
                 }
 
                 otmp = mksobj(!rn2(4) || is_lord(ptr) ? (rn2(2) ? SHIELD_OF_REFLECTION : SHIELD_OF_RESONANCE)
                                                   : LARGE_SHIELD,
                           FALSE, FALSE);
+
                 otmp->cursed = FALSE;
                 otmp->oerodeproof = TRUE;
                 otmp->spe = 0;
@@ -601,8 +594,15 @@ register struct monst *mtmp;
                     (void) mongets(mtmp, DWARVISH_ROUNDSHIELD);
                 }
                 (void) mongets(mtmp, DWARVISH_HELM);
-                if (!rn2(3))
+                if (!rn2(3)) {
                     (void) mongets(mtmp, DWARVISH_RING_MAIL);
+                    if ((ptr == &mons[PM_DWARF_LORD] && !rn2(4))
+                        || (ptr == &mons[PM_DWARF_KING] && !rn2(2))) {
+                        struct obj* mail = m_carrying(mtmp, DWARVISH_RING_MAIL);
+                        if (mail)
+                            mail->material = MITHRIL;
+                    }
+                }
             } else {
                 (void) mongets(mtmp, !rn2(3) ? PICK_AXE : DAGGER);
             }
@@ -611,6 +611,11 @@ register struct monst *mtmp;
        			(void)mongets(mtmp, CRYSTAL_PLATE_MAIL);
        			(void)mongets(mtmp, GLOVES);
        			(void)mongets(mtmp, HIGH_BOOTS);
+        } else if (mm == PM_MINER) {
+		    (void)mongets(mtmp, PICK_AXE);
+		    otmp = mksobj(LANTERN, TRUE, FALSE);
+			(void) mpickobj(mtmp, otmp);
+            begin_burn(otmp, FALSE);
         }
         break;
     case S_KOP:
@@ -674,6 +679,8 @@ register struct monst *mtmp;
     case S_VAMPIRE:
         if (ptr == &mons[PM_ALUCARD])
             (void) mongets(mtmp, KATANA);
+        else if (ptr == &mons[PM_BAOBHAN_SITH] && !rn2(20))
+            (void) mongets(mtmp, GREEN_GOWN);
         break;
     case S_OGRE:
         if (!rn2(mm == PM_OGRE_KING ? 3 : mm == PM_OGRE_LORD ? 6 : 12))
@@ -726,28 +733,57 @@ register struct monst *mtmp;
         (void) mongets(mtmp, LONG_SWORD);
         break;
     case S_ZOMBIE:
-        if (!rn2(4))
-            (void) mongets(mtmp, LIGHT_ARMOR);
-        if (!rn2(4))
-            (void) mongets(mtmp, (rn2(3) ? KNIFE : SHORT_SWORD));
-        if (mm == PM_SKELETAL_PIRATE) {
-        	  otmp = rn2(2) ? mksobj(SCIMITAR, FALSE, FALSE) :
-                mksobj(KNIFE, FALSE, FALSE);
-        	  curse(otmp);
-         		otmp->oeroded = 1;
-         		(void) mpickobj(mtmp, otmp);
-         		otmp = rn2(2) ? mksobj(HIGH_BOOTS, FALSE, FALSE) :
-                mksobj(JACKET, FALSE, FALSE);
-         		curse(otmp);
-         		otmp->oeroded2 = 1;
-         		(void) mpickobj(mtmp, otmp);
-         }
+        switch(mm) {
+            case PM_SHAMBLING_SKELETON:
+                otmp = rn2(2) ? mksobj(SHORT_SWORD, FALSE, FALSE) :
+                    mksobj(DAGGER, FALSE, FALSE);
+                otmp->material = BONE;
+                break;
+            case PM_SKELETON:
+                if (!rn2(4))
+                    (void) mongets(mtmp, LIGHT_ARMOR);
+                if (!rn2(4))
+                    (void) mongets(mtmp, (rn2(3) ? KNIFE : SHORT_SWORD));
+                break;
+            case PM_SKELETAL_PIRATE:
+            	  otmp = rn2(2) ? mksobj(SCIMITAR, FALSE, FALSE) :
+                    mksobj(KNIFE, FALSE, FALSE);
+            	  curse(otmp);
+             		otmp->oeroded = 1;
+             		(void) mpickobj(mtmp, otmp);
+             		otmp = rn2(2) ? mksobj(HIGH_BOOTS, FALSE, FALSE) :
+                    mksobj(JACKET, FALSE, FALSE);
+             		curse(otmp);
+             		otmp->oeroded2 = 1;
+             		(void) mpickobj(mtmp, otmp);
+                break;
+            default:
+                break;
+        }
         break;
     case S_LIZARD:
         if (mm == PM_SALAMANDER)
             (void) mongets(mtmp,
                            (rn2(7) ? SPEAR : rn2(3) ? TRIDENT : STILETTO));
         break;
+    case S_SIN:
+        switch(mm) {
+        case PM_WRATH:
+            otmp = mksobj(SPIKED_CHAIN, FALSE, FALSE);
+            bless(otmp);
+            otmp->spe = rn2(4);
+            /* Wrath always gets a deadly material */
+            if (Race_if(PM_ELF) || Race_if(PM_DROW)) {
+                otmp->material = IRON;
+            } else if (Race_if(PM_INFERNAL)) {
+                otmp->material = SILVER;
+            }
+            (void) mpickobj(mtmp, otmp);
+            otmp = mksobj(KNIFE, FALSE, FALSE);
+            m_initthrow(mtmp, KNIFE, 20);
+            (void) mongets(mtmp, PLATE_MAIL);
+            break;
+        }
     case S_DEMON:
         switch (mm) {
         case PM_DAMNED_PIRATE:
@@ -762,10 +798,15 @@ register struct monst *mtmp;
         case PM_HEADLESS_HORSEMAN:
             (void) mongets(mtmp, LANCE);
             (void) mongets(mtmp, SCALE_MAIL);
+            (void) mongets(mtmp, PUMPKIN);
             break;
         case PM_BALROG:
             (void) mongets(mtmp, BULLWHIP);
             (void) mongets(mtmp, BROADSWORD);
+            break;
+        case PM_MOLYDEUS:
+            (void) mongets(mtmp, BATTLE_AXE);
+            (void) mongets(mtmp, MANTLE);
             break;
         case PM_ORCUS:
             (void) mongets(mtmp, WAN_DEATH); /* the Wand of Orcus */
@@ -774,18 +815,32 @@ register struct monst *mtmp;
             (void) mongets(mtmp, rn2(4) ? TRIDENT : BULLWHIP);
             break;
         case PM_DISPATER:
-            (void) mongets(mtmp, WAN_STRIKING);
+            otmp = mksobj(rnd_class(SPE_DIG, SPE_FREEZE_SPHERE),
+                              FALSE, FALSE);
+            mpickobj(mtmp, otmp);
+            break;
+        case PM_KOSTCHTCHIE:
+            (void) mongets(mtmp, CLUB);
+            (void) mongets(mtmp, BOULDER);
             break;
         case PM_YEENOGHU:
-            (void) mongets(mtmp, FLAIL);
+            otmp = mksobj(TRIPLE_FLAIL, FALSE, FALSE);
+            otmp->material = BONE;
+            mpickobj(mtmp, otmp);
+            break;
+        case PM_BAPHOMET:
+            (void) mongets(mtmp, RANSEUR);
             break;
         case PM_DESERT_JINN:
             (void) mongets(mtmp, SHORT_SWORD);
             (void) mongets(mtmp, SHORT_SWORD);
             break;
+        case PM_EFREET:
+            (void) mongets(mtmp, TWO_HANDED_SWORD);
+            break;
         case PM_GRIM_REAPER:
             otmp = mksobj(GRAIN_SCYTHE, FALSE, FALSE);
-            otmp = oname(otmp, artiname(ART_REAPER));
+            otmp = oname(otmp, artiname(ART_END));
             curse(otmp);
             otmp->oerodeproof = TRUE;
             mpickobj(mtmp, otmp);
@@ -844,6 +899,8 @@ register struct monst *mtmp;
 
     if ((int) mtmp->m_lev > rn2(75))
         (void) mongets(mtmp, rnd_offensive_item(mtmp));
+    if (halloween() && !rn2(30))
+        (void) mongets(mtmp, PUMPKIN);
 }
 
 /*
@@ -883,6 +940,9 @@ register struct monst *mtmp;
             switch (monsndx(ptr)) {
             case PM_GUARD:
                 mac = -1;
+                break;
+            case PM_PRISON_GUARD:
+                mac = -2;
                 break;
             case PM_SOLDIER:
                 mac = 3;
@@ -977,6 +1037,22 @@ register struct monst *mtmp;
             case 3:
                 (void) mongets(mtmp, WAN_STRIKING);
             }
+        } else if (ptr == &mons[PM_EXTRAPLANAR_MERCHANT]) {
+            (void) mongets(mtmp, SKELETON_KEY);
+            switch (rn2(4)) {
+            /* MAJOR fall through ... */
+            case 0:
+                (void) mongets(mtmp, KATANA);
+                /*FALLTHRU*/
+            case 1:
+                (void) mongets(mtmp, POT_FULL_HEALING);
+                /*FALLTHRU*/
+            case 2:
+                (void) mongets(mtmp, POT_HALLUCINATION);
+                /*FALLTHRU*/
+            case 3:
+                (void) mongets(mtmp, WAN_SPEED_MONSTER);
+            }
         } else if (ptr == &mons[PM_ARMS_DEALER]) {
               otmp = mksobj(TWO_HANDED_SWORD, FALSE, FALSE);
               otmp = oname(otmp, artiname(ART_THIEFBANE));
@@ -996,7 +1072,7 @@ register struct monst *mtmp;
               (void) mongets(mtmp,SKELETON_KEY);
         } else if (ptr->msound == MS_PRIEST
                    || quest_mon_represents_role(ptr, PM_PRIEST)) {
-            (void) mongets(mtmp, rn2(7) ? ROBE
+            (void) mongets(mtmp, rn2(7) ? MYSTIC_ROBE
                                         : rn2(3) ? CLOAK_OF_PROTECTION
                                                  : CLOAK_OF_MAGIC_RESISTANCE);
             (void) mongets(mtmp, SMALL_SHIELD);
@@ -1004,7 +1080,7 @@ register struct monst *mtmp;
                 mongets(mtmp, HOLY_SYMBOL);
             mkmonmoney(mtmp, (long) rn1(10, 20));
         } else if (quest_mon_represents_role(ptr, PM_MONK)) {
-            (void) mongets(mtmp, rn2(11) ? ROBE : CLOAK_OF_MAGIC_RESISTANCE);
+            (void) mongets(mtmp, rn2(11) ? MYSTIC_ROBE : CLOAK_OF_MAGIC_RESISTANCE);
         } else if(ptr == &mons[PM_DAL_ZETHIRE]) {
             for (cnt = rn2(3); cnt < 4; cnt++) {
                 otmp = mksobj(SCR_CREATE_MONSTER, FALSE, FALSE);
@@ -1080,10 +1156,22 @@ register struct monst *mtmp;
             (void) mongets(mtmp, MUMMY_WRAPPING);
         break;
     case S_QUANTMECH:
-        if (ptr == &mons[PM_QUANTUM_MECHANIC] &&!rn2(20)) {
+        if (!rn2(20)) {
+            struct obj *catcorpse;
+
             otmp = mksobj(LARGE_BOX, FALSE, FALSE);
-            otmp->spe = 1; /* flag for special box */
-            otmp->owt = weight(otmp);
+            /* we used to just set the flag, which resulted in weight()
+               treating the box as being heavier by the weight of a cat;
+               now we include a cat corpse that won't rot; when opening or
+               disclosing the box's contents, the corpse might be revived,
+               otherwise it's given a rot timer; weight is now ordinary */
+            if ((catcorpse = mksobj(CORPSE, TRUE, FALSE)) != 0) {
+                otmp->spe = 1; /* flag for special SchroedingersBox */
+                set_corpsenm(catcorpse, PM_HOUSECAT);
+                (void) stop_timer(ROT_CORPSE, obj_to_any(catcorpse));
+                add_to_container(otmp, catcorpse);
+                otmp->owt = weight(otmp);
+            }
             (void) mpickobj(mtmp, otmp);
         }
         if (ptr == &mons[PM_MAD_ALCHEMIST]) {
@@ -1151,18 +1239,20 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
     if (x == 0) {
         mm.x = mon->mx;
         mm.y = mon->my;
-        if (!enexto(&mm, mm.x, mm.y, mon->data) || MON_AT(mm.x, mm.y))
-            return (struct monst *) 0;
-    } else if (!isok(x, y)) {
-        return (struct monst *) 0; /* paranoia */
     } else {
         mm.x = x;
         mm.y = y;
-        if (MON_AT(mm.x, mm.y)) {
-            if (!enexto(&mm, mm.x, mm.y, mon->data) || MON_AT(mm.x, mm.y))
-                return (struct monst *) 0;
-        }
     }
+    if (!isok(mm.x, mm.y)) { /* paranoia */
+        impossible("clone_mon trying to create a monster at <%d,%d>?",
+                   mm.x, mm.y);
+        return (struct monst *) 0;
+    }
+    if (MON_AT(mm.x, mm.y)) { /* (always True for the x==0 case) */
+        if (!enexto(&mm, mm.x, mm.y, mon->data) || MON_AT(mm.x, mm.y))
+            return (struct monst *) 0;
+    }
+
     m2 = newmonst();
     *m2 = *mon; /* copy condition of old monster */
     m2->mextra = (struct mextra *) 0;
@@ -1174,9 +1264,11 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
     m2->mx = mm.x;
     m2->my = mm.y;
 
+    m2->mundetected = 0;
+    m2->mtrapped = 0;
     m2->mcloned = 1;
     m2->minvent = (struct obj *) 0; /* objects don't clone */
-    m2->mleashed = FALSE;
+    m2->mleashed = 0;
     /* Max HP the same, but current HP halved for both.  The caller
      * might want to override this by halving the max HP also.
      * When current HP is odd, the original keeps the extra point.
@@ -1186,21 +1278,20 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
     m2->mhp = mon->mhp / 2;
     mon->mhp -= m2->mhp;
 
-    /* since shopkeepers and guards will only be cloned if they've been
-     * polymorphed away from their original forms, the clone doesn't have
-     * room for the extra information.  we also don't want two shopkeepers
-     * around for the same shop.
-     */
-    if (mon->isshk)
-        m2->isshk = FALSE;
-    if (mon->isgd)
-        m2->isgd = FALSE;
-    if (mon->ispriest)
-        m2->ispriest = FALSE;
+    /* clone doesn't have mextra so mustn't retain special monster flags */
+    m2->isshk = 0;
+    m2->isgd = 0;
+    m2->ispriest = 0;
+    /* ms->isminion handled below */
+
+    /* clone shouldn't be reluctant to move on spots 'parent' just moved on */
+    (void) memset((genericptr_t) m2->mtrack, 0, sizeof m2->mtrack);
+
     place_monster(m2, m2->mx, m2->my);
     if (emits_light(m2->data))
         new_light_source(m2->mx, m2->my, emits_light(m2->data), LS_MONSTER,
                          monst_to_any(m2));
+    /* if 'parent' is named, give the clone the same name */
     if (has_mname(mon)) {
         m2 = christen_monst(m2, MNAME(mon));
     } else if (mon->isshk) {
@@ -1208,31 +1299,35 @@ xchar x, y; /* clone's preferred location or 0 (near mon) */
     }
 
     /* not all clones caused by player are tame or peaceful */
-    if (!context.mon_moving) {
+    if (!context.mon_moving && mon->mpeaceful) {
         if (mon->mtame)
             m2->mtame = rn2(max(2 + u.uluck, 2)) ? mon->mtame : 0;
         else if (mon->mpeaceful)
             m2->mpeaceful = rn2(max(2 + u.uluck, 2)) ? 1 : 0;
     }
+    /* if guardian angel could be cloned (maybe after polymorph?),
+       m2 could be both isminion and mtame; isminion takes precedence */
+    if (m2->isminion) {
+        int atyp;
 
-    newsym(m2->mx, m2->my); /* display the new monster */
-    if (m2->mtame) {
-        if (mon->isminion) {
-            newemin(m2);
-            if (EMIN(mon))
-                *(EMIN(m2)) = *(EMIN(mon));
-        } else {
-            /* because m2 is a copy of mon it is tame but not init'ed.
-             * however, tamedog will not re-tame a tame dog, so m2
-             * must be made non-tame to get initialized properly.
-             */
-            m2->mtame = 0;
-            if (tamedog(m2, (struct obj *) 0)) {
-                *(EDOG(m2)) = *(EDOG(mon));
-            }
-        }
+        newemin(m2);
+        *EMIN(m2) = *EMIN(mon);
+        /* renegade when same alignment as hero but not peaceful or
+           when peaceful while being different alignment from hero */
+        atyp = EMIN(m2)->min_align;
+        EMIN(m2)->renegade = (atyp != u.ualign.type) ^ !m2->mpeaceful;
+    } else if (m2->mtame) {
+        /* Because m2 is a copy of mon it is tame but not init'ed.
+           However, tamedog() will not re-tame a tame dog, so m2
+           must be made non-tame to get initialized properly. */
+        m2->mtame = 0;
+        if (tamedog(m2, (struct obj *) 0))
+            *EDOG(m2) = *EDOG(mon);
+        /* [TODO? some (most? all?) edog fields probably should be
+           reinitialized rather that retain the 'parent's values] */
     }
     set_malign(m2);
+    newsym(m2->mx, m2->my); /* display the new monster */
 
     return m2;
 }
@@ -1354,13 +1449,12 @@ newmextra()
     mextra->eshk = 0;
     mextra->emin = 0;
     mextra->edog = 0;
-    mextra->eama = 0;
     mextra->erid = 0;
     mextra->mcorpsenm = NON_PM;
     return mextra;
 }
 
-boolean
+STATIC_OVL boolean
 makemon_rnd_goodpos(mon, gpflags, cc)
 struct monst *mon;
 unsigned gpflags;
@@ -1417,7 +1511,7 @@ coord *cc;
             }
         }
     } else {
-    gotgood:
+ gotgood:
         cc->x = nx;
         cc->y = ny;
         return TRUE;
@@ -1439,11 +1533,8 @@ register int x, y;
 int mmflags;
 {
     register struct monst *mtmp;
-    # if 0
-    register struct permonst *first_mon;
-    register struct permonst *second_mon;
-    register struct permonst *final_mon;
-    # endif
+    struct monst fakemon;
+    coord cc;
     int mndx, mcham, ct, mitem;
     boolean anymon = (!ptr);
     boolean byyou = (x == u.ux && y == u.uy);
@@ -1451,39 +1542,37 @@ int mmflags;
     boolean countbirth = ((mmflags & MM_NOCOUNTBIRTH) == 0);
     unsigned gpflags = (mmflags & MM_IGNOREWATER) ? MM_IGNOREWATER : 0;
 
+    fakemon = zeromonst;
+    cc.x = cc.y = 0;
+
     /* if caller wants random location, do it here */
     if (x == 0 && y == 0) {
-        coord cc;
-        struct monst fakemon;
-
-        cc.x = cc.y = 0; /* lint suppression */
         fakemon.data = ptr; /* set up for goodpos */
-        if (!makemon_rnd_goodpos(ptr ? &fakemon : (struct monst *)0,
+        if (!makemon_rnd_goodpos(ptr ? &fakemon : (struct monst *) 0,
                                  gpflags, &cc))
             return (struct monst *) 0;
         x = cc.x;
         y = cc.y;
     } else if (byyou && !in_mklev) {
-        coord bypos;
-
-        if (enexto_core(&bypos, u.ux, u.uy, ptr, gpflags)) {
-            x = bypos.x;
-            y = bypos.y;
-        } else
+        if (!enexto_core(&cc, u.ux, u.uy, ptr, gpflags))
             return (struct monst *) 0;
+        x = cc.x;
+        y = cc.y;
+    }
+
+    /* sanity check */
+    if (!isok(x, y)) {
+        impossible("makemon trying to create a monster at <%d,%d>?", x, y);
+        return (struct monst *) 0;
     }
 
     /* Does monster already exist at the position? */
     if (MON_AT(x, y)) {
-        if ((mmflags & MM_ADJACENTOK) != 0) {
-            coord bypos;
-            if (enexto_core(&bypos, x, y, ptr, gpflags)) {
-                x = bypos.x;
-                y = bypos.y;
-            } else
-                return (struct monst *) 0;
-        } else
+        if (!(mmflags & MM_ADJACENTOK)
+            || !enexto_core(&cc, x, y, ptr, gpflags))
             return (struct monst *) 0;
+        x = cc.x;
+        y = cc.y;
     }
 
     if (ptr) {
@@ -1503,7 +1592,6 @@ int mmflags;
          * for instance.)
          */
         int tryct = 0; /* maybe there are no good choices */
-        struct monst fakemon;
 
         do {
             if (!(ptr = rndmonst())) {
@@ -1532,17 +1620,17 @@ int mmflags;
         newemin(mtmp);
     if (mmflags & MM_EDOG)
         newedog(mtmp);
-    if (mmflags & MM_EAMA)
-        neweama(mtmp);
     if (mmflags & MM_ERID)
         newerid(mtmp);
+    if (mmflags & MM_ASLEEP)
+        mtmp->msleeping = 1;
 
     mtmp->nmon = fmon;
     fmon = mtmp;
     mtmp->m_id = context.ident++;
     if (!mtmp->m_id)
         mtmp->m_id = context.ident++; /* ident overflowed */
-    set_mon_data(mtmp, ptr, 0);
+    set_mon_data(mtmp, ptr); /* mtmp->data = ptr; */
     if (ptr->msound == MS_LEADER && quest_info(MS_LEADER) == mndx)
         quest_status.leader_m_id = mtmp->m_id;
     mtmp->mnum = mndx;
@@ -1574,11 +1662,21 @@ int mmflags;
     mtmp->mcansee = mtmp->mcanmove = TRUE;
     mtmp->mpeaceful = (mmflags & MM_ANGRY) ? FALSE : peace_minded(ptr);
 
+    /* If the player is bisexual, 50% of foocubi have headaches. */
+    if ((mndx == PM_INCUBUS || mndx == PM_SUCCUBUS) 
+        && flags.orientation == SEX_BI && !rn2(2)) {
+        mtmp->mcan = 1;
+    }
+
     /* mounting */
-    if (!(mmflags & MM_REVIVE)) {
+    if (!(mmflags & MM_NOCOUNTBIRTH) && ! (mmflags & MM_NOERID)) {
         switch (mndx) {
             case PM_KNIGHT:
-                mount_monster(mtmp, PM_PONY);
+                mount_monster(mtmp, !rn2(2) ? PM_PONY : PM_HORSE);
+                break;
+            case PM_DRAGONMASTER:
+                mount_monster(mtmp, PM_BABY_GRAY_DRAGON + 
+                    rn2(PM_YELLOW_DRAGON - PM_BABY_GRAY_DRAGON));
                 break;
             case PM_HEADLESS_HORSEMAN:
                 mount_monster(mtmp, PM_NIGHTMARE);
@@ -1591,6 +1689,9 @@ int mmflags;
                 break;
             case PM_PESTILENCE:
                 mount_monster(mtmp, PM_WHITE_HORSE);
+                break;
+            case PM_NAZGUL:
+                mount_monster(mtmp, PM_FELL_BEAST);
                 break;
         }
     }
@@ -1619,12 +1720,6 @@ int mmflags;
             mount_monster(mtmp, PM_VOANAIRRUTH);
         }
         break;
-    case S_DEMON:
-        if (mndx == PM_KING_IN_YELLOW) {
-            mtmp->perminvis = TRUE;
-            mtmp->minvis = TRUE;
-        }
-        break;
     case S_EEL:
         (void) hideunder(mtmp);
         break;
@@ -1640,6 +1735,10 @@ int mmflags;
         if (rn2(5) && !u.uhave.amulet)
             mtmp->msleeping = 1;
         break;
+    case S_ZOMBIE:
+        if (Race_if(PM_GHOUL) && ptr->mhflags & MH_GHOUL)
+            mtmp->mpeaceful = TRUE;
+        break;
     case S_ORC:
         if (Race_if(PM_ELF))
             mtmp->mpeaceful = FALSE;
@@ -1653,9 +1752,7 @@ int mmflags;
             mon_adjust_speed(mtmp, 2, (struct obj *) 0);
         break;
     case S_QUANTMECH:
-        if (mndx == PM_AMALGAMATION || mndx == PM_BAD_CLONE) {
-            neweama(mtmp);
-        }
+        mon_adjust_speed(mtmp, rn2(7), (struct obj *) 0);
         break;
     }
     if ((ct = emits_light(mtmp->data)) > 0)
@@ -1670,22 +1767,20 @@ int mmflags;
     if (mndx == PM_VLAD_THE_IMPALER)
         mitem = CANDELABRUM_OF_INVOCATION;
     mtmp->cham = NON_PM; /* default is "not a shapechanger" */
-    if ((mcham = pm_to_cham(mndx)) != NON_PM) {
+    if (!Protection_from_shape_changers
+        && (mcham = pm_to_cham(mndx)) != NON_PM) {
         /* this is a shapechanger after all */
-        if (Protection_from_shape_changers
-            || mndx == PM_VLAD_THE_IMPALER) {
-            ; /* stuck in its natural form (NON_PM) */
-        } else {
-            mtmp->cham = mcham;
-            /* Note: shapechanger's initial form used to be
-               chosen here with rndmonst(), yielding a monster
-               which was appropriate to the level's difficulty
-               but ignored the changer's usual type selection
-               so would be inappropriate for vampshifters.
+        mtmp->cham = mcham;
+        /* Vlad stays in his normal shape so he can carry the Candelabrum,
+            and Alucard stays in his normal shape since he has weapons. */
+        if (mndx != PM_VLAD_THE_IMPALER && mndx != PM_ALUCARD
+            /* Note:  shapechanger's initial form used to be chosen here
+               with rndmonst(), yielding a monster which was appropriate
+               to the level's difficulty but ignoring the changer's usual
+               type selection, so was inappropriate for vampshifters.
                Let newcham() pick the shape. */
-            if (newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
-                allow_minvent = FALSE;
-        }
+            && newcham(mtmp, (struct permonst *) 0, FALSE, FALSE))
+            allow_minvent = FALSE;
     } else if (mndx == PM_WIZARD_OF_YENDOR) {
         mtmp->iswiz = TRUE;
         context.no_of_wizards++;
@@ -1753,6 +1848,7 @@ int mmflags;
             ? !(mmflags & (MM_EPRI | MM_EMIN))
             : (mndx == PM_ANGEL && !(mmflags & MM_EMIN) && !rn2(3))) {
         struct emin *eminp;
+
         newemin(mtmp);
         eminp = EMIN(mtmp);
 
@@ -1764,16 +1860,17 @@ int mmflags;
                               : eminp->renegade;
     }
     set_malign(mtmp); /* having finished peaceful changes */
-    if (anymon) {
+
+    if (anymon && !(mmflags & MM_NOGRP)) {
         /* If loaded, packrats may generate in groups */
         if (mndx == PM_PACKRAT) {
             int cap = near_capacity();
             if (cap) {
                 if (rn2(7) < cap) {
                     if (rn2(7) < cap) {
-                        m_initlgrp(mtmp, mtmp->mx, mtmp->my);
+                        m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
                     } else {
-                        m_initsgrp(mtmp, mtmp->mx, mtmp->my);
+                        m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
                     }
                 }
             }
@@ -1784,9 +1881,9 @@ int mmflags;
                 m_initsgrp(mtmp, mtmp->mx, mtmp->my);
             } else if (ptr->geno & G_LGROUP) {
                 if (rn2(3))
-                    m_initlgrp(mtmp, mtmp->mx, mtmp->my);
+                    m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
                 else
-                    m_initsgrp(mtmp, mtmp->mx, mtmp->my);
+                    m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
             }
         }
     }
@@ -1800,6 +1897,7 @@ int mmflags;
         if (!rn2(100) && is_domestic(ptr) && !is_dragon(ptr)
             && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE)) {
             struct obj *otmp = mksobj(SADDLE, TRUE, FALSE);
+
             put_saddle_on_mon(otmp, mtmp);
         }
 
@@ -1816,6 +1914,8 @@ int mmflags;
             mtmp->mstrategy |= STRAT_CLOSE;
         if (ptr->mflags3 & (M3_WAITMASK | M3_COVETOUS))
             mtmp->mstrategy |= STRAT_APPEARMSG;
+        if (ptr->mflags3 & (M3_ORGANIZED))
+            mtmp->mstrategy |= STRAT_SHOUTOUT;
     }
 
     if (allow_minvent && migrating_objs)
@@ -1950,6 +2050,7 @@ rndmonst()
     if (rndmonst_state.choice_count < 0) { /* need to recalculate */
         int zlevel, minmlev, maxmlev;
         boolean elemlevel;
+        boolean blkmarlevel;
         boolean upper;
 
         rndmonst_state.choice_count = 0;
@@ -1971,6 +2072,7 @@ rndmonst()
         maxmlev = (zlevel + u.ulevel) / 2;
         upper = Is_rogue_level(&u.uz);
         elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz);
+        blkmarlevel = Is_blackmarket(&u.uz);
 
         /*
          * Find out how many monsters exist in the range we have selected.
@@ -1987,11 +2089,13 @@ rndmonst()
                 continue;
             if (elemlevel && wrong_elem_type(ptr))
                 continue;
-            if (is_domestic(ptr) && Is_blackmarket(&u.uz))
+            if (is_domestic(ptr) && blkmarlevel) {
                 continue;
-            if (uncommon(mndx))
+            } if (uncommon(mndx))
                 continue;
             if (Inhell && (ptr->geno & G_NOHELL))
+                continue;
+            if (In_endgame(&u.uz) && (ptr->geno & G_NOPLANES))
                 continue;
             ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
             if (ct < 0 || ct > 127)
@@ -2078,59 +2182,89 @@ int mndx, mvflagsmask, genomask;
 }
 
 /* Make one of the multiple types of a given monster class.
- * The second parameter specifies a special casing bit mask
- * to allow the normal genesis masks to be deactivated.
- * Returns Null if no monsters in that class can be made.
- */
+   The second parameter specifies a special casing bit mask
+   to allow the normal genesis masks to be deactivated.
+   Returns Null if no monsters in that class can be made. */
 struct permonst *
 mkclass(class, spc)
 char class;
 int spc;
 {
+    return mkclass_aligned(class, spc, A_NONE);
+}
+
+/* mkclass() with alignment restrictions; used by ndemon() */
+struct permonst *
+mkclass_aligned(class, spc, atyp)
+char class;
+int spc;
+aligntyp atyp;
+{
     register int first, last, num = 0;
+    int k, nums[SPECIAL_PM + 1]; /* +1: insurance for final return value */
     int maxmlev, mask = (G_NOGEN | G_UNIQ) & ~spc;
 
+    (void) memset((genericptr_t) nums, 0, sizeof nums);
     maxmlev = level_difficulty() >> 1;
     if (class < 1 || class >= MAXMCLASSES) {
         impossible("mkclass called with bad class!");
         return (struct permonst *) 0;
     }
     /*  Assumption #1:  monsters of a given class are contiguous in the
-     *                  mons[] array.
+     *                  mons[] array.  Player monsters and quest denizens
+     *                  are an exception; mkclass() won't pick them.
+     *                  SPECIAL_PM is long worm tail and separates the
+     *                  regular monsters from the exceptions.
      */
     for (first = LOW_PM; first < SPECIAL_PM; first++)
         if (mons[first].mlet == class)
             break;
-    if (first == SPECIAL_PM)
+    if (first == SPECIAL_PM) {
+        impossible("mkclass found no class %d monsters", class);
         return (struct permonst *) 0;
-
-    for (last = first; last < SPECIAL_PM && mons[last].mlet == class; last++)
-        if (mk_gen_ok(last, G_GONE, mask)) {
-            /* consider it */
-            if (num && toostrong(last, maxmlev)
-                && monstr[last] != monstr[last - 1] && rn2(2))
-                break;
-            num += mons[last].geno & G_FREQ;
-        }
-    if (!num)
-        return (struct permonst *) 0;
+    }
 
     /*  Assumption #2:  monsters of a given class are presented in ascending
      *                  order of strength.
      */
-    for (num = rnd(num); num > 0; first++)
-        if (mk_gen_ok(first, G_GONE, mask)) {
-            /* skew towards lower value monsters at lower exp. levels */
-            num -= mons[first].geno & G_FREQ;
-            if (num && adj_lev(&mons[first]) > (u.ulevel * 2)) {
-                /* but not when multiple monsters are same level */
-                if (mons[first].mlevel != mons[first + 1].mlevel)
-                    num--;
+    for (last = first; last < SPECIAL_PM && mons[last].mlet == class; last++) {
+        if (atyp != A_NONE && sgn(mons[last].maligntyp) != sgn(atyp))
+            continue;
+        if (mk_gen_ok(last, G_GONE, mask)) {
+            /* consider it; don't reject a toostrong() monster if we
+               don't have anything yet (num==0) or if it is the same
+               (or lower) difficulty as preceding candidate (non-zero
+               'num' implies last > first so mons[last-1] is safe);
+               sometimes accept it even if high difficulty */
+            if (num && toostrong(last, maxmlev)
+                && mons[last].difficulty > mons[last - 1].difficulty
+                && rn2(2))
+                break;
+            if ((k = (mons[last].geno & G_FREQ)) > 0) {
+                /* skew towards lower value monsters at lower exp. levels
+                   (this used to be done in the next loop, but that didn't
+                   work well when multiple species had the same level and
+                   were followed by one that was past the bias threshold;
+                   cited example was sucubus and incubus, where the bias
+                   against picking the next demon resulted in incubus
+                   being picked nearly twice as often as sucubus);
+                   we need the '+1' in case the entire set is too high
+                   level (really low level hero) */
+                nums[last] = k + 1 - (adj_lev(&mons[last]) > (u.ulevel * 2));
+                num += nums[last];
             }
         }
-    first--; /* correct an off-by-one error */
+    }
+    if (!num)
+        return (struct permonst *) 0;
 
-    return &mons[first];
+    /* the hard work has already been done; 'num' should hit 0 before
+       first reaches last (which is actually one past our last candidate) */
+    for (num = rnd(num); first < last; first++)
+        if ((num -= nums[first]) <= 0)
+            break;
+
+    return nums[first] ? &mons[first] : (struct permonst *) 0;
 }
 
 /* like mkclass(), but excludes difficulty considerations; used when
@@ -2281,8 +2415,10 @@ struct monst *mtmp, *victim;
                 pline("As %s grows up into %s, %s %s!", mon_nam(mtmp),
                       an(ptr->mname), mhe(mtmp),
                       nonliving(ptr) ? "expires" : "dies");
+
             set_mon_data(mtmp, ptr, -1); /* keep mvitals[] accurate */
             mondied(mtmp, mtmp);
+
             return (struct permonst *) 0;
         } else if (canspotmon(mtmp)) {
             char buf[BUFSZ];
@@ -2304,7 +2440,7 @@ struct monst *mtmp, *victim;
                                                         : "grows up into",
                   an(buf));
         }
-        set_mon_data(mtmp, ptr, 1);    /* preserve intrinsics */
+        set_mon_data(mtmp, ptr);
         newsym(mtmp->mx, mtmp->my);    /* color may change */
         lev_limit = (int) mtmp->m_lev; /* never undo increment */
 
@@ -2422,10 +2558,16 @@ int type;
         return 100;
     case PM_SLUDGE_GOLEM:
         return 120;
-    case PM_ROOK:
-        return 120;
     case PM_IRON_GOLEM:
         return 80;
+    case PM_RUBY_GOLEM:
+        return 90;
+    case PM_SAPPHIRE_GOLEM:
+        return 130;
+    case PM_STEEL_GOLEM:
+        return 140;
+    case PM_CRYSTAL_GOLEM:
+        return 150;
     default:
         return 0;
     }
@@ -2646,7 +2788,7 @@ register struct monst *mtmp;
         }
     } else {
         s_sym = syms[rn2((int) sizeof(syms))];
-    assign_sym:
+ assign_sym:
         if (s_sym == MAXOCLASSES || s_sym == MAXOCLASSES + 1) {
             ap_type = M_AP_FURNITURE;
             appear = (s_sym == MAXOCLASSES) ? S_upstair : S_dnstair;
@@ -2666,17 +2808,52 @@ register struct monst *mtmp;
     }
     mtmp->m_ap_type = ap_type;
     mtmp->mappearance = appear;
-    if (ap_type == M_AP_OBJECT && (appear == STATUE || appear == CORPSE
-                                   || appear == FIGURINE || appear == EGG
-                                   || appear == MASK)) {
+    /* when appearing as an object based on a monster type, pick a shape */
+    if (ap_type == M_AP_OBJECT
+        && (appear == STATUE || appear == FIGURINE
+            || appear == CORPSE || appear == EGG || appear == TIN || appear == MASK)) {
+        int mndx = rndmonnum(),
+            nocorpse_ndx = (mvitals[mndx].mvflags & G_NOCORPSE) != 0;
+
+        if (appear == CORPSE && nocorpse_ndx)
+            mndx = rn1(PM_WIZARD - PM_ARCHEOLOGIST + 1, PM_ARCHEOLOGIST);
+        else if ((appear == EGG && !can_be_hatched(mndx))
+                 || (appear == TIN && nocorpse_ndx))
+            mndx = NON_PM; /* revert to generic egg or empty tin */
+
         newmcorpsenm(mtmp);
-        MCORPSENM(mtmp) = rndmonnum();
-        if (appear == EGG && !can_be_hatched(MCORPSENM(mtmp)))
-            MCORPSENM(mtmp) = NON_PM; /* revert to generic egg */
+        MCORPSENM(mtmp) = mndx;
+    } else if (ap_type == M_AP_OBJECT && appear == SLIME_MOLD) {
+        newmcorpsenm(mtmp);
+        MCORPSENM(mtmp) = context.current_fruit;
+        /* if no objects of this fruit type have been created yet,
+           context.current_fruit is available for re-use when the player
+           assigns a new fruit name; override that--having a mimic as the
+           current_fruit is equivalent to creating an instance of that
+           fruit (no-op if a fruit of this type has actually been made) */
+        flags.made_fruit = TRUE;
+    } else if (has_mcorpsenm(mtmp)) {
+        /* don't retain stale value from a previously mimicked shape */
+        MCORPSENM(mtmp) = NON_PM;
     }
 
     if (does_block(mx, my, &levl[mx][my]))
         block_point(mx, my);
+}
+
+void
+create_sin()
+{
+    int tryct = 0;
+    int pm = 0;
+    do {
+        pm = rn1(PM_ENVY - PM_WRATH + 1, PM_WRATH);
+        tryct++;
+    } while ((mvitals[pm].mvflags & G_EXTINCT) && tryct < 100);
+    if (!(mvitals[pm].mvflags & G_EXTINCT)) {
+        makemon(&mons[pm], 0, 0, NO_MM_FLAGS);
+        mvitals[pm].mvflags |= G_EXTINCT;
+    }
 }
 
 /* release monster from bag of tricks; return number of monsters created */
@@ -2688,7 +2865,7 @@ int *seencount;  /* secondary output */
 {
     int moncount = 0;
 
-    if (!bag || bag->otyp != BAG_OF_TRICKS) {
+    if (!bag || (bag->otyp != BAG_OF_TRICKS && bag->otyp != BAG_OF_RATS)) {
         impossible("bad bag o' tricks");
     } else if (bag->spe < 1) {
         /* if tipping known empty bag, give normal empty container message */
@@ -2702,10 +2879,14 @@ int *seencount;  /* secondary output */
 
         consume_obj_charge(bag, !tipping);
 
-        if (!rn2(23))
+        if (bag->otyp == BAG_OF_RATS && !rn2(4))
+            creatcnt += rnd(3);
+        else if (!rn2(23))
             creatcnt += rnd(7);
         do {
-            mtmp = makemon((struct permonst *) 0, u.ux, u.uy, NO_MM_FLAGS);
+            mtmp = makemon(bag->otyp == BAG_OF_TRICKS ? 
+                            (struct permonst *) 0 : &mons[PM_SEWER_RAT + rn2(2)], 
+                            u.ux, u.uy, NO_MM_FLAGS);
             if (mtmp) {
                 ++moncount;
                 if (canspotmon(mtmp))
@@ -2716,7 +2897,7 @@ int *seencount;  /* secondary output */
             if (seencount)
                 *seencount += seecount;
             if (bag->dknown)
-                makeknown(BAG_OF_TRICKS);
+                makeknown(bag->otyp);
         } else if (!tipping) {
             pline1(!moncount ? nothing_happens : "Nothing seems to happen.");
         }

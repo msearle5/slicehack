@@ -347,6 +347,7 @@ MONSTER:'j',random,hostile
 #
 
 MAZE: "Kni-fila" , '.'
+FLAGS: noflip
 INIT_MAP: mines, '.' , 'P' , false , true , lit , false
 NOMAP
 #
@@ -375,6 +376,7 @@ TRAP: random, random
 TRAP: random, random
 
 MAZE: "Kni-filb" , '.'
+FLAGS: noflip
 INIT_MAP: mines, '.' , 'P' , false , true , lit , false
 NOMAP
 #

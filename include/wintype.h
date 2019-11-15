@@ -1,4 +1,4 @@
-/* NetHack 3.6  wintype.h       $NHDT-Date: 1461028538 2016/04/19 01:15:38 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.16 $ */
+/* NetHack 3.6  wintype.h       $NHDT-Date: 1549327486 2019/02/05 00:44:46 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.19 $ */
 /* Copyright (c) David Cohrs, 1991                                */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -72,14 +72,31 @@ typedef struct mi {
 #define NHW_MAP 3
 #define NHW_MENU 4
 #define NHW_TEXT 5
+#if defined(DUMPLOG) || defined(DUMPHTML)
+/* There's no windump.h, so these go here for now */
+#define NHW_DUMPTXT 6
+#define NHW_DUMPHTML 7
+#endif
 
 /* attribute types for putstr; the same as the ANSI value, for convenience */
-#define ATR_NONE 0
-#define ATR_BOLD 1
-#define ATR_DIM 2
-#define ATR_ULINE 4
-#define ATR_BLINK 5
-#define ATR_INVERSE 7
+#define ATR_NONE       0
+#define ATR_BOLD       1
+#define ATR_DIM        2
+#define ATR_ULINE      4
+#define ATR_BLINK      5
+#define ATR_INVERSE    7
+/* not a display attribute but passed to putstr() as an attribute;
+   can be masked with one regular display attribute */
+#define ATR_URGENT    16
+#define ATR_NOHISTORY 32
+
+/* Style attributes for HTML dumplogs. Currently masked if not
+   dumping because other window ports don't define how they are
+   handled.  This masking could be generalised with a WC#_ flag
+   to allow other windowports to support them. */
+#define ATR_HEADING   (iflags.in_dumplog ?  64 : 0) /* rendered as <h2> in HTML dump */
+#define ATR_SUBHEAD   (iflags.in_dumplog ? 128 : 0) /* rendered as <h3> in HTML dump */
+#define ATR_PREFORM   (iflags.in_dumplog ? 256 : 0) /* preformatted - for preserving indentation */
 
 /* nh_poskey() modifier types */
 #define CLICK_1 1

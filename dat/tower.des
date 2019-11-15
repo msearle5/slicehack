@@ -4,7 +4,7 @@
 #
 # Upper stage of Vlad's tower
 MAZE:"tower1",' '
-FLAGS: noteleport,hardfloor,solidify
+FLAGS: noteleport,hardfloor,solidify,noflip
 GEOMETRY:half-left,center
 MAP
   --- --- ---  
@@ -39,16 +39,16 @@ DOOR:locked,(08,07)
 DOOR:locked,(10,07)
 DOOR:closed,(03,06)
 # treasures
-OBJECT:('(',"chest"),(07,05)
+OBJECT:('(',"coffin"),(07,05)
 
-OBJECT:('(',"chest"),$niches[0]
-OBJECT:('(',"chest"),$niches[1]
-OBJECT:('(',"chest"),$niches[2]
-OBJECT:('(',"chest"),$niches[3]
-CONTAINER:('(',"chest"),$niches[4] {
+OBJECT:('(',"coffin"),$niches[0]
+OBJECT:('(',"coffin"),$niches[1]
+OBJECT:('(',"coffin"),$niches[2]
+OBJECT:('(',"coffin"),$niches[3]
+CONTAINER:('(',"coffin"),$niches[4] {
   OBJECT:('(', "wax candle"), quantity:4d2
 }
-CONTAINER:('(',"chest"),$niches[5] {
+CONTAINER:('(',"coffin"),$niches[5] {
   OBJECT:('(', "tallow candle"), quantity:4d2
 }
 # We have to protect the tower against outside attacks
@@ -57,7 +57,7 @@ NON_DIGGABLE:(00,00,14,10)
 
 # Intermediate stage of Vlad's tower
 MAZE:"tower2",' '
-FLAGS: noteleport,hardfloor,solidify
+FLAGS: noteleport,hardfloor,solidify,noflip
 GEOMETRY:half-left,center
 MAP
   --- --- ---  
@@ -85,10 +85,10 @@ MONSTER:'&',$place[1]
 MONSTER:('d',"hell hound pup"),$place[2]
 MONSTER:('d',"hell hound pup"),$place[3]
 MONSTER:('d',"winter wolf"),$place[4]
-CONTAINER:('(',"chest"),$place[5] {
+CONTAINER:('(',"coffin"),$place[5] {
   OBJECT:('"',"amulet of life saving")
 }
-CONTAINER:('(',"chest"),$place[6] {
+CONTAINER:('(',"coffin"),$place[6] {
   OBJECT:('"',"amulet of strangulation")
 }
 OBJECT:('[',"water walking boots"),$place[7]
@@ -100,7 +100,7 @@ NON_DIGGABLE:(00,00,14,10)
 
 # Bottom most stage of Vlad's tower
 MAZE:"tower3",' '
-FLAGS: noteleport,hardfloor,solidify
+FLAGS: noteleport,hardfloor,solidify,noflip
 GEOMETRY:half-left,center
 MAP
 --------------------------------------------------------------------------
@@ -160,7 +160,7 @@ MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
 MONSTER:'Z',random
-MONSTER:'V',(35,10)
+MONSTER:('V',"Alucard"),(35,10)
 MONSTER:'V',(35,08)
 MONSTER:'V',(43,10)
 MONSTER:'V',(43,08)

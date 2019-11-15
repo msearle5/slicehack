@@ -1,4 +1,4 @@
-/* NetHack 3.6	spell.c	$NHDT-Date: 1508479722 2017/10/20 06:08:42 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.84 $ */
+/* NetHack 3.6	spell.c	$NHDT-Date: 1546565814 2019/01/04 01:36:54 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.88 $ */
 /*      Copyright (c) M. Stephenson 1988                          */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -42,6 +42,7 @@ STATIC_DCL boolean FDECL(dospellmenu, (const char *, int, int *));
 STATIC_DCL int FDECL(percent_success, (int));
 STATIC_DCL char *FDECL(spellretention, (int, char *));
 STATIC_DCL void FDECL(spell_backfire, (int));
+STATIC_DCL int FDECL(expltyp, (int));
 STATIC_DCL boolean FDECL(spell_aim_step, (genericptr_t, int, int));
 
 /* The roles[] table lists the role-specific values for tuning
@@ -269,9 +270,12 @@ struct obj *book2;
                 u.udg_cnt = soon;
             /* Awaken all the ndemons and scatter them throughout the game. The
                ascension run is no easy task :D */
-            pline("You feel like you are being watched...");
-            for (pm = PM_JUIBLEX; pm <= PM_DEMOGORGON; pm++) {
-                if (!(mvitals[pm].mvflags & G_EXTINCT)) {
+            pline("The air is suddenly thick with infernal screams. The legions of hell are after you!");
+            for (pm = 0; pm < PM_ARCHEOLOGIST; pm++) {
+                if ((mons[pm].geno & G_HELL) != 0) {
+                    mons[pm].geno &= ~G_HELL;
+                }
+                if ( pm >= PM_JUIBLEX && pm <= PM_DEMOGORGON && !(mvitals[pm].mvflags & G_EXTINCT)) {
                     mtmp = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS);
                     mtmp->mpeaceful = mtmp->minvis = mtmp->perminvis = 0;
                     if (mtmp->data->mflags3 & M3_WANTSAMUL)
@@ -280,6 +284,8 @@ struct obj *book2;
                         mtmp->data->mflags3 &= ~M3_WANTSBOOK;
                     if (mtmp->data->mflags3 & M3_WAITFORU)
                         mtmp->data->mflags3 &= ~M3_WAITFORU;
+                    if (mtmp->mstrategy & STRAT_WAITFORU)
+                        mtmp->mstrategy &= ~STRAT_WAITFORU;
                     /* based on muse.c code */
                     d_level flev;
                     get_level(&flev, 1 + rn2(depth(&u.uz)));
@@ -367,7 +373,6 @@ learn(VOID_ARGS)
     char splname[BUFSZ];
     boolean costly = TRUE;
     struct obj *book = context.spbook.book;
-    struct monst *mtmp;
 
     /* JDS: lenses give 50% faster reading; 33% smaller read time */
     if (context.spbook.delay && ublindf && ublindf->otyp == LENSES && rn2(2))
@@ -443,26 +448,6 @@ learn(VOID_ARGS)
 
         makeknown((int) booktype);
     }
-    if (book->oartifact == ART_KING_IN_YELLOW && book->spestudied == 1) {
-        You("find that you cannot look away from the boook, and your mind is filled with visions of a ruined city. Your fate is now sealed.");
-        /* Make and teleport the king to a random level */
-        mtmp = makemon(&mons[PM_KING_IN_YELLOW], u.ux, u.uy, NO_MM_FLAGS);
-        if (!In_endgame(&u.uz) && !u.uhave.amulet) {
-            /* based on muse.c code */
-            d_level flev;
-            get_level(&flev, random_teleport_level());
-            migrate_to_level(mtmp, ledger_no(&flev), MIGR_RANDOM,
-                             (coord *) 0);
-        }
-        /* add some other handy benefits */
-        exercise(A_WIS, TRUE);
-        exercise(A_CHA, TRUE);
-        pluslvl(FALSE);
-        HSleep_resistance |= FROMOUTSIDE;
-        HClairvoyant |= FROMOUTSIDE;
-        /* increase the studied count of the book */
-        book->spestudied++;
-    }
 
     if (book->cursed) { /* maybe a demon cursed it */
         if (cursed_book(book)) {
@@ -514,7 +499,9 @@ register struct obj *spellbook;
            context.spbook.book become erased somehow, resume reading it */
         && booktype != SPE_BLANK_PAPER) {
         You("continue your efforts to %s.",
-            (booktype == SPE_NOVEL) ? "read the novel" : "memorize the spell");
+            (booktype == SPE_NOVEL) ? "read the novel" :
+                (booktype == SPE_ENCYCLOPEDIA)
+                    ? "study the encyclopedia" : "memorize the spell");
     } else {
         /* KMH -- Simplified this code */
         if (booktype == SPE_BLANK_PAPER) {
@@ -526,7 +513,7 @@ register struct obj *spellbook;
         /* 3.6 tribute */
         if (booktype == SPE_NOVEL) {
             /* Obtain current Terry Pratchett book title */
-            const char *tribtitle = noveltitle(&spellbook->novelidx);
+            const char *tribtitle = noveltitle(&spellbook->novelidx, FALSE);
 
             if (read_tribute("books", tribtitle, 0, (char *) 0, 0,
                              spellbook->o_id)) {
@@ -542,6 +529,83 @@ register struct obj *spellbook;
                     u.uevent.read_tribute = 1; /* only once */
                 }
             }
+            return 1;
+        } else if (booktype == SPE_ENCYCLOPEDIA) {
+            const char *tribtitle = noveltitle(&spellbook->novelidx, TRUE);
+            int num_ids, otyp;
+            char listbuf[BUFSZ];
+
+            if (spellbook->spestudied > 0) {
+                You("have already learned everything you can from %s.", tribtitle);
+                return 0;
+            }
+            if(!u.uconduct.literate++)
+                livelog_printf(LL_CONDUCT,
+                        "became literate by reading %s", tribtitle);
+            check_unpaid(spellbook);
+            makeknown(booktype);
+
+            /* Determine the number of identifications */
+            if (spellbook->cursed)
+                num_ids = 1;
+            else if (spellbook->blessed)
+                num_ids = d(1,4);
+            else
+                num_ids = d(1,3);
+
+            /* Yes, this is clumsy and you can learn about something you already know, and
+               it can list the same thing multiple times. Hopefully this will be seen as
+               humorous. */
+            Sprintf(eos(listbuf), "By studying %s, you learn about ", tribtitle);
+            while (num_ids > 0) {
+                switch(rn2(10)) {
+                /* helmets */
+                case 0:
+                    otyp = CORNUTHAUM + rn2(1 + HELM_OF_TELEPATHY - CORNUTHAUM);
+                    break;
+                case 1:
+                    otyp = CLOAK_OF_PROTECTION +
+                        rn2(1 + CLOAK_OF_DISPLACEMENT - CLOAK_OF_PROTECTION);
+                    break;
+                case 2:
+                    otyp = GLOVES + rn2(1 + GAUNTLETS_OF_DEXTERITY - GLOVES);
+                    break;
+                case 3:
+                    otyp = SPEED_BOOTS + rn2(1 + LEVITATION_BOOTS - SPEED_BOOTS);
+                    break;
+                case 4:
+                    otyp = RIN_ADORNMENT +
+                        rn2(1 + RIN_PROTECTION_FROM_SHAPE_CHAN -
+                            RIN_ADORNMENT);
+                case 5:
+                    otyp = AMULET_OF_ESP +
+                        rn2(1 + AMULET_OF_MAGICAL_BREATHING - AMULET_OF_ESP);
+                case 6:
+                    otyp = POT_GAIN_ABILITY +
+                        rn2(1 + POT_OIL - POT_GAIN_ABILITY);;
+                    break;
+                case 7:
+                    otyp = SCR_ENCHANT_ARMOR +
+                        rn2(1 + SCR_STINKING_CLOUD - SCR_ENCHANT_ARMOR);
+                    break;
+                case 8:
+                    otyp = WAN_LIGHT + rn2(1 + WAN_PSIONICS - WAN_LIGHT);
+                    break;
+                default:
+                    otyp = LUCKSTONE + rn2(1 + TOUCHSTONE - LUCKSTONE);
+                }
+                makeknown(otyp);
+                if (num_ids > 2)
+                    Sprintf(eos(listbuf), "%s, ", makeplural(simple_typename(otyp)));
+                else if (num_ids == 2)
+                    Sprintf(eos(listbuf), "%s, and ", makeplural(simple_typename(otyp)));
+                else
+                    Sprintf(eos(listbuf), "%s.", makeplural(simple_typename(otyp)));
+                num_ids--;
+            }
+            spellbook->spestudied++;
+            pline("%s", listbuf);
+            update_inventory();
             return 1;
         }
 
@@ -571,8 +635,7 @@ register struct obj *spellbook;
 
         /* Books are often wiser than their readers (Rus.) */
         spellbook->in_use = TRUE;
-        if (!spellbook->blessed && spellbook->otyp != SPE_BOOK_OF_THE_DEAD
-            && spellbook->oartifact != ART_KING_IN_YELLOW) {
+        if (!spellbook->blessed && spellbook->otyp != SPE_BOOK_OF_THE_DEAD) {
             if (spellbook->cursed) {
                 too_hard = TRUE;
             } else {
@@ -987,6 +1050,10 @@ boolean atme;
     } else if (spellknow(spell) <= KEEN / 10) { /* 2000 turns left */
         Your("recall of this spell is gradually fading.");
     }
+    /*
+     *  Note: dotele() also calculates energy use and checks nutrition
+     *  and strength requirements; it any of these change, update it too.
+     */
     energy = (spellev(spell) * 5); /* 5 <= energy <= 35 */
 
     if (u.uhunger <= 10 && spellid(spell) != SPE_DETECT_FOOD &&
@@ -1148,6 +1215,11 @@ boolean atme;
      * effects, e.g. more damage, further distance, and so on, without
      * additional cost to the spellcaster.
      */
+    case SPE_ACID_STREAM:
+    case SPE_LIGHTNING:
+    case SPE_POISON_BLAST:
+    case SPE_SONICBOOM:
+    case SPE_PSYSTRIKE:
     case SPE_FIREBALL:
     case SPE_CONE_OF_COLD:
         if (tech_inuse(T_SIGIL_TEMPEST)) {
@@ -1171,9 +1243,7 @@ boolean atme;
                         explode(u.dx, u.dy,
                                 otyp - SPE_MAGIC_MISSILE + 10,
                                 spell_damage_bonus(u.ulevel / 2 + 1), 0,
-                                (otyp == SPE_CONE_OF_COLD)
-                                   ? EXPL_FROSTY
-                                   : EXPL_FIERY);
+                                expltyp(otyp));
                     }
                     u.dx = cc.x + rnd(3) - 2;
                     u.dy = cc.y + rnd(3) - 2;
@@ -1341,6 +1411,28 @@ boolean atme;
     return 1;
 }
 
+STATIC_OVL int
+expltyp(spell) 
+int spell;
+{
+    switch(spell) {
+    case SPE_FIREBALL:
+        return EXPL_FIERY;
+        break;
+    case SPE_CONE_OF_COLD:
+        return EXPL_FROSTY;
+        break;
+    case SPE_ACID_STREAM:
+    case SPE_POISON_BLAST:
+        return EXPL_NOXIOUS;
+        break;
+    case SPE_SONICBOOM:
+        return EXPL_DARK;
+        break;
+    }
+    return EXPL_MAGICAL;
+}
+
 /*ARGSUSED*/
 STATIC_OVL boolean
 spell_aim_step(arg, x, y)
@@ -1363,7 +1455,7 @@ throwspell()
     struct monst *mtmp;
 
     if (u.uinwater) {
-        pline("You're joking! In this weather?");
+        pline("You're joking!  In this weather?");
         return 0;
     } else if (Is_waterlevel(&u.uz)) {
         You("had better wait for the sun to come out.");
@@ -1400,6 +1492,62 @@ throwspell()
     u.dx = cc.x;
     u.dy = cc.y;
     return 1;
+}
+
+/* add/hide/remove/unhide teleport-away on behalf of dotelecmd() to give
+   more control to behavior of ^T when used in wizard mode */
+int
+tport_spell(what)
+int what;
+{
+    static struct tport_hideaway {
+        struct spell savespell;
+        int tport_indx;
+    } save_tport;
+    int i;
+/* also defined in teleport.c */
+#define NOOP_SPELL  0
+#define HIDE_SPELL  1
+#define ADD_SPELL   2
+#define UNHIDESPELL 3
+#define REMOVESPELL 4
+
+    for (i = 0; i < MAXSPELL; i++)
+        if (spellid(i) == SPE_TELEPORT_AWAY || spellid(i) == NO_SPELL)
+            break;
+    if (i == MAXSPELL) {
+        impossible("tport_spell: spellbook full");
+        /* wizard mode ^T is not able to honor player's menu choice */
+    } else if (spellid(i) == NO_SPELL) {
+        if (what == HIDE_SPELL || what == REMOVESPELL) {
+            save_tport.tport_indx = MAXSPELL;
+        } else if (what == UNHIDESPELL) {
+            /*assert( save_tport.savespell.sp_id == SPE_TELEPORT_AWAY );*/
+            spl_book[save_tport.tport_indx] = save_tport.savespell;
+            save_tport.tport_indx = MAXSPELL; /* burn bridge... */
+        } else if (what == ADD_SPELL) {
+            save_tport.savespell = spl_book[i];
+            save_tport.tport_indx = i;
+            spl_book[i].sp_id = SPE_TELEPORT_AWAY;
+            spl_book[i].sp_lev = objects[SPE_TELEPORT_AWAY].oc_level;
+            spl_book[i].sp_know = KEEN;
+            return REMOVESPELL; /* operation needed to reverse */
+        }
+    } else { /* spellid(i) == SPE_TELEPORT_AWAY */
+        if (what == ADD_SPELL || what == UNHIDESPELL) {
+            save_tport.tport_indx = MAXSPELL;
+        } else if (what == REMOVESPELL) {
+            /*assert( i == save_tport.tport_indx );*/
+            spl_book[i] = save_tport.savespell;
+            save_tport.tport_indx = MAXSPELL;
+        } else if (what == HIDE_SPELL) {
+            save_tport.savespell = spl_book[i];
+            save_tport.tport_indx = i;
+            spl_book[i].sp_id = NO_SPELL;
+            return UNHIDESPELL; /* operation needed to reverse */
+        }
+    }
+    return NOOP_SPELL;
 }
 
 /* forget a random selection of known spells due to amnesia;
@@ -1804,9 +1952,11 @@ int spell;
     statused = ACURR(urole.spelstat);
 
     if (uarm && is_metallic(uarm))
-        splcaster += (uarmc && uarmc->otyp == ROBE) ? urole.spelarmr / 2
-                                                    : urole.spelarmr;
-    else if (uarmc && uarmc->otyp == ROBE)
+        splcaster += (uarmc && uarmc->otyp == MYSTIC_ROBE) ? urole.spelarmr / 2
+                                                           : urole.spelarmr;
+    else if (uarmc && uarmc->otyp == MYSTIC_ROBE)
+        splcaster -= urole.spelarmr;
+    if (uwep && uwep->oartifact == ART_ORIGIN)
         splcaster -= urole.spelarmr;
     if (uarms)
         splcaster += urole.spelshld;

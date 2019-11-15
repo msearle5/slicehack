@@ -1,5 +1,5 @@
 # NetHack 3.6	data.base
-# $NHDT-Date: 1524683801 2018/04/25 19:16:41 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.84 $
+# $NHDT-Date: 1545359287 2018/12/21 02:28:07 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.87 $
 #	Copyright (c) 1994, 1995, 1996 by the NetHack Development Team
 #	Copyright (c) 1994 by Boudewijn Wayers
 #	NetHack may be freely redistributed.  See license for details.
@@ -19,6 +19,156 @@
 # following keys for that entry.  For instance, `~orc ??m*' preceding `orc*'
 # prevents "orc mummy" and "orc zombie" from matching.
 #
+
+
+### The following are used to provide the player information about roles ###
+race angel
+	As an angel, you walk a dangerous path. Monsters are drawn to your presence,
+	and demons will not bother to negotiate before trying to destroy you. Most
+	living beings, however, will see you as an ally, and your wings will allow you
+	to escape from many a deadly situation.
+
+	You are an angel, forceful yet gentle.
+race drow
+	As a drow (or dark elf), you have many of the same traits as an elf, but also
+	have the ability to put enemies to sleep with your unarmed strikes.
+	Unfortunately, drow are not well-liked by many races, and even other elves
+	may view you as an enemy.
+
+	You are a drow, crafty and deadly.
+race dwarf
+	As a dwarf, you are very strong and hardy. You have access to a dangerous
+	technique that allows you to erupt with rage and lay waste to your enemies,
+	and you are very good at digging tunnels.
+
+	You are a dwarf, industrious and indomitable.
+race elf
+	As an elf, you are generally dextrous and intelligent, but somewhat frail.
+	The touch of iron is uncomfortable for you, and should be avoided when
+	possible. As you gain experience, you will quickly become immune to
+	artificially induced sleep.
+	Other elves will generally view you as an ally, while orcs will attack you on
+	sight.
+
+	You are an elf, noble and fair.
+race ghoul
+	As a ghoul, you have many natural advantages. You are immune to level drain
+	and poison, and can paralyze others with an unarmed attack.
+	However, you can only consume rotting corpses, and only other ghouls are
+	likely to keep you company.
+
+	You are a ghoul, ageless and immortal.
+race gnome
+	As a gnome, your brain and wits are your greatest assets. You have access to
+	a technique that allows you to vanish without a trace, and eventually learn
+	how to upgrade your items. Sadly, humans do not tend to take very kindly to
+	your creativity, but you can always find a welcoming gnomish community in the
+	local mines.
+
+	You are a gnome, inventive and flexible.
+race human
+	As a human, you are extremely well-rounded, and can excel at anything you
+	choose to focus on. With hard work, you are capable of increasing your
+	strength to incredible levels, and have few weaknesses.
+
+	You are a human, adaptable and resourceful.
+race infernal
+	As an infernal, you are extremely physically powerful. You are completely
+	immune to fire, and as you gain experience you will learn to quickly
+	regenerate from even the most deadly of injuries. These powers come with a
+	price, however. The touch of silver is incredibly deadly, and many monsters
+	have prepared for your presence in the dungeon.
+
+	You are an infernal, unstoppable and ruthless.
+race merfolk
+	As a merfolk, water is your home. You are an incredible swimmer, and
+	eventually will learn to breathe water. When you swim, your possessions are
+	protected from harm. This is particularly useful, since a large portion of the
+	dungeon has been flooded. You also have access to a powerful technique that
+	allows you to drown your enemies.
+
+	You are a merfolk, wily and willful.
+race orc
+	As an orc, you are quite strong, but lacking in intelligence and charisma.
+	You are decently hardy, and never have to fear being poisoned.
+	Other orcs will generally view you as an ally, but many races do not take
+	kindly to your presence, elves in particular.
+
+	You are an orc, powerful and proud.
+
+race werewolf
+	As a werewolf, you live a cursed life. You are unable to control your form,
+	and civilized humans are terrified of you. Physically, however, you are
+	unmatched, and have access to techniques which allow you to grow claws and
+	fly into a berserk rage.
+
+	You are a werewolf, full of primal fury.
+
+race vampire
+	As a vampire, blood means everything. You must drink blood to survive, and
+	take lives to live.
+
+	You are a vampire, child of night.
+role arc
+	You are an archeologist. You begin your adventure well-equipped for dungeon
+	delving, and are capable of using many unique weapons.
+role bar
+	You are a barbarian. You are a powerful physical combatant, and are capable
+	of flying into a mindless rage.
+role cav
+	You are a neanderthal. You are strong and tough, and suffer no penalty for
+	cannibalism. Your primal roar makes both you and your allies more powerful.
+role car
+	You are a cartomancer. You gain power from spell cards, and know many
+	techniques that rely on the manipulation of them. Your enemies may try to
+	play cards against you, but you have a powerful technique on your side which
+	allows you to turn your foes into your friends.
+role con
+	You are a convict. Your stomach is empty, you are chained to an iron ball,
+	and your best friends are rats.
+role dra
+	You are a dragonmaster. You are capable of taming dragons, but the thought of
+	wearing their scales fills you with shame.
+role hea
+	You are a healer. Violence does not come easily to you, and your abilities are
+	generally more suited to helping others.
+role kni
+	You are a knight. Your faithful steed accompanies you through the dungeon, and
+	you carry a lance with which to joust people. You have access to several
+	honorable techniques that will allow you to help the innocent and destroy the
+	wicked.
+role mon
+	You are a monk. Your fists are your most powerful weapons, but you are also a
+	skilled spellcaster. You have access to an enormous number of techniques
+	which can be chained together for massive damage.
+role pri
+	You are a representative of your deity. You can tell at a glance whether an
+	item is cursed, and your deity has granted you the power to drive back the
+	living dead wherever they may lurk.
+role pir
+	Ye are a pirate, out searching for precious booty. Ye ave a good nose fer
+	doubloons, and ye can do even more when ye find yer treasure map.
+role ran
+	You are a ranger. Although powerful in melee, you are at your best when
+	fighting enemies from long distances. Your hail of arrows can take down even
+	the strongest of opponents.
+role rog
+	You are a rogue. You are very sneaky, and can deal out massive damage by
+	backstabbing monsters.
+role sam
+	You are a samurai, an honorable warrior out to reclaim the amulet. Your
+	Kiii technique allows you to temporarily boost your combat ability.
+role tou
+	You are a tourist, out to explore the Dungeons of Doom. This should be fun!
+role val
+	You are a valkyrie. The cold does not affect you, and you are an unstoppable
+	force in melee combat.
+role wiz
+	You are a wizard. You are capable of learning and casting many types of magic
+	spells, and do best when fighting from a distance.
+### End of race information ###
+
+
 abbot
 	For it had been long apparent to Count Landulf that nothing
 	could be done with his seventh son Thomas, except to make him
@@ -101,11 +251,15 @@ sacrific*
 	For the ashes of his fathers
 	And the temples of his gods?
 		[ Lays of Ancient Rome, by Thomas B. Macaulay ]
+alucard
+	"What is a man? A miserable pile of secrets!
+	But enough talk. Have at you!"
+		[ Dracula, from Castlevania: Symphony of the Night ]
 amalgamation
 bad clone
 fused *
 merged *
-	These unstable hybrids are a combination of two different
+	These unstable hybrids are a combination of many different
 	monsters forcibly merged into a single body.
 antigulp
 	Creator of SpliceHack. Likes working with undocumented code
@@ -177,6 +331,10 @@ amulet of yendor
 	altar on the Astral Plane.
 angel*
 *angel
+avatar*
+*deva
+solar
+planetar
 	He answered and said unto them, he that soweth the good seed
 	is the Son of man; the field is the world, and the good seed
 	are the children of the kingdom; but the weeds are the
@@ -278,7 +436,7 @@ archeolog*
 	"That is a rather cynical view," I said.
 		[ the brightonomicon, by Robert Rankin ]
 #		[title & author: same situation as with "bad luck" entry]
-archon
+*archon
 	Archons are the predominant inhabitants of the heavens.
 	However unusual their appearance, they are not generally
 	evil.  They are beings at peace with themselves and their
@@ -332,6 +490,8 @@ asmodeus
 	Asmodeus often figures as the spirit of matrimonial jealousy
 	or unhappiness.
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+assassin bug
+	Even lowly vermin are capable of feats of deceit.
 athame
 	The consecrated ritual knife of a Wiccan initiate (one of
 	four basic tools, together with the wand, chalice and
@@ -435,6 +595,12 @@ banshee
 	is awaiting death.  The word is a phonetic spelling of the
 	Irish _beansidhe_, a woman of the fairies.
 		[ Brewer's Concise Dictionary of Phrase and Fable ]
+baobhan-sith
+	A baobhan sith is a type of female vampire in the folklore of the Scottish
+	Highlands, though they also share certain characteristics in common with the
+	succubus and fairy. They appear as beautiful women who seduce their victims
+	before attacking them and draining their blood.
+		[ Wikipedia, the free encyclopedia ]
 barbarian
 * barbarian
 	They dressed alike -- in buckskin boots, leathern breeks and
@@ -457,6 +623,12 @@ barghest
 	the tale. Some believe that they are an omen of bad luck,
 	while others believe the barghest to be a shapeshifter or
 	some type of gremlin.
+baseball bat
+	The sneer is gone from Casey’s lip, his teeth are clenched in hate,
+	He pounds with cruel violence his bat upon the plate;
+	And now the pitcher holds the ball, and now he lets it go,
+	And now the air is shattered by the force of Casey’s blow.
+		[ Casey at the Bat, by Ernest Lawrence Thayer ]
 # takes "bat or bird" when specifying 'B'
 ~*combat
 ~*wombat
@@ -464,6 +636,7 @@ barghest
 *bat
 *bird
 *falcon
+parrot
 bat or bird
 	A bat, flitting in the darkness outside, took the wrong turn
 	as it made its nightly rounds and came in through the window
@@ -474,6 +647,9 @@ bat or bird
 	proverb, and I will show you something that ought to be in
 	some kind of a home.
 		[ A Pelican at Blandings, by P. G. Wodehouse ]
+bear
+	These creatures bare their teeth and claws in combat. Their
+	strength is unbearable.
 bear*trap
 	Probably most commonly associated with trapping, the leghold
 	trap is a rather simple mechanical trap.  It is made up of two
@@ -545,6 +721,10 @@ blind io
 	large number, led a semi-independent life of their
 	own.  Several were currently hovering above the table.
 	    [ The Colour of Magic, by Terry Pratchett ]
+boar
+	My memory...hehe. King Robert Baratheon...murdered by a pig. 
+	Give me something for the pain, and let me die.
+		[ A Game of Thrones, by George R.R. Martin ]
 * blob
 ooze
 * ooze
@@ -567,6 +747,9 @@ ooze
 	penguins and slithering over the glistening floor that it and its
 	kind had swept so evilly free of all litter.
 		[ At the Mountains of Madness, by H.P. Lovecraft ]
+bloodshot eye
+blinking eye
+	Sometimes when you stare into the void, the void stares back.
 blue jelly
 spotted jelly
 	I'd planned how to prevent the lock from sealing behind me; it
@@ -721,6 +904,10 @@ bugle
 	a round of rotted cheese.  "What did your keeper use on you?
 	A bullwhip?"
 		[ Melusine, by Sarah Monette ]
+cake
+slice of cake
+	The cake is a lie.
+		[ Portal ]
 *camaxtli
 	A classical Mesoamerican Aztec god, also known as Mixcoatl-
 	Camaxtli (the Cloud Serpent), Camaxtli is the god of war.  He
@@ -962,19 +1149,19 @@ tiamat
 citrine*
 	A pale yellow variety of crystalline quartz resembling topaz.
 clay golem
-        It was a warm spring night when a fist knocked at the door so
-        hard that the hinges bent.
-        A man opened it and peered out into the street. There was
-        mist coming off the river and it was a cloudy night. He might
-        as well have tried to see through white velvet.
-        But he thought afterwards that there had been shapes out
-        there, just beyond the light spilling out into the road. A
-        lot of shapes, watching him carefully. He thought maybe
-        there'd been very faint points of light...
-        There was no mistaking the shape right in front of him,
-        though. It was big and dark red and looked like a child's
-        clay model of a man. Its eyes were two embers.
-                [ Feet of Clay, by Terry Pratchett ]
+	It was a warm spring night when a fist knocked at the door so
+	hard that the hinges bent.
+	A man opened it and peered out into the street. There was
+	mist coming off the river and it was a cloudy night. He might
+	as well have tried to see through white velvet.
+	But he thought afterwards that there had been shapes out
+	there, just beyond the light spilling out into the road. A
+	lot of shapes, watching him carefully. He thought maybe
+	there'd been very faint points of light...
+	There was no mistaking the shape right in front of him,
+	though. It was big and dark red and looked like a child's
+	clay model of a man. Its eyes were two embers.
+		[ Feet of Clay, by Terry Pratchett ]
 cleaver
 	Hither came Conan, the Cimmerian, black-haired, sullen-eyed,
 	sword in hand, a thief, a reaver, a slayer, with gigantic
@@ -1303,6 +1490,21 @@ demogorgon
 	spread a quickly fatal illness to his victims while rending
 	them.  He is a mighty spellcaster, and he can drain the life
 	of mortals with a touch of his tail.
+deep one
+deeper one
+deepest one
+		I think their predominant color was a greyish-green, though 
+		they had white bellies. They were mostly shiny and slippery, 
+		but the ridges of their backs were scaly. Their forms vaguely 
+		suggested the anthropoid, while their heads were the heads of fish, 
+		with prodigious bulging eyes that never closed. At the sides of their 
+		necks were palpitating gills, and their long paws were webbed. 
+		They hopped irregularly, sometimes on two legs and sometimes on four. 
+		I was somehow glad that they had no more than four limbs. 
+		Their croaking, baying voices, clearly used for articulate speech, 
+		held all the dark shades of expression which their staring faces lacked... 
+		They were the blasphemous fish-frogs of the nameless design—living and horrible. 
+			[ The Shadow over Innsmouth, by H.P. Lovecraft ]
 # takes "major demon" when specifying '&'
 demon
 major demon
@@ -1505,6 +1707,15 @@ dread pirate roberts
  	Pirate Roberts either. His name was Cummerbund. The real
  	Roberts has been retired 15 years and living like a king in
  	Patagonia.'
+drop bear
+	A drop bear (sometimes dropbear) is a hoax in contemporary 
+	Australian folklore featuring a predatory, carnivorous version of the koala.
+	This imaginary animal is commonly spoken about in tall tales designed to 
+	scare tourists.
+	 	[ Wikipedia, the free encyclopedia ]
+	You haven't heard of drop bears? Terrifying things! They
+	hide on ceilings and drop off onto your head! I would
+	be careful in that dungeon, if I were you!
 *drum*
 	Many travelers have seen the drums of the great apes, and
 	some have heard the sounds of their beating and the noise of
@@ -1770,9 +1981,19 @@ eye of the aethiopica
 	the power to instantly open a portal to any other area of the
 	dungeon, allowing its invoker to travel quickly between
 	areas.
+# note:  The Eyes of the Overworld is the title of Jack Vance's sequel
+# to The Dying Earth and in it the 'Eyes' were separate "cusps" that
+# needed to be worn like contact lenses, one on each eyeball.  Wearing
+# just one and attempting to look with both eyes caused instant stun.
+# And when wearing two you couldn't see normal world, only a projection
+# of it that had similar topology but where everything was "better".
+# NetHack simplifies things:  a pair of lenses is a single item like
+# spectacles (eyeglasses), and the effect of wearing these lenses has
+# been changed to be useful to game play (Xray vision).  [The quote is
+# not derived from the book.]
 eyes of the overworld
-	... and finally there is "the Eyes of the Overworld".  This
-	obscure artifact pushes the wearer's view sense into the
+	The Eyes of the Overworld is a rather obscure artifact.
+	These magical lenses push the wearer's view sense into the
 	"overworld" -- another name for a segment of the Astral Plane.
 	Usually, there is nothing to be seen.  However, the wearer
 	is also able to look back and see the area around herself,
@@ -2001,6 +2222,9 @@ hell
 	perpetual fires were maintained there to prevent pestilence.
 	Thus, in the New Testament, Gehenna became synonymous with hell.
 		[ Encyclopedia Mythica, ed. M.F. Lindemans ]
+* gel
+	Sometimes that which we digest is more deadly than that which
+	might digest us.
 gelatinous cube
 	Despite its popularity (or perhaps because of it), the
 	gelatinous cube is also widely known as one of the sillier
@@ -2056,6 +2280,7 @@ spectre
 	trench, there came a moaning that was horrible to hear.
 	Panic drained the blood from my cheeks.
 	     [ The Odyssey, (chapter Lambda), by Homer ]
+* ghoul
 ghoul
 	The forces of the gloom know each other, and are strangely
 	balanced by each other.  Teeth and claws fear what they cannot
@@ -2081,6 +2306,10 @@ giant humanoid
 	boulders as weapons, hurling them over large distances.  All
 	types of giants share a love for men - roasted, boiled, or
 	fried.  Their table manners are legendary.
+giant fly
+	These enormous insects are little threat to experienced
+	dungeoneers. The maddening buzz of their wings is quickly
+	silenced by the strike of a blade.
 gnoll*
 	These bipedal hyenas serve Yeenoghu, and are almost unmatched
 	in combat.
@@ -2339,6 +2568,18 @@ heart of ahriman
 	stood on the right, with a short, sardonic laugh.  "It is
 	ready to crumble at a touch.  We are fools ---"
 		[ Conan The Conqueror, by Robert E. Howard ]
+hellbat
+	Not to be confused with the Bat from Hell.
+hellcat
+	The scent of rotting flesh and death upon the wind gave
+	Orville pause. Where could that smell be coming from?
+hellrat
+	It is said that the rats of hell carry no diseases, for no
+	fleas can bear to bite them.
+hellbear
+	The main difference between hellbears and grizzly bears is
+	that hellbears have red fur. Hellbears can also be identified
+	by the fact that they are usually on fire.
 hell hound*
 	But suddenly they started forward in a rigid, fixed stare,
 	and his lips parted in amazement.  At the same instant Lestrade
@@ -2421,6 +2662,7 @@ hobgoblin
 	The ninety-nine years is nearly up, so trouble may soon be
 	heard of on the road between Hurworth and Neasham.
 		[ A Dictionary of Fairies, by Katharine Briggs ]
+gold dragon
 holographic *
 	All that glitters is not gold.
 holy water
@@ -2609,15 +2851,7 @@ hunter
 	Where is the haste that ye hurry by?
 	Brother, I go to my lair to die.
 		[ The Jungle Book, by Rudyard Kipling ]
-10-headed hydra
-9-headed hydra
-8-headed hydra
-7-headed hydra
-6-headed hydra
-5-headed hydra
-4-headed hydra
-3-headed hydra
-2-headed hydra
+*-headed hydra
 hydra
 	According to Hesiod, the Hydra was the offspring of Typhon
 	and Echidna. It possessed many heads, the exact number of which
@@ -2882,6 +3116,11 @@ kabuto
 	a small plate, the shoshaku tei ita, whose rear edge bent
 	downwards into a flange that rested against the forehead.
 	   [ Arms & Armour of the Samurai, by Bottomley & Hopson ]
+kangaroo
+wallaby
+wallaroo
+tasmanian devil
+	Marsupials in the dungeon? More likely than you might think.
 katana
 	The katana is a long, single-edged samurai sword with a
 	slightly curved blade.  Its long handle is designed to allow
@@ -2974,6 +3213,8 @@ knight
 	But had the fortune in his age
 	To live a fool and die a sage.
 	  [ Don Quixote of La Mancha, by Miquel de Cervantes Saavedra ]
+koala
+	A fine example of evolution gone wrong.
 ~kobold ??m*
 *kobold*
 	The race of kobolds are reputed to be an artificial creation
@@ -3701,6 +3942,10 @@ mog
 	Most molds are saprophytes.  Some species (e.g., penicillium)
 	are used in making cheese and antibiotics.
 		[ The Concise Columbia Encyclopedia ]
+* mold warrior
+	In rare cases, patches of mold have gained intelligence and
+	autonomy. They then use corpses for raw material in order to
+	propogate and grow.
 mol?ch
 	And the Lord spake unto Moses, saying,
 	Again, thou shalt say to the children of Israel, Whosoever
@@ -3898,6 +4143,8 @@ newt
 	For a charm of powerful trouble,
 	Like a hell-broth boil and bubble."
 		[ Macbeth, by William Shakespeare ]
+nightgaunt
+	What could be so terrifying about tickling?
 ninja-to
 	A Japanese broadsword.
 *norn
@@ -3921,6 +4168,11 @@ nosferatu
   lusts after blood without reason is under his spell, the spell
   of the vampire NOSFERATU.
     	[ from _Nosferatu_, written by Henrik Galeen, 1922 ]
+nova fox
+	Nova foxes hail from a world of fire and lightning. Their
+	shrill cry signals death for those that cannot keep up
+	with their speed. There are even rumors that they can turn
+	magical attacks back against the user.
 nunchaku
 	A nunchaku is two sections of wood (or metal in modern
 	incarnations) connected by a cord or chain.  There is much
@@ -4684,6 +4936,9 @@ raven
 	On the morrow *he* will leave me, as my hopes have flown before.'
 		Then the bird said, 'Nevermore.'
 				[ The Raven, by Edgar Allan Poe ]
+red cap
+	Some say the cap is stained with blood. Others claim that he
+	simply loves the color red.
 ~*invisibility
 ring
 * ring
@@ -5005,6 +5260,7 @@ scroll *
 		[ Endymion, by John Keats ]
 serpopard
 	A leopard with a long, serpentine body and neck.
+anubite
 set
 seth
 	The ancient Egyptian god of chaos (Set), the embodiment of
@@ -5103,7 +5359,8 @@ shuriken
 	the throat, the other in the middle of her chest.  It wouldn't
 	kill her, but she wouldn't be fighting anyone for a while.
 		[ Jhereg, by Steven Brust ]
-skeleton
+* skeleton
+bone beast
 	A skeleton is a magically animated undead creature.  Unlike
 	shades, only a humanoid creature can be used to create a
 	skeleton.  No one knows why this is true, but it has become
@@ -5181,6 +5438,8 @@ pit viper
 	enmity between thee and the woman, and between thy seed and her
 	seed; it shall bruise thy head, and thou shalt bruise his heel.
 		[ Genesis 3:1-6,13-15 ]
+*skunk
+	Have you considered tomato juice?
 snickersnee
 	Ah, never shall I forget the cry,
 	    or the shriek that shrieked he,
@@ -5265,6 +5524,9 @@ spell card
 	don't I?"
 	"Why, yes, of course," said Wilbur.
 		[ Charlotte's Web, by E.B. White ]
+spiked chain
+	It's never fun when things are unfair, unless things are
+	unfair in your favor.
 *spore
 *sphere
 	The attack by those who want to die -- this is the attack
@@ -5395,6 +5657,9 @@ straw golem
 	figure was raised above the stalks of corn by means of the
 	pole stuck up its back.
 		[ The Wonderful Wizard of Oz, by L. Frank Baum ]
+substance warper
+	Ask not, what your items can do to it.  Ask what it can do
+	to your items.
 sunsword
 	What you seek is a blade of light,
 	a weapon for vengeance.
@@ -5777,11 +6042,26 @@ valkyrie
 vampire
 ~vampire bat
 vampire lord
+	He can transform himself to wolf, as we gather from the ship
+	arrival in Whitby, when he tear open the dog; he can be as
+	bat, as Madam Mina saw him on the window at Whitby, and as
+	friend John saw him fly from this so near house, and as my
+	friend Quincey saw him at the window of Miss Lucy. He can come
+	in mist which he create--that noble ship's captain proved him
+	of this; but, from what we know, the distance he can make this
+	mist is limited, and it can only be round himself. He come on
+	moonlight rays as elemental dust--as again Jonathan saw those
+	sisters in the castle of Dracula. He become so small--we
+	ourselves saw Miss Lucy, ere she was at peace, slip through a
+	hairbreadth space at the tomb door.
+		[ Dracula, by Bram Stoker ]
+
 	The Oxford English Dictionary is quite unequivocal:
 	_vampire_ - "a preternatural being of a malignant nature (in
 	the original and usual form of the belief, a reanimated
 	corpse), supposed to seek nourishment, or do harm, by sucking
 	the blood of sleeping persons. ..."
+		[]
 venus
 	Venus, the goddess of love and beauty, was the daughter of
 	Jupiter and Dione.  Others say that Venus sprang from the
@@ -5807,11 +6087,10 @@ vlad*
 *vortex
 vortices
 	Swirling clouds of pure elemental energies, the vortices are
-	thought to be related to the larger elementals.  Though the
-	vortices do no damage when touched, they are noted for being
-	able to envelop unwary travellers.  The hapless fool thus
-	swallowed by a vortex will soon perish from exposure to the
-	element the vortex is composed of.
+	thought to be related to the larger elementals.  They are
+	noted for being able to envelop unwary travellers.  The
+	hapless fool thus swallowed by a vortex will soon perish from
+	exposure to the element the vortex is composed of.
 *void
 	Inside the mailbox was absolutely nothing.
 	Nothing after nothing came bursting out.
@@ -5832,6 +6111,10 @@ wakizashi
 	and especially during times of civil wars, a tanto was worn
 	in place of a wakizashi.
 		[ Wikipedia, the free encyclopedia ]
+walrus
+	"The time has come," the walrus said, "to talk of many things: 
+	of shoes and ships - and sealing wax - of cabbages and kings."
+		[Alice in Wonderland, by Lewis Carrol ]
 # takes "wand or a wall" when specifying '/'
 ~*sleep
 wand *
@@ -5879,6 +6162,9 @@ war*hammer
 	while men of both armies scrambled in the swirling waters for
 	rubies knocked free of his armor.
 		[ A Game of Thrones, by George R.R. Martin ]
+* wasp
+	These insects are feared for their ability to lay eggs inside
+	the bodies of their prey.
 water
 	Day after day, day after day,
 	We stuck, nor breath nor motion;
@@ -6021,6 +6307,8 @@ wolf
 	monkshood.
 		[ The American Heritage Dictionary of
 		    the English Language, Fourth Edition. ]
+wombat
+	If I'm a wombat, and you're a wombat, am I a wombat?
 wood golem
 	Come, old broomstick, you are needed,
 	Take these rags and wrap them round you!
@@ -6072,6 +6360,7 @@ lord of worms
 	alone.
 wraith
 nazgul
+fell beast
 	Immediately, though everything else remained as before, dim
 	and dark, the shapes became terribly clear.  He was able to
 	see beneath their black wrappings.  There were five tall
@@ -6145,6 +6434,9 @@ yeti
 	concerning the creature have become even more muddled and
 	confused.
 		[ The Encyclopedia of Monsters, by Daniel Cohen ]
+yuki-onna
+	A Japanese snow spirit, noted in some legends for making
+	travellers lose their way in the snow.
 *yugake
 	Japanese leather archery gloves.  Gloves made for use while
 	practicing had thumbs reinforced with horn.  Those worn into

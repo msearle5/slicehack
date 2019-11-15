@@ -1,4 +1,4 @@
-/* NetHack 3.6	mklev.c	$NHDT-Date: 1511681724 2017/11/26 07:35:24 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.47 $ */
+/* NetHack 3.6	mklev.c	$NHDT-Date: 1562455089 2019/07/06 23:18:09 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.63 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Alex Smith, 2017. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -93,7 +93,7 @@ xchar xl, yl, xh, yh;
     /* cannot find something reasonable -- strange */
     x = xl;
     y = yh;
-gotit:
+ gotit:
     cc->x = x;
     cc->y = y;
     return;
@@ -103,11 +103,12 @@ void
 sort_rooms()
 {
 #if defined(SYSV) || defined(DGUX)
-    qsort((genericptr_t) rooms, (unsigned) nroom, sizeof(struct mkroom),
-          do_comp);
+#define CAST_nroom (unsigned) nroom
 #else
-    qsort((genericptr_t) rooms, nroom, sizeof(struct mkroom), do_comp);
+#define CAST_nroom nroom /*as-is*/
 #endif
+    qsort((genericptr_t) rooms, CAST_nroom, sizeof (struct mkroom), do_comp);
+#undef CAST_nroom
 }
 
 STATIC_OVL void
@@ -657,7 +658,7 @@ STATIC_OVL void
 mkrivers()
 {
     int nriv = rn2(3) + 1;
-    boolean lava = (rn2(100) < depth(&u.uz)) && !Race_if(PM_MERFOLK);
+    boolean lava = rn2(100) < depth(&u.uz);
     while (nriv--) {
       	if (rn2(2)) makeriver(0, rn2(ROWNO), COLNO-1, rn2(ROWNO), lava);
       	else makeriver(rn2(COLNO), 0, rn2(COLNO), ROWNO-1, lava);
@@ -678,6 +679,10 @@ clear_level_structures()
     register int x, y;
     register struct rm *lev;
 
+    /* note:  normally we'd start at x=1 because map column #0 isn't used
+       (except for placing vault guard at <0,0> when removed from the map
+       but not from the level); explicitly reset column #0 along with the
+       rest so that we start the new level with a completely clean slate */
     for (x = 0; x < COLNO; x++) {
         lev = &levl[x][0];
         for (y = 0; y < ROWNO; y++) {
@@ -708,8 +713,10 @@ clear_level_structures()
     level.flags.has_court = 0;
     level.flags.has_morgue = level.flags.graveyard = 0;
     level.flags.has_beehive = 0;
+    level.flags.has_lemurepit = 0;
     level.flags.has_lab = 0;
     level.flags.has_den = 0;
+    level.flags.has_armory = 0;
     level.flags.has_barracks = 0;
     level.flags.has_temple = 0;
     level.flags.has_swamp = 0;
@@ -735,6 +742,7 @@ clear_level_structures()
     xdnstair = ydnstair = xupstair = yupstair = 0;
     sstairs.sx = sstairs.sy = 0;
     xdnladder = ydnladder = xupladder = yupladder = 0;
+    dnstairs_room = upstairs_room = sstairs_room = (struct mkroom *) 0;
     made_branch = FALSE;
     clear_regions();
 }
@@ -827,13 +835,14 @@ makelevel()
     /* make a secret treasure vault, not connected to the rest */
     if (do_vault()) {
         xchar w, h;
+
         debugpline0("trying to make a vault...");
         w = 1;
         h = 1;
         if (check_room(&vault_x, &w, &vault_y, &h, TRUE)) {
-        fill_vault:
-            add_room(vault_x, vault_y, vault_x + w, vault_y + h, TRUE, VAULT,
-                     FALSE);
+ fill_vault:
+            add_room(vault_x, vault_y, vault_x + w, vault_y + h,
+                     TRUE, VAULT, FALSE);
             level.flags.has_vault = 1;
             ++room_threshold;
             fill_room(&rooms[nroom - 1], FALSE);
@@ -852,9 +861,6 @@ makelevel()
 
     {
         register int u_depth = depth(&u.uz);
-        if (Race_if(PM_MERFOLK) && !rn2(3)) {
-            mkrivers();
-        }
         if (wizard && nh_getenv("SHOPTYPE"))
             mkroom(SHOPBASE);
         else if (u_depth > 1 && u_depth < depth(&medusa_level)
@@ -867,6 +873,9 @@ makelevel()
             mkroom(LEPREHALL);
         else if (u_depth > 6 && !rn2(7))
             mkroom(ZOO);
+        else if (u_depth > 7 && !rn2(6)
+                 && !(mvitals[PM_RUST_MONSTER].mvflags & G_GONE)) 
+            mkroom(ARMORY);
         else if (u_depth > 8 && !rn2(5))
             mkroom(TEMPLE);
         else if (u_depth > 9 && !rn2(5)
@@ -893,9 +902,12 @@ makelevel()
             mkroom(COCKNEST);
         else if (u_depth > 1 && !rn2(6))
             mkroom(STOREROOM);
+        else if (u_depth > 35 && !rn2(8)
+ 	             && !(mvitals[PM_LEMURE].mvflags & G_GONE)) 
+            mkroom(LEMUREPIT);
     }
 
-skip0:
+ skip0:
     /* Place multi-dungeon branch. */
     place_branch(branchp, 0, 0);
 
@@ -913,7 +925,7 @@ skip0:
         if (u.uhave.amulet || !rn2(3)) {
             x = somex(croom);
             y = somey(croom);
-            tmonst = makemon((struct permonst *) 0, x, y, NO_MM_FLAGS);
+            tmonst = makemon((struct permonst *) 0, x, y, MM_NOGRP);
             if (tmonst && tmonst->data == &mons[PM_GIANT_SPIDER]
                 && !occupied(x, y))
                 (void) maketrap(x, y, WEB);
@@ -981,6 +993,9 @@ skip0:
                     make_engr_at(x, y, mesg, 0L, MARK);
             }
         }
+
+        if (croom->rtype == OROOM && depth(&u.uz) > 2 && !rn2(15))
+            croom->rtype = ARTROOM;
 
     skip_nonrogue:
         if (!rn2(3)) {
@@ -1111,6 +1126,9 @@ mklev()
     struct mkroom *croom;
     int ridx;
 
+    reseed_random(rn2);
+    reseed_random(rn2_on_display_rng);
+
     init_mapseen(&u.uz);
     if (getbones())
         return;
@@ -1138,6 +1156,16 @@ mklev()
        entered; rooms[].orig_rtype always retains original rtype value */
     for (ridx = 0; ridx < SIZE(rooms); ridx++)
         rooms[ridx].orig_rtype = rooms[ridx].rtype;
+
+    /* something like this usually belongs in clear_level_structures()
+       but these aren't saved and restored so might not retain their
+       values for the life of the current level; reset them to default
+       now so that they never do and no one will be tempted to introduce
+       a new use of them for anything on this level */
+    dnstairs_room = upstairs_room = sstairs_room = (struct mkroom *) 0;
+
+    reseed_random(rn2);
+    reseed_random(rn2_on_display_rng);
 }
 
 void
@@ -1382,6 +1410,7 @@ struct mkroom *croom;
 coord *tm;
 {
     register int kind;
+    struct trap *t;
     unsigned lvl = level_difficulty();
     coord m;
 
@@ -1440,8 +1469,8 @@ coord *tm;
                 if (lvl < 5)
                     kind = NO_TRAP;
                 break;
-            case BUZZSAW_TRAP:
-                if (lvl < 15)
+            case WHIRLWIND_TRAP:
+                if (lvl < 5)
                     kind = NO_TRAP;
                 break;
             case LANDMINE:
@@ -1455,6 +1484,16 @@ coord *tm;
             case STATUE_TRAP:
             case POLY_TRAP:
                 if (lvl < 8)
+                    kind = NO_TRAP;
+                break;
+            case BUZZSAW_TRAP:
+                if (lvl < 15)
+                    kind = NO_TRAP;
+                break;
+            case GLYPH_OF_NEUTRALITY:
+            case GLYPH_OF_LAW:
+            case GLYPH_OF_CHAOS:
+                if (lvl < 20)
                     kind = NO_TRAP;
                 break;
             case FIRE_TRAP:
@@ -1494,7 +1533,11 @@ coord *tm;
                  || (avoid_boulder && sobj_at(BOULDER, m.x, m.y)));
     }
 
-    (void) maketrap(m.x, m.y, kind);
+    t = maketrap(m.x, m.y, kind);
+    /* we should always get type of trap we're asking for (occupied() test
+       should prevent cases where that might not happen) but be paranoid */
+    kind = t ? t->ttyp : NO_TRAP;
+
     if (kind == WEB)
         (void) makemon(&mons[PM_GIANT_SPIDER], m.x, m.y, NO_MM_FLAGS);
 
@@ -1519,8 +1562,13 @@ coord *tm;
        lethal, and tend not to generate on shallower levels anyway.
        Finally, pits are excluded because it's weird to see an item
        in a pit and yet not be able to identify that the pit is there. */
-    if (lvl <= (unsigned) rnd(4)
+    if (kind != NO_TRAP && lvl <= (unsigned) rnd(4)
         && kind != SQKY_BOARD && kind != RUST_TRAP
+        /* rolling boulder trap might not have a boulder if there was no
+           viable path (such as when placed in the corner of a room), in
+           which case tx,ty==launch.x,y; no boulder => no dead predecessor */
+        && !(kind == ROLLING_BOULDER_TRAP
+             && t->launch.x == t->tx && t->launch.y == t->ty)
         && !is_pit(kind) && kind < HOLE) {
         /* Object generated by the trap; initially NULL, stays NULL if
            we fail to generate an object or if the trap doesn't
@@ -1833,22 +1881,30 @@ struct mkroom *croom;
 #define y_maze_min 2
 
 /*
- * Major level transmutation: add a set of stairs (to the Sanctum) after
- * an earthquake that leaves behind a a new topology, centered at inv_pos.
+ * Major level transmutation:  add a set of stairs (to the Sanctum) after
+ * an earthquake that leaves behind a new topology, centered at inv_pos.
  * Assumes there are no rooms within the invocation area and that inv_pos
  * is not too close to the edge of the map.  Also assume the hero can see,
  * which is guaranteed for normal play due to the fact that sight is needed
- * to read the Book of the Dead.
+ * to read the Book of the Dead.  [That assumption is not valid; it is
+ * possible that "the Book reads the hero" rather than vice versa if
+ * attempted while blind (in order to make blind-from-birth conduct viable).]
  */
 void
 mkinvokearea()
 {
     int dist;
-    xchar xmin = inv_pos.x, xmax = inv_pos.x;
-    xchar ymin = inv_pos.y, ymax = inv_pos.y;
+    xchar xmin = inv_pos.x, xmax = inv_pos.x,
+          ymin = inv_pos.y, ymax = inv_pos.y;
     register xchar i;
 
+    /* slightly odd if levitating, but not wrong */
     pline_The("floor shakes violently under you!");
+    /*
+     * TODO:
+     *  Suppress this message if player has dug out all the walls
+     *  that would otherwise be affected.
+     */
     pline_The("walls around you begin to bend and crumble!");
     display_nhwindow(WIN_MESSAGE, TRUE);
 
@@ -1908,8 +1964,7 @@ int dist;
     /* clip at existing map borders if necessary */
     if (!within_bounded_area(x, y, x_maze_min + 1, y_maze_min + 1,
                              x_maze_max - 1, y_maze_max - 1)) {
-        /* only outermost 2 columns and/or rows may be truncated due to edge
-         */
+        /* outermost 2 columns and/or rows may be truncated due to edge */
         if (dist < (7 - 2))
             panic("mkinvpos: <%d,%d> (%d) off map edge!", x, y, dist);
         return;

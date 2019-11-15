@@ -1,4 +1,4 @@
-# NetHack 3.6	endgame.des	$NHDT-Date: 1432512783 2015/05/25 00:13:03 $  $NHDT-Branch: master $:$NHDT-Revision: 1.13 $
+# NetHack 3.6	endgame.des	$NHDT-Date: 1546303680 2019/01/01 00:48:00 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.14 $
 #	Copyright (c) 1989 by Jean-Christophe Collet
 #	Copyright (c) 1992,1993 by Izchak Miller, David Cohrs,
 #                      and Timo Hakulinen
@@ -8,8 +8,6 @@
 # The top-most level, the Astral Level, has 3 temples and shrines.
 # Players are supposed to sacrifice the Amulet of Yendor on the appropriate
 # shrine.
-#
-# Edited on 4/13/18 by NullCGT
 #
 
 MAZE:"earth",' '
@@ -51,7 +49,7 @@ REPLACE_TERRAIN:(0,0,75,19), ' ', ('.', unlit), 5%
 
 #  Since there are no stairs, this forces the hero's initial placement
 TELEPORT_REGION:(69,16,69,16),(0,0,0,0)
-PORTAL:(0,0,75,19),(65,13,75,19),"air"
+PORTAL:(0,0,75,19),(65,13,75,19),"gemarray"
 #  Some helpful monsters.  Making sure a
 #  pick axe and at least one wand of digging
 #  are available.
@@ -129,6 +127,140 @@ MONSTER:('E',"earth elemental"),(04,18),hostile
 
 OBJECT:('`',"boulder"),random
 
+# The gemstone array is rocked by repeated earthquakes, making it very annoying
+# to navigate.
+MAZE:"gemarray",' '
+FLAGS: noteleport,hardfloor,shortsighted
+MESSAGE:"The air is filled with the rumbling of shifting stone!"
+GEOMETRY:center,center
+MAP
+                                                                            
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+                                                                            
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+                                                                            
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+                                                                            
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+                                                                            
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...
+ENDMAP
+
+PORTAL:(0,0,75,19),(65,13,75,19),"air"
+
+# Denizens
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+MONSTER:('E',"earth elemental"),random,hostile
+
+MONSTER:('\'',"ruby golem"),random,hostile
+MONSTER:('\'',"ruby golem"),random,hostile
+MONSTER:('\'',"ruby golem"),random,hostile
+MONSTER:('\'',"sapphire golem"),random,hostile
+MONSTER:('\'',"sapphire golem"),random,hostile
+MONSTER:('\'',"sapphire golem"),random,hostile
+MONSTER:('\'',"crystal golem"),random,hostile
+MONSTER:('\'',"crystal golem"),random,hostile
+MONSTER:('\'',"crystal golem"),random,hostile
+
+MONSTER:('H',"hundred handed one"),random, hostile
+MONSTER:('H',"titan"),random, hostile
+
+# Many boulders, making navigation difficult.
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+
+# Falling rock traps everywhere.
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+TRAP:"falling rock", random
+
+# Gemstones
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"diamond"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"ruby"),random
+OBJECT:('*',"sapphire"),random
+OBJECT:('*',"sapphire"),random
+OBJECT:('*',"sapphire"),random
+OBJECT:('*',"sapphire"),random
+OBJECT:('*',"sapphire"),random
+OBJECT:('*',"sapphire"),random
+OBJECT:('*',"sapphire"),random
 
 MAZE:"air",' '
 FLAGS: noteleport,hardfloor,shortsighted
@@ -170,7 +302,7 @@ ENDMAP
 # the preceding level; the exit portal is placed inside the down region.
 TELEPORT_REGION:levregion(01,00,24,20),levregion(25,00,79,20),up
 TELEPORT_REGION:levregion(56,00,79,20),levregion(01,00,55,20),down
-PORTAL:levregion(57,01,78,19),(0,0,0,0),"fire"
+PORTAL:levregion(57,01,78,19),(0,0,0,0),"storm"
 REGION:(00,00,75,19),lit,"ordinary"
 MONSTER:('E',"air elemental"),random,hostile
 MONSTER:('E',"air elemental"),random,hostile
@@ -231,6 +363,245 @@ MONSTER:('v',"steam vortex"),random,hostile
 MONSTER:('v',"steam vortex"),random,hostile
 
 
+MAZE:"storm",' '
+FLAGS: noteleport,hardfloor,shortsighted
+# The following messages are somewhat obtuse, to make then
+# equally meaningful if the player can see or not.
+MESSAGE: "Dark clouds whirl angrily around you, and claws of lightning arc across the sky!"
+GEOMETRY:center,center
+# The player lands, upon arrival, in the
+# lower-left area.  The location of the
+# portal to the next level is randomly chosen.
+# This map has no visible outer boundary, and
+# is all "air".
+MAP
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ENDMAP
+# Use up and down regions to partition the level into three parts;
+# teleportation can't cross from one part into another.
+# The up region is where you'll arrive after activating the portal from
+# the preceding level; the exit portal is placed inside the down region.
+TELEPORT_REGION:levregion(01,00,24,20),levregion(25,00,79,20),up
+TELEPORT_REGION:levregion(56,00,79,20),levregion(01,00,55,20),down
+PORTAL:levregion(57,01,78,19),(0,0,0,0),"fire"
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"air elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+MONSTER:('E',"storm elemental"),random,hostile
+
+MONSTER:'D',random
+MONSTER:'D',random
+MONSTER:'D',random
+MONSTER:'D',random
+MONSTER:'D',random
+MONSTER:'D',random
+MONSTER:'D',random
+
+# Monsters flung about by the whirlwind
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+MONSTER:random,random
+
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"energy vortex"),random,hostile
+MONSTER:('v',"steam vortex"),random,hostile
+MONSTER:('v',"steam vortex"),random,hostile
+MONSTER:('v',"ice vortex"),random,hostile
+MONSTER:('v',"ice vortex"),random,hostile
+
+
+MAZE:"brass",' '
+FLAGS: noteleport,hardfloor,nommap,noflip
+MESSAGE:"You find yourself in the alleys of an enormous city composed entirely of metal."
+GEOMETRY:center,center
+MAP
+...---------LLL-----------------...............|.........|..........|....|..
+...|.......|LLL+...............|..------------.|.........|..........|....|..
+L..|.......|LLL|...............|..|....--.--.|.+.........|.-------..----+|..
+...|.......|LLL|...............|..|....|.L.|.|.|.........|.+.....|.......|..
+...|.......|LL.|...............|..|.....LLL..|.|.........|.|.....|.......|..
+...----+----.LL|...............|..|....|.L.|.|.-----------.|.....|.......|..
+.L..L........LL|...............|..|....--L--.|.............|.....|.......|..
+.------------LL|...............|......LLLL|..|.............-------.......|.L
+.|..........|LL-----------------....LLL-------...........................|LL
+L+..........|LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+.|..........|L-+-------------------...LLLLLL..............LLLLLLLLLLLLLLLLLL
+.------------L|....|..............|......................LLLL............|.L
+LLLLLLLLLLLLLL|....|..............|.------------......LLLL...............|..
+...LLLLLL------....|..............|.|..........|.....LLL.................|..
+.....LLLL|.........|..............|.|..........|....L.....------+----....|..
+-+---...L|.........---------+------.|..........-------....|.........|....|..
+|...|....|.........+.........|....---................|....|.........|....|..
+|...|....-----------.........|....+..................|....|.........|---+|..
+|...|.......................L|....--------------------....-----------....|..
+-----.....................LLL|......................................|....|..
+ENDMAP
+
+# City features
+FOUNTAIN:(26,17)
+
+# Shops
+REGION:(04,01,10,4),lit,"shop"
+REGION:(02,08,11,10),lit,"shop"
+REGION:(20,11,33,14),lit,"shop"
+REGION:(16,01,30,7),lit,"shop"
+REGION:(48,00,56,4),lit,"shop"
+REGION:(59,15,67,17),lit,"shop"
+
+# Portal located in left half of the level, somewhere in the mess of shops.
+PORTAL:(0,0,40,19),(65,13,75,19),"water"
+
+# Doors
+DOOR:locked,(15,01)
+DOOR:locked,(01,09)
+DOOR:locked,(01,15)
+DOOR:locked,(07,05)
+DOOR:locked,(15,01)
+DOOR:locked,(15,10)
+DOOR:locked,(19,16)
+DOOR:locked,(28,15)
+DOOR:locked,(34,17)
+DOOR:locked,(47,02)
+DOOR:locked,(59,03)
+DOOR:locked,(64,14)
+DOOR:locked,(72,02)
+DOOR:locked,(72,17)
+
+
+# It's a city, but it is the plane of fire, after all.
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+TRAP:"fire",random
+
+# A few boulders :)
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+OBJECT:('`',"boulder"),random
+
+# The inhabitants of the city. A few are peaceful.
+MONSTER:('@',"tourist"),random,hostile
+MONSTER:('&',"djinni"),random,peaceful
+MONSTER:('&',"djinni"),random,peaceful
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"djinni"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+MONSTER:('&',"efreet"),random,hostile
+
+MONSTER:('E',"fire elemental"),random,peaceful
+MONSTER:('E',"fusion elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+MONSTER:('E',"fire elemental"),random,hostile
+
+MONSTER:('v',"fire vortex"),random
+MONSTER:('d',"hell hound pup"),random,peaceful
+MONSTER:('B',"phoenix"),random,hostile
+MONSTER:('B',"phoenix"),random,hostile
+MONSTER:('w',"vent wurm"),random,hostile
+
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+MONSTER:(':',"salamander"),random,hostile
+
+
 MAZE:"fire",' '
 FLAGS: noteleport,hardfloor,shortsighted
 MESSAGE: "You arrive in a field of flaming desolation."
@@ -263,7 +634,7 @@ MAP
 .................................LL....................LL...................
 ENDMAP
 TELEPORT_REGION:(69,16,69,16),(0,0,0,0)
-PORTAL:(0,0,75,19),(65,13,75,19),"water"
+PORTAL:(0,0,75,19),(65,13,75,19),"brass"
 
 TRAP:"fire",random
 TRAP:"fire",random
@@ -481,7 +852,7 @@ MONSTER:('&',"marid"),random,hostile
 
 
 MAZE:"astral",' '
-FLAGS: noteleport,hardfloor,nommap,shortsighted,solidify
+FLAGS: noteleport,hardfloor,nommap,shortsighted,solidify,noflip
 MESSAGE: "You arrive on the Astral Plane!"
 MESSAGE: "Here the High Temple of %d is located."
 MESSAGE: "You sense alarm, hostility, and excitement in the air!"
@@ -509,15 +880,36 @@ MAP
                              -----------------                             
 ENDMAP
 
-IF [75%] {
-  TERRAIN:fillrect (17,14, 30,18),'.'
-  TERRAIN:fillrect (44,14, 57,18),'.'
-  WALLIFY
-
-  $hall = selection:floodfill(37,18)
-  LOOP [6 + 3d4] {
-    MONSTER:('A',"Angel"),rndcoord($hall),noalign,hostile
-    [50%]: MONSTER:random,rndcoord($hall),hostile
+# chance to alter above map and turn the wings of the bottom-center into
+# a pair of big (5x15) rooms
+$loopindx = 0
+LOOP [2] {
+  $loopindx = $loopindx + 1
+# 3.6.[01]: 75% chance that both sides opened up, 25% that neither did;
+# 3.6.2: 60% twice == 36% chance that both sides open up, 24% left side
+# only, 24% right side only, 16% that neither side opens up
+  IF [60%] {
+    IF [$loopindx == 1] {
+      TERRAIN:fillrect (17,14, 30,18),'.'
+      WALLIFY
+# temporarily close off the area to be filled so that it doesn't cover
+# the entire entry area
+      TERRAIN:(33,18), '|'
+      $hall = selection:floodfill(30,16)
+# re-connect the opened wing with the rest of the map
+      TERRAIN:(33,18), '.'
+    } ELSE {
+      TERRAIN:fillrect (44,14, 57,18),'.'
+      WALLIFY
+      TERRAIN:(41,18), '|'
+      $hall = selection:floodfill(44,16)
+      TERRAIN:(41,18), '.'
+    }
+# extra monsters; was [6 + 3d4] when both wings were opened up at once
+    LOOP [3 + 2d3] {
+      MONSTER:('A',"Angel"),rndcoord($hall),noalign,hostile
+      [50%]: MONSTER:random,rndcoord($hall),hostile
+    }
   }
 }
 

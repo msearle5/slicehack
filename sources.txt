@@ -6,13 +6,24 @@
 # Code and Patches #
 ####################
 
+# Slash'em Extended
+- Autorecover patch by Kerio
+
+# DynaHack
+- Skill Progress
+
 #XNetHack
 - Object Materials Patch
 - Colored Altars and Stairs Patch
 - Paranoid Water and Lava
 - Peaceful Displacement
 - Monster Lookup
+- Many code refactors
 - Other Minor QOL Changes
+- Code for SLASH'EM fungus growth.
+- Fixes to monster intrinsics.
+- Code for object probabilities
+- Mjollnir invocation.
 
 #Biodiversity Patch
 - Umbral Hulk
@@ -20,32 +31,65 @@
 - Nosferatu
 
 #SLASH'EM
-- Techniques Code
-- Tiles for Various Monsters
-- Zouthern Animals
-- Gnolls
-- Hydra (heavily modified)
-- Spitting Beetle
-- Glowing Eye
-- Bloodshot Eye
-- Blinking Eye
-- Deep One
-- Deeper One
-- Deepest One
-- Acid Worm
-- Ogre Mage
-- Wax Golem
-- Quickling
-- Genetic Engineer
-- Hellbat
-- Hellrat
-- Hellcat
-- Various tiles
-- Medical Kit and associated items
-- Potions of blood and vampire blood
+  #Monsters
+    - Zouthern Animals (damage output reduced)
+    - Hydra (heavily modified)
+    - Hellcat (permanently invisible)
+    - Ruby Golem (hp reduced)
+    - Sapphire Golem (hp reduced)
+    - Steel Golem (hp reduced)
+    - Crystal Golem (hp reduced)
+    - Gnolls
+    - Spitting Beetle
+    - Glowing Eye
+    - Bloodshot Eye
+    - Blinking Eye
+    - Deep One
+    - Deeper One
+    - Deepest One
+    - Acid Worm
+    - Ogre Mage
+    - Wax Golem
+    - Quickling
+    - Genetic Engineer
+    - Hellbat
+    - Hellrat
+    - Drow
+    - ghoul mage
+    - ghast
+    - movanic deva (only appear in planes)
+    - monadic deva (only appear in planes)
+    - astral deva (only appear in planes)
+    - planetar (only appear in planes)
+    - solar (only appear in planes)
+    - weretiger (not randomly generated)
+  #Items
+    - Plague Artifact
+    - Doomblade Artifact
+    - Luck Blade Artifact
+    - Sword of Balance Artifact
+    - Sword of Justice Artifact
+    - Bat from Hell Artifact
+    - Serpent's Tongue Artifact
+    - Drow Items
+    - Medical Kit and associated items
+    - Potions of blood and vampire blood
+    - Wand of create horde (nerfed)
+    - Cheese
+  #Other
+    - Drow Race
+    - Techniques Code
+    - Various tiles
+    - Vampire Race
+
+#SliceHack
+- Various bug fixes.
+- Being an awesome variant.
+- Dragonmaster changes.
 
 #DNetHack
 - Inspiration for Creeping Kudzu
+- Code for race fields and expanded races
 
 #UnNetHack
 - Black Market Code
@@ -56,19 +100,32 @@
 
 #GruntHack
 - Intelligent Pets Patch
+- Monster amulet flight.
 
-#Chris
+#EvilHack
+- Updated Nazgul
+- Fixes to monster steeds
+- Monster amulet flight.
+
+#ChrisANG
 - Pirate Patch
 
 #Nephi
 - Grudge Patch
 - Colored Walls and Floors Patch
+- Gold Dragon Patch
+
+#L
+- Dilapidated Armory Patch
 
 #RPresser
 - Epitaph Patch
 
 #NAO 3.4.1
 - Highlight Hidden Stairs Patch
+
+# Karl Garrison
+- Convict Patch
 
 ################
 # Other Thanks #

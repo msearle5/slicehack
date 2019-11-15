@@ -25,11 +25,31 @@
 #OPTIONS=name:Janet,role:Valkyrie,race:Human,gender:female,align:lawful
 #OPTIONS=dogname:Fido,catname:Morris,fruit:guava
 #OPTIONS=horsename:Silver
+#OPTIONS=dragonname:Flame
+#OPTIONS=bridname:Quothe
+#OPTIONS=ratname:Mrs. Frisbee
 #OPTIONS=autopickup,pickup_types:$"=/!?+
 #OPTIONS=packorder:")[%?+/=!(*0_`
 #OPTIONS=scores:10 top/2 around/own
 #OPTIONS=nolegacy,noverbose
 #OPTIONS=menustyle:traditional
+
+# *** SpliceHack Tips ***
+Uncomment this if you do not want to receive gameplay tips.
+#OPTIONS=!tips
+
+# *** SpliceHack Challenge Modes ***
+# SpliceHack-specific challenges. Uncomment these for extra difficulty.
+#OPTIONS=intrinsicswap
+#OPTIONS=deaf
+#OPTIONS=hallucinating
+#OPTIONS=clumsy
+#OPTIONS=illfated
+#OPTIONS=marathon
+
+# *** SpliceHack Options ***
+# Orientation can be defined as gay, bisexual, straight, or asexual.
+#OPTIONS=orientation:gay
 
 #
 # General options.  You might also set "silent" so as not to attract
@@ -57,6 +77,7 @@ OPTIONS=hilite_pet,!toptenwin
 OPTIONS=!splash_screen,player_selection:prompts
 OPTIONS=vary_msgcount:3
 OPTIONS=fullscreen,wraptext,softkeyboard
+OPTIONS=paranoid_confirm:quit
 
 # Status/message window colors
 # Possible color options include:
@@ -71,7 +92,7 @@ OPTIONS=fullscreen,wraptext,softkeyboard
 OPTIONS=windowcolors:status white/#000000 message white/#000000 menu white/#000000 text white/#000000
 
 #
-#HACKDIR=c:\games\nethack
+#HACKDIR=c:\games\splicehack
 # 
 # Note: On Windows HACKDIR defaults to the location 
 #       of the NetHack.exe or NetHackw.exe file. 
@@ -79,6 +100,6 @@ OPTIONS=windowcolors:status white/#000000 message white/#000000 menu white/#0000
 #
 #   LEVELS and SAVE default to HACKDIR
 #
-#LEVELS=c:\games\nethack\bones
-#SAVE=c:\games\nethack\bones
+#LEVELS=c:\games\splicehack\bones
+#SAVE=c:\games\splicehack\bones
 

@@ -2,8 +2,6 @@
 #	Copyright (c) 1990-95 by M. Stephenson
 # NetHack may be freely redistributed.  See license for details.
 #
-# Edited on 4/15/18 by NullCGT
-#
 #	The dungeon description file for the "standard" 3.1 NetHack.
 #
 #	Note:	The order of the definition of dungeons in this file
@@ -33,6 +31,7 @@ BRANCH:		"One-eyed Sam's Market" @ (20, 5) portal
 RNDLEVEL:	"medusa" "none" @ (-5, 4) 4
 LEVALIGN:	chaotic
 BRANCH:		"The Icy Wastes" @ (15, 8) portal
+BRANCH:     "The Dark Forest" @ (15, 8)
 BRANCH:		"Mysterious Laboratory" @ (20, 5)
 RNDLEVEL:	"bigrm" "B" @ (30, 3) 40 10
 BRANCH:		"The Void" @ (-2, 0) portal
@@ -47,6 +46,10 @@ LEVEL:		"void" "V" @ (1, 0)
 DUNGEON: "The Icy Wastes" "I" (1,0)
 ALIGNMENT: noalign
 LEVEL: "icewaste" "I" @ (1, 0)
+
+DUNGEON: "The Dark Forest" "F" (1,0)
+ALIGNMENT: neutral
+LEVEL: "darkforest" "F" @ (1, 0)
 
 DUNGEON: "Mysterious Laboratory" "L" (1,0)
 ALIGNMENT: lawful
@@ -96,6 +99,16 @@ DESCRIPTION:	mazelike
 RNDLEVEL:	"minetn" "T" @ (3, 2) 7
 LEVELDESC:	town
 RNDLEVEL:	"minend" "E" @ (-1, 0) 3
+BRANCH:     "Banquet Hall" @ (-2, 0) up
+
+#
+# Giant Lord's Banquet Hall
+#
+DUNGEON: "Banquet Hall" "B" (1,0)
+DESCRIPTION: mazelike
+ALIGNMENT:   chaotic
+ENTRY:       -1
+LEVEL:		"banquet" "b" @ (1, 0)
 
 #
 #	The Questdungeon
@@ -159,13 +172,16 @@ LEVEL:		"tower3" "none" @ (3, 0)
 #	placeholder for surface level, and should be unreachable.
 #	[Note: the name "dummy" is checked for in init_dungeons().]
 #
-DUNGEON:	"The Elemental Planes" "E" (6, 0)
+DUNGEON:	"The Elemental Planes" "E" (9, 0)
 DESCRIPTION:	mazelike
 ALIGNMENT:	unaligned
 ENTRY:		-2
 LEVEL:		"astral" "none" @ (1, 0)
 LEVEL:		"water"  "none" @ (2, 0)
-LEVEL:		"fire"   "none" @ (3, 0)
-LEVEL:		"air"    "none" @ (4, 0)
-LEVEL:		"earth"  "none" @ (5, 0)
-LEVEL:		"dummy"  "none" @ (6, 0)
+LEVEL:      "brass"  "none" @ (3, 0)
+LEVEL:		"fire"   "none" @ (4, 0)
+LEVEL:      "storm"  "none" @ (5, 0)
+LEVEL:		"air"    "none" @ (6, 0)
+LEVEL:      "gemarray"  "none" @ (7, 0)
+LEVEL:		"earth"  "none" @ (8, 0)
+LEVEL:		"dummy"  "none" @ (9, 0)

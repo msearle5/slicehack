@@ -2,24 +2,34 @@
 /*      Copyright (c) 2015 by Michael Allison              */
 /* NetHack may be freely redistributed.  See license for details. */
 
+#include "win32api.h"
 #include "hack.h"
 
 #ifdef GUISTUB
 #ifdef TTYSTUB
-#error You can't compile this with both GUISTUB and TTYSTUB defined.
+#error You cannot compile this with both GUISTUB and TTYSTUB defined.
 #endif
 
 int GUILaunched;
-struct window_procs mswin_procs = { "guistubs" };
+struct window_procs mswin_procs = { "-guistubs" };
 
 #ifdef QT_GRAPHICS
-struct window_procs Qt_procs = { "guistubs" };
+struct window_procs Qt_procs = { "-guistubs" };
 int qt_tilewidth, qt_tileheight, qt_fontsize, qt_compact_mode;
 #endif
 void
 mswin_destroy_reg()
 {
     return;
+}
+void
+mswin_raw_print_flush()
+{
+}
+
+void
+mswin_raw_print(const char *str)
+{
 }
 
 /* MINGW32 has trouble with both a main() and WinMain()
@@ -28,6 +38,7 @@ mswin_destroy_reg()
  */
 #ifdef __MINGW32__
 extern char default_window_sys[];
+extern int mingw_main(int argc, char **argv);
 
 int
 main(argc, argv)
@@ -36,10 +47,7 @@ char *argv[];
 {
     boolean resuming;
 
-    sys_early_init();
-    Strcpy(default_window_sys, "tty");
-    resuming = pcmain(argc, argv);
-    moveloop(resuming);
+    resuming = mingw_main(argc, argv);
     nethack_exit(EXIT_SUCCESS);
     /*NOTREACHED*/
     return 0;
@@ -52,13 +60,13 @@ char *argv[];
 
 #ifdef TTYSTUB
 
-#include "hack.h"
-#include "win32api.h"
-
 HANDLE hConIn;
 HANDLE hConOut;
 int GUILaunched;
-struct window_procs tty_procs = { "ttystubs" };
+struct window_procs tty_procs = { "-ttystubs" };
+#ifdef CURSES_GRAPHICS
+char erase_char, kill_char;
+#endif
 
 void
 win_tty_init(dir)
@@ -74,11 +82,11 @@ int mode;
     return;
 }
 
-void
+int
 xputc(ch)
-char ch;
+int ch;
 {
-    return;
+    return 0;
 }
 
 void
@@ -100,13 +108,11 @@ clear_screen()
     return;
 }
 
-#ifdef TTY_GRAPHICS
 void
 backsp()
 {
     return;
 }
-#endif
 
 int
 has_color(int color)

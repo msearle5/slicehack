@@ -32,6 +32,8 @@ PORTAL:levregion(01,01,78,19),(0,0,0,0),"blkmar"
 PORTAL:levregion(01,01,78,19),(0,0,0,0),"rogue"
 PORTAL:levregion(01,01,78,19),(0,0,0,0),"minetn"
 PORTAL:levregion(01,01,78,19),(0,0,0,0),"minend"
+PORTAL:levregion(01,01,78,19),(0,0,0,0),"soko1"
+PORTAL:levregion(01,01,78,19),(0,0,0,0),"juiblex"
 # Portal home
 BRANCH:levregion(01,01,78,19),(0,0,0,0)
 

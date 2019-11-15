@@ -1,4 +1,4 @@
-/* NetHack 3.6	mextra.h	$NHDT-Date: 1451836000 2016/01/03 15:46:40 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.18 $ */
+/* NetHack 3.6	mextra.h	$NHDT-Date: 1571531885 2019/10/20 00:38:05 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.23 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -123,6 +123,7 @@ struct eshk {
     schar unused;         /* to force alignment for stupid compilers */
     boolean following;    /* following customer since he owes us sth */
     boolean surcharge;    /* angry shk inflates prices */
+    boolean pbanned;	  /* player is banned from the shop */
     boolean dismiss_kops; /* pacified shk sends kops away */
     coord shk;            /* usual position shopkeeper */
     coord shd;            /* position shop door */
@@ -146,16 +147,16 @@ struct emin {
 /***
  **     formerly edog.h -- pet extension
  */
-/*      various types of pet food, the lower, the better liked */
+/*      various types of pet food, the lower the value, the better liked */
 enum dogfood_types {
     DOGFOOD = 0,
-    CADAVER,
-    ACCFOOD,
-    MANFOOD,
-    APPORT,
-    POISON,
-    UNDEF,
-    TABU
+    CADAVER = 1,
+    ACCFOOD = 2,
+    MANFOOD = 3,
+    APPORT  = 4,
+    POISON  = 5,
+    UNDEF   = 6,
+    TABU    = 7
 };
 
 struct edog {
@@ -169,11 +170,6 @@ struct edog {
     int revivals;             /* count pet deaths */
     int mhpmax_penalty;       /* while starving, points reduced */
     Bitfield(killed_by_u, 1); /* you attempted to kill him */
-};
-
-struct eama {
-    struct permonst *m1; /* first monster */
-    struct permonst *m2; /* first monster */
 };
 
 struct erid {
@@ -191,7 +187,6 @@ struct mextra {
     struct eshk *eshk;
     struct emin *emin;
     struct edog *edog;
-    struct eama *eama;
     struct erid *erid;
     int mcorpsenm; /* obj->corpsenm for mimic posing as statue or corpse */
 };
@@ -202,7 +197,6 @@ struct mextra {
 #define ESHK(mon) ((mon)->mextra->eshk)
 #define EMIN(mon) ((mon)->mextra->emin)
 #define EDOG(mon) ((mon)->mextra->edog)
-#define EAMA(mon) ((mon)->mextra->eama)
 #define ERID(mon) ((mon)->mextra->erid)
 #define MCORPSENM(mon) ((mon)->mextra->mcorpsenm)
 
@@ -212,7 +206,6 @@ struct mextra {
 #define has_eshk(mon)  ((mon)->mextra && ESHK(mon))
 #define has_emin(mon)  ((mon)->mextra && EMIN(mon))
 #define has_edog(mon)  ((mon)->mextra && EDOG(mon))
-#define has_eama(mon)  ((mon)->mextra && EAMA(mon))
 #define has_erid(mon)  ((mon)->mextra && ERID(mon))
 #define has_mcorpsenm(mon) ((mon)->mextra && MCORPSENM(mon) != NON_PM)
 

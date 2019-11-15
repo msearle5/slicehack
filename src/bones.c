@@ -1,4 +1,4 @@
-/* NetHack 3.6	bones.c	$NHDT-Date: 1539653203 2018/10/16 01:26:43 $  $NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.73 $ */
+/* NetHack 3.6	bones.c	$NHDT-Date: 1571363147 2019/10/18 01:45:47 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.76 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985,1993. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -88,6 +88,24 @@ boolean restore;
             /* prevent materials from differing on things like rings */
             if (!valid_obj_material(otmp, otmp->material)) {
                 otmp->material = objects[otmp->otyp].oc_material;
+            }
+            /* 3.6.3: set no_charge for partly eaten food in shop;
+               all other items become goods for sale if in a shop */
+            if (otmp->oclass == FOOD_CLASS && otmp->oeaten) {
+                struct obj *top;
+                char *p;
+                xchar ox, oy;
+
+                for (top = otmp; top->where == OBJ_CONTAINED;
+                     top = top->ocontainer)
+                    continue;
+                otmp->no_charge = (top->where == OBJ_FLOOR
+                                   && get_obj_location(top, &ox, &oy, 0)
+                                   /* can't use costly_spot() since its
+                                      result depends upon hero's location */
+                                   && inside_shop(ox, oy)
+                                   && *(p = in_rooms(ox, oy, SHOPBASE))
+                                   && tended_shop(&rooms[*p - ROOMOFFSET]));
             }
         } else { /* saving */
             /* do not zero out o_ids for ghost levels anymore */
@@ -202,7 +220,7 @@ sanitize_name(namebuf)
 char *namebuf;
 {
     int c;
-    boolean strip_8th_bit = (!strcmp(windowprocs.name, "tty")
+    boolean strip_8th_bit = (WINDOWPORT("tty")
                              && !iflags.wc_eight_bit_input);
 
     /* it's tempting to skip this for single-user platforms, since
@@ -226,8 +244,8 @@ char *namebuf;
 /* called by savebones(); also by finish_paybill(shk.c) */
 void
 drop_upon_death(mtmp, cont, x, y)
-struct monst *mtmp;
-struct obj *cont;
+struct monst *mtmp; /* monster if hero turned into one (other than ghost) */
+struct obj *cont; /* container if hero is turned into a statue */
 int x, y;
 {
     struct obj *otmp;
@@ -235,9 +253,13 @@ int x, y;
     u.twoweap = 0; /* ensure curse() won't cause swapwep to drop twice */
     while ((otmp = invent) != 0) {
         obj_extract_self(otmp);
-        obj_no_longer_held(otmp);
+        /* when turning into green slime, all gear remains held;
+           other types "arise from the dead" do aren't holding
+           equipment during their brief interval as a corpse */
+        if (!mtmp || is_undead(mtmp->data))
+            obj_no_longer_held(otmp);
 
-        otmp->owornmask = 0;
+        otmp->owornmask = 0L;
         /* lamps don't go out when dropped */
         if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
             end_burn(otmp, TRUE); /* smother in statue */
@@ -350,12 +372,13 @@ struct obj *corpse;
 {
     int fd, x, y;
     struct trap *ttmp;
-    struct monst *mtmp;
+    struct monst *mtmp, *msteed;
     struct permonst *mptr;
     struct fruit *f;
     struct cemetery *newbones;
     char c, *bonesid;
     char whynot[BUFSZ];
+    coord cc;
 
     /* caller has already checked `can_make_bones()' */
 
@@ -377,7 +400,7 @@ struct obj *corpse;
         return;
     }
 
-make_bones:
+ make_bones:
     unleash_all();
     /* in case these characters are not in their home bases */
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -389,6 +412,21 @@ make_bones:
             || mptr == &mons[PM_VLAD_THE_IMPALER]
             || (mptr == &mons[PM_ORACLE] && !fixuporacle(mtmp)))
             mongone(mtmp);
+
+        /* monster steeds tend to wander off */
+        if (mtmp->mextra && ERID(mtmp) && ERID(mtmp)->m1 != NULL) {
+            msteed = ERID(mtmp)->m1;
+            ERID(mtmp)->m1->monmount = 0;
+            cc.x = msteed->mx;
+            cc.y = msteed->my;
+            enexto(&cc, u.ux, u.uy, msteed->data);
+            if (!m_at(cc.x, cc.y)) {
+                place_monster(msteed, cc.x, cc.y);
+            } else {
+                mongone(msteed);
+            }
+        }
+        free_erid(mtmp);
     }
     if (u.usteed)
         dismount_steed(DISMOUNT_BONES);
@@ -402,7 +440,11 @@ make_bones:
 
     /* check iron balls separately--maybe they're not carrying it */
     if (uball)
-        uball->owornmask = uchain->owornmask = 0;
+        uball->owornmask = uchain->owornmask = 0L;
+    
+    /* extinguish armor */
+	if(uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES)
+		end_burn(uarm,FALSE);
 
     /* dispose of your possessions, usually cursed */
     if (u.ugrave_arise == (NON_PM - 1)) {
@@ -434,27 +476,27 @@ make_bones:
         in_mklev = TRUE; /* use <u.ux,u.uy> as-is */
         mtmp = makemon(&mons[u.ugrave_arise], u.ux, u.uy, NO_MINVENT);
         in_mklev = FALSE;
-        if (!mtmp) {
+        if (!mtmp) { /* arise-type might have been genocided */
             drop_upon_death((struct monst *) 0, (struct obj *) 0, u.ux, u.uy);
             u.ugrave_arise = NON_PM; /* in case caller cares */
             return;
         }
-        /* give mummy-from-hero a wrapping unless hero already
-           carries one; don't bother forcing it to become worn */
-        if (mtmp->data->mlet == S_MUMMY && !carrying(MUMMY_WRAPPING))
-            (void) mongets(mtmp, MUMMY_WRAPPING);
         mtmp = christen_monst(mtmp, plname);
         newsym(u.ux, u.uy);
         /* ["Your body rises from the dead as an <mname>..." used
            to be given here, but it has been moved to done() so that
            it gets delivered even when savebones() isn't called] */
         drop_upon_death(mtmp, (struct obj *) 0, u.ux, u.uy);
+        /* 'mtmp' now has hero's inventory; if 'mtmp' is a mummy, give it
+           a wrapping unless already carrying one */
+        if (mtmp->data->mlet == S_MUMMY && !m_carrying(mtmp, MUMMY_WRAPPING))
+            (void) mongets(mtmp, MUMMY_WRAPPING);
         m_dowear(mtmp, TRUE);
     }
     if (mtmp) {
         mtmp->m_lev = (u.ulevel ? u.ulevel : 1);
         mtmp->mhp = mtmp->mhpmax = u.uhpmax;
-        mtmp->female = flags.female;
+        mtmp->female = flags.gender;
         mtmp->msleeping = 1;
     }
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
@@ -493,7 +535,7 @@ make_bones:
        gender and alignment reflect final values rather than what the
        character started out as, same as topten and logfile entries */
     Sprintf(newbones->who, "%s-%.3s-%.3s-%.3s-%.3s", plname, urole.filecode,
-            urace.filecode, genders[flags.female].filecode,
+            urace.filecode, genders[flags.gender].filecode,
             aligns[1 - u.ualign.type].filecode);
     formatkiller(newbones->how, sizeof newbones->how, how, TRUE);
     Strcpy(newbones->when, yyyymmddhhmmss(when));

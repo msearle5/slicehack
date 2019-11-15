@@ -1,4 +1,4 @@
-/* NetHack 3.6	pray.c	$NHDT-Date: 1519662898 2018/02/26 16:34:58 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.96 $ */
+/* NetHack 3.6	pray.c	$NHDT-Date: 1564532667 2019/07/31 00:24:27 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.117 $ */
 /* Copyright (c) Benson I. Margulies, Mike Stephenson, Steve Linhart, 1989. */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -67,11 +67,12 @@ static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
  * order to have the values be meaningful.
  */
 
-#define TROUBLE_STONED 17
-#define TROUBLE_SLIMED 16
-#define TROUBLE_STRANGLED 15
-#define TROUBLE_LAVA 14
-#define TROUBLE_SICK 13
+#define TROUBLE_STONED 18
+#define TROUBLE_SLIMED 17
+#define TROUBLE_STRANGLED 16
+#define TROUBLE_LAVA 15
+#define TROUBLE_SICK 14
+#define TROUBLE_WITHERING 13
 #define TROUBLE_STARVING 12
 #define TROUBLE_CARRIER 11
 #define TROUBLE_REGION 10 /* stinking cloud */
@@ -98,7 +99,6 @@ static int p_type; /* (-1)-3: (-1)=really naughty, 3=really good */
 #define TROUBLE_STUNNED (-11)
 #define TROUBLE_CONFUSED (-12)
 #define TROUBLE_HALLUCINATION (-13)
-
 
 
 #define ugod_is_angry() (u.ualign.record < 0)
@@ -151,7 +151,7 @@ stuck_in_wall()
             y = u.uy + j;
             if (!isok(x, y)
                 || (IS_ROCK(levl[x][y].typ)
-                    && (levl[x][y].typ != SDOOR || levl[x][y].typ != SCORR))
+                    && (levl[x][y].typ != SDOOR && levl[x][y].typ != SCORR))
                 || (blocked_boulder(i, j) && !throws_rocks(youmonst.data)))
                 ++count;
         }
@@ -384,6 +384,8 @@ in_trouble()
         return TROUBLE_LAVA;
     if (Sick)
         return TROUBLE_SICK;
+    if (Withering)
+        return TROUBLE_WITHERING;
     if (starving())
         return TROUBLE_STARVING;
     if (LarvaCarrier)
@@ -443,6 +445,11 @@ in_trouble()
         && (!u.uswallow
             || !attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_BLND)))
         return TROUBLE_BLIND;
+    /* deafness isn't it's own trouble; healing magic cures deafness
+       when it cures blindness, so do the same with trouble repair */
+    if ((HDeaf & TIMEOUT) > 1L)
+        return TROUBLE_BLIND;
+
     for (i = 0; i < A_MAX; i++)
         if (ABASE(i) < AMAX(i))
             return TROUBLE_POISONED;
@@ -564,6 +571,10 @@ int trouble;
     case TROUBLE_SICK:
         You_feel("better.");
         make_sick(0L, (char *) 0, FALSE, SICK_ALL);
+        break;
+    case TROUBLE_WITHERING:
+        You_feel("hardier.");
+        set_itimeout(&HWithering, (long) 0);
         break;
     case TROUBLE_CARRIER:
         You_feel("the things infesting you vanish.");
@@ -691,7 +702,7 @@ int trouble;
             what = rightglow;
         else if (otmp == uleft)
             what = leftglow;
-    decurse:
+ decurse:
         if (!otmp) {
             impossible("fix_worst_trouble: nothing to uncurse.");
             return;
@@ -701,7 +712,7 @@ int trouble;
                   what ? what : (const char *) Yobjnam2(otmp, "softly glow"),
                   hcolor(NH_AMBER));
             iflags.last_msg = PLNMSG_OBJ_GLOWS;
-            otmp->bknown = !Hallucination;
+            otmp->bknown = !Hallucination; /* ok to skip set_bknown() */
         }
         uncurse(otmp);
         update_inventory();
@@ -720,18 +731,31 @@ int trouble;
         }
         (void) encumber_msg();
         break;
-    case TROUBLE_BLIND: {
+    case TROUBLE_BLIND: { /* handles deafness as well as blindness */
+        char msgbuf[BUFSZ];
         const char *eyes = body_part(EYE);
+        boolean cure_deaf = (HDeaf & TIMEOUT) ? TRUE : FALSE;
 
-        if (eyecount(youmonst.data) != 1)
-            eyes = makeplural(eyes);
-        Your("%s %s better.", eyes, vtense(eyes, "feel"));
-        u.ucreamed = 0;
-        make_blinded(0L, FALSE);
+        msgbuf[0] = '\0';
+        if (Blinded) {
+            if (eyecount(youmonst.data) != 1)
+                eyes = makeplural(eyes);
+            Sprintf(msgbuf, "Your %s %s better", eyes, vtense(eyes, "feel"));
+            u.ucreamed = 0;
+            make_blinded(0L, FALSE);
+        }
+        if (cure_deaf) {
+            make_deaf(0L, FALSE);
+            if (!Deaf)
+                Sprintf(eos(msgbuf), "%s can hear again",
+                        !*msgbuf ? "You" : " and you");
+        }
+        if (*msgbuf)
+            pline("%s.", msgbuf);
         break;
     }
     case TROUBLE_WOUNDED_LEGS:
-        heal_legs();
+        heal_legs(0);
         break;
     case TROUBLE_STUNNED:
         make_stunned(0L, TRUE);
@@ -747,7 +771,7 @@ int trouble;
         otmp = which_armor(u.usteed, W_SADDLE);
         if (!Blind) {
             pline("%s %s.", Yobjnam2(otmp, "softly glow"), hcolor(NH_AMBER));
-            otmp->bknown = TRUE;
+            set_bknown(otmp, 1);
         }
         uncurse(otmp);
         break;
@@ -910,8 +934,9 @@ aligntyp resp_god;
                   (on_altar() && (a_align(u.ux, u.uy) != resp_god))
                       ? "scorn"
                       : "call upon");
+        /* [why isn't this using verbalize()?] */
         pline("\"Then die, %s!\"",
-              youmonst.data->mlet == S_HUMAN ? "mortal" : "creature");
+              (youmonst.data->mlet == S_HUMAN) ? "mortal" : "creature");
         summon_minion(resp_god, FALSE);
         break;
 
@@ -960,6 +985,20 @@ gcrownu()
     HPoison_resistance |= FROMOUTSIDE;
     godvoice(u.ualign.type, (char *) 0);
 
+    class_gift = STRANGE_OBJECT;
+    /* 3.3.[01] had this in the A_NEUTRAL case,
+       preventing chaotic wizards from receiving a spellbook */
+    if (Role_if(PM_WIZARD)
+        && (!uwep || (uwep->oartifact != ART_VORPAL_BLADE
+                      && uwep->oartifact != ART_STORMBRINGER))
+        && !carrying(SPE_FINGER_OF_DEATH)) {
+        class_gift = SPE_FINGER_OF_DEATH;
+    } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
+               && !carrying(SPE_RESTORE_ABILITY)) {
+        /* monks rarely wield a weapon */
+        class_gift = SPE_RESTORE_ABILITY;
+    }
+
     obj = ok_wep(uwep) ? uwep : 0;
     already_exists = in_hand = FALSE; /* lint suppression */
    	if( Role_if(PM_PIRATE) ){
@@ -969,47 +1008,45 @@ gcrownu()
      		verbalize("Hurrah for our Pirate King!");
    	} else {
     switch (u.ualign.type) {
-        case A_LAWFUL:
-            u.uevent.uhand_of_elbereth = 1;
-            verbalize("I crown thee...  The Hand of Elbereth!");
-            livelog_printf(LL_DIVINEGIFT,
+    case A_LAWFUL:
+        u.uevent.uhand_of_elbereth = 1;
+        verbalize("I crown thee...  The Hand of Elbereth!");
+        livelog_printf(LL_DIVINEGIFT,
                     "was crowned \"The Hand of Elbereth\" by %s", u_gname());
-            break;
-        case A_NEUTRAL:
-            u.uevent.uhand_of_elbereth = 2;
-            in_hand = (uwep && uwep->oartifact == ART_VORPAL_BLADE);
-            already_exists =
-                exist_artifact(LONG_SWORD, artiname(ART_VORPAL_BLADE));
-            verbalize("Thou shalt be my Envoy of Balance!");
-            livelog_printf(LL_DIVINEGIFT, "became %s Envoy of Balance",
+        learntech(T_CROWN_LAW, FROMOUTSIDE, 1);
+        break;
+    case A_NEUTRAL:
+        u.uevent.uhand_of_elbereth = 2;
+        in_hand = (uwep && uwep->oartifact == ART_VORPAL_BLADE);
+        already_exists =
+            exist_artifact(LONG_SWORD, artiname(ART_VORPAL_BLADE));
+        verbalize("Thou shalt be my Envoy of Balance!");
+        livelog_printf(LL_DIVINEGIFT, "became %s Envoy of Balance",
                     s_suffix(u_gname()));
-            break;
-        case A_CHAOTIC:
-            u.uevent.uhand_of_elbereth = 3;
-            in_hand = (uwep && uwep->oartifact == ART_STORMBRINGER);
-            already_exists =
-                exist_artifact(RUNESWORD, artiname(ART_STORMBRINGER));
-            verbalize("Thou art chosen to %s for My Glory!",
-                      already_exists && !in_hand ? "take lives" : "steal souls");
-            livelog_printf(LL_DIVINEGIFT, "was chosen to %s for the Glory of %s",
-                    already_exists && !in_hand ? "take lives" : "steal souls",
+        learntech(T_CROWN_NEU, FROMOUTSIDE, 1);
+        break;
+    case A_CHAOTIC:
+        u.uevent.uhand_of_elbereth = 3;
+        in_hand = (uwep && uwep->oartifact == ART_STORMBRINGER);
+        already_exists =
+            exist_artifact(RUNESWORD, artiname(ART_STORMBRINGER));
+        verbalize("Thou art chosen to %s for My Glory!",
+                  ((already_exists && !in_hand)
+                   || class_gift != STRANGE_OBJECT) ? "take lives"
+                  : "steal souls");
+        livelog_printf(LL_DIVINEGIFT, "was chosen to %s for the Glory of %s",
+                  ((already_exists && !in_hand)
+                    || class_gift != STRANGE_OBJECT) ? "take lives" : "steal souls",
                     u_gname());
-            break;
+        learntech(T_CROWN_CHAOS, FROMOUTSIDE, 1);
+        break;
         }
     }
 
-    class_gift = STRANGE_OBJECT;
-    /* 3.3.[01] had this in the A_NEUTRAL case below,
-       preventing chaotic wizards from receiving a spellbook */
-    if (Role_if(PM_WIZARD)
-        && (!uwep || (uwep->oartifact != ART_VORPAL_BLADE
-                      && uwep->oartifact != ART_STORMBRINGER))
-        && !carrying(SPE_FINGER_OF_DEATH)) {
-        class_gift = SPE_FINGER_OF_DEATH;
-    make_splbk:
+    if (objects[class_gift].oc_class == SPBOOK_CLASS) {
         obj = mksobj(class_gift, TRUE, FALSE);
         bless(obj);
-        obj->bknown = TRUE;
+        obj->bknown = 1; /* ok to skip set_bknown() */
         at_your_feet("A spellbook");
         dropy(obj);
         u.ugifts++;
@@ -1021,11 +1058,6 @@ gcrownu()
                     obj = uwep; /* to be blessed,&c */
                 break;
             }
-    } else if (Role_if(PM_MONK) && (!uwep || !uwep->oartifact)
-               && !carrying(SPE_RESTORE_ABILITY)) {
-        /* monks rarely wield a weapon */
-        class_gift = SPE_RESTORE_ABILITY;
-        goto make_splbk;
     }
 
 	if( Role_if(PM_PIRATE) ){
@@ -1118,7 +1150,7 @@ gcrownu()
         bless(obj);
         obj->oeroded = obj->oeroded2 = 0;
         obj->oerodeproof = TRUE;
-        obj->bknown = obj->rknown = TRUE;
+        obj->bknown = obj->rknown = 1; /* ok to skip set_bknown() */
         if (obj->spe < 1)
             obj->spe = 1;
         /* acquire skill in this weapon */
@@ -1253,7 +1285,7 @@ aligntyp g_align;
                         You_feel("the power of %s over %s.", u_gname(),
                                  yname(uwep));
                     uncurse(uwep);
-                    uwep->bknown = TRUE;
+                    uwep->bknown = 1; /* ok to bypass set_bknown() */
                     *repair_buf = '\0';
                 } else if (!uwep->blessed) {
                     if (!Blind) {
@@ -1265,7 +1297,7 @@ aligntyp g_align;
                         You_feel("the blessing of %s over %s.", u_gname(),
                                  yname(uwep));
                     bless(uwep);
-                    uwep->bknown = TRUE;
+                    uwep->bknown = 1; /* ok to bypass set_bknown() */
                     *repair_buf = '\0';
                 }
 
@@ -1321,7 +1353,11 @@ aligntyp g_align;
             u.uhp = u.uhpmax;
             if (Upolyd)
                 u.mh = u.mhmax;
-            ABASE(A_STR) = AMAX(A_STR);
+            if (ABASE(A_STR) < AMAX(A_STR)) {
+                ABASE(A_STR) = AMAX(A_STR);
+                context.botl = 1; /* before potential message */
+                (void) encumber_msg();
+            }
             if (u.uhunger < 900)
                 init_uhunger();
             /* luck couldn't have been negative at start of prayer because
@@ -1352,7 +1388,7 @@ aligntyp g_align;
                         pline("%s %s.", Yobjnam2(otmp, "softly glow"),
                               hcolor(NH_AMBER));
                         iflags.last_msg = PLNMSG_OBJ_GLOWS;
-                        otmp->bknown = TRUE;
+                        otmp->bknown = 1; /* ok to bypass set_bknown() */
                         ++any;
                     }
                     uncurse(otmp);
@@ -1460,7 +1496,7 @@ boolean bless_water;
             && (bless_water ? !otmp->blessed : !otmp->cursed)) {
             otmp->blessed = bless_water;
             otmp->cursed = !bless_water;
-            otmp->bknown = bc_known;
+            otmp->bknown = bc_known; /* ok to bypass set_bknown() */
             changed += otmp->quan;
         } else if (otmp->oclass == POTION_CLASS)
             other = TRUE;
@@ -1501,8 +1537,9 @@ register struct monst *mtmp;
             a_align(mtmp->mx, mtmp->my) == check_malign(mtmp) &&
             (otmp->corpsenm == PM_ACID_BLOB
              || (monstermoves <= peek_at_iced_corpse_age(otmp) + 50))) {
-                pline("%s offers %s upon the altar.",
-                      Monnam(mtmp), doname(otmp));
+                if (canseemon(mtmp))
+                    pline("%s offers %s upon the altar.",
+                        Monnam(mtmp), doname(otmp));
                 /* monsters might try to offer cockatrice corpses. */
                 if (touch_petrifies(&mons[otmp->corpsenm])) {
                       minstapetrify(mtmp, FALSE);
@@ -1513,8 +1550,9 @@ register struct monst *mtmp;
                 if (rider_corpse_revival(otmp, FALSE)) {
                     return 3;
                 }
-                pline("The sacrifice of %s is consumed in a burst of flame!",
-                      mon_nam(mtmp));
+                if (canseemon(mtmp))
+                    pline("The sacrifice of %s is consumed in a burst of flame!",
+                        mon_nam(mtmp));
                 m_useup(mtmp, otmp);
                 /* monsters get experience from sacrificing instead of luck */
                 if (!grow_up(mtmp, (struct monst *) 0)) {
@@ -1657,7 +1695,6 @@ dosacrifice()
     if (otmp->otyp == CORPSE) {
         register struct permonst *ptr = &mons[otmp->corpsenm];
         struct monst *mtmp;
-        extern const int monstr[];
 
         /* KMH, conduct */
         if(!u.uconduct.gnostic++)
@@ -1674,7 +1711,7 @@ dosacrifice()
 
         if (otmp->corpsenm == PM_ACID_BLOB
             || (monstermoves <= peek_at_iced_corpse_age(otmp) + 50)) {
-            value = monstr[otmp->corpsenm] + 1;
+            value = mons[otmp->corpsenm].difficulty + 1;
             if (otmp->oeaten)
                 value = eaten_stat(value, otmp);
             if (uwep && uwep->otyp == SACRIFICIAL_KNIFE) {
@@ -1685,7 +1722,9 @@ dosacrifice()
             }
         }
 
-        if (your_race(ptr) || (uwep &&
+        if (otmp->oeroded > 0) {
+            value = 0;
+        } else if (your_race(ptr) || (uwep &&
             uwep->otyp == SACRIFICIAL_KNIFE && uwep->cursed)) {
             if (is_demon(youmonst.data) || Race_if(PM_HUMAN_WEREWOLF)) {
                 You("find the idea very satisfying.");
@@ -1822,7 +1861,7 @@ dosacrifice()
 
     if (otmp->otyp == AMULET_OF_YENDOR) {
         if (!highaltar) {
-        too_soon:
+ too_soon:
             if (altaralign == A_NONE && Inhell)
                 /* hero has left Moloch's Sanctum so is in the process
                    of getting away with the Amulet (outside of Gehennom,
@@ -1891,7 +1930,7 @@ dosacrifice()
                 verbalize(
           "In return for thy service, I grant thee the gift of Immortality!");
                 You("ascend to the status of Demigod%s...",
-                    flags.female ? "dess" : "");
+                    flags.gender == GEND_F ? "dess" : "");
                 done(ASCENDED);
             }
         }
@@ -1924,7 +1963,7 @@ dosacrifice()
     }
 
     if (altaralign != u.ualign.type && highaltar) {
-    desecrate_high_altar:
+ desecrate_high_altar:
         /*
          * REAL BAD NEWS!!! High altars cannot be converted.  Even an attempt
          * gets the god who owns it truly pissed off.
@@ -2105,7 +2144,13 @@ dosacrifice()
                         makeknown(otmp->otyp);
                         discover_artifact(otmp->oartifact);
                     }
+
                     holy_symbol();
+
+                    if (u.ugifts > 2 && !rn2(2)) {
+                        pline("The altar cracks in two and is destroyed!");
+                        levl[u.ux][u.uy].typ = ROOM;
+                    }
                     return 1;
                 }
             }
@@ -2386,7 +2431,7 @@ prayer_done() /* M. Stephenson (1.0.3b) */
         return 1;
     }
     if (Inhell) {
-        pline("Since you are in Gehennom, %s won't help you.",
+        pline("Since you are in Gehennom, %s can't help you.",
               align_gname(alignment));
         /* haltingly aligned is least likely to anger */
         if (u.ualign.record <= 0 || rnl(u.ualign.record))
@@ -2426,9 +2471,12 @@ prayer_done() /* M. Stephenson (1.0.3b) */
 int
 doturn()
 {
-    /* WAC doturn is now a technique */
-  	/* Try to use turn undead spell if you don't know the tech. */
-    if (!tech_known(T_TURN_UNDEAD)) {
+    /* Knights & Priest(esse)s only please */
+    struct monst *mtmp, *mtmp2;
+    const char *Gname;
+    int once, range, xlev;
+
+    if (!Role_if(PM_PRIEST) && !(Role_if(PM_KNIGHT) && tech_known(T_TURN_UNDEAD))) {
         /* Try to use the "turn undead" spell.
          *
          * This used to be based on whether hero knows the name of the
@@ -2455,19 +2503,33 @@ turn_undead(struct obj *focus) {
 struct monst *mtmp, *mtmp2;
 int once, range, xlev;
 
+    Gname = halu_gname(u.ualign.type);
     if(!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 
+    /* [What about needing free hands (does #turn involve any gesturing)?] */
+    if (!can_chant(&youmonst)) {
+        /* "evilness": "demons and undead" is too verbose and too precise */
+        You("are %s upon %s to turn aside evilness.",
+            Strangled ? "not able to call" : "incapable of calling", Gname);
+        /* violates agnosticism due to intent; conduct tracking is not
+           supposed to affect play but we make an exception here:  use a
+           move if this is the first time agnostic conduct has been broken */
+        return (u.uconduct.gnostic == 1);
+    }
     if ((u.ualign.type != A_CHAOTIC
          && (is_demon(youmonst.data) || is_undead(youmonst.data)))
         || u.ugangr > 6) { /* "Die, mortal!" */
-        pline("For some reason, %s seems to ignore you.", u_gname());
+        pline("For some reason, %s seems to ignore you.", Gname);
         aggravate();
         exercise(A_WIS, FALSE);
         return 1;
     }
     if (Inhell) {
-        pline("Since you are in Gehennom, %s won't help you.", u_gname());
+        pline("Since you are in Gehennom, %s %s help you.",
+              /* not actually calling upon Moloch but use alternate
+                 phrasing anyway if hallucinatory feedback says it's him */
+              Gname, !strcmp(Gname, Moloch) ? "won't" : "can't");
         aggravate();
         return 1;
     }
@@ -2475,18 +2537,22 @@ int once, range, xlev;
         pline("You grasp %s and through it call upon %s.", doname(focus), u_gname());
     else
         pline("Calling upon %s, you chant an arcane formula.", u_gname());
+
     exercise(A_WIS, TRUE);
 
     /* note: does not perform unturn_dead() on victims' inventories */
-    range = BOLT_LIM + (u.ulevel / 5); /* 5 to 11 */
+    range = BOLT_LIM + (u.ulevel / 5); /* 8 to 14 */
     range *= range;
     once = 0;
     for (mtmp = fmon; mtmp; mtmp = mtmp2) {
         mtmp2 = mtmp->nmon;
-
         if (DEADMONSTER(mtmp))
             continue;
-        if (!cansee(mtmp->mx, mtmp->my) || distu(mtmp->mx, mtmp->my) > range)
+        /* 3.6.3: used to use cansee() here but the purpose is to prevent
+           #turn operating through walls, not to require that the hero be
+           able to see the target location */
+        if (!couldsee(mtmp->mx, mtmp->my)
+            || distu(mtmp->mx, mtmp->my) > range)
             continue;
 
         if (!mtmp->mpeaceful
@@ -2509,15 +2575,20 @@ int once, range, xlev;
                 /* this is intentional, lichs are tougher
                    than zombies. */
                 case S_LICH:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_GHOST:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_VAMPIRE:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_WRAITH:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_MUMMY:
-                    xlev += 2; /*FALLTHRU*/
+                    xlev += 2;
+                    /*FALLTHRU*/
                 case S_ZOMBIE:
                     if (u.ulevel >= xlev && !resist(mtmp, '\0', 0, NOTELL)) {
                         if (u.ualign.type == A_CHAOTIC) {
@@ -2536,6 +2607,22 @@ int once, range, xlev;
             }
         }
     }
+
+    /*
+     *  There is no detrimental effect on self for successful #turn
+     *  while in demon or undead form.  That can only be done while
+     *  chaotic oneself (see "For some reason" above) and chaotic
+     *  turning only makes targets peaceful.
+     *
+     *  Paralysis duration probably ought to be based on the strengh
+     *  of turned creatures rather than on turner's level.
+     *  Why doesn't this honor Free_action?  [Because being able to
+     *  repeat #turn every turn would be too powerful.  Maybe instead
+     *  of nomul(-N) we should add the equivalent of mon->mspec_used
+     *  for the hero and refuse to #turn when it's non-zero?  Or have
+     *  both and u.uspec_used only matters when Free_action prevents
+     *  the brief paralysis?]
+     */
     nomul(-(5 - ((u.ulevel - 1) / 6))); /* -5 .. -1 */
     multi_reason = "trying to turn the monsters";
     nomovemsg = You_can_move_again;
@@ -2610,7 +2697,7 @@ static const char *hallu_gods[] = {
     "the Ori",                      /* Stargate */
     "destiny",                      /* why not? */
     "your Friend the Computer",     /* Paranoia */
-    "Big Brother"                   /* 1984 */
+    "Big Brother",                  /* 1984 */
     "your Parents"                  /* Just because */
     "Svetovid",                     /* Slavic deity */
     "Radegast",                     /* Slavic deity */
@@ -2640,6 +2727,8 @@ static const char *hallu_gods[] = {
     "the Iron General",             /* Jacek Dukaj */
     "the RNG",
     "the gnome with the wand of death",
+    "Greyskull",                    /* She-Ra */
+    "your self-image"               /* Narcisism */
 };
 
 /* hallucination handling for priest/minion names: select a random god
@@ -2654,13 +2743,16 @@ aligntyp alignment;
     if (!Hallucination)
         return align_gname(alignment);
 
-    /* The priest may not have initialized god names. If this is the
-     * case, and we roll priest, we need to try again. */
+    /* Some roles (Priest) don't have a pantheon unless we're playing as
+       that role, so keep trying until we get a role which does have one.
+       [If playing a Priest, the current pantheon will be twice as likely
+       to get picked as any of the others.  That's not significant enough
+       to bother dealing with.] */
     do
-        which = randrole();
+        which = randrole(TRUE);
     while (!roles[which].lgod);
 
-    switch (rn2(9)) {
+    switch (rn2_on_display_rng(9)) {
     case 0:
     case 1:
         gnam = roles[which].lgod;
@@ -2675,7 +2767,7 @@ aligntyp alignment;
         break;
     case 6:
     case 7:
-        gnam = hallu_gods[rn2(sizeof hallu_gods / sizeof *hallu_gods)];
+        gnam = hallu_gods[rn2_on_display_rng(SIZE(hallu_gods))];
         break;
     case 8:
         gnam = Moloch;
@@ -2724,13 +2816,21 @@ register int x, y;
 {
     aligntyp altaralign = a_align(x, y);
 
-    if (!strcmp(align_gname(altaralign), u_gname())) {
+    if (u.ualign.type == altaralign && u.ualign.record > -rn2(4)) {
         godvoice(altaralign, "How darest thou desecrate my altar!");
         (void) adjattrib(A_WIS, -1, FALSE);
+        u.ualign.record--;
     } else {
-        pline("A voice (could it be %s?) whispers:", align_gname(altaralign));
+        pline("%s %s%s:",
+              !Deaf ? "A voice (could it be"
+                    : "Despite your deafness, you seem to hear",
+              align_gname(altaralign),
+              !Deaf ? "?) whispers" : " say");
         verbalize("Thou shalt pay, infidel!");
-        change_luck(-1);
+        /* higher luck is more likely to be reduced; as it approaches -5
+           the chance to lose another point drops down, eventually to 0 */
+        if (Luck > -5 && rn2(Luck + 6))
+            change_luck(rn2(20) ? -1 : -2);
     }
 }
 
@@ -2740,6 +2840,7 @@ blocked_boulder(dx, dy)
 int dx, dy;
 {
     register struct obj *otmp;
+    int nx, ny;
     long count = 0L;
 
     for (otmp = level.objects[u.ux + dx][u.uy + dy]; otmp;
@@ -2748,6 +2849,7 @@ int dx, dy;
             count += otmp->quan;
     }
 
+    nx = u.ux + 2 * dx, ny = u.uy + 2 * dy; /* next spot beyond boulder(s) */
     switch (count) {
     case 0:
         /* no boulders--not blocked */
@@ -2755,17 +2857,24 @@ int dx, dy;
     case 1:
         /* possibly blocked depending on if it's pushable */
         break;
+    case 2:
+        /* this is only approximate since multiple boulders might sink */
+        if (is_pool_or_lava(nx, ny)) /* does its own isok() check */
+            break; /* still need Sokoban check below */
+        /*FALLTHRU*/
     default:
         /* more than one boulder--blocked after they push the top one;
            don't force them to push it first to find out */
         return TRUE;
     }
 
-    if (!isok(u.ux + 2 * dx, u.uy + 2 * dy))
+    if (dx && dy && Sokoban) /* can't push boulder diagonally in Sokoban */
         return TRUE;
-    if (IS_ROCK(levl[u.ux + 2 * dx][u.uy + 2 * dy].typ))
+    if (!isok(nx, ny))
         return TRUE;
-    if (sobj_at(BOULDER, u.ux + 2 * dx, u.uy + 2 * dy))
+    if (IS_ROCK(levl[nx][ny].typ))
+        return TRUE;
+    if (sobj_at(BOULDER, nx, ny))
         return TRUE;
 
     return FALSE;

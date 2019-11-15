@@ -458,7 +458,7 @@ ghack_status_window_update_stats()
         }
         strcat(buf, mname);
     } else {
-        strcat(buf, rank_of(u.ulevel, pl_character[0], flags.female));
+        strcat(buf, rank_of(u.ulevel, pl_character[0], flags.gender));
     }
     gtk_label_get(GTK_LABEL(titleLabel), &buf1);
     if (strcmp(buf1, buf) != 0 && firstTime == FALSE) {

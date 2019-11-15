@@ -1,4 +1,4 @@
-/* NetHack 3.6	sp_lev.c	$NHDT-Date: 1524287226 2018/04/21 05:07:06 $  $NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.98 $ */
+/* NetHack 3.6	sp_lev.c	$NHDT-Date: 1567805254 2019/09/06 21:27:34 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.117 $ */
 /*      Copyright (c) 1989 by Jean-Christophe Collet */
 /* NetHack may be freely redistributed.  See license for details. */
 
@@ -233,7 +233,7 @@ struct splevstack *st;
         st->depth = 0;
         st->depth_alloc = SPLEV_STACK_RESERVE;
         st->stackdata =
-            (struct opvar **) alloc(st->depth_alloc * sizeof(struct opvar *));
+           (struct opvar **) alloc(st->depth_alloc * sizeof (struct opvar *));
     }
 }
 
@@ -286,7 +286,7 @@ struct opvar *v;
 
     if (st->depth >= st->depth_alloc) {
         struct opvar **tmp = (struct opvar **) alloc(
-            (st->depth_alloc + SPLEV_STACK_RESERVE) * sizeof(struct opvar *));
+           (st->depth_alloc + SPLEV_STACK_RESERVE) * sizeof (struct opvar *));
 
         (void) memcpy(tmp, st->stackdata,
                       st->depth_alloc * sizeof(struct opvar *));
@@ -354,7 +354,7 @@ struct opvar *
 opvar_new_str(s)
 char *s;
 {
-    struct opvar *tmpov = (struct opvar *) alloc(sizeof(struct opvar));
+    struct opvar *tmpov = (struct opvar *) alloc(sizeof (struct opvar));
 
     tmpov->spovartyp = SPOVAR_STRING;
     if (s) {
@@ -372,7 +372,7 @@ struct opvar *
 opvar_new_int(i)
 long i;
 {
-    struct opvar *tmpov = (struct opvar *) alloc(sizeof(struct opvar));
+    struct opvar *tmpov = (struct opvar *) alloc(sizeof (struct opvar));
 
     tmpov->spovartyp = SPOVAR_INT;
     tmpov->vardata.l = i;
@@ -383,7 +383,7 @@ struct opvar *
 opvar_new_coord(x, y)
 int x, y;
 {
-    struct opvar *tmpov = (struct opvar *) alloc(sizeof(struct opvar));
+    struct opvar *tmpov = (struct opvar *) alloc(sizeof (struct opvar));
 
     tmpov->spovartyp = SPOVAR_COORD;
     tmpov->vardata.l = SP_COORD_PACK(x, y);
@@ -395,7 +395,7 @@ struct opvar *
 opvar_new_region(x1,y1,x2,y2)
      int x1,y1,x2,y2;
 {
-    struct opvar *tmpov = (struct opvar *)alloc(sizeof (struct opvar));
+    struct opvar *tmpov = (struct opvar *) alloc(sizeof (struct opvar));
 
     tmpov->spovartyp = SPOVAR_REGION;
     tmpov->vardata.l = SP_REGION_PACK(x1,y1,x2,y2);
@@ -427,6 +427,285 @@ struct opvar *ov;
     }
     Free(ov);
 }
+
+void flip_drawbridge_horizontal(lev)
+struct rm *lev;
+{
+	if (IS_DRAWBRIDGE(lev->typ)) {
+		if ((lev->drawbridgemask & DB_DIR) == DB_WEST) {
+			lev->drawbridgemask &= ~DB_WEST;
+			lev->drawbridgemask |=  DB_EAST;
+		} else if ((lev->drawbridgemask & DB_DIR) == DB_EAST) {
+			lev->drawbridgemask &= ~DB_EAST;
+			lev->drawbridgemask |=  DB_WEST;
+		}
+	}
+}
+
+void flip_drawbridge_vertical(lev)
+struct rm *lev;
+{
+	if (IS_DRAWBRIDGE(lev->typ)) {
+		if ((lev->drawbridgemask & DB_DIR) == DB_NORTH) {
+			lev->drawbridgemask &= ~DB_NORTH;
+			lev->drawbridgemask |=  DB_SOUTH;
+		} else if ((lev->drawbridgemask & DB_DIR) == DB_SOUTH) {
+			lev->drawbridgemask &= ~DB_SOUTH;
+			lev->drawbridgemask |=  DB_NORTH;
+		}
+	}
+}
+
+void
+flip_level(int flp)
+{
+    int x2 = COLNO-1;
+    int y2 = ROWNO-1;
+
+    int x, y, i;
+
+    struct rm trm;
+
+    struct trap *ttmp;
+    struct obj *otmp;
+    struct monst *mtmp;
+    struct engr *etmp;
+    struct mkroom *sroom;
+
+    /* stairs and ladders */
+    if (flp & 1) {
+	yupstair = y2 - yupstair;
+	ydnstair = y2 - ydnstair;
+	yupladder = y2 - yupladder;
+	ydnladder = y2 - ydnladder;
+    }
+    if (flp & 2) {
+	xupstair = x2 - xupstair;
+	xdnstair = x2 - xdnstair;
+	xupladder = x2 - xupladder;
+	xdnladder = x2 - xdnladder;
+    }
+
+    /* traps */
+    for (ttmp = ftrap; ttmp; ttmp = ttmp->ntrap) {
+	if (flp & 1) {
+	    ttmp->ty = y2 - ttmp->ty;
+	    if (ttmp->ttyp == ROLLING_BOULDER_TRAP) {
+		ttmp->launch.y = y2 - ttmp->launch.y;
+		ttmp->launch2.y = y2 - ttmp->launch2.y;
+	    }
+	}
+	if (flp & 2) {
+	    ttmp->tx = x2 - ttmp->tx;
+	    if (ttmp->ttyp == ROLLING_BOULDER_TRAP) {
+		ttmp->launch.x = x2 - ttmp->launch.x;
+		ttmp->launch2.x = x2 - ttmp->launch2.x;
+	    }
+	}
+    }
+
+    /* objects */
+    for (otmp = fobj; otmp; otmp = otmp->nobj) {
+	if (flp & 1)
+	    otmp->oy = y2 - otmp->oy;
+	if (flp & 2)
+	    otmp->ox = x2 - otmp->ox;
+    }
+
+    /* buried objects */
+    for (otmp = level.buriedobjlist; otmp; otmp = otmp->nobj) {
+	if (flp & 1)
+	    otmp->oy = y2 - otmp->oy;
+	if (flp & 2)
+	    otmp->ox = x2 - otmp->ox;
+    }
+
+    /* monsters */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+	if (flp & 1) {
+	    mtmp->my = y2 - mtmp->my;
+	    if (mtmp->ispriest)
+		EPRI(mtmp)->shrpos.y = y2 - EPRI(mtmp)->shrpos.y;
+	    else if (mtmp->isshk) {
+		ESHK(mtmp)->shk.y = y2 - ESHK(mtmp)->shk.y;
+		ESHK(mtmp)->shd.y = y2 - ESHK(mtmp)->shd.y;
+	    } else if (mtmp->wormno) {
+		flip_worm_segs_vertical(mtmp, y2);
+	    }
+	}
+	if (flp & 2) {
+	    mtmp->mx = x2 - mtmp->mx;
+	    if (mtmp->ispriest)
+		EPRI(mtmp)->shrpos.x = x2 - EPRI(mtmp)->shrpos.x;
+	    else if (mtmp->isshk) {
+		ESHK(mtmp)->shk.x = x2 - ESHK(mtmp)->shk.x;
+		ESHK(mtmp)->shd.x = x2 - ESHK(mtmp)->shd.x;
+	    } else if (mtmp->wormno) {
+		flip_worm_segs_horizontal(mtmp, x2);
+	    }
+	}
+    }
+
+    /* engravings */
+    for (etmp = head_engr; etmp; etmp = etmp->nxt_engr) {
+	if (flp & 1)
+	    etmp->engr_y = y2 - etmp->engr_y;
+	if (flp & 2)
+	    etmp->engr_x = x2 - etmp->engr_x;
+    }
+
+    /* regions */
+    for (i = 0; i < num_lregions; i++) {
+	if (flp & 1) {
+	    lregions[i].inarea.y1 = y2 - lregions[i].inarea.y1;
+	    lregions[i].inarea.y2 = y2 - lregions[i].inarea.y2;
+	    if (lregions[i].inarea.y1 > lregions[i].inarea.y2) {
+		int tmp = lregions[i].inarea.y1;
+		lregions[i].inarea.y1 = lregions[i].inarea.y2;
+		lregions[i].inarea.y2 = tmp;
+	    }
+
+	    lregions[i].delarea.y1 = y2 - lregions[i].delarea.y1;
+	    lregions[i].delarea.y2 = y2 - lregions[i].delarea.y2;
+	    if (lregions[i].delarea.y1 > lregions[i].delarea.y2) {
+		int tmp = lregions[i].delarea.y1;
+		lregions[i].delarea.y1 = lregions[i].delarea.y2;
+		lregions[i].delarea.y2 = tmp;
+	    }
+	}
+	if (flp & 2) {
+	    lregions[i].inarea.x1 = x2 - lregions[i].inarea.x1;
+	    lregions[i].inarea.x2 = x2 - lregions[i].inarea.x2;
+	    if (lregions[i].inarea.x1 > lregions[i].inarea.x2) {
+		int tmp = lregions[i].inarea.x1;
+		lregions[i].inarea.x1 = lregions[i].inarea.x2;
+		lregions[i].inarea.x2 = tmp;
+	    }
+
+	    lregions[i].delarea.x1 = x2 - lregions[i].delarea.x1;
+	    lregions[i].delarea.x2 = x2 - lregions[i].delarea.x2;
+	    if (lregions[i].delarea.x1 > lregions[i].delarea.x2) {
+		int tmp = lregions[i].delarea.x1;
+		lregions[i].delarea.x1 = lregions[i].delarea.x2;
+		lregions[i].delarea.x2 = tmp;
+	    }
+	}
+    }
+
+    /* rooms */
+    for(sroom = &rooms[0]; ; sroom++) {
+	if (sroom->hx < 0) break;
+
+	if (flp & 1) {
+	    sroom->ly = y2 - sroom->ly;
+	    sroom->hy = y2 - sroom->hy;
+	    if (sroom->ly > sroom->hy) {
+		int tmp = sroom->ly;
+		sroom->ly = sroom->hy;
+		sroom->hy = tmp;
+	    }
+	}
+	if (flp & 2) {
+	    sroom->lx = x2 - sroom->lx;
+	    sroom->hx = x2 - sroom->hx;
+	    if (sroom->lx > sroom->hx) {
+		int tmp = sroom->lx;
+		sroom->lx = sroom->hx;
+		sroom->hx = tmp;
+	    }
+	}
+
+	if (sroom->nsubrooms)
+	    for (i = 0; i < sroom->nsubrooms; i++) {
+		struct mkroom *rroom = sroom->sbrooms[i];
+		if (flp & 1) {
+		    rroom->ly = y2 - rroom->ly;
+		    rroom->hy = y2 - rroom->hy;
+		    if (rroom->ly > rroom->hy) {
+			int tmp = rroom->ly;
+			rroom->ly = rroom->hy;
+			rroom->hy = tmp;
+		    }
+		}
+		if (flp & 2) {
+		    rroom->lx = x2 - rroom->lx;
+		    rroom->hx = x2 - rroom->hx;
+		    if (rroom->lx > rroom->hx) {
+			int tmp = rroom->lx;
+			rroom->lx = rroom->hx;
+			rroom->hx = tmp;
+		    }
+		}
+	    }
+    }
+
+    /* doors */
+    for (i = 0; i < doorindex; i++) {
+	if (flp & 1)
+	    doors[i].y = y2 - doors[i].y;
+	if (flp & 2)
+	    doors[i].x = x2 - doors[i].x;
+    }
+
+    /* the map */
+    if (flp & 1) {
+	for (x = 0; x <= x2; x++)
+	    for (y = 0; y <= (y2 / 2); y++) {
+
+		flip_drawbridge_vertical(&levl[x][y]);
+		flip_drawbridge_vertical(&levl[x][y2-y]);
+
+		trm = levl[x][y];
+		levl[x][y] = levl[x][y2-y];
+		levl[x][y2-y] = trm;
+
+		otmp = level.objects[x][y];
+		level.objects[x][y] = level.objects[x][y2-y];
+		level.objects[x][y2-y] = otmp;
+
+		mtmp = level.monsters[x][y];
+		level.monsters[x][y] = level.monsters[x][y2-y];
+		level.monsters[x][y2-y] = mtmp;
+	    }
+    }
+    if (flp & 2) {
+	for (x = 0; x <= (x2 / 2); x++)
+	    for (y = 0; y <= y2; y++) {
+
+		flip_drawbridge_horizontal(&levl[x][y]);
+		flip_drawbridge_horizontal(&levl[x2-x][y]);
+
+		trm = levl[x][y];
+		levl[x][y] = levl[x2-x][y];
+		levl[x2-x][y] = trm;
+
+		otmp = level.objects[x][y];
+		level.objects[x][y] = level.objects[x2-x][y];
+		level.objects[x2-x][y] = otmp;
+
+		mtmp = level.monsters[x][y];
+		level.monsters[x][y] = level.monsters[x2-x][y];
+		level.monsters[x2-x][y] = mtmp;
+	    }
+    }
+
+    wall_extends(1, 0, COLNO-1, ROWNO-1);
+}
+
+void
+flip_level_rnd(int flp)
+{
+    int c = 0;
+    if ((flp & 1) && rn2(2)) c |= 1;
+    if ((flp & 2) && rn2(2)) c |= 2;
+
+    /* Workaround for preventing the stairs to Vlad's tower appearing
+     * in the wizard's tower because of a bug in level flipping. */
+    if (On_W_tower_level(&u.uz)) { flp &= 1; }
+
+    flip_level(c);
+}
+
 
 /*
  * Name of current function for use in messages:
@@ -1134,7 +1413,7 @@ xchar w, h;
 xchar xal, yal;
 xchar rtype, rlit;
 {
-    xchar xabs, yabs;
+    xchar xabs = 0, yabs = 0;
     int wtmp, htmp, xaltmp, yaltmp, xtmp, ytmp;
     NhRect *r1 = 0, r2;
     int trycnt = 0;
@@ -1758,7 +2037,7 @@ struct mkroom *croom;
                     struct permonst *olddata = mtmp->data;
 
                     mgender_from_permonst(mtmp, mdat);
-                    set_mon_data(mtmp, mdat, 0);
+                    set_mon_data(mtmp, mdat);
                     if (emits_light(olddata) != emits_light(mtmp->data)) {
                         /* used to give light, now doesn't, or vice versa,
                            or light's range has changed */
@@ -1941,7 +2220,7 @@ struct mkroom *croom;
         otmp->owt = weight(otmp);
     }
 
-    /* contents */
+    /* contents (of a container or monster's inventory) */
     if (o->containment & SP_OBJ_CONTENT) {
         if (!container_idx) {
             if (!invent_carrying_monster) {
@@ -1953,27 +2232,10 @@ struct mkroom *croom;
                    outside the des-file.  Maybe another data file that
                    determines what inventories monsters get by default?
                  */
+                ; /* ['otmp' remains on floor] */
             } else {
-                int ci;
-                struct obj *objcheck = otmp;
-                int inuse = -1;
-
-                for (ci = 0; ci < container_idx; ci++)
-                    if (container_obj[ci] == objcheck)
-                        inuse = ci;
                 remove_object(otmp);
-                if (mpickobj(invent_carrying_monster, otmp)) {
-                    if (inuse > -1) {
-                        impossible(
-                     "container given to monster was merged or deallocated.");
-                        for (ci = inuse; ci < container_idx - 1; ci++)
-                            container_obj[ci] = container_obj[ci + 1];
-                        container_obj[container_idx] = NULL;
-                        container_idx--;
-                    }
-                    /* we lost track of it. */
-                    return;
-                }
+                (void) mpickobj(invent_carrying_monster, otmp);
             }
         } else {
             struct obj *cobj = container_obj[container_idx - 1];
@@ -2004,7 +2266,7 @@ struct mkroom *croom;
      * other contents, but that can be specified as an empty container.
      */
     if (o->id == STATUE && Is_medusa_level(&u.uz) && o->corpsenm == NON_PM) {
-        struct monst *was;
+        struct monst *was = NULL;
         struct obj *obj;
         int wastyp;
         int i = 0; /* prevent endless loop in case makemon always fails */
@@ -2048,17 +2310,23 @@ struct mkroom *croom;
            might be short-circuited if a monster brings object to hero) */
         if (Is_mineend_level(&u.uz)) {
             if (otmp->otyp == iflags.mines_prize_type) {
-                otmp->record_achieve_special = MINES_PRIZE;
-                if (++mines_prize_count > 1)
-                    impossible(prize_warning, "mines end");
+                if (!mines_prize_count++) {
+                    /* Note: the first luckstone on lev will become the prize
+                             even if its not the explicit one, but random */
+                    otmp->record_achieve_special = MINES_PRIZE;
+                    /* prevent stacking; cleared when achievement is recorded */
+                    otmp->nomerge = 1;
+                }
             }
         } else if (Is_sokoend_level(&u.uz)) {
             if (otmp->otyp == iflags.soko_prize_type1) {
                 otmp->record_achieve_special = SOKO_PRIZE1;
+                otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
                 if (++soko_prize_count > 1)
                     impossible(prize_warning, "sokoban end");
             } else if (otmp->otyp == iflags.soko_prize_type2) {
                 otmp->record_achieve_special = SOKO_PRIZE2;
+                otmp->nomerge = 1; /* redundant; Sokoban prizes don't stack */
                 if (++soko_prize_count > 1)
                     impossible(prize_warning, "sokoban end");
             }
@@ -2468,6 +2736,7 @@ boolean prefilled;
         case COURT:
         case ZOO:
         case BEEHIVE:
+        case LEMUREPIT:
         case LAB:
         case DEN:
         case ANTHOLE:
@@ -2495,11 +2764,17 @@ boolean prefilled;
     case BEEHIVE:
         level.flags.has_beehive = TRUE;
         break;
+    case LEMUREPIT:
+ 		level.flags.has_lemurepit = TRUE;
+ 		break;
     case LAB:
         level.flags.has_lab = TRUE;
         break;
     case DEN:
         level.flags.has_den = TRUE;
+        break;
+    case ARMORY:
+        level.flags.has_armory = TRUE;
         break;
     case BARRACKS:
         level.flags.has_barracks = TRUE;
@@ -3312,6 +3587,10 @@ struct sp_coder *coder;
         level.flags.shortsighted = 1;
     if (lflags & ARBOREAL)
         level.flags.arboreal = 1;
+    if (lflags & NOFLIPX)      
+        coder->allow_flips &= ~1;
+    if (lflags & NOFLIPY)      
+        coder->allow_flips &= ~2;
     if (lflags & MAZELEVEL)
         level.flags.is_maze_lev = 1;
     if (lflags & PREMAPPED)
@@ -3924,9 +4203,9 @@ int n;
     xchar xx = (xchar) x, yy = (xchar) y;
 
     while (n > 0) {
+        --n;
         if (xs[n] == xx && ys[n] == yy)
             return TRUE;
-        --n;
     }
     return FALSE;
 }
@@ -4719,13 +4998,16 @@ struct sp_coder *coder;
 {
     static const char nhFunc[] = "spo_drawbridge";
     xchar x, y;
+    int dopen;
     struct opvar *dir, *db_open, *dcoord;
 
     if (!OV_pop_i(dir) || !OV_pop_i(db_open) || !OV_pop_c(dcoord))
         return;
 
     get_location_coord(&x, &y, DRY | WET | HOT, coder->croom, OV_i(dcoord));
-    if (!create_drawbridge(x, y, OV_i(dir), OV_i(db_open)))
+    if ((dopen = OV_i(db_open)) == -1)
+        dopen = !rn2(2);
+    if (!create_drawbridge(x, y, OV_i(dir), dopen ? TRUE : FALSE))
         impossible("Cannot create drawbridge.");
     SpLev_Map[x][y] = 1;
 
@@ -5332,6 +5614,7 @@ sp_lev *lvl;
     coder->n_subroom = 1;
     coder->exit_script = FALSE;
     coder->lvl_is_joined = 0;
+    coder->allow_flips = 3;
 
     splev_init_present = FALSE;
     icedpools = FALSE;
@@ -6018,6 +6301,8 @@ sp_lev *lvl;
 
     if (coder->solidify)
         solidify_map();
+
+    flip_level_rnd(coder->allow_flips);
 
     /* This must be done before sokoban_detect(),
      * otherwise branch stairs won't be premapped. */

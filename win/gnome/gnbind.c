@@ -116,7 +116,7 @@ gnome_player_selection()
             for (n = 0, i = 0; roles[i].name.m; i++) {
                 if (ok_role(i, flags.initrace, flags.initgend,
                             flags.initalign)) {
-                    if (flags.initgend >= 0 && flags.female
+                    if (flags.initgend >= 0 && flags.gender
                         && roles[i].name.f)
                         choices[n] = roles[i].name.f;
                     else
@@ -159,7 +159,7 @@ gnome_player_selection()
         sel = pick_role(flags.initrace, flags.initgend, flags.initalign,
                         PICK_RANDOM);
         if (sel < 0)
-            sel = randrole();
+            sel = randrole(FALSE);
     }
 
     flags.initrole = sel;

@@ -1,4 +1,4 @@
-/* NetHack 3.6	end.c	$NHDT-Date: 1528332335 2018/06/07 00:45:35 $  $NHDT-Branch: NetHack-3.6.2 $:$NHDT-Revision: 1.141 $ */
+/* NetHack 3.6	end.c	$NHDT-Date: 1562532734 2019/07/07 20:52:14 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.179 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -13,7 +13,9 @@
 #include <signal.h>
 #endif
 #include <ctype.h>
+#ifndef LONG_MAX
 #include <limits.h>
+#endif
 #include "dlb.h"
 
 /* add b to long a, convert wraparound to max value */
@@ -49,9 +51,9 @@ static void FDECL(done_hangup, (int));
 STATIC_DCL void FDECL(disclose, (int, BOOLEAN_P));
 STATIC_DCL void FDECL(get_valuables, (struct obj *));
 STATIC_DCL void FDECL(sort_valuables, (struct valuable_data *, int));
+STATIC_DCL void NDECL(done_object_cleanup);
 STATIC_DCL void FDECL(artifact_score, (struct obj *, BOOLEAN_P, winid));
 STATIC_DCL void FDECL(really_done, (int)) NORETURN;
-STATIC_DCL boolean FDECL(odds_and_ends, (struct obj *, int));
 STATIC_DCL void FDECL(savelife, (int));
 STATIC_PTR int FDECL(CFDECLSPEC vanqsort_cmp, (const genericptr,
                                                const genericptr));
@@ -59,13 +61,15 @@ STATIC_DCL int NDECL(set_vanq_order);
 STATIC_DCL void FDECL(list_vanquished, (CHAR_P, BOOLEAN_P));
 STATIC_DCL void FDECL(list_genocided, (CHAR_P, BOOLEAN_P));
 STATIC_DCL boolean FDECL(should_query_disclose_option, (int, char *));
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML)
 STATIC_DCL void NDECL(dump_plines);
+extern void NDECL(dump_start_screendump); /* defined in windows.c */
+extern void NDECL(dump_end_screendump);
 #endif
 STATIC_DCL void FDECL(dump_everything, (int, time_t));
 STATIC_DCL int NDECL(num_extinct);
 
-#if defined(__BEOS__) || defined(MICRO) || defined(WIN32) || defined(OS2)
+#if defined(__BEOS__) || defined(MICRO) || defined(OS2)
 extern void FDECL(nethack_exit, (int));
 #else
 #define nethack_exit exit
@@ -129,14 +133,18 @@ static boolean NDECL(NH_panictrace_libc);
 static boolean NDECL(NH_panictrace_gdb);
 
 #ifndef NO_SIGNAL
-/*ARGSUSED*/
-void panictrace_handler(
-    sig_unused) /* called as signal() handler, so sent at least one arg */
+/* called as signal() handler, so sent at least one arg */
+/*ARGUSED*/
+void
+panictrace_handler(sig_unused)
 int sig_unused UNUSED;
 {
 #define SIG_MSG "\nSignal received.\n"
-    (void) write(2, SIG_MSG, sizeof(SIG_MSG) - 1);
-    NH_abort();
+    int f2;
+    
+    f2 = (int) write(2, SIG_MSG, sizeof SIG_MSG - 1);
+    nhUse(f2);  /* what could we do if write to fd#2 (stderr) fails  */
+    NH_abort(); /* ... and we're already in the process of quitting? */
 }
 
 void
@@ -202,7 +210,7 @@ NH_abort()
        traceback and exit; 2 = show traceback and stay in debugger */
     /* if (wizard && gdb_prio == 1) gdb_prio = 2; */
     vms_traceback(gdb_prio);
-    (void) libc_prio; /* half-hearted attempt at lint suppression */
+    nhUse(libc_prio);
 
 #endif /* ?VMS */
 
@@ -287,7 +295,8 @@ NH_panictrace_gdb()
  */
 static NEARDATA const char *deaths[] = {
     /* the array of death */
-    "died", "died", "choked", "poisoned", "starvation", "drowning", "burning",
+    "died", "died", "choked", "tyranosaurus rekt",
+    "poisoned", "starvation", "drowning", "burning",
     "dissolving under the heat and pressure", "crushed", "turned to stone",
     "turned into slime", "genocided", "panic", "trickery", "quit",
     "escaped", "ascended"
@@ -295,7 +304,8 @@ static NEARDATA const char *deaths[] = {
 
 static NEARDATA const char *ends[] = {
     /* "when you %s" */
-    "died", "died", "choked", "were poisoned",
+    "died", "died", "got tyranosaurus rekt",
+    "choked", "were poisoned",
     "starved", "drowned", "burned",
     "dissolved in the lava",
     "were crushed", "turned to stone",
@@ -336,6 +346,9 @@ done2()
         pline("Refusing to quit!");
         return 0;
     }
+
+    if (iflags.debug_fuzzer)
+        return 0;
 
     if (!paranoid_query(ParanoidQuit, "Really quit?")) {
 #ifndef NO_SIGNAL
@@ -421,7 +434,7 @@ int how;
                                    ? &mons[mtmp->cham]
                                    : mptr);
     boolean distorted = (boolean) (Hallucination && canspotmon(mtmp)),
-            mimicker = (mtmp->m_ap_type == M_AP_MONSTER),
+            mimicker = (M_AP_TYPE(mtmp) == M_AP_MONSTER),
             imitator = (mptr != champtr || mimicker);
 
     You((how == STONING) ? "turn to stone..." : "die...");
@@ -500,9 +513,23 @@ int how;
     }
 
     Strcpy(killer.name, buf);
+    /*
+     * Chicken and egg issue:
+     *  Ordinarily Unchanging ought to override something like this,
+     *  but the transformation occurs at death.  With the current code,
+     *  the effectiveness of Unchanging stops first, but a case could
+     *  be made that it should last long enough to prevent undead
+     *  transformation.  (Turning to slime isn't an issue here because
+     *  Unchanging prevents that from happening.)
+     */
     if (mptr->mlet == S_WRAITH)
         u.ugrave_arise = PM_WRAITH;
-    else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
+    else if (mptr == &mons[PM_BAOBHAN_SITH]) {
+        if (flags.gender == GEND_F)
+            u.ugrave_arise = PM_BAOBHAN_SITH;
+        else
+            u.ugrave_arise = NON_PM;
+    } else if (mptr->mlet == S_MUMMY && urace.mummynum != NON_PM)
         u.ugrave_arise = urace.mummynum;
     else if (mptr->mlet == S_VAMPIRE && Race_if(PM_HUMAN))
         u.ugrave_arise = PM_VAMPIRE;
@@ -592,13 +619,13 @@ VA_DECL(const char *, str)
                         ? "Program initialization has failed."
                         : "Suddenly, the dungeon collapses.");
 #ifndef MICRO
-#if defined(NOTIFY_NETHACK_BUGS)
+#ifdef NOTIFY_NETHACK_BUGS
     if (!wizard)
-        raw_printf("Report the following error to \"%s\" or at \"%s\".",
-                   DEVTEAM_EMAIL, DEVTEAM_URL);
+        raw_printf("Report the following error to at \"%s\".",
+                   DEVTEAM_URL);
     else if (program_state.something_worth_saving)
         raw_print("\nError save file being written.\n");
-#else
+#else /* !NOTIFY_NETHACK_BUGS */
     if (!wizard) {
         const char *maybe_rebuild = !program_state.something_worth_saving
                                      ? "."
@@ -614,11 +641,11 @@ VA_DECL(const char *, str)
             raw_printf("Report error to \"%s\"%s", WIZARD_NAME,
                        maybe_rebuild);
     }
-#endif
+#endif /* ?NOTIFY_NETHACK_BUGS */
     /* XXX can we move this above the prints?  Then we'd be able to
      * suppress "it may be possible to rebuild" based on dosave0()
      * or say it's NOT possible to rebuild. */
-    if (program_state.something_worth_saving) {
+    if (program_state.something_worth_saving && !iflags.debug_fuzzer) {
         set_error_savefile();
         if (dosave0()) {
             /* os/win port specific recover instructions */
@@ -626,7 +653,7 @@ VA_DECL(const char *, str)
                 raw_printf("%s", sysopt.recover);
         }
     }
-#endif
+#endif /* !MICRO */
     {
         char buf[BUFSZ];
 
@@ -688,7 +715,7 @@ char *defquery;
     return TRUE;
 }
 
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML)
 STATIC_OVL void
 dump_plines()
 {
@@ -698,7 +725,7 @@ dump_plines()
     extern unsigned saved_pline_index;
 
     Strcpy(buf, " "); /* one space for indentation */
-    putstr(0, 0, "Latest messages:");
+    putstr(0, ATR_HEADING, "Latest messages:");
     for (i = 0, j = (int) saved_pline_index; i < DUMPLOG_MSG_COUNT;
          ++i, j = (j + 1) % DUMPLOG_MSG_COUNT) {
         strp = &saved_plines[j];
@@ -719,7 +746,7 @@ dump_everything(how, when)
 int how;
 time_t when; /* date+time at end of game */
 {
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML)
     char pbuf[BUFSZ], datetimebuf[24]; /* [24]: room for 64-bit bogus value */
 
     dump_redirect(TRUE);
@@ -732,8 +759,8 @@ time_t when; /* date+time at end of game */
        it's conceivable that the game started with a different
        build date+time or even with an older nethack version,
        but we only have access to the one it finished under */
-    putstr(0, 0, getversionstring(pbuf));
-    putstr(0, 0, "");
+    putstr(0, ATR_SUBHEAD, getversionstring(pbuf));
+    putstr(NHW_DUMPTXT, 0, "");
 
     /* game start and end date+time to disambiguate version date+time */
     Strcpy(datetimebuf, yyyymmddhhmmss(ubirthday));
@@ -744,40 +771,46 @@ time_t when; /* date+time at end of game */
     Sprintf(eos(pbuf), ", ended %4.4s-%2.2s-%2.2s %2.2s:%2.2s:%2.2s.",
             &datetimebuf[0], &datetimebuf[4], &datetimebuf[6],
             &datetimebuf[8], &datetimebuf[10], &datetimebuf[12]);
-    putstr(0, 0, pbuf);
-    putstr(0, 0, "");
+    putstr(0, ATR_SUBHEAD, pbuf);
+    putstr(NHW_DUMPTXT, 0, "");
 
     /* character name and basic role info */
     Sprintf(pbuf, "%s, %s %s %s %s", plname,
             aligns[1 - u.ualign.type].adj,
-            genders[flags.female].adj,
+            genders[flags.gender].adj,
             urace.adj,
-            (flags.female == 1 && urole.name.f) ? urole.name.f
-              : (flags.female == 2) ? urole.name.n : urole.name.m);
-    putstr(0, 0, pbuf);
-    putstr(0, 0, "");
+            rolename_gender(flags.gender));
+    putstr(0, ATR_SUBHEAD, pbuf);
+    putstr(NHW_DUMPTXT, 0, "");
 
+    dump_start_screendump();
     dump_map();
-    putstr(0, 0, do_statusline1());
-    putstr(0, 0, do_statusline2());
-    putstr(0, 0, "");
+    /* NHW_MAP -> ASCII dump only */
+    putstr(NHW_DUMPTXT, 0, do_statusline1());
+    putstr(NHW_DUMPTXT, 0, do_statusline2());
+    /* the next two lines are for the HTML status */
+    status_initialize(TRUE);
+    bot();
+
+    dump_end_screendump();
+    putstr(NHW_DUMPTXT, 0, "");
 
     dump_plines();
-    putstr(0, 0, "");
-    putstr(0, 0, "Inventory:");
+    putstr(NHW_DUMPTXT, 0, "");
+    putstr(0, ATR_HEADING, "Inventory:");
     (void) display_inventory((char *) 0, TRUE);
     container_contents(invent, TRUE, TRUE, FALSE);
     enlightenment((BASICENLIGHTENMENT | MAGICENLIGHTENMENT),
                   (how >= PANICKED) ? ENL_GAMEOVERALIVE : ENL_GAMEOVERDEAD);
-    putstr(0, 0, "");
+    putstr(NHW_DUMPTXT, 0, "");
     list_vanquished('d', FALSE); /* 'd' => 'y' */
-    putstr(0, 0, "");
+    putstr(NHW_DUMPTXT, 0, "");
     list_genocided('d', FALSE); /* 'd' => 'y' */
-    putstr(0, 0, "");
+    putstr(NHW_DUMPTXT, 0, "");
     show_conduct((how >= PANICKED) ? 1 : 2);
-    putstr(0, 0, "");
+    putstr(NHW_DUMPTXT, 0, "");
     show_overview((how >= PANICKED) ? 1 : 2, how);
-    putstr(0, 0, "");
+    putstr(NHW_DUMPTXT, 0, "");
     dump_redirect(FALSE);
 #else
     nhUse(how);
@@ -868,18 +901,15 @@ int how;
     if (u.uhpmax < uhpmin)
         u.uhpmax = uhpmin;
     u.uhp = u.uhpmax;
-    u.uswldtim = 0;
-    if (u.uhunger < 500) {
-        u.uhunger = 500;
-        newuhs(FALSE);
+    if (Upolyd) /* Unchanging, or death which bypasses losing hit points */
+        u.mh = u.mhmax;
+    if (u.uhunger < 500 || how == CHOKING) {
+        init_uhunger();
     }
     /* cure impending doom of sickness hero won't have time to fix */
     if ((Sick & TIMEOUT) == 1L) {
-        u.usick_type = 0;
-        set_itimeout(&Sick, 0L);
+        make_sick(0L, (char *) 0, FALSE, SICK_ALL);
     }
-    if (how == CHOKING)
-        init_uhunger();
     nomovemsg = "You survived that attempt on your life.";
     context.move = 0;
     if (multi > 0)
@@ -894,6 +924,16 @@ int how;
     curs_on_u();
     if (!context.mon_moving)
         endmultishot(FALSE);
+    if (u.uswallow) {
+        /* might drop hero onto a trap that kills her all over again */
+        expels(u.ustuck, u.ustuck->data, TRUE);
+    } else if (u.ustuck) {
+        if (Upolyd && sticks(youmonst.data))
+            You("release %s.", mon_nam(u.ustuck));
+        else
+            pline("%s releases you.", Monnam(u.ustuck));
+        unstuck(u.ustuck);
+    }
 }
 
 /*
@@ -959,6 +999,13 @@ int size; /* max value is less than 20 */
     return;
 }
 
+#if 0
+/*
+ * odds_and_ends() was used for 3.6.0 and 3.6.1.
+ * Schroedinger's Cat is handled differently starting with 3.6.2.
+ */
+STATIC_DCL boolean FDECL(odds_and_ends, (struct obj *, int));
+
 #define CAT_CHECK 2
 
 STATIC_OVL boolean
@@ -967,6 +1014,7 @@ struct obj *list;
 int what;
 {
     struct obj *otmp;
+
     for (otmp = list; otmp; otmp = otmp->nobj) {
         switch (what) {
         case CAT_CHECK: /* Schroedinger's Cat */
@@ -979,6 +1027,63 @@ int what;
             return odds_and_ends(otmp->cobj, what);
     }
     return FALSE;
+}
+#endif
+
+/* deal with some objects which may be in an abnormal state at end of game */
+STATIC_OVL void
+done_object_cleanup()
+{
+    int ox, oy;
+
+    /* might have been killed while using a disposable item, so make sure
+       it's gone prior to inventory disclosure and creation of bones */
+    inven_inuse(TRUE);
+    /*
+     * Hero can die when throwing an object (by hitting an adjacent
+     * gas spore, for instance, or being hit by mis-returning Mjollnir),
+     * or while in transit (from falling down stairs).  If that happens,
+     * some object(s) might be in limbo rather than on the map or in
+     * any inventory.  Saving bones with an active light source in limbo
+     * would trigger an 'object not local' panic.
+     *
+     * We used to use dealloc_obj() on thrownobj and kickedobj but
+     * that keeps them out of bones and could leave uball in a confused
+     * state (gone but still attached).  Place them on the map but
+     * bypass flooreffects().  That could lead to minor anomalies in
+     * bones, like undamaged paper at water or lava locations or piles
+     * not being knocked down holes, but it seems better to get this
+     * game over with than risk being tangled up in more and more details.
+     */
+    ox = u.ux + u.dx, oy = u.uy + u.dy;
+    if (!isok(ox, oy) || !accessible(ox, oy))
+        ox = u.ux, oy = u.uy;
+    /* put thrown or kicked object on map (for bones); location might
+       be incorrect (perhaps killed by divine lightning when throwing at
+       a temple priest?) but this should be better than just vanishing
+       (fragile stuff should be taken care of before getting here) */
+    if (thrownobj && thrownobj->where == OBJ_FREE) {
+        place_object(thrownobj, ox, oy);
+        stackobj(thrownobj), thrownobj = 0;
+    }
+    if (kickedobj && kickedobj->where == OBJ_FREE) {
+        place_object(kickedobj, ox, oy);
+        stackobj(kickedobj), kickedobj = 0;
+    }
+    /* if Punished hero dies during level change or dies or quits while
+       swallowed, uball and uchain will be in limbo; put them on floor
+       so bones will have them and object list cleanup finds them */
+    if (uchain && uchain->where == OBJ_FREE) {
+        /* placebc(); */
+        lift_covet_and_placebc(override_restriction);
+    }
+    /* persistent inventory window now obsolete since disclosure uses
+       a normal popup one; avoids "Bad fruit #n" when saving bones */
+    if (iflags.perm_invent) {
+        iflags.perm_invent = FALSE;
+        update_inventory(); /* make interface notice the change */
+    }
+    return;
 }
 
 /* called twice; first to calculate total, then to list relevant items */
@@ -1023,13 +1128,16 @@ void
 done(how)
 int how;
 {
+    boolean survive = FALSE;
+
     if (how == TRICKED) {
         if (killer.name[0]) {
             paniclog("trickery", killer.name);
-            killer.name[0] = 0;
+            killer.name[0] = '\0';
         }
         if (wizard) {
             You("are a very tricky wizard, it seems.");
+            killer.format = KILLED_BY_AN; /* reset to 0 */
             return;
         }
     }
@@ -1039,13 +1147,33 @@ int how;
 #endif
         ) {
         /* skip status update if panicking or disconnected */
-        context.botl = context.botlx = FALSE;
+        context.botl = context.botlx = iflags.time_botl = FALSE;
     } else {
         /* otherwise force full status update */
         context.botlx = TRUE;
         bot();
     }
 
+    if (iflags.debug_fuzzer) {
+        if (!(program_state.panicking || how == PANICKED)) {
+            savelife(how);
+            /* periodically restore characteristics and lost exp levels
+               or cure lycanthropy */
+            if (!rn2(10)) {
+                struct obj *potion = mksobj((u.ulycn > LOW_PM && !rn2(3))
+                                            ? POT_WATER : POT_RESTORE_ABILITY,
+                                            TRUE, FALSE);
+
+                bless(potion);
+                (void) peffects(potion); /* always -1 for restore ability */
+                /* not useup(); we haven't put this potion into inventory */
+                obfree(potion, (struct obj *) 0);
+            }
+            killer.name[0] = '\0';
+            killer.format = 0;
+            return;
+        }
+    } else
     if (how == ASCENDED || (!killer.name[0] && how == GENOCIDED))
         killer.format = NO_KILLER_PREFIX;
     /* Avoid killed by "a" burning or "a" starvation */
@@ -1054,9 +1182,33 @@ int how;
     if (!killer.name[0] || how >= PANICKED)
         Strcpy(killer.name, deaths[how]);
 
-    if (how < PANICKED)
+    if (how < PANICKED) {
         u.umortality++;
-    if (Lifesaved && (how <= GENOCIDED)) {
+        /* in case caller hasn't already done this */
+        if (u.uhp != 0 || (Upolyd && u.mh != 0)) {
+            /* force HP to zero in case it is still positive (some
+               deaths aren't triggered by loss of hit points), or
+               negative (-1 is used as a flag in some circumstances
+               which don't apply when actually dying due to HP loss) */
+            u.uhp = u.mh = 0;
+            context.botl = 1;
+        }
+    }
+    if (Lifesaved && uamul && uamul->otyp == AMULET_OF_REINCARNATION) {
+        pline("But wait...");
+        makeknown(AMULET_OF_REINCARNATION);
+        Your("medallion %s!", !Hallucination ? "begins to blaze with energy" : "feels hot");
+        You("are given another chance at life!");
+        if (uamul)
+            useup(uamul);
+        HUnchanging = 0L;
+        polyself(3);
+        savelife(how);
+        HUnchanging |= FROMOUTSIDE;
+        livelog_printf(LL_LIFESAVE, "was reincarnated as a %s",
+            youmonst.data->mname);
+        survive = TRUE;
+    } else if (Lifesaved && (how <= GENOCIDED)) {
         pline("But wait...");
         makeknown(AMULET_OF_LIFE_SAVING);
         Your("medallion %s!", !Blind ? "begins to glow" : "feels warm");
@@ -1072,21 +1224,26 @@ int how;
         if (how == GENOCIDED) {
             pline("Unfortunately you are still genocided...");
         } else {
-            killer.name[0] = 0;
-            killer.format = 0;
             livelog_write_string(LL_LIFESAVE, "averted death");
-            return;
+            survive = TRUE;
         }
     }
-    if ((wizard || discover) && (how <= GENOCIDED)
+    /* explore and wizard modes offer player the option to keep playing */
+    if (!survive && (wizard || discover) && how <= GENOCIDED
         && !paranoid_query(ParanoidDie, "Die?")) {
         pline("OK, so you don't %s.", (how == CHOKING) ? "choke" : "die");
+        iflags.last_msg = PLNMSG_OK_DONT_DIE;
         savelife(how);
-        killer.name[0] = 0;
-        killer.format = 0;
+        survive = TRUE;
+    }
+
+    if (survive) {
+        killer.name[0] = '\0';
+        killer.format = KILLED_BY_AN; /* reset to 0 */
         return;
     }
     really_done(how);
+    /*NOTREACHED*/
 }
 
 /* separated from done() in order to specify the __noreturn__ attribute */
@@ -1110,32 +1267,36 @@ int how;
     program_state.gameover = 1;
     /* in case of a subsequent panic(), there's no point trying to save */
     program_state.something_worth_saving = 0;
+#ifdef HANGUPHANDLING
+    if (program_state.done_hup)
+        done_stopprint++;
+#endif
     /* render vision subsystem inoperative */
     iflags.vision_inited = 0;
 
-    /* might have been killed while using a disposable item, so make sure
-       it's gone prior to inventory disclosure and creation of bones data */
-    inven_inuse(TRUE);
-    /* maybe not on object lists; if an active light source, would cause
-       big trouble (`obj_is_local' panic) for savebones() -> savelev() */
-    if (thrownobj && thrownobj->where == OBJ_FREE)
-        dealloc_obj(thrownobj);
-    if (kickedobj && kickedobj->where == OBJ_FREE)
-        dealloc_obj(kickedobj);
+    /* maybe use up active invent item(s), place thrown/kicked missile,
+       deal with ball and chain possibly being temporarily off the map */
+    if (!program_state.panicking)
+        done_object_cleanup();
+    /* in case we're panicking; normally cleared by done_object_cleanup() */
+    iflags.perm_invent = FALSE;
 
     /* remember time of death here instead of having bones, rip, and
        topten figure it out separately and possibly getting different
        time or even day if player is slow responding to --More-- */
     urealtime.finish_time = endtime = getnow();
     urealtime.realtime += (long) (endtime - urealtime.start_timing);
+    /* collect these for end of game disclosure (not used during play) */
+    iflags.at_night = night();
+    iflags.at_midnight = midnight();
 
     dump_open_log(endtime);
     /* Sometimes you die on the first move.  Life's not fair.
      * On those rare occasions you get hosed immediately, go out
      * smiling... :-)  -3.
      */
-    if (moves <= 1 && how < PANICKED) /* You die... --More-- */
-        pline("Do not pass go.  Do not collect 200 %s.", currency(200L));
+    if (moves <= 1 && how < PANICKED && !done_stopprint)
+        pline("Do not pass Go.  Do not collect 200 %s.", currency(200L));
 
     if (have_windows)
         wait_synch(); /* flush screen output */
@@ -1159,7 +1320,12 @@ int how;
         u.ugrave_arise = (NON_PM - 2); /* leave no corpse */
     else if (how == STONING)
         u.ugrave_arise = (NON_PM - 1); /* statue instead of corpse */
-    else if (how == TURNED_SLIME) {
+    else if ((how == TURNED_SLIME)
+             /* it's possible to turn into slime even though green slimes
+                have been genocided:  genocide could occur after hero is
+                already infected or hero could eat a glob of one created
+                before genocide; don't try to arise as one if they're gone */
+             && !(mvitals[PM_GREEN_SLIME].mvflags & G_GENOD)) {
         u.ugrave_arise = PM_GREEN_SLIME;
         if (Hallucination)
             pline("Next time, watch out for slime!");
@@ -1179,9 +1345,11 @@ int how;
     fixup_death(how); /* actually, fixup multi_reason */
 
     if (how != PANICKED) {
+        boolean silently = done_stopprint ? TRUE : FALSE;
+
         /* these affect score and/or bones, but avoid them during panic */
-        taken = paybill((how == ESCAPED) ? -1 : (how != QUIT));
-        paygd();
+        taken = paybill((how == ESCAPED) ? -1 : (how != QUIT), silently);
+        paygd(silently);
         clearpriests();
     } else
         taken = FALSE; /* lint; assert( !bones_ok ); */
@@ -1204,6 +1372,20 @@ int how;
             obj->known = obj->bknown = obj->dknown = obj->rknown = 1;
             if (Is_container(obj) || obj->otyp == STATUE)
                 obj->cknown = obj->lknown = 1;
+            /* we resolve Schroedinger's cat now in case of both
+               disclosure and dumplog, where the 50:50 chance for
+               live cat has to be the same both times */
+            if (SchroedingersBox(obj)) {
+                if (!Schroedingers_cat) {
+                    /* tell observe_quantum_cat() not to create a cat; if it
+                       chooses live cat in this situation, it will leave the
+                       SchroedingersBox flag set (for container_contents()) */
+                    observe_quantum_cat(obj, FALSE, FALSE);
+                    if (SchroedingersBox(obj))
+                        Schroedingers_cat = TRUE;
+                } else
+                    obj->spe = 0; /* ordinary box with cat corpse in it */
+            }
         }
 
         if (strcmp(flags.end_disclose, "none"))
@@ -1214,7 +1396,7 @@ int how;
 
     /* if pets will contribute to score, populate mydogs list now
        (bones creation isn't a factor, but pline() messaging is; used to
-       be done ever sooner, but we need it to come after dump_everything()
+       be done even sooner, but we need it to come after dump_everything()
        so that any accompanying pets are still on the map during dump) */
     if (how == ESCAPED || how == ASCENDED)
         keepdogs(TRUE, FALSE);
@@ -1230,13 +1412,9 @@ int how;
         int mnum = u.umonnum;
 
         if (!Upolyd) {
-            /* Base corpse on race when not poly'd since original
-             * u.umonnum is based on role, and all role monsters
-             * are human.
-             */
-            mnum = (flags.female && urace.femalenum != NON_PM)
-                       ? urace.femalenum
-                       : urace.malenum;
+            /* Base corpse on race when not poly'd since original u.umonnum
+               is based on role, and all role monsters are human. */
+            mnum = monnum_gender(flags.gender, TRUE);
         }
         corpse = mk_named_object(CORPSE, &mons[mnum], u.ux, u.uy, plname);
         Sprintf(pbuf, "%s, ", plname);
@@ -1280,11 +1458,14 @@ int how;
     }
 
     if (u.ugrave_arise >= LOW_PM && u.ugrave_arise != PM_GREEN_SLIME
-        && u.ugrave_arise != PM_SKELETAL_PIRATE) {
+        && u.ugrave_arise != PM_SKELETAL_PIRATE && !done_stopprint) {
         /* give this feedback even if bones aren't going to be created,
            so that its presence or absence doesn't tip off the player to
            new bones or their lack; it might be a lie if makemon fails */
-        Your("body rises from the dead as %s...",
+        Your("%s as %s...",
+             (u.ugrave_arise != PM_GREEN_SLIME)
+                 ? "body rises from the dead"
+                 : "revenant persists",
              an(mons[u.ugrave_arise].mname));
         display_nhwindow(WIN_MESSAGE, FALSE);
     }
@@ -1312,9 +1493,8 @@ int how;
         }
         display_nhwindow(WIN_MESSAGE, TRUE);
         destroy_nhwindow(WIN_MAP),  WIN_MAP = WIN_ERR;
-#ifndef STATUS_HILITES
-        destroy_nhwindow(WIN_STATUS),  WIN_STATUS = WIN_ERR;
-#endif
+        if (WIN_STATUS != WIN_ERR)
+            destroy_nhwindow(WIN_STATUS),  WIN_STATUS = WIN_ERR;
         destroy_nhwindow(WIN_MESSAGE),  WIN_MESSAGE = WIN_ERR;
 
         if (!done_stopprint || flags.tombstone)
@@ -1325,13 +1505,13 @@ int how;
     } else
         done_stopprint = 1; /* just avoid any more output */
 
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML)
     /* 'how' reasons beyond genocide shouldn't show tombstone;
        for normal end of game, genocide doesn't either */
     if (how <= GENOCIDED) {
         dump_redirect(TRUE);
         if (iflags.in_dumplog)
-            genl_outrip(0, how, endtime);
+            outrip(0, how, endtime);
         dump_redirect(FALSE);
     }
 #endif
@@ -1347,13 +1527,23 @@ int how;
 
     Sprintf(pbuf, "%s %s the %s...", Goodbye(), plname,
             (how != ASCENDED)
-                ? (const char *) ((flags.female == 1 && urole.name.f)
+                ? (const char *) ((flags.gender == 1 && urole.name.f)
                     ? urole.name.f
-                    : (flags.female == 2)
+                    : (flags.gender == 2)
                       ? urole.name.n
                       : urole.name.m)
-                : (const char *) (flags.female ? "Demigoddess" : "Demigod"));
-    dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
+                : (const char *) (flags.gender ? "Demigoddess" : "Demigod"));
+
+#if defined(DUMPLOG) || defined(DUMPHTML)
+    dump_redirect(TRUE);
+    if (iflags.in_dumplog)
+        /* dump attributes don't work unless dump_redirect is on */
+        putstr(endwin, ATR_SUBHEAD, pbuf);
+    dump_redirect(FALSE);
+#endif
+
+    if (!done_stopprint)
+        putstr(endwin, 0, pbuf);
     dump_forward_putstr(endwin, 0, "", done_stopprint);
 
     if (how == ESCAPED || how == ASCENDED) {
@@ -1383,21 +1573,21 @@ int how;
         viz_array[0][0] |= IN_SIGHT; /* need visibility for naming */
         mtmp = mydogs;
         Strcpy(pbuf, "You");
-        if (!Schroedingers_cat) /* check here in case disclosure was off */
-            Schroedingers_cat = odds_and_ends(invent, CAT_CHECK);
-        if (Schroedingers_cat) {
-            int mhp, m_lev = adj_lev(&mons[PM_HOUSECAT]);
-
-            mhp = d(m_lev, 8);
-            nowrap_add(u.urexp, mhp);
-            Strcat(eos(pbuf), " and Schroedinger's cat");
-        }
-        if (mtmp) {
+        if (mtmp || Schroedingers_cat) {
             while (mtmp) {
                 Sprintf(eos(pbuf), " and %s", mon_nam(mtmp));
                 if (mtmp->mtame)
                     nowrap_add(u.urscore, mtmp->mhp);
                 mtmp = mtmp->nmon;
+            }
+            /* [it might be more robust to create a housecat and add it to
+               mydogs; it doesn't have to be placed on the map for that] */
+            if (Schroedingers_cat) {
+                int mhp, m_lev = adj_lev(&mons[PM_HOUSECAT]);
+
+                mhp = d(m_lev, 8);
+                nowrap_add(u.urexp, mhp);
+                Strcat(eos(pbuf), " and Schroedinger's cat");
             }
             dump_forward_putstr(endwin, 0, pbuf, done_stopprint);
             pbuf[0] = '\0';
@@ -1412,7 +1602,7 @@ int how;
 
         if (!done_stopprint)
             artifact_score(invent, FALSE, endwin); /* list artifacts */
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML)
         dump_redirect(TRUE);
         if (iflags.in_dumplog)
             artifact_score(invent, FALSE, 0);
@@ -1508,62 +1698,66 @@ boolean identified, all_containers, reportempty;
 {
     register struct obj *box, *obj;
     char buf[BUFSZ];
-    boolean cat, deadcat;
+    boolean cat, dumping = iflags.in_dumplog;
 
     for (box = list; box; box = box->nobj) {
         if (Is_container(box) || box->otyp == STATUE) {
-            box->cknown = 1; /* we're looking at the contents now */
-            if (identified)
-                box->lknown = 1;
-            cat = deadcat = FALSE;
-            if (SchroedingersBox(box) && !Schroedingers_cat) {
-                /* Schroedinger's Cat? */
-                cat = odds_and_ends(box, CAT_CHECK);
-                if (cat)
-                    Schroedingers_cat = TRUE;
-                else
-                    deadcat = TRUE;
-                box->spe = 0;
+            if (!box->cknown || (identified && !box->lknown)) {
+                box->cknown = 1; /* we're looking at the contents now */
+                if (identified)
+                    box->lknown = 1;
+                update_inventory();
             }
-            if (box->otyp == BAG_OF_TRICKS) {
+            if (box->otyp == BAG_OF_TRICKS || box->otyp == BAG_OF_RATS) {
                 continue; /* wrong type of container */
             } else if (box->cobj) {
                 winid tmpwin = create_nhwindow(NHW_MENU);
                 Loot *sortedcobj, *srtc;
                 unsigned sortflags;
 
+                /* at this stage, the SchroedingerBox() flag is only set
+                   if the cat inside the box is alive; the box actually
+                   contains a cat corpse that we'll pretend is not there;
+                   for dead cat, the flag will be clear and there'll be
+                   a cat corpse inside the box; either way, inventory
+                   reports the box as containing "1 item" */
+                cat = SchroedingersBox(box);
+
                 Sprintf(buf, "Contents of %s:", the(xname(box)));
-                putstr(tmpwin, 0, buf);
-                putstr(tmpwin, 0, "");
-                sortflags = (((flags.sortloot == 'l' || flags.sortloot == 'f')
-                              ? SORTLOOT_LOOT : 0)
-                             | (flags.sortpack ? SORTLOOT_PACK : 0));
-                sortedcobj = sortloot(&box->cobj, sortflags, FALSE,
-                                      (boolean FDECL((*), (OBJ_P))) 0);
-                for (srtc = sortedcobj; ((obj = srtc->obj) != 0); ++srtc) {
-                    if (identified) {
-                        discover_object(obj->otyp, TRUE, FALSE);
-                        obj->known = obj->bknown = obj->dknown
-                            = obj->rknown = 1;
-                        if (Is_container(obj) || obj->otyp == STATUE)
-                            obj->cknown = obj->lknown = 1;
+                putstr(tmpwin, ATR_SUBHEAD, buf);
+                if (!dumping)
+                    putstr(tmpwin, 0, "");
+                buf[0] = buf[1] = ' '; /* two leading spaces */
+                if (box->cobj && !cat) {
+                    sortflags = (((flags.sortloot == 'l'
+                                   || flags.sortloot == 'f')
+                                     ? SORTLOOT_LOOT : 0)
+                                 | (flags.sortpack ? SORTLOOT_PACK : 0));
+                    sortedcobj = sortloot(&box->cobj, sortflags, FALSE,
+                                          (boolean FDECL((*), (OBJ_P))) 0);
+                    for (srtc = sortedcobj; ((obj = srtc->obj) != 0); ++srtc) {
+                        if (identified) {
+                            discover_object(obj->otyp, TRUE, FALSE);
+                            obj->known = obj->bknown = obj->dknown
+                                = obj->rknown = 1;
+                            if (Is_container(obj) || obj->otyp == STATUE)
+                                obj->cknown = obj->lknown = 1;
+                        }
+                        Strcpy(&buf[2], doname_with_price(obj));
+                        putstr(tmpwin, 0, buf);
                     }
-                    putstr(tmpwin, 0, doname(obj));
+                    unsortloot(&sortedcobj);
+                } else if (cat) {
+                    Strcpy(&buf[2], "Schroedinger's cat!");
+                    putstr(tmpwin, 0, buf);
                 }
-                unsortloot(&sortedcobj);
-                if (cat)
-                    putstr(tmpwin, 0, "Schroedinger's cat");
-                else if (deadcat)
-                    putstr(tmpwin, 0, "Schroedinger's dead cat");
+                if (dumping)
+                    putstr(0, 0, "");
                 display_nhwindow(tmpwin, TRUE);
                 destroy_nhwindow(tmpwin);
                 if (all_containers)
                     container_contents(box->cobj, identified, TRUE,
                                        reportempty);
-            } else if (cat || deadcat) {
-                pline("%s Schroedinger's %scat!", Tobjnam(box, "contain"),
-                      deadcat ? "dead " : "");
-                display_nhwindow(WIN_MESSAGE, FALSE);
             } else if (reportempty) {
                 pline("%s is empty.", upstart(thesimpleoname(box)));
                 display_nhwindow(WIN_MESSAGE, FALSE);
@@ -1604,8 +1798,6 @@ int status;
     program_state.exiting = 1;
     nethack_exit(status);
 }
-
-extern const int monstr[];
 
 enum vanq_order_modes {
     VANQ_MLVL_MNDX = 0,
@@ -1651,7 +1843,7 @@ const genericptr vptr2;
         break;
     case VANQ_MSTR_MNDX:
         /* sort by monster toughness */
-        mstr1 = monstr[indx1], mstr2 = monstr[indx2];
+        mstr1 = mons[indx1].difficulty, mstr2 = mons[indx2].difficulty;
         res = mstr2 - mstr1; /* monstr high to low */
         break;
     case VANQ_ALPHA_SEP:
@@ -1810,7 +2002,7 @@ boolean ask;
                             || vanq_sortmode == VANQ_MCLS_HTOL);
 
             klwin = create_nhwindow(NHW_MENU);
-            putstr(klwin, 0, "Vanquished creatures:");
+            putstr(klwin, ATR_HEADING, "Vanquished creatures:");
             if (!dumping)
                 putstr(klwin, 0, "");
 
@@ -1874,7 +2066,7 @@ boolean ask;
                 if (!dumping)
                     putstr(klwin, 0, "");
                 Sprintf(buf, "%ld creatures vanquished.", total_killed);
-                putstr(klwin, 0, buf);
+                putstr(klwin, ATR_PREFORM, buf);
             }
             display_nhwindow(klwin, TRUE);
             destroy_nhwindow(klwin);
@@ -1882,7 +2074,7 @@ boolean ask;
     } else if (defquery == 'a') {
         /* #dovanquished rather than final disclosure, so pline() is ok */
         pline("No creatures have been vanquished.");
-#ifdef DUMPLOG
+#if defined(DUMPLOG) || defined(DUMPHTML)
     } else if (dumping) {
         putstr(0, 0, "No creatures were vanquished."); /* not pline() */
 #endif
@@ -1953,7 +2145,7 @@ boolean ask;
             Sprintf(buf, "%s%s species:",
                     (ngenocided) ? "Genocided" : "Extinct",
                     (nextinct && ngenocided) ? " or extinct" : "");
-            putstr(klwin, 0, buf);
+            putstr(klwin, ATR_SUBHEAD, buf);
             if (!dumping)
                 putstr(klwin, 0, "");
 
@@ -1979,17 +2171,17 @@ boolean ask;
                 putstr(klwin, 0, "");
             if (ngenocided > 0) {
                 Sprintf(buf, "%d species genocided.", ngenocided);
-                putstr(klwin, 0, buf);
+                putstr(klwin, ATR_PREFORM, buf);
             }
             if (nextinct > 0) {
                 Sprintf(buf, "%d species extinct.", nextinct);
-                putstr(klwin, 0, buf);
+                putstr(klwin, ATR_PREFORM, buf);
             }
 
             display_nhwindow(klwin, TRUE);
             destroy_nhwindow(klwin);
         }
-#ifdef DUMPLOG
+#if defined (DUMPLOG) || defined (DUMPHTML)
     } else if (dumping) {
         putstr(0, 0, "No species were genocided or became extinct.");
 #endif
@@ -2005,10 +2197,10 @@ const char *killername;
 {
     struct kinfo *k = find_delayed_killer(id);
 
-    if (k == (struct kinfo *) 0) {
+    if (!k) {
         /* no match, add a new delayed killer to the list */
-        k = (struct kinfo *) alloc(sizeof(struct kinfo));
-        (void) memset((genericptr_t)k, 0, sizeof(struct kinfo));
+        k = (struct kinfo *) alloc(sizeof (struct kinfo));
+        (void) memset((genericptr_t) k, 0, sizeof (struct kinfo));
         k->id = id;
         k->next = killer.next;
         killer.next = k;
@@ -2047,10 +2239,11 @@ struct kinfo *kptr;
     }
 
     if (k == (struct kinfo *) 0) {
-        impossible("dealloc_killer not on list");
+        impossible("dealloc_killer (#%d) not on list", kptr->id);
     } else {
         prev->next = k->next;
         free((genericptr_t) k);
+        debugpline1("freed delayed killer #%d", kptr->id);
     }
 }
 
@@ -2063,7 +2256,7 @@ int mode;
 
     if (perform_bwrite(mode)) {
         for (kptr = &killer; kptr != (struct kinfo *) 0; kptr = kptr->next) {
-            bwrite(fd, (genericptr_t) kptr, sizeof(struct kinfo));
+            bwrite(fd, (genericptr_t) kptr, sizeof (struct kinfo));
         }
     }
     if (release_data(mode)) {
@@ -2082,9 +2275,9 @@ int fd;
     struct kinfo *kptr;
 
     for (kptr = &killer; kptr != (struct kinfo *) 0; kptr = kptr->next) {
-        mread(fd, (genericptr_t) kptr, sizeof(struct kinfo));
+        mread(fd, (genericptr_t) kptr, sizeof (struct kinfo));
         if (kptr->next) {
-            kptr->next = (struct kinfo *) alloc(sizeof(struct kinfo));
+            kptr->next = (struct kinfo *) alloc(sizeof (struct kinfo));
         }
     }
 }

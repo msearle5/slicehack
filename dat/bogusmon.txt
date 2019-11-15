@@ -4,8 +4,6 @@
 #
 # Hallucinatory monsters
 #
-# Edited on 4/17/18 by NullCGT
-#
 # prefix codes:
 # dash		-  female, personal name
 # underscore	_  female, general name
@@ -13,15 +11,24 @@
 # vertical bar	|  male, general name
 # equals	=  gender not specified, personal name
 
-# Junenethack 2018
+# Junethack 2018
 invader from the ivory tower
 improved tin opener
-baseball-cap toting elemental
+baseball-cap-toting elemental
+
+# Junethack 2019
+-Nega-Antigulp
+horrific bug
+
+# Anime
+catgirl
+superpowered butler
+toast-munching schoolkid
 
 # M.U.G.E.N.
 wayward hitbox
-null-tier character
 palette-swapped doppelganger
++omega Tiger Woods
 
 # eldritch abominations
 =Cthulu
@@ -29,11 +36,44 @@ palette-swapped doppelganger
 =Nyarlathotep
 =IT
 
+# Berserk
++ Evil Otto
+
+# Homestuck
+kernelsprite
+lusus
++hella jeff
+
+# Bionicle
+rahkshi
+
+# Slex
+novice light wall
+moldy potato
+bundler
+
+# Bioshock
+splicer
+
+# Umineko
+logic error
+_golden witch
+small bombs
+
+# SSBM
+telekinetic swordsman
+fun-canceller
+happy feet
+wobbler
+
+# Dwarf Fortress
+flaming dwarf
+tantrum-throwing dwarf
+drunken cat
+
 # SLASH'EM
 shotgun-wielding shopkeeper
-gug
 bunny
-deep one
 bat from Hell
 shoggoth
 
@@ -199,23 +239,25 @@ giant dwarf
 magically animated Vorpal Blade
 Legendary black beast of Arrrgh
 
-# powergaming and speedrunning
+# Powergaming and speedrunning
 polyparrot
 polypiler
 pudding farmer
 speedrunner
 lawful female dwarven valkyrie with Excalibur
 Elbereth-spammer
-enexto abuser
+enexto-abuser
 
-# self-deprecation / this variant
+# Self-deprecation / this variant
 questionable addition
 poorly balanced monster
 obscure reference
 clunky mechanic
+incongruous reference
 absurdly powerful mystic scarab
+ill-timed release
 
-# cataclysm
+# Cataclysm
 smoker zombie
 shady zombie
 
@@ -334,6 +376,53 @@ jabbermouth
 blatherwock
 ratpack
 pesky muskrat
+railgun enthusiast
+man in the mirror
+beast inside
+sensual cabbage
+sleep stealer
+funky frog
+wonky whale
+medium giant
+|ghost of Christmas past
+mistake
+wumbo warrior
+headbanger
+dumpster diving panda pounder
+_witch of the Westmereland
+obviously evil uncle
+pop culture reference
+wiggly one
+wonky transistor
+fanged bagel
+disapproving parent
+raisin ninja
+illusiory armorlandia
+venemous vermillion viper
+moobeast
+moon person
++bob, Bob, he's our man, if he can't do it no one can
+large intestines
+fifteen-headed grizzly bear
+gunslinger
+fool
+megabeast
+chimneysweep
+corpulent cook
+CEO
+salt golem
+misspent youth
+mad scientist
+homicidal AI
+patent infringement
+sock puppet
+soul eater
+drunken master
+pet rock
+weedwhacker maniac
+
+# ;)
+cuddly cutie
 
 # Quendor (Zork, &c.)
 grue
@@ -366,21 +455,27 @@ hallucination
 creeping coins
 
 # Greek legend
-hydra
 satyr
 siren
 nemean lion
 -Scylla
+golden bovine
+
+# Norse
+ulsfark
+|nidhog
 
 # Monty Python
 killer bunny
 black knight
+beast of aaaaaaaarrrgh
 
 # The Princess Bride
 rodent of unusual size
 
 # Wallace & Gromit
 were-rabbit
+wrong trousers
 
 # "Only you can prevent forest fires!
 +Smokey Bear
@@ -397,6 +492,8 @@ Eater of Socks
 Trogdor the Burninator
 
 Leeroy Jenkins
+|librarian
+pictsie
 
 # Lord of the Rings
 Ent
@@ -410,6 +507,7 @@ wiggle
 # Lewis Carroll
 white rabbit
 snark
+mome rath
 
 # Dr. Dolittle
 pushmi-pullyu
@@ -428,6 +526,13 @@ Ewok
 # Tonari no Totoro
 Totoro
 
+# Nasuverse
+servant
+
+# Jojo
+beautiful duwang
+enemy stand
+
 # Nausicaa
 ohmu
 
@@ -436,6 +541,8 @@ youma
 
 # Pokemon (Meowth)
 nyaasu
+
+#TPP
 +Digrat
 -Bird Jesus
 +King Fonz
@@ -456,8 +563,15 @@ Terminator
 # Bubblegum Crisis
 boomer
 
+# TDG
++Jeremiah the Bullfrog
+
 # Dr. Who ("Exterminate!")
 Dalek
+Weeping Angel
+
+# Unfortunate...
+VFD
 
 # HGttG
 microscopic space fleet
@@ -499,6 +613,7 @@ Predator
 mother-in-law
 
 # Actual creatures
+billy goat
 okapi
 beluga whale
 chicken
@@ -513,12 +628,22 @@ corpulent porpoise
 quokka
 potoo
 lemming
-hippo
 giant squid
 ant-lion
 gnat swarm
 barnacle
 ferret
+water bear
+blue-footed booby
+spiny lumpsucker
+blobfish
+zebroid
+axolotl
+naked mole rat
+narwhal
+pronghorn
+beaver
+sea slug
 
 # arcade games
 space invader
@@ -545,14 +670,15 @@ catoblepas
 trow
 chupacabras
 chupachup
-
 barf elemental
+flying monkey
 
 # Unusually animate body parts
 bouncing eye
 floating nose
 wandering eye
 wandering hand
+crossing eye
 
 # Computerese
 infinite loop
@@ -592,6 +718,8 @@ bohrbug
 mandelbug
 schroedinbug
 heisenbug
+junethack bug
+dune bug
 
 # DooM
 cacodemon
@@ -613,9 +741,11 @@ silver dragon scale mail
 amulet of reflection
 |Amulet of Yendor
 wand of wishing
+frisbee
 
 # DnD monster
 gazebo
+stench kow
 
 # SciFi elements
 gray goo
@@ -652,6 +782,7 @@ voluptuous ampersand
 turgid exclamation point
 fragile question mark
 alphanumeric character
+jagged asterisk
 
 # Web comics and animation
 +Bob the angry flower
@@ -683,6 +814,7 @@ MissingNo
 corrupted cream pie
 glitch
 line noise
+bad egg
 
 # South Park
 manbearpig
@@ -691,8 +823,12 @@ manbearpig
 bonsai-kitten
 tie-thulu
 +Domo-kun
-looooooooooooong cat
 nyan cat
+dummy thicc soldier
+goose
+
+# Undertale
++sans
 
 # the Internet is made for cat pix
 ceiling cat
@@ -701,6 +837,7 @@ monorail cat
 knife cat
 long cat
 bode
+looooooooooooong cat
 
 # the internet has good dogs
 big doggo
@@ -752,6 +889,7 @@ ghoti
 
 # Roald Dahl
 vermicious knid
+BFG
 
 # Muppets
 muppet
@@ -794,6 +932,7 @@ aliasing priest
 aligned parasite
 aligned parquet
 aligned proctor
+amber hulk
 baby balky dragon
 baby blues dragon
 baby caricature
@@ -804,6 +943,7 @@ baby long word
 baby parable worm
 bad cone
 barfed devil
+barge cat
 blue dragoon
 beer wight
 boor wight
@@ -812,7 +952,10 @@ bust vortex
 clockatrice
 clod giant
 clue golem
+craven
 cockathrice
+bust vortex
+dead dragon
 ear piercer
 errata elemental
 elastic eel
@@ -830,26 +973,37 @@ frosted giant
 geriatric snake
 gnat ant
 giant bath
+grant beetle
+green gold
+grind bug
 giant mango
 grind bug
 glossy golem
 gnome laureate
 gnome dummy
 gooier ooze
+great worm
+green gold
 green slide
 grant beetle
 grassy gnoll
 guardian nacho
 hearth elemental
 hell hound pun
+hole hound
 high purist
 hairnet devil
+hanger hulk
+hax golem
 holistic sphere
 ice trowel
 killer beet
 lockatrice
 +Mefisto
 moldier ant
+feather golem
+lampshades
+lie kin
 lounge worm
 monochromatic dragon
 mountain lymph
@@ -865,12 +1019,20 @@ sock mole
 sock puppet
 seesawing sphere
 simile mimic
+score peon
+seesawing sphere
+simile mimic
+moldier ant
+mommy
+skull ettin
 stain vortex
 scone giant
 umbrella hulk
 vampire mace
+velocirapper
 verbal jabberwock
 waiter elemental
+wall rush
 water lemon
 water melon
 water sneaker

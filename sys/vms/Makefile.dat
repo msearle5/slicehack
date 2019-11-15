@@ -1,5 +1,5 @@
 #	NetHack Makefile (VMS) - data files: special levels and other data.
-#	NetHack 3.6	Makefile.dat	$NHDT-Date: 1524689428 2018/04/25 20:50:28 $	$NHDT-Branch: NetHack-3.6.0 $:$NHDT-Revision: 1.9 $
+#	NetHack 3.6	Makefile.dat	$NHDT-Date: 1542388601 2018/11/16 17:16:41 $	$NHDT-Branch: NetHack-3.6.2-beta01 $:$NHDT-Revision: 1.10 $
 # Copyright (c) 2015 by Mike Stephenson
 # NetHack may be freely redistributed.  See license for details.
 
@@ -34,10 +34,11 @@ X11TILES= x11tiles.;
 # note: the level lists need to be space separated
 QUESTLEVS = Arch.des Barb.des Caveman.des Cartomancer.des Healer.des \
 	Knight.des Monk.des Priest.des Ranger.des Rogue.des Samurai.des Tourist.des \
-	Valkyrie.des Wizard.des	Drag.des Pirate.des
+	Valkyrie.des Wizard.des	Drag.des Pirate.des Convict.des
 SPECLEVS  = bigroom.des castle.des endgame.des gehennom.des knox.des \
 	medusa.des mines.des oracle.des sokoban.des statuary.des tower.des \
-	void.des yendor.des blkmar.des icewaste.des laboratory.des
+	void.des yendor.des blkmar.des icewaste.des laboratory.des banquet.des \
+	darkforest.des
 
 all :	$(VARDAT) $(DUNGEON) $(MARKERS) $(DLB)
       @ $(ECHO) "data files are up to date."
@@ -56,6 +57,12 @@ rumors :	rumors.;
 quest.dat :	quest.dat;
       @ $(NOOP)
 oracles :	oracles.;
+      @ $(NOOP)
+engrave :	engrave.;
+      @ $(NOOP)
+epitaph :	epitaph.;
+      @ $(NOOP)
+bogusmon :	bogusmon.;
       @ $(NOOP)
 options :	options.;
       @ $(NOOP)
@@ -104,6 +111,9 @@ data.; :	data.base $(MAKEDEFS)
 
 rumors.; :	rumors.tru rumors.fal $(MAKEDEFS)
 	$(RUN) $(MAKEDEFS) -r
+
+engrave.; epitaph.; bogusmon.; : engrave.txt epitaph.txt bogusmon.txt
+	$(RUN) $(MAKEDEFS) -s
 
 quest.dat; :	quest.txt $(MAKEDEFS)
 	$(RUN) $(MAKEDEFS) -q

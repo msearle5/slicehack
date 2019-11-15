@@ -1,0 +1,50 @@
+MAZE: "darkforest" , ' '
+FLAGS: noflip
+MESSAGE: "A loud howl sounds in the distance, and it is answered by a chorus of howls all around you."
+INIT_MAP: mines, '.' , 'T', true, true, random, true
+NOMAP
+#
+STAIR: random, up
+STAIR: random, down
+#
+MONSTER: 's', random
+MONSTER: 's', random
+MONSTER: 'd', random
+MONSTER: 'd', random
+MONSTER: 'd', random
+MONSTER: 'd', random
+MONSTER: 'd', random
+MONSTER: 'r', random
+MONSTER: 'r', random
+MONSTER: ('d', "alpha werewolf"), random, hostile
+MONSTER: ('d', "werewolf"), random
+MONSTER: ('@', "werewolf"), random
+MONSTER: ('@', "werewolf"), random, hostile
+MONSTER: ('d', "werejackal"), random
+MONSTER: ('q', "werebear"), random
+MONSTER: ('r', "wererat"), random, hostile
+MONSTER: ('r', "wererat"), random
+MONSTER: ('c', "werecockatrice"), random, hostile
+MONSTER: ('f', "weretiger"), random, hostile
+MONSTER: ('E', "stalker"), random
+MONSTER: random, random
+MONSTER: random, random
+# The Boss
+MONSTER: ('d', "Drauglir"), random
+#
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT: random, random
+OBJECT:('"',"amulet of danger"),random
+OBJECT:('%',"sprig of wolfsbane"),random
+OBJECT:('%',"clove of garlic"),random
+OBJECT:('%',"clove of garlic"),random
+OBJECT:('%',"clove of garlic"),random
+# The reward!
+OBJECT:('*',"moonstone"),random
