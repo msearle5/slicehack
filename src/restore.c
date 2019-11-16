@@ -665,7 +665,7 @@ unsigned int *stuckid, *steedid;
         struct obj *nobj = bc_obj->nobj;
 
         if (bc_obj->owornmask)
-            setworn(bc_obj, bc_obj->owornmask);
+            setworn(bc_obj, bc_obj->owornmask, FALSE);
         bc_obj->nobj = (struct obj *) 0;
         bc_obj = nobj;
     }
@@ -688,7 +688,6 @@ unsigned int *stuckid, *steedid;
         if (otmp->owornmask)
             setworn(otmp, otmp->owornmask, TRUE);
 
->>>>>>> 6c995fa9622e5659391a28c899fb40e68dd324af
     /* reset weapon so that player will get a reminder about "bashing"
        during next fight when bare-handed or wielding an unconventional
        item; for pick-axe, we aren't able to distinguish between having
@@ -978,8 +977,8 @@ register int fd;
     if ((uball && !uchain) || (uchain && !uball)) {
         impossible("restgamestate: lost ball & chain");
         /* poor man's unpunish() */
-        setworn((struct obj *) 0, W_CHAIN);
-        setworn((struct obj *) 0, W_BALL);
+        setworn((struct obj *) 0, W_CHAIN, FALSE);
+        setworn((struct obj *) 0, W_BALL, FALSE);
     }
 
     /* in_use processing must be after:

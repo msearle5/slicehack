@@ -180,8 +180,10 @@ void
 more_experienced(exper, score, rexp)
 register int exper, score, rexp;
 {
+    long oldexp = u.uexp;
     long newexp = u.uexp + exper;
     long rexpincr = 4 * exper + rexp;
+    long oldrexp = u.urexp;
     long newrexp = u.urexp + rexpincr;
     long rscoreincr = 4 * score + rexp;
     long newrscore = u.urscore + rscoreincr;
@@ -194,6 +196,7 @@ register int exper, score, rexp;
 
     if (newrscore < 0 && rscoreincr > 0)
         newrscore = LONG_MAX;
+
     u.uexp = newexp;
     u.urexp = newrexp;
     u.urscore = newrscore;

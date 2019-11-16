@@ -427,7 +427,7 @@ Helmet_on(VOID_ARGS)
     case ORCISH_HELM:
     case HELM_OF_TELEPATHY:
     case HELM_OF_OPAQUE_THOUGHTS:
-    case EARMUFF:
+    case EARMUFFS:
         break;
     case RAZOR_DRAGON_HELM:
         speed_item_on(uarmh, WORN_HELMET);
@@ -2139,7 +2139,7 @@ struct obj *obj;
     armor = (obj->oclass == ARMOR_CLASS || obj->otyp == PUMPKIN);
     ring = (obj->oclass == RING_CLASS || obj->otyp == MEAT_RING);
     eyewear = (obj->otyp == BLINDFOLD || obj->otyp == TOWEL
-               || obj->otyp ==EARMUFFS
+               || obj->otyp == EARMUFFS
                || obj->otyp == LENSES || obj->otyp == MASK);
     /* checks which are performed prior to actually touching the item */
     if (armor) {
@@ -2154,7 +2154,7 @@ struct obj *obj;
                 You("are suddenly overcome with shame and change your mind.");
             u.ublessed = 0; /* lose your god's protection */
             makeknown(obj->otyp);
-            context.botl = 1; /*for AC after zeroing u.ublessed */
+            context.botl = 1; /* for AC after zeroing u.ublessed */
             return 1;
         }
     } else {
@@ -2268,7 +2268,6 @@ struct obj *obj;
             remove_worn_item(obj, FALSE);
 
         setworn(obj, mask, FALSE);
-
         /*
          * Setting obj->known=1 is done because setworn() causes hero's AC
          * to change so armor's +/- value is evident via the status line.
@@ -2320,11 +2319,11 @@ struct obj *obj;
             if (obj == uarmu)
                 (void) Shirt_on();
             nomovemsg = "You finish your dressing maneuver.";
-        } else {
-            unmul(""); /* call (*aftermv)(), clear it+nomovemsg+multi_reason */
-            on_msg(obj);
         }
+        unmul(""); /* call (*aftermv)(), clear it+nomovemsg+multi_reason */
+        on_msg(obj);
         context.takeoff.mask = context.takeoff.what = 0L;
+
     } else { /* not armor */
         boolean give_feedback = FALSE;
 

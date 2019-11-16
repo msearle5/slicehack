@@ -284,7 +284,7 @@ boolean artif;
     prob = rnd(maxprob[(int) oclass]);
 
     i = bases[(int) oclass];
-    while ((prob -= get_oc_prob(i)) > 0)
+    while ((prob -= get_oc_prob(i)) > 0) {
         i++;
     }
 

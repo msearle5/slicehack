@@ -223,6 +223,7 @@ worthless yellowish-brown glass golem
 writhing mass of primal chaos
 hallucinatory monster
 jumping brain
+jumping bean
 colorless green idea
 floating ear
 floating tongue
@@ -346,6 +347,7 @@ angry onion
 reanimator
 overclocked microwave
 chronomancer
+wannabemancer
 lotus eater lad
 |king of all birds
 dishwasher
@@ -487,6 +489,7 @@ Luggage
 vampiric watermelon
 wizzard
 Eater of Socks
+Cheerful Fairy
 
 # Homestar runner
 Trogdor the Burninator
@@ -644,6 +647,7 @@ narwhal
 pronghorn
 beaver
 sea slug
+hagfish
 
 # arcade games
 space invader
@@ -709,6 +713,7 @@ segmentation fault
 goto statement
 spaghetti code
 code smell
+technical debt
 anti-pattern
 recursion
 deferred feature
@@ -775,6 +780,7 @@ rebus
 octothorpe
 commercial at
 em-dash
+emoji
 
 # Their actual character
 apostrophe golem
@@ -960,6 +966,7 @@ ear piercer
 errata elemental
 elastic eel
 electrocardiogram eel
+electronic eel
 tire elemental
 fallacy golem
 feather golem

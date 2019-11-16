@@ -45,7 +45,7 @@ set_uasmon()
 {
     struct permonst *mdat = &mons[u.umonnum];
 
-    set_mon_data(&youmonst, mdat, 0);
+    set_mon_data(&youmonst, mdat);
     if (!Upolyd) {
         if (Race_if(PM_GIANT)) {
             youmonst.data->mflags2 |= M2_GIANT | M2_ROCKTHROW;
@@ -411,7 +411,7 @@ int psflags;
             iswere = (u.ulycn >= LOW_PM), isvamp = is_vampire(youmonst.data),
             controllable_poly = Polymorph_control && !(Stunned || Unaware),
             verysafe = (psflags == 3), ismolydeus = (psflags == 4), 
-            iscirce = (psflags == 5);
+            iscirce = (psflags == 5),
             yourrace;
 
     if (Unchanging) {

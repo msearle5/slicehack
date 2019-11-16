@@ -298,7 +298,7 @@ const char *verb;
                                       (nonliving(mtmp->data)
                                        || is_vampshifter(mtmp))
                                       ? "destroyed" : "killed");
-                            mondied(mtmp);
+                            mondied(mtmp, mtmp);
                         }
                     } else {
                         (void) hmon(mtmp, obj, HMON_THROWN, dieroll);

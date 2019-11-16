@@ -743,7 +743,7 @@ int reason; /* Player was thrown off etc. */
             } else {
                 /* other dismount: kill former steed with no penalty;
                    damage type is just "neither AD_DGST nor -AD_RBRE" */
-                monkilled(mtmp, "", -AD_PHYS);
+                monkilled(mtmp, NULL, "", -AD_PHYS);
             }
         }
     } /* !DEADMONST(mtmp) */

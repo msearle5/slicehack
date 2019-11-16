@@ -12,7 +12,7 @@ Standard definitions and types, Bob Jenkins
 ------------------------------------------------------------------------------
 */
 
-#if defined(__STDC__) && __STDC__ >= 199101L
+#if defined(__STDC__) && __STDC_VERSION__ >= 199101L
 typedef uint64_t uint64;
 #else
 typedef  unsigned long long  uint64;

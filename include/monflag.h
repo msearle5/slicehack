@@ -200,11 +200,11 @@
 #define MH_MERFOLK M2_MERFOLK
 #define MH_WERE M2_WERE
 #define MH_DEMON M2_DEMON
-#define MH_ANGEL M2_ANGEL
-#define MH_GHOUL M2_GHOUL
+#define MH_ANGEL 0x00001000L
+#define MH_GHOUL 0x00002000L
 #define MH_UNDEAD M2_UNDEAD
-#define MH_FLAYER M2_FLAYER
-#define MH_VAMPIRE M2_VAMPIRE
+#define MH_FLAYER 0x00000001L
+#define MH_VAMPIRE 0x00000800L
 #define MH_ANY 0x80000000L
 
 /* for mons[].geno (constant during game) */

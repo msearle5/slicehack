@@ -98,12 +98,7 @@ const struct Role roles[] = {
       S_OGRE,
       S_TROLL,
       ART_HEART_OF_AHRIMAN,
-
-      MH_HUMAN | MH_DWARF | MH_MERFOLK | MH_ORC | MH_DEMON | MH_GIANT | MH_GHOUL | ROLE_MALE | ROLE_FEMALE
-          | ROLE_NEUTER | ROLE_NEUTRAL | ROLE_CHAOTIC,
-
-      MH_HUMAN | MH_DWARF | MH_MERFOLK | MH_ORC | MH_DEMON | MH_GHOUL | MH_WERE
-        | MH_VAMPIRE,
+      MH_HUMAN | MH_DWARF | MH_MERFOLK | MH_ORC | MH_DEMON | MH_GIANT | MH_GHOUL | MH_WERE | MH_VAMPIRE,
       ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER | ROLE_NEUTRAL | ROLE_CHAOTIC,
       /* Str Int Wis Dex Con Cha */
       { 16, 7, 7, 15, 16, 6 },
@@ -147,7 +142,8 @@ const struct Role roles[] = {
       S_GIANT,
       ART_SCEPTRE_OF_MIGHT,
 
-      MH_HUMAN | MH_DWARF | MH_GNOME | MH_GIANT | MH_WERE | MH_VAMPIRE | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER
+      MH_HUMAN | MH_DWARF | MH_GNOME | MH_GIANT | MH_WERE | MH_VAMPIRE,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER
           | ROLE_LAWFUL | ROLE_NEUTRAL,
 
       /* Str Int Wis Dex Con Cha */
@@ -404,7 +400,7 @@ const struct Role roles[] = {
       S_XORN,
       ART_EYES_OF_THE_OVERWORLD,
 
-      MH_HUMAN | MH_DWARF | MH_MERFOLK | MH_GIANT | MH_GHOUL | MH_DEMON | MH_ORC | ROLE_MALE | ROLE_FEMALE| ROLE_NEUTER | ROLE_LAWFUL | ROLE_NEUTRAL
+      MH_HUMAN | MH_DWARF | MH_MERFOLK | MH_GIANT | MH_GHOUL | MH_DEMON | MH_ORC,ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER | ROLE_LAWFUL | ROLE_NEUTRAL
           | ROLE_CHAOTIC,
 
       /* Str Int Wis Dex Con Cha */
@@ -678,7 +674,8 @@ const struct Role roles[] = {
       S_CENTAUR,
       ART_YENDORIAN_EXPRESS_CARD,
 
-      MH_HUMAN | MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER | ROLE_NEUTRAL,
+      MH_HUMAN | MH_GIANT,
+      ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER | ROLE_NEUTRAL,
 
       /* Str Int Wis Dex Con Cha */
       { 7, 10, 6, 7, 7, 10 },
@@ -841,7 +838,7 @@ struct Role urole = {
  **/
 #define SAME_ATTRIB { 0 }, { 0 }, { 0 }, { 0 }, 0, 0
 #define SAME_SPELL  0,0,0,0,0,0,0
-#define SAME_ALLOW  0
+#define SAME_ALLOW  0,0
 #define SAME_PET  0
 #define SAME_QUEST1 NULL,NULL
 #define SAME_QUEST2 0,0,0,0,0,0,0,0
@@ -1174,9 +1171,11 @@ const struct Race races[] = {
         NON_PM,
         PM_GIANT_MUMMY,
         PM_GIANT_ZOMBIE,
-        MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC | ROLE_NEUTRAL,
+        MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER | ROLE_CHAOTIC
+            | ROLE_NEUTRAL,
         MH_GIANT,
         MH_GIANT,
+        0,
         0,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },

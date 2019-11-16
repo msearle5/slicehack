@@ -483,7 +483,6 @@ void
 hitfloor(obj, verbosely)
 struct obj *obj;
 boolean verbosely; /* usually True; False if caller has given drop message */
-register struct obj *obj;
 {
 	mayhitfloor(obj, TRUE, u.ux, u.uy, TRUE);
 }

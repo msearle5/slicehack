@@ -114,12 +114,10 @@ SliceHack inherits many monsters from SLASH'EM.
 A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
 Zouthern monsters are slightly less tough in SliceHack than in other variants.
 Your choice of sub-role? Mine's a BLT!
-A demon lord summoned from Gehennom by the ascension ritual will no longer be covetous.
-Zouthern monsters are slightly less tough in SpliceHack than in other variants.
 Anubites are capable of jumping.
-The main dungeon in SpliceHack is longer than one might expect.
+The main dungeon in SliceHack is longer than one might expect.
 Gehennom has been compacted. It's quite a rush!
-SpliceHack is fully compatible with tiles, and comes with a tileset!
+SliceHack is fully compatible with tiles, and comes with a tileset!
 Substance warpers can change the material of your items.
 Rings of blood magic allow you to convert hit points to power.
 Merfolk have poor abilities, but begin the game with one of the most powerful techniques.
@@ -148,6 +146,6 @@ Werewolves are a tough race for beginning players.
 If you donate enough at a temple, they might just teach you how to perform a blessing.
 If you encounter a bug, please report it on the github page, or contact Antigulp on #hardfought.
 Steel golems can disenchant your items, so keep your distance.
-You will level up more quickly at high levels in SpliceHack than in vanilla NetHack.
+You will level up more quickly at high levels in SliceHack than in vanilla NetHack.
 Nazgul will often shriek, and are known to ride fell beasts.
 Monsters are capable of riding other monsters.

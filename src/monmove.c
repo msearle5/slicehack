@@ -481,7 +481,7 @@ register struct monst *mtmp;
     if (mtmp->mwither) {
         mtmp->mhp -= 1;
         if (DEADMONSTER(mtmp))
-            monkilled(mtmp, "", AD_DETH);
+            monkilled(mtmp, NULL, "", AD_DETH);
     }
 
     /* confused monsters get unconfused with small probability */

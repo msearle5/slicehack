@@ -45,14 +45,13 @@ STATIC_DCL boolean FDECL(can_practice, (int)); /* WAC for Practicing */
 /*WAC practicing needs a delay counter*/
 static NEARDATA schar delay;            /* moves left for practice */
 
-STATIC_VAR NEARDATA const short skill_names_indices[P_NUM_SKILLS] = {
+STATIC_VAR NEARDATA const short skill_names_indices[] = {
     0, DAGGER, KNIFE, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
-    TWO_HANDED_SWORD, SCIMITAR, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL,
-    PN_HAMMER, QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING,
-    CROSSBOW, DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
-    PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
-    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
-    PN_ALCHEMY, PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING, PN_COOKING
+    TWO_HANDED_SWORD, SCIMITAR, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL, PN_HAMMER,
+    QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING, CROSSBOW,
+    DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN, PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
+    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL, PN_ALCHEMY, PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING,
+    PN_COOKING
 };
 
 /* note: entry [0] isn't used */
@@ -81,11 +80,11 @@ int skill;
                                                     ? "alchemical " : "fighting ");
 }
 
-STATIC_DCL boolean FDECL(can_advance, (int, BOOLEAN_P));
+//STATIC_DCL boolean FDECL(can_advance, (int, BOOLEAN_P));
 STATIC_DCL boolean FDECL(could_advance, (int));
 STATIC_DCL boolean FDECL(peaked_skill, (int));
 STATIC_DCL int FDECL(slots_required, (int));
-STATIC_DCL char *FDECL(skill_level_name, (int, char *));
+//STATIC_DCL char *FDECL(skill_level_name, (int, char *));
 STATIC_DCL void FDECL(skill_advance, (int));
 
 #define P_NAME(type)                                    \
@@ -412,19 +411,31 @@ struct monst *mon;
 /* check whether blessed and/or material damage applies for *non-weapon* hit;
    return value is the amount of the extra damage */
 int
-special_dmgval(magr, mdef, armask, out_obj, saved_oname, tigermsg)
+special_dmgval(magr, mdef, armask, out_obj, saved_oname, tigermsg, harm_material)
 struct monst *magr, *mdef;
 long armask; /* armor mask, multiple bits accepted for W_ARMC|W_ARM|W_ARMU
               * or W_ARMG|W_RINGL|W_RINGR only */
 struct obj **out_obj; /* ptr to offending object, can be NULL if not wanted */
 char *saved_oname;
 boolean *tigermsg;
+int *harm_material;
 {
+    static int fingerless = 0;
+    static int tigereye = 0;
+    int barehand_tigereye_rings = 0;
     struct obj *obj;
     struct permonst *ptr = mdef->data;
     boolean left_ring = (armask & W_RINGL) ? TRUE : FALSE,
             right_ring = (armask & W_RINGR) ? TRUE : FALSE;
     int bonus = 0;
+    int dummy;
+    if (!harm_material) {
+        harm_material = &dummy;
+    }
+    if (!fingerless) {
+        fingerless = find_fingerless();
+        tigereye = find_tigereye();
+    }
 
     obj = 0;
     if (out_obj)
@@ -460,17 +471,17 @@ boolean *tigermsg;
         if (uarmg) {
             /* blessed gloves give bonuses when fighting 'bare-handed' */
             if (uarmg->blessed
-                && (is_undead(mdat) || is_demon(mdat) || is_vampshifter(mon))) {
-                tmp += rnd(4);
+                && (is_undead(ptr) || is_demon(ptr) || is_vampshifter(mdef))) {
+                bonus += rnd(4);
                 /* when no gloves we check for rings made of hated material (blessed rings
                  * ignored) */
             } 
-            if (mon_hates_material(mon, uarmg->material)) {
+            if (mon_hates_material(mdef, uarmg->material)) {
                 if (saved_oname) {
                     Strcpy(saved_oname, "gauntlets");
                 }
-                harm_material = uarmg->material;
-                tmp += rnd(sear_damage(uarmg->material));
+                *harm_material = uarmg->material;
+                bonus += rnd(sear_damage(uarmg->material));
             }
         } else if ((left_ring || right_ring) && magr == &youmonst) {
             /* So do silver rings.  Note: rings are worn under gloves, so you
@@ -505,21 +516,21 @@ boolean *tigermsg;
                  * The most appropriate flavor is that you're only hitting with one
                  * hand at a time, so take one or the other hand randomly. */
                 struct obj* ring = (rn2(2) ? uleft : uright);
-                if (ring && mon_hates_material(mon, ring->material)) {
-                    harm_material = ring->material;
+                if (ring && mon_hates_material(mdef, ring->material)) {
+                    *harm_material = ring->material;
                     if (saved_oname) {
                         Strcpy(saved_oname, "ring");
                     }
-                    tmp += rnd(sear_damage(ring->material));
+                    bonus += rnd(sear_damage(ring->material));
                 }
-                if (mdat == &mons[PM_TIGER]) {
+                if (ptr == &mons[PM_TIGER]) {
                     if ((uleft) && (uleft->otyp == tigereye))
                         barehand_tigereye_rings++;
                     if ((uright) && (uright->otyp == tigereye))
                         barehand_tigereye_rings++;
                     if ((barehand_tigereye_rings == 2) ||
                         ((barehand_tigereye_rings == 1) && rn2(2))) {
-                        tmp += d(4, 10);
+                        bonus += d(4, 10);
                         if (tigermsg) {
                             *tigermsg = TRUE;
                         }
@@ -1093,7 +1104,6 @@ register struct monst *mon;
                 mon->mtame ? "." : "!");
             introduce_item(obj);
             if (mwelded(mw_tmp)) {
-                mon->mtame ? "." : "!");
                 /* 3.6.3: mwelded() predicate expects the object to have its
                    W_WEP bit set in owormmask, but the pline here and for
                    artifact_light don't want that because they'd have '(weapon

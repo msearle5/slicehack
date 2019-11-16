@@ -77,6 +77,8 @@ extern char mapped_menu_cmds[]; /* from options.c */
 /* this is only needed until tty_status_* routines are written */
 extern NEARDATA winid WIN_STATUS;
 
+static boolean setlast = FALSE;
+
 /* Interface definition, for windows.c */
 struct window_procs tty_procs = {
     "tty",
@@ -4006,9 +4008,10 @@ boolean enable;
 {
     genl_status_enablefield(fieldidx, nm, fmt, enable);
     /* force re-evaluation of last field on the row */
-    setlast = FALSE;
+   // setlast = FALSE;
 }
 
+#ifdef undef
 void
 do_setlast()
 {
@@ -4026,6 +4029,7 @@ do_setlast()
            break;
 	}
 }
+#endif
 
 #ifdef STATUS_HILITES
 

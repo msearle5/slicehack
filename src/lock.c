@@ -388,6 +388,8 @@ struct obj *pick;
         c = 'n'; /* in case there are no boxes here */
         for (otmp = level.objects[cc.x][cc.y]; otmp; otmp = otmp->nexthere)
             if (Is_box(otmp)) {
+ //               boolean secure = is_secure(otmp);
+
                 ++count;
                 if (!can_reach_floor(TRUE)) {
                     You_cant("reach %s from up here.", the(xname(otmp)));
@@ -434,6 +436,7 @@ struct obj *pick;
                              an(simple_typename(picktyp)));
                     return PICKLOCK_LEARNED_SOMETHING;
                 }
+
                 switch (picktyp) {
                 case CREDIT_CARD:
                     ch = ACURR(A_DEX) + 20 * Role_if(PM_ROGUE);
@@ -449,7 +452,12 @@ struct obj *pick;
                 }
                 if (otmp->cursed)
                     ch /= 2;
-
+/*
+                if (secure) {
+                    ch /= 2;
+                    if (picktyp == SKELETON_KEY) {
+                        
+*/
                 xlock.box = otmp;
                 xlock.door = 0;
                 break;

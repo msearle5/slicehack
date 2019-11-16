@@ -45,16 +45,6 @@ char msgbuf[BUFSZ];
 #define CANNIBAL_ALLOWED() (Role_if(PM_CAVEMAN) || Race_if(PM_ORC) \
     || Race_if(PM_HUMAN_WEREWOLF) || Race_if(PM_VAMPIRE))
 
-/* monster types that cause hero to be turned into stone if eaten */
-#define flesh_petrifies(pm) (touch_petrifies(pm) || (pm) == &mons[PM_MEDUSA])
-
-/* Rider corpses are treated as non-rotting so that attempting to eat one
-   will be sure to reach the stage of eating where that meal is fatal */
-#define nonrotting_corpse(mnum) \
-    ((mnum) == PM_LIZARD || (mnum) == PM_LICHEN || \
-     (mnum) == PM_LEGENDARY_LICHEN || \
-     (mnum) == PM_DEATH_MAGGOT || is_rider(&mons[mnum]))
-
 /* non-rotting non-corpses; unlike lizard corpses, these items will behave
    as if rotten if they are cursed (fortune cookies handled elsewhere) */
 #define nonrotting_food(otyp) \
@@ -151,10 +141,10 @@ static const struct {
                 { "dried", 55, 1, 0 },
                 { "deep fried", 60, 0, 1 },
                 { "szechuan", 70, 1, 0 },
-                { "broiled", 80, 0, 0 },
+                { "broiled", 80, 1, 0 },
                 { "stir fried", 80, 0, 1 },
                 { "sauteed", 95, 0, 0 },
-                { "candied", 100, 1, 0 },
+                { "candied", 100, 0, 0 },
                 { "pureed", 500, 1, 0 },
                 { "", 0, 0, 0 } };
 #define TTSZ SIZE(tintxts)
@@ -711,6 +701,7 @@ int pm;
 boolean allowmsg;
 {
     static NEARDATA long ate_brains = 0L;
+    struct permonst *fptr = &mons[pm]; /* food type */
 
     /* when poly'd into a mind flayer, multiple tentacle hits in one
        turn cause multiple digestion checks to occur; avoid giving
@@ -991,7 +982,7 @@ remresists()
 }
 
 boolean
-cangivit(type, ptr)
+cangivit(type, ptr, cooking)
 int type;
 register struct permonst *ptr;
 boolean cooking;

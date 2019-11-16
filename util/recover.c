@@ -185,6 +185,7 @@ const char *directory;
 #if defined(MICRO) || defined(WIN32) || defined(MSDOS)
     fd = open(levelfile, O_RDONLY | O_BINARY);
 #else
+	fprintf(stderr,"Attempting to open '%s'\n",levelfile);
     fd = open(levelfile, O_RDONLY, 0);
 #endif
     return fd;

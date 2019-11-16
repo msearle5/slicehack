@@ -2503,7 +2503,7 @@ turn_undead(struct obj *focus) {
 struct monst *mtmp, *mtmp2;
 int once, range, xlev;
 
-    Gname = halu_gname(u.ualign.type);
+    const char *Gname = halu_gname(u.ualign.type);
     if(!u.uconduct.gnostic++)
         livelog_write_string(LL_CONDUCT, "rejected atheism by turning undead");
 

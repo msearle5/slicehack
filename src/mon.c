@@ -819,7 +819,7 @@ register struct monst *mtmp;
                    case is not expected to happen (and we haven't made a
                    player-against-monster variation of the message above) */
                 if (context.mon_moving)
-                    mondead(mtmp);
+                    mondead(mtmp, NULL);
                 else
                     xkilled(mtmp, XKILL_NOMSG);
             } else {
@@ -867,7 +867,7 @@ register struct monst *mtmp;
             }
 
             if (context.mon_moving)
-                mondead(mtmp);
+                mondead(mtmp, NULL);
             else
                 xkilled(mtmp, XKILL_NOMSG);
 
@@ -2798,7 +2798,7 @@ register struct monst *mdef;
 {
     struct monst *msteed = NULL;
 
-    mondead(mdef);
+    mondead(mdef, NULL);
     if (!DEADMONSTER(mdef))
         return; /* lifesaved */
 

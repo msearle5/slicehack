@@ -1133,7 +1133,7 @@ dodrink()
                     chance += 20;
                     break;
                 default:
-                    chance += (5 * (ACURR(A_DEX) - 8));
+                    chance -= (5 * (ACURR(A_DEX) - 8));
             }
             if (chance > 950) chance = 950;
             if (rn2(1000) < chance) {
@@ -1146,7 +1146,7 @@ dodrink()
                 otmp->in_use = FALSE;
 
                 extract_nobj(otmp, &invent);
-                mayhitfloor(otmp, (rn2(50) > Luck+20), u.ux, u.uy);
+                mayhitfloor(otmp, (rn2(50) > Luck+20), u.ux, u.uy, TRUE);
                 return 1;
             }
         }
@@ -2570,7 +2570,7 @@ register struct obj *o1, *o2;
 
     switch (o1typ) {
     case POT_HEALING:
-        if (o2typ == POT_SPEED)
+        if (o2typ == POT_SPEED) {
             return POT_EXTRA_HEALING;
         }
         break;
@@ -2738,7 +2738,7 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
          * difficult. Generation frequency also makes a difference.
          **/
         if (value) {
-            int v = monstr[mtyp];
+            int v = mons[mtyp].difficulty;
             int f = corpse_frequency(mtyp);
             int w = mons[mtyp].cwt;
             int spill;

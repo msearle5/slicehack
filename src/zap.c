@@ -5433,6 +5433,8 @@ int osym, dmgtyp;
             dindx = 6;
             dmg = rnd(10);
             break;
+        }
+        break;
     case AD_LOUD:
         if (objects[obj->otyp].oc_material == GLASS ||
             objects[obj->otyp].oc_material == GEMSTONE ||
@@ -5466,11 +5468,6 @@ int osym, dmgtyp;
             }
         } else
             skip++;
-        break;
-        default:
-            skip++;
-            break;
-        }
         break;
     default:
         skip++;

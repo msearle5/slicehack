@@ -167,6 +167,7 @@ static const char * const bogus_items[] = {
     "tombstone",
     "flightstone",
     "dhrystone",
+    "whetstone",
     "cosmic ray",
     "sick bag",
     "blast of fire",
@@ -235,6 +236,7 @@ static const char * const bogus_items[] = {
     "broadsword",
     "long sword",
     "two-handed sword",
+    "three-handed sword",
     "katana",
     "tsurugi",
     "runesword",
@@ -247,6 +249,7 @@ static const char * const bogus_items[] = {
     "bardiche",
     "voulge",
     "dwarvish mattock",
+    "dwarvish hassock",
     "fauchard",
     "guisarme",
     "bill-guisarme",
@@ -257,6 +260,7 @@ static const char * const bogus_items[] = {
     "club",
     "quarterstaff",
     "iron bar",
+    "iron bear",
     "aklys",
     "thonged club",
     "club in flip-flops",
@@ -266,8 +270,10 @@ static const char * const bogus_items[] = {
     "elven bow",
     "orcish bow",
     "yumi",
+    "yummi",
     "sling",
     "crossbow",
+    "angry bow",
     "fedora",
     "red hat",
     "conical hat",
@@ -275,9 +281,6 @@ static const char * const bogus_items[] = {
     "plumed helmet",
     "plummed helmet",
     "peaked helmet",
-    "conical hat",
-    "comical hat",
-    "plumed helmet",
     "plumbed helmet",
     "etched helmet",
     "itched helmet",
@@ -285,10 +288,10 @@ static const char * const bogus_items[] = {
     "visored helmet",
     "plate mail",
     "late mail",
-    "mithril-coat",
     "banded mail",
     "sanded mail",
     "splint mail",
+    "skint mail",
     "split mail",
     "chain mail",
     "chain letter",
@@ -342,7 +345,6 @@ static const char * const bogus_items[] = {
     "riding boots",
     "rudesword",
     "dunesword",
-    "three-handed sword",
     "wallhanger",
 
     /* Modern */
@@ -1749,6 +1751,7 @@ struct obj *obj;
 #define DONAME_VAGUE_QUAN 2
 #define DONAME_INVENTORY  4
 
+/* cursed -7 tin of spaghetti */
 STATIC_OVL char *
 doname_base(obj, doname_flags)
 struct obj *obj;
@@ -1888,6 +1891,7 @@ unsigned doname_flags;
         if (obj->otyp != GORGET) break;
         /*FALLTHRU*/
     case ARMOR_CLASS:
+  armor:
         if (obj->owornmask & W_ARMOR) {
             if (is_multislot(obj)) {
                 const char *armor = NULL;
@@ -1984,12 +1988,12 @@ unsigned doname_flags;
         break;
     case FOOD_CLASS:
         if (obj->otyp == CORPSE && obj->odrained) {
-		    if (wizard && obj->oeaten < drainlevel(obj))
-			    Strcat(prefix, "over-drained ");
-		    else
-		        Sprintf(prefix, "%sdrained ",
-		            (obj->oeaten > drainlevel(obj)) ? "partly " : "");
-		} else if (obj->oeaten)
+            if (wizard && obj->oeaten < drainlevel(obj))
+                Strcat(prefix, "over-drained ");
+            else
+                Sprintf(prefix, "%sdrained ",
+                    (obj->oeaten > drainlevel(obj)) ? "partly " : "");
+        } else if (obj->oeaten)
             Strcat(prefix, "partly eaten ");
         if (obj->otyp == PUMPKIN)
             goto armor;
@@ -5162,14 +5166,13 @@ int extra;
         artifact_exists(otmp, safe_oname(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
 
-        otmp = &zeroobj;
+        otmp = (struct obj *) &zeroobj;
         if (Hallucination)
             pline("Yeah, you wish!");
         else
             pline("For a moment, you feel %s in your %s, but it disappears!",
               something, makeplural(body_part(HAND)));
 
-        otmp = (struct obj *) &zeroobj;
         return otmp;
     }
 #ifndef ARTI_WITH_OWNER
@@ -5185,7 +5188,8 @@ int extra;
     if (is_quest_artifact(otmp) && !wizard) {
         artifact_exists(otmp, ONAME(otmp), FALSE);
         obfree(otmp, (struct obj *) 0);
-        otmp = &zeroobj;
+        
+        otmp = (struct obj *) &zeroobj;
         pline("For a moment, you feel %s in your %s, but it disappears!",
           something,
           makeplural(body_part(HAND)));
@@ -5236,9 +5240,9 @@ int extra;
                     pm=PM_VAMPIRE_LORD;
                     voice="Vlad the Impaler";
                     break;
-                case ART_KING_IN_YELLOW:
+               /* case ART_KING_IN_YELLOW:
                     pm=PM_SHADE;
-                    break;
+                    break;*/
                 /* Non-weapon artifacts: can still send in an appropriate guardian, but give them a
                  * weapon.
                  */
@@ -5249,7 +5253,7 @@ int extra;
                 case ART_SUNSWORD:
                 case ART_QUICK_BLADE:
                 case ART_GRAYSWANDIR:
-                case ART_REAPER:
+                case ART_END:
                     pm=PM_ARCHEOLOGIST;
                     break;
                 case ART_HEART_OF_AHRIMAN:
@@ -5287,7 +5291,7 @@ int extra;
                 case ART_PRIDWEN:
                 case ART_MAGIC_MIRROR_OF_MERLIN:
                 case ART_CARNWENNAN:
-                case ART_DISMOUNTER:
+                case ART_BRADAMANTE_S_FURY:
                     otmp2 = mksobj(LONG_SWORD, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
@@ -5414,7 +5418,7 @@ int extra;
             }
             (void) mpickobj(mtmp, otmp);
             if (otmp2) (void) mpickobj(mtmp, otmp2);
-            otmp = &zeroobj;
+            otmp = (struct obj *)&zeroobj;
             m_dowear(mtmp, TRUE);
             mtmp->weapon_check = strategy;
             mon_wield_item(mtmp);

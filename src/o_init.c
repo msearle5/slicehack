@@ -129,7 +129,7 @@ boolean domaterial;
 void
 init_objects()
 {
-    register int i, first, last;
+    register int i, first, last, sum;
     register char oclass;
 #ifdef TEXTCOLOR
 #define COPY_OBJ_DESCR(o_dst, o_src) \

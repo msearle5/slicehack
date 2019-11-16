@@ -1878,7 +1878,7 @@ int mmflags;
         else
         {
             if ((ptr->geno & G_SGROUP) && rn2(2)) {
-                m_initsgrp(mtmp, mtmp->mx, mtmp->my);
+                m_initsgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
             } else if (ptr->geno & G_LGROUP) {
                 if (rn2(3))
                     m_initlgrp(mtmp, mtmp->mx, mtmp->my, mmflags);
@@ -2416,7 +2416,7 @@ struct monst *mtmp, *victim;
                       an(ptr->mname), mhe(mtmp),
                       nonliving(ptr) ? "expires" : "dies");
 
-            set_mon_data(mtmp, ptr, -1); /* keep mvitals[] accurate */
+            set_mon_data(mtmp, ptr); /* keep mvitals[] accurate */
             mondied(mtmp, mtmp);
 
             return (struct permonst *) 0;

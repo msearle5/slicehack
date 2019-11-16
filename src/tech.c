@@ -1622,7 +1622,7 @@ tamedog(mtmp, (struct obj *) 0);
 		case T_HEART_CARDS:
 			if (Slimed) {
 				j = SCR_FIRE;
-			} else if (critically_low_hp(FALSE)) {
+			} else if (critically_low_hp(FALSE, 6)) {
 				j = SCR_AIR;
 			} else if (region_danger()) {
 				j = SCR_TELEPORTATION;

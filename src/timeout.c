@@ -2460,7 +2460,6 @@ int fd, mode, range;
                 free((genericptr_t) curr);
                 /* prev stays the same */
             } else {
-            } else {
                 prev = curr;
             }
         }

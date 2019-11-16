@@ -316,6 +316,7 @@ struct instance_flags {
     boolean menu_requested;   /* Flag for overloaded use of 'm' prefix
                                * on some non-move commands */
     boolean menu_tab_sep;     /* Use tabs to separate option menu fields */
+    boolean msg_is_alert;
     boolean news;             /* print news */
     boolean num_pad;          /* use numbers for movement commands */
     boolean perm_invent;      /* keep full inventories up until dismissed */

@@ -1050,7 +1050,7 @@ curs_stat_conds(int vert_cond, /* 0 => horizontal, 1 => vertical */
                 boolean twoparts = FALSE;
                 int height,width;
 
-                text = status_vals[fldidx1];
+                char *text = status_vals[i];
                 getmaxyx(win, height, width);
                 nhUse(height);
                 bar_len = min((int)strlen(text), width - (border ? 4 : 2));
@@ -1067,6 +1067,8 @@ curs_stat_conds(int vert_cond, /* 0 => horizontal, 1 => vertical */
                         bar2 = &bar[bar_pos];
                         savedch = *bar2;
                         *bar2 = '\0';
+                    }
+                }
 
                 cond_bits &= ~bitmsk; /* nonzero if another cond after this */
                 /* output unhighlighted leading space unless at #1 of 3 */

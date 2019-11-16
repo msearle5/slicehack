@@ -78,7 +78,7 @@ pet_type()
     } else if (Role_if(PM_DRAGONMASTER)) {
         /* baby black dragons are not chosen as starting pets, since
            black dragons are arguably some of the most powerful pets
-           in SpliceHack. */
+           in SliceHack. */
         dragon_type = PM_BABY_SILVER_DRAGON 
             + rn2(PM_BABY_YELLOW_DRAGON - PM_BABY_SILVER_DRAGON);
         if (dragon_type == PM_BABY_BLACK_DRAGON)
@@ -89,7 +89,7 @@ pet_type()
             case 0:
                 return PM_KITTEN;
             case 1:
-                return PM_LITTLE_BIRD;
+                return PM_PENGUIN;
             case 2:
                 return PM_LITTLE_DOG;
             default:

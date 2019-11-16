@@ -3,7 +3,7 @@
 /* Copyright (c) Karl Garrison, 2010. */
 /* NetHack may be freely redistributed.  See license for details. */
 
-#include "curses.h"
+#include <curses.h>
 #include "hack.h"
 #ifdef SHORT_FILENAMES
 #include "patchlev.h"

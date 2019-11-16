@@ -886,9 +886,9 @@ set_random(seed, fn)
 unsigned long seed;
 int FDECL((*fn), (int)) UNUSED;
 {
-#ifdef INTERNAL_RNG
+# ifdef INTERNAL_RNG
     seed_rng(seed);
-#else
+# else
 
     /* the types are different enough here that sweeping the different
      * routine names into one via #defines is even more confusing
@@ -911,6 +911,7 @@ int FDECL((*fn), (int)) UNUSED;
 #   endif
 #  endif
 # endif
+#endif
 }
 
 #endif /* USE_ISAAC64 */
@@ -940,7 +941,6 @@ int FDECL((*fn), (int));
     * by the players. */
     if (has_strong_rngseed)
         init_random(fn);
->>>>>>> 6c995fa9622e5659391a28c899fb40e68dd324af
 }
 
 time_t

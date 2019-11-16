@@ -66,9 +66,9 @@ enum p_skills {
     P_RIDING             = 39, /* How well you control your steed */
 
     /* Other skills */
-    P_COOKING            = 39,
+    P_COOKING            = 40,
 
-    P_NUM_SKILLS         = 40
+    P_NUM_SKILLS         = 41
 };
 
 #define P_MARTIAL_ARTS P_BARE_HANDED_COMBAT /* Role distinguishes */

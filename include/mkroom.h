@@ -35,7 +35,7 @@ struct shclass {
     struct itp {
         int iprob; /* probability of an item type */
         int itype; /* item type: if >=0 a class, if < 0 a specific item */
-    } iprobs[8];
+    } iprobs[10];
     const char *const *shknms; /* list of shopkeeper names for this type */
 };
 
@@ -73,22 +73,23 @@ enum roomtype_types {
     LEMUREPIT  = 17,  /* contains lemures and horned devils */
     BLACKFOYER = 18, /* black market */
     ARTROOM    = 19,    /* interesting walls */
-    SHOPBASE   = 20, /* everything above this is a shop */
-    ARMORSHOP  = 21, /* specific shop defines for level compiler */
-    SCROLLSHOP = 22,
-    POTIONSHOP = 23,
-    WEAPONSHOP = 24,
-    FOODSHOP   = 25,
-    RINGSHOP   = 26,
-    WANDSHOP   = 27,
-    TOOLSHOP   = 28,
-    BOOKSHOP   = 29,
-    ARCHERYSHOP = 30,
-    MASKSHOP   = 31,
-    JUNKSHOP   = 32,
-    FODDERSHOP = 33, /* health food store */
-    CANDLESHOP = 34,
-    BLACKSHOP  = 35
+    STOREROOM  = 20, 
+    SHOPBASE   = 21, /* everything above this is a shop */
+    ARMORSHOP  = 22, /* specific shop defines for level compiler */
+    SCROLLSHOP = 23,
+    POTIONSHOP = 24,
+    WEAPONSHOP = 25,
+    FOODSHOP   = 26,
+    RINGSHOP   = 27,
+    WANDSHOP   = 28,
+    TOOLSHOP   = 29,
+    BOOKSHOP   = 30,
+    ARCHERYSHOP = 31,
+    MASKSHOP   = 32,
+    JUNKSHOP   = 33,
+    FODDERSHOP = 34, /* health food store */
+    CANDLESHOP = 35,
+    BLACKSHOP  = 36
 };
 
 #define MAXRTYPE (BLACKSHOP) /* maximum valid room type */

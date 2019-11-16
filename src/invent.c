@@ -2754,7 +2754,7 @@ long *out_cnt;
             /* wiz_identify stuffed the wiz_identify command character (^I)
                into iflags.override_ID for our use as an accelerator;
                it could be ambiguous if player has assigned a letter to
-               the #wizidentify command, so include it as a group accelator
+               the #wizidentify command, so include it as a group accelerator
                but use '_' as the primary selector */
             if (unid_cnt > 1)
                 Sprintf(eos(prompt), " (%s for all)",
@@ -2797,7 +2797,8 @@ long *out_cnt;
 
             add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any, ilet, 0,
                     (wizid && not_fully_identified(otmp)) ? def_oc_syms[(int) otmp->oclass].sym : 0,
-                     ATR_NONE, doname(otmp), MENU_UNSELECTED);
+                     ATR_NONE, MENU_UNSELECTED);
+                     //"foo"/*doname(otmp)*/, MENU_UNSELECTED);
             gotsomething = TRUE;
         }
     }

@@ -331,20 +331,20 @@ boolean resuming;
                         mk_dgl_extrainfo();
                     }
 #endif
-                    if(u.ukinghill){
-               				if(u.protean > 0) u.protean--;
-               				else{
-               					for(pobj = invent; pobj; pobj=pobj->nobj)
-               						if(pobj->oartifact == ART_TREASURY_OF_PROTEUS)
-               							break;
-               					if(!pobj) pline("Treasury not actually in inventory??");
-               					else if(pobj->cobj){
-               						arti_poly_contents(pobj);
-               					}
-               					u.protean = rnz(100)+d(3,10);
-               					update_inventory();
-               				}
-               			}
+                    if (u.ukinghill) {
+                        if(u.protean > 0) u.protean--;
+                        else{
+                            for(pobj = invent; pobj; pobj=pobj->nobj)
+                                if(pobj->oartifact == ART_TREASURY_OF_PROTEUS)
+                                    break;
+                            if(!pobj) pline("Treasury not actually in inventory??");
+                            else if(pobj->cobj){
+                                arti_poly_contents(pobj);
+                            }
+                            u.protean = rnz(100)+d(3,10);
+                            update_inventory();
+                        }
+                    }
                     /* One possible result of prayer is healing.  Whether or
                      * not you get healed depends on your current hit points.
                      * If you are allowed to regenerate during the prayer,
@@ -733,6 +733,7 @@ display_gamewindows()
         status_initialize(0);
     } else {
         WIN_STATUS = create_nhwindow(NHW_STATUS);
+        status_initialize(0);
     }
     WIN_MAP = create_nhwindow(NHW_MAP);
     WIN_INVEN = create_nhwindow(NHW_MENU);
@@ -817,8 +818,8 @@ newgame()
     docrt();
 
     if (Role_if(PM_CONVICT)) {
-        setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN);
-        setworn(mkobj(BALL_CLASS, TRUE), W_BALL);
+        setworn(mkobj(CHAIN_CLASS, TRUE), W_CHAIN, TRUE);
+        setworn(mkobj(BALL_CLASS, TRUE), W_BALL, TRUE);
         uball->spe = 1;
         placebc();
         newsym(u.ux,u.uy);
@@ -891,7 +892,7 @@ boolean new_game; /* false => restoring an old game */
         Sprintf(eos(buf), " %s", genders[currentgend].adj);
 
     pline(new_game ? "%s %s, welcome to SliceHack!  You are a%s %s %s %s."
-                   : "%s %s, the%s %s %s %s, welcome back to SpliceHack!",
+                   : "%s %s, the%s %s %s %s, welcome back to SliceHack!",
           Hello((struct monst *) 0), plname, buf, genders[currentgend].adj, urace.adj,
             rolename_gender(currentgend));
     if (flags.tips) {

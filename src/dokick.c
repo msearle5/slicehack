@@ -56,7 +56,7 @@ boolean clumsy;
     if (mon->data == &mons[PM_SHADE])
         dmg = 0;
 
-    specialdmg = special_dmgval(&youmonst, mon, W_ARMF, NULL, NULL, NULL);
+    specialdmg = special_dmgval(&youmonst, mon, W_ARMF, NULL, NULL, NULL, NULL);
 
     if (mon->data == &mons[PM_SHADE] && !specialdmg) {
         pline_The("%s.", kick_passes_thru);
@@ -208,7 +208,7 @@ xchar x, y;
                 continue;
 
             kickdieroll = rnd(20);
-            specialdmg = special_dmgval(&youmonst, mon, W_ARMF, NULL, NULL, NULL);
+            specialdmg = special_dmgval(&youmonst, mon, W_ARMF, NULL, NULL, NULL, NULL);
             if (noncorporeal(mon->data) && !specialdmg) {
                 /* doesn't matter whether it would have hit or missed,
                    and shades have no passive counterattack */

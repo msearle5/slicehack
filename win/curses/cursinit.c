@@ -7,7 +7,7 @@
 #include "hack.h"
 #include "wincurs.h"
 #include "cursinit.h"
-/*#include "patchlevel.h"*/
+#include "patchlevel.h"
 
 #include <ctype.h>
 
@@ -677,7 +677,7 @@ curses_choose_character()
         for (;;) {
             for (n = 0, i = 0; subroles[i].name.m; i++) {
                 if (ok_subrole(i, flags.initrole, flags.initrace, flags.initgend, flags.initalign)) {
-                    if (flags.initgend >= 0 && flags.female && subroles[i].name.f)
+                    if (flags.initgend >= 0 && (flags.gender == GEND_F) && subroles[i].name.f)
                         choices[n] = subroles[i].name.f;
                     else
                         choices[n] = subroles[i].name.m;

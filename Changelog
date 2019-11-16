@@ -80,7 +80,7 @@ changelog for SpliceHack.
     
     Vorpal Blade and Muramasa - they don't need buffing!
 
-*    Theme chests
+*   Theme chests
     
     Some chests and large boxes (more often those with a lot of stuff)
     are 'themed' which at the moment just means that all items are from
@@ -111,7 +111,7 @@ changelog for SpliceHack.
     being especially targeted... though it probably needs some tweaking as
     yet.
 
-*	Addes a modified version of Topi Linkala's Owned Artifacts patch.
+*	Added a modified version of Topi Linkala's Owned Artifacts patch.
 
 	Artifacts have an owner. If you wish for an artifact there is an
     increasing chance with each wish that you will get the artifact
@@ -143,7 +143,6 @@ changelog for SpliceHack.
 	levels use the record of the amount of
     HP gained when the level was gained, levels regained now also use
     the record and so gain the same amount as the first time.
-
 
 *	Added the Wizardstaff
     
@@ -340,7 +339,7 @@ changelog for SpliceHack.
 	Larva carrier (using the wrong count) fix
 	Fix Giants' extra chance of shattering weapons
 	Fix Demogorgon / quest banishment message mixup
-	Artifacts which both illuminate and warn have a combine message
+	Artifacts which both illuminate and warn have a combined message
 	Pets don't get intrinsic gain messages when already having it
 	Fuming potions of acid were incorrectly being merged with non-fuming
 	Some bogus objs got an extra The
@@ -383,14 +382,14 @@ changelog for SpliceHack.
     a Priest - and if worn while praying successfully you may get a better
     effect than you otherwise would have. This does depend on Luck.
     
-    If uncursed, it can also be invoked for turn undead. This has a long
+    If noncursed, it can also be invoked for turn undead. This has a long
     timeout, shared between all holy symbols (so that getting lots won't
     help you). Invoking it when it is cursed instead summons undead!
     
     If sacrificed, it is a high value similar to a cross-aligned unicorn.
     Also like a unicorn, sacrificing it on a cross-aligned altar will
     convert you. Wearing it while sacrificing a corpse will increase the
-    value similarly to, and cumulative with, using a sacrificial knife.
+    value similarly to, and cumulatively with, using a sacrificial knife.
     
     If dropped, it will scare vampires (like an altar). Wearing one is OK
     for atheists (if fairly useless), but turning undead is not.
@@ -405,7 +404,7 @@ changelog for SpliceHack.
 *	Split the "critically low HP" trouble to allow recovery from higher HP
 		levels - with less priority compared to other troubles, though.
 *	Landmines, if hit by fire, lightning or sonics, can explode.
-*	Shriekers draw more purple worms more if you are unlucky, but they can
+*	Shriekers draw more purple worms if you are unlucky, but early they can
 		be baby ones.
 *	Change the object probability encoding. This doesn't do anything in itself
 		but allows future objects to have more precise rarity and level limits.
@@ -575,7 +574,7 @@ changelog for SpliceHack.
     flayer's attack. (This is not expected to make things much more
     difficult - they are slow and can be attacked from range, and you
     won't have encountered many before you get a a unicorn horn.) It can
-    also cause confusion. (Anything describes as a zombie has this attack,
+    also cause confusion. (Anything described as a zombie has this attack,
     as do ghouls. Draugr and skeletal pirates are Z's but are weapon users
     so do not. Nor do skeletons - they are weapon / slow-touch users.)
     

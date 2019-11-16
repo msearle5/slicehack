@@ -514,6 +514,7 @@ STATIC_DCL boolean FDECL(status_hilite_menu_add, (int));
 #define has_hilite(i) (blstats[0][(i)].thresholds)
 /* TH_UPDOWN encompasses specific 'up' and 'down' also general 'changed' */
 #define Is_Temp_Hilite(rule) ((rule) && (rule)->behavior == BL_TH_UPDOWN)
+#endif
 
 #ifdef STATUS_HILITES
 /* pointers to current hilite rule and list of this field's defined rules */
@@ -830,7 +831,11 @@ boolean *valsetlist;
      *  [Affects exp_percent_changing() too.]
      */
     if (((chg || update_all || fld == BL_XP)
-         && curr->percent_matters && curr->thresholds)
+         && curr->percent_matters
+#ifdef STATUS_HILITES
+          && curr->thresholds
+#endif /* STATUS_HILITES */
+          )
         /* when 'hitpointbar' is On, percent matters even if HP
            hasn't changed and has no percentage rules (in case HPmax
            has changed when HP hasn't, where we ordinarily wouldn't
@@ -1369,6 +1374,7 @@ exp_percent_changing()
     struct hilite_s *rule;
     struct istat_s *curr;
 
+#ifdef STATUS_HILITES
     /* if status update is already requested, skip this processing */
     if (!context.botl) {
         /*
@@ -1388,6 +1394,7 @@ exp_percent_changing()
                 return TRUE; /* caller should set 'context.botl' to True */
         }
     }
+#endif /* STATUS_HILITES */
     return FALSE;
 }
 

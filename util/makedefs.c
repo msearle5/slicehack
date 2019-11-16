@@ -2831,7 +2831,7 @@ do_objs()
             Fprintf(ofp, "%s\t%d\n", limit(objnam, prefix), i);
         prefix = 0;
 
-        sum += objects[i].oc_prob;
+//        sum += objects[i].oc_prob;
     }
 
     Fprintf(ofp, "#define\tLAST_GEM\t(JADE)\n");

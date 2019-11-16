@@ -1956,7 +1956,7 @@ int spell;
                                                            : urole.spelarmr;
     else if (uarmc && uarmc->otyp == MYSTIC_ROBE)
         splcaster -= urole.spelarmr;
-    if (uwep && uwep->oartifact == ART_ORIGIN)
+    if (uwep && uwep->oartifact == ART_BALANCE)
         splcaster -= urole.spelarmr;
     if (uarms)
         splcaster += urole.spelshld;

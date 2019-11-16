@@ -826,7 +826,7 @@ int dieroll;
           under gloves, so you don't get both bonuses, and two hated rings
           don't give double bonus. */
         tmp += special_dmgval(&youmonst, mon, (W_ARMG | W_RINGL | W_RINGR),
-                             &hated_obj, &saved_oname, &tigermsg);
+                             &hated_obj, saved_oname, &tigermsg, &harm_material);
 
         /* WAC - Hand-to-Hand Combat Techniques */
 
@@ -3028,7 +3028,7 @@ const char *verb = 0; /* verb or body part */
                                                    ? W_RINGL : 0L)
                                                 | ((!odd_claw || !multi_claw)
                                                    ? W_RINGR : 0L),
-                                                &hated_obj, NULL, NULL);
+                                                &hated_obj, NULL, NULL, NULL);
                     break;
                 case AT_TENT:
                     /* assumes mind flayer's tentacles-on-head rather
@@ -3038,7 +3038,7 @@ const char *verb = 0; /* verb or body part */
                 case AT_KICK:
                     verb = "kick";
                     specialdmg = special_dmgval(&youmonst, mon, W_ARMF,
-                                                &hated_obj, NULL, NULL);
+                                                &hated_obj, NULL, NULL, NULL);
                     break;
                 case AT_BUTT:
                     verb = "head butt"; /* mbodypart(mon,HEAD)=="head" */
@@ -3046,7 +3046,7 @@ const char *verb = 0; /* verb or body part */
                        could wear a helmet, it would hit shades when
                        wearing a blessed (or hated) one */
                     specialdmg = special_dmgval(&youmonst, mon, W_ARMH,
-                                                &hated_obj, NULL, NULL);
+                                                &hated_obj, NULL, NULL, NULL);
                     break;
                 case AT_BITE:
                     if (has_beak(youmonst.data))
@@ -3113,7 +3113,7 @@ const char *verb = 0; /* verb or body part */
             specialdmg = special_dmgval(&youmonst, mon,
                                         byhand ? (W_ARMG | W_RINGL | W_RINGR)
                                                : (W_ARMC | W_ARM | W_ARMU),
-                                        &hated_obj, NULL, NULL);
+                                        &hated_obj, NULL, NULL, NULL);
             if (unconcerned) {
                 /* strangling something which can't be strangled */
                 if (mattk != &alt_attk) {

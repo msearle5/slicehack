@@ -46,7 +46,7 @@
  */
 #if !defined(NOTTYGRAPHICS)
 #define TTY_GRAPHICS /* good old tty based graphics */
-#define CURSES_GRAPHICS
+//#define CURSES_GRAPHICS
 #endif
 /* #define CURSES_GRAPHICS *//* Curses interface - Karl Garrison*/
 /* #define X11_GRAPHICS */   /* X11 interface */
@@ -528,7 +528,7 @@ typedef unsigned char uchar;
  * Only available with POSIX_TYPES or GNU C */
 /* #define MSGHANDLER */
 
-#define STATUS_HILITES         /* support hilites of status fields */
+//#define STATUS_HILITES         /* support hilites of status fields */
 
 #define INTERNAL_RNG			/* Replace all calls to random number generation */
 
@@ -577,7 +577,7 @@ typedef unsigned char uchar;
 
 #define WHEREIS_FILE "whereis/%n.whereis" /* Write out player's current location to player.whereis */
 
-#define DUMPLOG  /* End-of-game dump logs */
+//#define DUMPLOG  /* End-of-game dump logs */
 /* #define DUMPLOG */  /* End-of-game dump logs */
 /* #define DUMPHTML */ /* End-of-game HTML dumps */
 #if defined(DUMPLOG) || defined(DUMPHTML)
