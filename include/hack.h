@@ -213,7 +213,7 @@ typedef struct sortloot_item Loot;
 #define MATCH_WARN_OF_MON(mon)                                               \
     (Warn_of_mon && ((context.warntype.obj                                   \
                       && (context.warntype.obj & 0x80000000 ?                \
-                      (context.warntype.obj & 0x7fffffff) == (mon)->data->mlet : \
+                      (context.warntype.obj & 0x7fffffff) == (unsigned long)((mon)->data->mlet) : \
                       (context.warntype.obj & (mon)->data->mflags2)))        \
                      || (context.warntype.polyd                              \
                          && (context.warntype.polyd & (mon)->data->mhflags)) \

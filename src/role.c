@@ -293,7 +293,7 @@ const struct Role roles[] = {
         { "Embalmer", 0, 0 },
         { "Dresser", 0, 0 },
         { "Medicus ossium", "Medica ossium", 0 },
-        { "Herbalist", 0 },
+        { "Herbalist", 0, 0 },
         { "Magister", "Magistra", "Magistrum" },
         { "Physician", 0, 0 },
         { "Chirurgeon", 0, 0 } },
@@ -374,7 +374,7 @@ const struct Role roles[] = {
       SPE_TURN_UNDEAD,
       -4 },
     { { "Monk", 0, 0 },
-      { { "Candidate", 0 },
+      { { "Candidate", 0, 0 },
         { "Novice", 0, 0 },
         { "Initiate", 0, 0 },
         { "Student of Stones", 0, 0 },
@@ -849,7 +849,7 @@ struct Role urole = {
 /* Table of all subroles */
 const struct Subrole subroles[] = {
 
-    { { "Wizard", 0 },
+    { { "Wizard", 0, 0 },
         "Wizard",
         "The traditional unspecialized magic-user. You are capable of handling all spell schools "
         "effectively and you will begin with a wide assortment of magical items and spells, including "
@@ -873,7 +873,7 @@ const struct Subrole subroles[] = {
       }
     },
 
-    { { "Alchemist", 0 },
+    { { "Alchemist", 0, 0 },
         "Wizard",
         "A wizard who specializes in brewing potions. You'll begin with a stock of potions, an "
         "alchemist's smock, basic skill in alchemy and knowledge of alchemical recipes. Use #alchemy "
@@ -881,7 +881,7 @@ const struct Subrole subroles[] = {
         SR_ALCHEMIST,
         SR_SPELL | SR_NAME,
       {
-        { "Alchemist", 0 },
+        { "Alchemist", 0, 0 },
         SAME_RANK,
         SAME_GODS,
         "Wiz",
@@ -904,7 +904,7 @@ const struct Subrole subroles[] = {
     },
 
     /* Terminator */
-    { { 0, 0 }, "", "", 0, 0, {} }
+    { { 0, 0, 0 }, "", "", 0, 0, {} }
 };
 
 /* The player's subrole, created at runtime from initial
@@ -1166,7 +1166,7 @@ const struct Race races[] = {
         "giant",
         "giant-kind",
         "Gia",
-        { 0, 0 },
+        { 0, 0, 0 },
         PM_GIANT,
         NON_PM,
         PM_GIANT_MUMMY,

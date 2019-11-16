@@ -2267,6 +2267,7 @@ boolean in_view;
     case SLICE_OF_CAKE:
         if (in_view)
             pline("Dirt cake!");
+        break;
     case ACID_VENOM:
     case BLINDING_VENOM:
         pline("Splash!");

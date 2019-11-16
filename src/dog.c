@@ -941,11 +941,12 @@ register struct obj *obj;
          case LEMBAS_WAFER:
          case FOOD_RATION:
             if (is_human(mon->data) ||
-          		  is_elf(mon->data) ||
-          			is_dwarf(mon->data) ||
-          			is_gnome(mon->data) ||
-          			is_orc(mon->data))
+                  is_elf(mon->data) ||
+                    is_dwarf(mon->data) ||
+                    is_gnome(mon->data) ||
+                    is_orc(mon->data))
           	return ACCFOOD;
+            /* fall through */
         default:
             if (starving)
                 return ACCFOOD;

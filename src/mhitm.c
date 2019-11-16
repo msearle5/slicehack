@@ -1576,70 +1576,71 @@ register struct attack *mattk;
         }
         break;
     case AD_DETH:
-     	  if (vis)
-     		    pline("%s reaches out with its deadly touch.",
-     		          Monnam(magr));
-     		if (is_undead(mdef->data)) {
-     		    /* Still does normal damage */
-     	            if (vis)
-     		        pline("%s looks no deader than before.", Monnam(mdef));
-     		    break;
-     		}
-     		switch (rn2(20)) {
-     		case 19:
-        case 18:
-        case 17:
-     		    if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
-     			mdef->mhp = 0;
-     		        monkilled(mdef, magr, "", AD_DETH);
-     			tmp = 0;
-     			break;
-     		    } /* else FALLTHRU */
-     		default: /* case 16: ... case 5: */
-     		    if (vis)
-     		        pline("%s looks weaker!", Monnam(mdef));
-     		    mdef->mhpmax -= rn2(tmp / 2 + 1); /* mhp will then  */
-     		                                      /* still be less than  */
-     						      /* this value */
-     		    break;
-     		case 4:
-        case 3:
-        case 2:
-        case 1:
-        case 0:
-     		    if (resists_magm(mdef)) shieldeff(mdef->mx, mdef->my);
-     	            if (vis)
-     		        pline("That didn't work...");
-     		    tmp = 0;
-     		    break;
-     		}
-     		break;
+      if (vis)
+            pline("%s reaches out with its deadly touch.",
+                  Monnam(magr));
+      if (is_undead(mdef->data)) {
+            /* Still does normal damage */
+                if (vis)
+                pline("%s looks no deader than before.", Monnam(mdef));
+            break;
+        }
+        switch (rn2(20)) {
+            case 19:
+            case 18:
+            case 17:
+            if (!resists_magm(mdef) && !resist(mdef, 0, 0, 0)) {
+                mdef->mhp = 0;
+                    monkilled(mdef, magr, "", AD_DETH);
+                tmp = 0;
+                break;
+            } 
+            /* fall through */
+            default: /* case 16: ... case 5: */
+            if (vis)
+                pline("%s looks weaker!", Monnam(mdef));
+            mdef->mhpmax -= rn2(tmp / 2 + 1);   /* mhp will then  */
+                                                /* still be less than  */
+                                                /* this value */
+            break;
+            case 4:
+            case 3:
+            case 2:
+            case 1:
+            case 0:
+            if (resists_magm(mdef)) shieldeff(mdef->mx, mdef->my);
+                if (vis)
+                pline("That didn't work...");
+            tmp = 0;
+            break;
+        }
+        break;
     case AD_PEST:
-     		Strcpy(buf, mon_nam(mdef));
-     	        if (vis)
-     		    pline("%s reaches out, and %s looks rather ill.",
-     		  	    Monnam(magr), buf);
-     		if((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
-     			mdef->mhpmax /= 2;
-     		if((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
-     			mdef->mhp /= 2;
-     		if (mdef->mhp > mdef->mhpmax) mdef->mhp = mdef->mhpmax;
-     		break;
+            Strcpy(buf, mon_nam(mdef));
+                if (vis)
+                pline("%s reaches out, and %s looks rather ill.",
+                    Monnam(magr), buf);
+            if((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
+                mdef->mhpmax /= 2;
+            if((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
+                mdef->mhp /= 2;
+            if (mdef->mhp > mdef->mhpmax) mdef->mhp = mdef->mhpmax;
+            break;
     case AD_FAMN:
-     		Strcpy(buf, s_suffix(mon_nam(mdef)));
-     	        if (vis)
-     		    pline("%s reaches out, and %s body shrivels.",
-     			    Monnam(magr), buf);
-     		if (mdef->mtame && !mdef->isminion)
-     		    EDOG(mdef)->hungrytime -= rn1(120, 120);
-     		else
-     		{
-     		    tmp += rnd(10); /* lacks a food rating */
-     		    if (tmp >= mdef->mhp && vis)
-     		        pline("%s starves.", Monnam(mdef));
-     		}
-     		/* plus the normal damage */
-     		break;
+            Strcpy(buf, s_suffix(mon_nam(mdef)));
+                if (vis)
+                pline("%s reaches out, and %s body shrivels.",
+                    Monnam(magr), buf);
+            if (mdef->mtame && !mdef->isminion)
+                EDOG(mdef)->hungrytime -= rn1(120, 120);
+            else
+            {
+                tmp += rnd(10); /* lacks a food rating */
+                if (tmp >= mdef->mhp && vis)
+                    pline("%s starves.", Monnam(mdef));
+            }
+            /* plus the normal damage */
+            break;
     case AD_SLIM:
         if (cancelled)
             break; /* physical damage only */

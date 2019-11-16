@@ -1293,7 +1293,7 @@ boolean glow;
             see_wsegs(mon);
         if (Warn_of_mon) {
             if (context.warntype.obj & 0x80000000) {
-                if ((context.warntype.obj & ~0x80000000) == mon->data->mlet)
+                if ((context.warntype.obj & ~0x80000000) == (unsigned long)mon->data->mlet)
                     new_warn_obj_cnt++;
             } else {
                 if ((context.warntype.obj & mon->data->mflags2) != 0L)

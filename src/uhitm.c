@@ -2973,13 +2973,16 @@ register struct monst *mon;
             /*FALLTHRU*/
         case AT_BITE:
             /* [ALI] Vampires are also smart. They avoid biting
-			   monsters if doing so would be fatal */
-			if ((uwep || (u.twoweap && uswapwep)) &&
-				maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)) &&
-				(is_rider(mon->data) ||
+               monsters if doing so would be fatal.
+               [MS] At least, they do if they can tell what they are biting!
+               */
+            if ((uwep || (u.twoweap && uswapwep)) &&
+                maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE)) &&
+                (is_rider(mon->data) ||
                  mon->data == &mons[PM_GRIM_REAPER] ||
-				 mon->data == &mons[PM_GREEN_SLIME]))
-			    break;
+                 mon->data == &mons[PM_GREEN_SLIME]) && (!Hallucination) && (!Blind))
+                break;
+            /*FALLTHRU*/
         case AT_KICK:
         case AT_STNG:
         case AT_BUTT:
@@ -3623,8 +3626,8 @@ struct attack *mattk;     /* null means we find one internally */
                 && (obj->oclass == ARMOR_CLASS)) {
                 pline("%s seems different than you remember.", Yobjnam2(obj, "seem"));
             }
-            break;
         }
+        break;
     case AD_ENCH:
         if (!mon->mcan) {
             if (drain_item(obj, TRUE) && carried(obj)

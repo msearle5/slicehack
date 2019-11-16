@@ -577,12 +577,14 @@ register struct obj *spellbook;
                     otyp = RIN_ADORNMENT +
                         rn2(1 + RIN_PROTECTION_FROM_SHAPE_CHAN -
                             RIN_ADORNMENT);
+                    break;
                 case 5:
                     otyp = AMULET_OF_ESP +
                         rn2(1 + AMULET_OF_MAGICAL_BREATHING - AMULET_OF_ESP);
+                    break;
                 case 6:
                     otyp = POT_GAIN_ABILITY +
-                        rn2(1 + POT_OIL - POT_GAIN_ABILITY);;
+                        rn2(1 + POT_OIL - POT_GAIN_ABILITY);
                     break;
                 case 7:
                     otyp = SCR_ENCHANT_ARMOR +

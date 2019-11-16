@@ -5250,6 +5250,7 @@ int extra;
                     otmp2 = mksobj(SABER, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_SUNSWORD:
                 case ART_QUICK_BLADE:
                 case ART_GRAYSWANDIR:
@@ -5260,6 +5261,7 @@ int extra;
                     otmp2 = mksobj(BATTLE_AXE, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_CLEAVER:
                 case ART_STORMBRINGER:
                 case ART_OGRESMASHER:
@@ -5295,6 +5297,7 @@ int extra;
                     otmp2 = mksobj(LONG_SWORD, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_EXCALIBUR:
                     pm=PM_KNIGHT;
                     break;
@@ -5308,6 +5311,7 @@ int extra;
                     otmp2 = mksobj(SCIMITAR, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_REAVER:
                     pm=PM_PIRATE;
                     break;
@@ -5315,6 +5319,7 @@ int extra;
                     otmp2 = mksobj(MACE, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_SUNSPOT:
                 case ART_TROLLSBANE:
                 case ART_SONICBOOM:
@@ -5328,6 +5333,7 @@ int extra;
                     otmp2->blessed = otmp2->cursed = 0;
                     otmp2->spe = rn2(3);
                     strategy = NEED_RANGED_WEAPON;
+                    /* fall through */
                 case ART_ORCRIST:
                     pm=PM_RANGER;
                     break;
@@ -5335,6 +5341,7 @@ int extra;
                     otmp2 = mksobj(SHORT_SWORD, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_STING:
                 case ART_GRIMTOOTH:
                     pm=PM_ROGUE;
@@ -5347,6 +5354,7 @@ int extra;
                     otmp2 = mksobj(UNICORN_HORN, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_VORPAL_BLADE:
                 case ART_LUCKLESS_FOLLY:
                     pm=PM_TOURIST;
@@ -5356,6 +5364,7 @@ int extra;
                     otmp2 = mksobj(WAR_HAMMER, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_GIANTSLAYER:
                 case ART_GUNGNIR:
                 case ART_MJOLLNIR:
@@ -5365,6 +5374,7 @@ int extra;
                     otmp2 = mksobj(QUARTERSTAFF, TRUE, FALSE);
                     if (otmp2->spe < 3)
                         otmp2->spe = rnd(4);
+                    /* fall through */
                 case ART_MAGICBANE:
                     pm=PM_WIZARD;
                     break;

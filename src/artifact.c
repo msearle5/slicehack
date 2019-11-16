@@ -75,7 +75,7 @@ introduce_artifact(int art)
     long size;
     char line[BUFSZ];
     const char *intro;
-    int width;
+    size_t width;
     int padx;
     int pady;
     int i;
@@ -2478,6 +2478,7 @@ struct obj *obj;
                 buzz(9 + AD_ELEC, 8, u.ux, u.uy, u.dx, u.dy);
             }
             obfree(pseudo, NULL);
+            break;
         }
         case SEFFECT: {
             struct obj* pseudo = NULL;
@@ -2819,7 +2820,7 @@ Sting_effects(orc_count)
 int orc_count; /* new count (warn_obj_cnt is old count); -1 is a flag value */
 {
     if (uwep && uwep->oartifact && artilist[uwep->oartifact].acolor != NO_COLOR) {
-        boolean lamp = (arti_light_radius > 0);
+        boolean lamp = (arti_light_radius(uwep) > 0);
         int oldstr = glow_strength(warn_obj_cnt),
             newstr = glow_strength(orc_count);
         if (orc_count == -1 && warn_obj_cnt > 0) {

@@ -54,49 +54,28 @@ int roomtype;
     else
         switch (roomtype) {
         case COURT:
-            mkzoo(COURT);
-            break;
         case ZOO:
-            mkzoo(ZOO);
-            break;
         case BEEHIVE:
-            mkzoo(BEEHIVE);
-            break;
         case LAB:
-            mkzoo(LAB);
-            break;
         case DEN:
-            mkzoo(DEN);
-            break;
         case MORGUE:
-            mkzoo(MORGUE);
-            break;
         case BARRACKS:
-            mkzoo(BARRACKS);
+        case LEPREHALL:
+        case STOREROOM:
+        case ARMORY:
+        case COCKNEST:
+        case ANTHOLE:
+        case LEMUREPIT:
+            mkzoo(roomtype);
             break;
+
         case SWAMP:
             mkswamp();
             break;
         case TEMPLE:
             mktemple();
             break;
-        case LEPREHALL:
-            mkzoo(LEPREHALL);
-            break;
-        case STOREROOM:
-            mkzoo(STOREROOM);
-        case ARMORY:
-            mkzoo(ARMORY);
-            break;
-        case COCKNEST:
-            mkzoo(COCKNEST);
-            break;
-        case ANTHOLE:
-            mkzoo(ANTHOLE);
-            break;
-        case LEMUREPIT:
-            mkzoo(LEMUREPIT);
-            break;
+
         default:
             impossible("Tried to make a room of type %d.", roomtype);
         }

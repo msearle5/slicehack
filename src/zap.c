@@ -5385,6 +5385,7 @@ int osym, dmgtyp;
             } else {
                 skip++;
             }
+            break;
         case TOOL_CLASS:
             if (obj->otyp == LAND_MINE) {
                 dindx = 10;

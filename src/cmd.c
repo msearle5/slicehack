@@ -3630,21 +3630,22 @@ struct ext_func_tab extcmdlist[] = {
 #endif /* SUSPEND */
     , NULL },
 
-    { M('s'), "sit", "sit down", dosit, AUTOCOMPLETE },
+    { M('s'), "sit", "sit down", dosit, AUTOCOMPLETE, NULL },
     { '\0', "stats", "show memory statistics",
-            wiz_show_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD },
+            wiz_show_stats, IFBURIED | AUTOCOMPLETE | WIZMODECMD, NULL },
     { C('z'), "suspend", "suspend the game",
             dosuspend_core, IFBURIED | GENERALCMD
 #ifndef SUSPEND
                             | CMD_NOT_AVAILABLE
 #endif /* SUSPEND */
+        , NULL
     },
 
-    { 'x', "swap", "swap wielded and secondary weapons", doswapweapon },
-    { 'T', "takeoff", "take off one piece of armor", dotakeoff },
-    { 'A', "takeoffall", "remove all armor", doddoremarm },
-    { C('t'), "teleport", "teleport around the level", dotelecmd, IFBURIED },
-    { M('x'), "technique", "use special techniques", dotech, AUTOCOMPLETE },
+    { 'x', "swap", "swap wielded and secondary weapons", doswapweapon, IFBURIED, NULL },
+    { 'T', "takeoff", "take off one piece of armor", dotakeoff, IFBURIED, NULL },
+    { 'A', "takeoffall", "remove all armor", doddoremarm, IFBURIED, NULL },
+    { C('t'), "teleport", "teleport around the level", dotelecmd, IFBURIED, NULL },
+    { M('x'), "technique", "use special techniques", dotech, AUTOCOMPLETE, NULL },
 
     { '\0', "terrain", "show map without obstructions",
             doterrain, IFBURIED | AUTOCOMPLETE, NULL },

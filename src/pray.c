@@ -238,8 +238,8 @@ boolean toplevel;
                 /* or cannibal / domestic animal */
                 if (is_cannibal(pm) || is_inedible_pet(pm))
                     break;
-                /* fall thru */
             }
+            /* fall thru */
             default:
                 value = obj_nutrition(otmp);
         }
@@ -2261,7 +2261,7 @@ struct obj *obj;
                 S_DEMON,    S_LICH
             };
             int mclass = S_VAMPIRE;
-            int mindex = min(u.ulevel, rn2((i+1)*2));
+            size_t mindex = min(u.ulevel, rn2((i+1)*2));
             if (mindex < sizeof(mclasses)/sizeof(mclasses[0]))
                 mclass = mclasses[mindex];
             if (makemon(mkclass(mclass, 0), u.ux, u.uy, NO_MM_FLAGS))

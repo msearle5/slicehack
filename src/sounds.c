@@ -1094,6 +1094,7 @@ register struct monst *mtmp;
             case PM_WALKING_WILLOW:
                 verbl_msg = rn2(2) ?
                     "Compared to me, you are but a sapling." : "Hoom!";
+                break;
             default:
                 pline_msg = "discusses dungeon exploration.";
                 break;

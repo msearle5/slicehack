@@ -4619,7 +4619,7 @@ static struct other_opts {
     { "status hilite rules", SET_IN_GAME, OPT_OTHER_STATHILITE,
       count_status_hilites },
 #endif
-    { (char *) 0, 0, (enum opt_other_enums) 0 },
+    { (char *) 0, 0, (enum opt_other_enums) 0, NULL },
 };
 
 /* the 'O' command */

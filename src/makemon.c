@@ -784,6 +784,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, PLATE_MAIL);
             break;
         }
+        /* fall through */
     case S_DEMON:
         switch (mm) {
         case PM_DAMNED_PIRATE:
