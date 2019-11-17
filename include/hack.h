@@ -410,7 +410,7 @@ enum explosion_types {
 #define XKILL_NOMSG     1
 #define XKILL_NOCORPSE  2
 #define XKILL_NOCONDUCT 4
-#define XKILL_BURNT     5
+#define XKILL_BURNT     8
 
 /* pline_flags; mask values for custompline()'s first argument */
 /* #define PLINE_ORDINARY 0 */

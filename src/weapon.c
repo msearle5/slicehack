@@ -544,7 +544,7 @@ int *harm_material;
 }
 
 /* give a "silver <item> sears <target>" message (or similar for other
- * material); not used for weapon hit, so we only handle rings */
+ * material); used for weapon hits as well as non-weapons such as rings */
 void
 searmsg(magr, mdef, obj)
 struct monst *magr UNUSED;
@@ -572,7 +572,7 @@ struct obj * obj; /* the offending item */
     else {
         Strcpy(onamebuf, cxname(obj));
     }
-    char* whom = mon_nam(mdef);
+    char* whom = Monnam(mdef);
     shk_your(whose, obj);
     if (mat == SILVER) { /* more dramatic effects than other materials */
         /* note: s_suffix returns a modifiable buffer */

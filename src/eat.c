@@ -1967,10 +1967,10 @@ struct obj *otmp;
         boolean cannibal = maybe_cannibal(mnum, FALSE);
 
         if (Race_if(PM_GHOUL) || is_ghoul(youmonst.data)) {
-    	    	pline("Yum - that %s was well aged%s!",
-    		      mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
-    		      !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
-    		      cannibal ? ", cannibal" : "");
+            pline("Yum - that %s was well aged%s!",
+                  mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
+                  !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
+                  cannibal ? ", cannibal" : "");
   	    } else {
             pline("Ulch - that %s was tainted%s!",
                   (mons[mnum].mlet == S_FUNGUS) ? "fungoid vegetation"
@@ -2050,7 +2050,7 @@ struct obj *otmp;
         pline("This tastes just like chicken!");
     } else if (mnum == PM_FLOATING_EYE && u.umonnum == PM_RAVEN) {
         You("peck the eyeball with delight.");
-    } else if ((!maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) && !vegetarian(&mons[mnum])) {
+    } else if ((maybe_polyd(is_vampire(youmonst.data), Race_if(PM_VAMPIRE))) && !vegetarian(&mons[mnum])) {
         pline("The %s still has some %sblood in it!",
             food_xname(otmp, FALSE),
             (rotted<1)?"fresh ":(rotted<2)?"":"stale ");

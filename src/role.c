@@ -1169,13 +1169,13 @@ const struct Race races[] = {
         { 0, 0, 0 },
         PM_GIANT,
         NON_PM,
+        NON_PM,
         PM_GIANT_MUMMY,
         PM_GIANT_ZOMBIE,
         MH_GIANT | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTER | ROLE_CHAOTIC
             | ROLE_NEUTRAL,
         MH_GIANT,
         MH_GIANT,
-        0,
         0,
         /*  Str    Int Wis Dex Con Cha */
         { 3, 3, 3, 3, 3, 3 },
@@ -1395,14 +1395,27 @@ int subrolenum, rolenum;
     return roles[rolenum].allow;
 }
 
+/* The combined race mask of role and subrole.
+ * subrole replaces role if the SR_ALLOW flag is set.
+ **/
+int mhrace_role(subrolenum, rolenum)
+int subrolenum, rolenum;
+{
+    if (subrolenum >= 0) {
+        if (subroles[subrolenum].flags & SR_ALLOW) {
+            return subroles[subrolenum].r.mhrace;
+        }
+    }
+    return roles[rolenum].mhrace;
+}
+
 boolean
 validrace(subrolenum, rolenum, racenum)
 int subrolenum, rolenum, racenum;
 {
     /* Assumes validrole */
     return (boolean) (racenum >= 0 && racenum < SIZE(races) - 1
-                      && (allow_role(subrolenum, rolenum) & races[racenum].allow
-                          & ROLE_RACEMASK));
+                        && (mhrace_role(subrolenum, rolenum) & races[racenum].selfmask & ROLE_RACEMASK));
 }
 
 int
@@ -1624,7 +1637,7 @@ ok_role(subrolenum, rolenum, racenum, gendnum, alignnum)
 int subrolenum, rolenum, racenum, gendnum, alignnum;
 {
     int i;
-    short allow;
+    unsigned allow;
 
     if (rolenum >= 0 && rolenum < SIZE(roles) - 1) {
         if (rfilter.roles[rolenum])
@@ -1743,7 +1756,7 @@ ok_race(subrolenum, rolenum, racenum, gendnum, alignnum)
 int subrolenum, rolenum, racenum, gendnum, alignnum;
 {
     int i;
-    short allow;
+    unsigned allow;
 
     if (racenum >= 0 && racenum < SIZE(races) - 1) {
         if (rfilter.mask & races[racenum].selfmask)
@@ -1816,7 +1829,7 @@ int subrolenum, rolenum, racenum, gendnum;
 int alignnum UNUSED;
 {
     int i;
-    short allow;
+    unsigned allow;
 
     if (gendnum >= 0 && gendnum < ROLE_GENDERS) {
         if (rfilter.mask & genders[gendnum].allow)
@@ -1885,7 +1898,7 @@ int gendnum UNUSED;
 int alignnum;
 {
     int i;
-    short allow;
+    unsigned allow;
 
     if (alignnum >= 0 && alignnum < ROLE_ALIGNS) {
         if (rfilter.mask & aligns[alignnum].allow)
@@ -2673,7 +2686,8 @@ boolean preselect;
     anything any;
     char buf[BUFSZ];
     const char *what = 0, *constrainer = 0, *forcedvalue = 0;
-    int f = 0, r, c, g, a, i, allowmask;
+    int f = 0, r, c, g, a, i;
+    unsigned allowmask;
 
     r = flags.initrole;
     c = flags.initrace;

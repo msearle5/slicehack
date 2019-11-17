@@ -1845,12 +1845,12 @@ unsigned corpstatflags;
                                          || special_corpse(otmp->corpsenm))) {
                     obj_stop_timers(otmp);
                     start_corpse_timeout(otmp);
-
-                /* sometimes burn the corpse */
-                if (burnt && is_cookable(otmp)) {
-                   otmp = burn_corpse(otmp);
-                }
             }
+        }
+
+        /* sometimes burn the corpse */
+        if (burnt && is_cookable(otmp)) {
+           otmp = burn_corpse(otmp);
         }
     }
     return otmp;

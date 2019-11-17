@@ -144,13 +144,13 @@ struct Role {
 
     /*** Bitmasks ***/
     long mhrace;
-    short allow;                  /* bit mask of allowed variations */
+    unsigned allow;                  /* bit mask of allowed variations */
 
-#define ROLE_RACEMASK  0x1ff8     /* allowable races */
-#define ROLE_GENDMASK  0xf000     /* allowable genders */
-#define ROLE_MALE      0x2000
-#define ROLE_FEMALE    0x4000
-#define ROLE_NEUTER    0x8000
+#define ROLE_RACEMASK  0x01fffff8     /* allowable races */
+#define ROLE_GENDMASK  0x0f000000     /* allowable genders */
+#define ROLE_MALE      0x02000000
+#define ROLE_FEMALE    0x04000000
+#define ROLE_NEUTER    0x08000000
 #define ROLE_ALIGNMASK AM_MASK    /* allowable alignments */
 #define ROLE_LAWFUL    AM_LAWFUL
 #define ROLE_NEUTRAL   AM_NEUTRAL
@@ -214,8 +214,8 @@ struct Race {
         zombienum; /* PM_ as a zombie */
 
     /*** Bitmasks ***/
-    short allow;    /* bit mask of allowed variations */
-    short selfmask, /* your own race's bit mask */
+    unsigned allow;    /* bit mask of allowed variations */
+    unsigned selfmask, /* your own race's bit mask */
         lovemask,   /* bit mask of always peaceful */
         hatemask;   /* bit mask of always hostile */
 
@@ -281,7 +281,7 @@ struct Gender {
     const char *him;      /* him/her/it */
     const char *his;      /* his/her/its */
     const char *filecode; /* file code */
-    short allow;          /* equivalent ROLE_ mask */
+    unsigned allow;          /* equivalent ROLE_ mask */
 };
 struct Orientation {
     const char *adj;      /* gay/straight/bi/ace */
@@ -311,7 +311,7 @@ struct Align {
     const char *noun;     /* law/balance/chaos */
     const char *adj;      /* lawful/neutral/chaotic */
     const char *filecode; /* file code */
-    short allow;          /* equivalent ROLE_ mask */
+    unsigned allow;          /* equivalent ROLE_ mask */
     aligntyp value;       /* equivalent A_ value */
 };
 #define ROLE_ALIGNS 3     /* number of permitted player alignments */
@@ -363,7 +363,7 @@ struct you {
     int uhunger;  /* refd only in eat.c and shk.c */
     unsigned uhs; /* hunger state - see eat.c */
     boolean ukinghill; /* records if you are carying the pirate treasure
-    (and are therefor king of the hill) */
+    (and are therefore king of the hill) */
     int protean; /* counter for the auto-polypiling power of the chest*/
 
     struct prop uprops[LAST_PROP + 1];

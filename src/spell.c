@@ -584,7 +584,7 @@ register struct obj *spellbook;
                     break;
                 case 6:
                     otyp = POT_GAIN_ABILITY +
-                        rn2(1 + POT_OIL - POT_GAIN_ABILITY);
+                        rn2(1 + POT_OIL - POT_GAIN_ABILITY);;
                     break;
                 case 7:
                     otyp = SCR_ENCHANT_ARMOR +

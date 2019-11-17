@@ -2797,7 +2797,7 @@ long *out_cnt;
 
             add_menu(win, obj_to_glyph(otmp, rn2_on_display_rng), &any, ilet, 0,
                     (wizid && not_fully_identified(otmp)) ? def_oc_syms[(int) otmp->oclass].sym : 0,
-                     ATR_NONE, MENU_UNSELECTED);
+                     doname(otmp), MENU_UNSELECTED);
                      //"foo"/*doname(otmp)*/, MENU_UNSELECTED);
             gotsomething = TRUE;
         }

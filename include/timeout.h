@@ -34,7 +34,6 @@ enum timeout_types {
     FIG_TRANSFORM,
     MELT_ICE_AWAY,
     EXPLODE_OBJECT,
-    UNPOLY_MON,
     MOLDY_CORPSE,
     NUM_TIME_FUNCS
 };

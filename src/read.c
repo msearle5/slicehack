@@ -1989,6 +1989,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
             sobj = 0; /* useup() in strange_feeling() */
             exercise(A_CON, !scursed);
             exercise(A_STR, !scursed);
+            /* cursed confused = polymorph? baleful? */
             break;
         }
         if (scursed) {

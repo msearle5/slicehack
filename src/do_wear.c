@@ -34,7 +34,7 @@ STATIC_PTR int NDECL(Gloves_on);
 STATIC_DCL void FDECL(wielding_corpse, (struct obj *, BOOLEAN_P));
 STATIC_PTR int NDECL(Shield_on);
 STATIC_PTR int NDECL(Shirt_on);
-STATIC_DCL void NDECL(Amulet_on);
+STATIC_PTR int NDECL(Amulet_on);
 STATIC_DCL void FDECL(learnring, (struct obj *, BOOLEAN_P));
 STATIC_DCL void FDECL(Ring_off_or_gone, (struct obj *, BOOLEAN_P));
 STATIC_PTR int FDECL(select_off, (struct obj *));
@@ -817,7 +817,7 @@ Armor_gone()
     return 0;
 }
 
-STATIC_OVL void
+STATIC_OVL int
 Amulet_on()
 {
     /* make sure amulet isn't wielded; can't use remove_worn_item()
@@ -905,6 +905,7 @@ Amulet_on()
     case AMULET_OF_YENDOR:
         break;
     }
+    return 0;
 }
 
 void
@@ -1888,7 +1889,7 @@ boolean noisy;
 
     /* If the armor can be worn in more than one slot, pick one.
      * The order matters - body armor is first because that's the
-     * original use or dragon scales, cloak and shirt last because
+     * original use of dragon scales, cloak and shirt last because
      * dragon scales can't be used there (though some future armor
      * might) and shirt last also because you are likely not to be
      * wearing one and the others are in the order you are most
@@ -2293,8 +2294,8 @@ struct obj *obj;
             afternmv = Cloak_on;
         else if (obj == uarmu)
             afternmv = Shirt_on;
-        else
-            panic("wearing armor not worn as armor? [%08lx]", obj->owornmask);
+        else if (obj == uamul)
+            afternmv = Amulet_on;
 
         delay = -objects[obj->otyp].oc_delay;
         if (is_multislot(obj))
@@ -2302,26 +2303,11 @@ struct obj *obj;
         if (delay) {
             nomul(delay);
             multi_reason = "dressing up";
-            if (obj == uarmf)
-                afternmv = Boots_on;
-            if (obj == uarmh)
-                afternmv = Helmet_on;
-            if (obj == uarmg)
-                afternmv = Gloves_on;
-            if (obj == uarm)
-                afternmv = Armor_on;
             nomovemsg = "You finish your dressing maneuver.";
         } else {
-            if (obj == uarmc)
-                (void) Cloak_on();
-            if (obj == uarms)
-                (void) Shield_on();
-            if (obj == uarmu)
-                (void) Shirt_on();
-            nomovemsg = "You finish your dressing maneuver.";
+            unmul(""); /* call (*aftermv)(), clear it+nomovemsg+multi_reason */
+            on_msg(obj);
         }
-        unmul(""); /* call (*aftermv)(), clear it+nomovemsg+multi_reason */
-        on_msg(obj);
         context.takeoff.mask = context.takeoff.what = 0L;
 
     } else { /* not armor */

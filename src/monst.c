@@ -2768,7 +2768,7 @@ struct permonst _mons2[] = {
         MR_COLD | MR_ELEC | MR_POISON | MR_ACID | MR_STONE,
         MR_COLD | MR_ELEC | MR_POISON,
         M1_BREATHLESS | M1_NOEYES | M1_NOLIMBS | M1_NOHEAD | M1_ACID | M1_SWIM,
-        M2_HOSTILE | M2_NEUTER, MH_FLAYER, 0, 21, HI_LORD),
+        M2_HOSTILE | M2_NEUTER, 0, MH_FLAYER, 21, HI_LORD),
     MON("colossal slime", S_PUDDING, LVL(18, 9, 6, 0, 0),
         (G_HELL | G_GENO | G_NOCORPSE | 1),
         A(ATTK(AT_TUCH, AD_SLIM, 2, 8), ATTK(AT_NONE, AD_SLIM, 0, 0),

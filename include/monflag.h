@@ -191,21 +191,21 @@
 
 /* Monster races -- must stay within ROLE_RACEMASK */
 /* Eventually this may become its own field */
-#define MH_HUMAN M2_HUMAN
-#define MH_ELF M2_ELF
-#define MH_DWARF M2_DWARF
-#define MH_GNOME M2_GNOME
-#define MH_GIANT M2_GIANT
-#define MH_ORC M2_ORC
+#define MH_HUMAN   M2_HUMAN
+#define MH_ELF     M2_ELF
+#define MH_DWARF   M2_DWARF
+#define MH_GNOME   M2_GNOME
+#define MH_GIANT   M2_GIANT
+#define MH_ORC     M2_ORC
 #define MH_MERFOLK M2_MERFOLK
-#define MH_WERE M2_WERE
-#define MH_DEMON M2_DEMON
-#define MH_ANGEL 0x00001000L
-#define MH_GHOUL 0x00002000L
-#define MH_UNDEAD M2_UNDEAD
-#define MH_FLAYER 0x00000001L
+#define MH_WERE    0x00100000L
+#define MH_DEMON   M2_DEMON
+#define MH_ANGEL   0x00001000L
+#define MH_GHOUL   0x00002000L
+#define MH_UNDEAD  0x00008000L
+#define MH_FLAYER  0x00080000L
 #define MH_VAMPIRE 0x00000800L
-#define MH_ANY 0x80000000L
+#define MH_ANY     0x80000000L
 
 /* for mons[].geno (constant during game) */
 #define G_NOPLANES 0x4000   /* not generated in the planes */
