@@ -1428,8 +1428,10 @@ register struct attack *mattk;
          * 
          * This doesn't involve a special location to hit, like
          * mindflayers - it's not eating your brains - but you do
-         * need to be in a zombifiable form. This includes all
-         * character races, but not all polymorphed forms.
+         * need to be in a zombifiable form. This doesn't include
+         * all character races, and should also take polymorphed
+         * forms into account (so mons[urace.malenum] (*ghoul*
+         * wizard) vs youmonst.data (ghoul *wizard*))
          * 
          * There is also a high chance that it will do nothing
          * (besides doing damage as AD_PHYS), which depends on
@@ -1438,7 +1440,7 @@ register struct attack *mattk;
          * If it succeeds it will drain INT temporarily and may
          * confuse.
          */
-        if ((zombie_target(youmonst.data) >= 0) && (rn2(6+mdat->mlevel) <= mdat->mlevel)) {
+        if ((zombie_target(&mons[urace.malenum]) >= 0) && (rn2(6+mdat->mlevel) <= mdat->mlevel)) {
             int loss = 1+(rn2(15+mdat->mlevel) <= mdat->mlevel)+(rn2(25+mdat->mlevel) <= mdat->mlevel);
             loseint(loss);
             if (loss > 1) {
@@ -1698,7 +1700,8 @@ register struct attack *mattk;
         /*FALLTHRU*/
     case AD_SITM: /* for now these are the same */
     case AD_SEDU:
-        mintroduce(mtmp);
+        if (!is_animal(mtmp->data))
+            mintroduce(mtmp);
         if (is_animal(mtmp->data)) {
             hitmsg(mtmp, mattk);
             if (mtmp->mcan)

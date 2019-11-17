@@ -763,7 +763,7 @@ Armor_on(VOID_ARGS)
     if (uarm->otyp == RAZOR_DRAGON_SHIELD)
         speed_item_on(uarm, WORN_ARMOR);
 
-    if(uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES) {
+    if (uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES) {
         begin_burn(uarm,FALSE);
         if(!Blind)
             pline("%s to glow.",Tobjnam(uarm,"begin"));
@@ -784,7 +784,7 @@ Armor_off(VOID_ARGS)
     if (uarm->otyp == RAZOR_DRAGON_SHIELD)
         speed_item_off(uarm, WORN_ARMOR);
 
-    if(uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES) {
+    if (uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES) {
         end_burn(uarm,FALSE);
         if(!Blind)
             pline("%s glowing.",Tobjnam(uarm,"stop"));
@@ -808,7 +808,7 @@ Armor_gone()
     if (uarm->otyp == RAZOR_DRAGON_SHIELD)
         speed_item_off(uarm, WORN_ARMOR);
 
-    if(uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES)
+    if (uarm->otyp == GOLD_DRAGON_SCALE_MAIL || uarm->otyp == GOLD_DRAGON_SCALES)
         end_burn(uarm,FALSE);
 
     context.takeoff.mask &= ~W_ARM;

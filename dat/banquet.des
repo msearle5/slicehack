@@ -46,8 +46,8 @@ MONSTER:('H',"storm giant"),(61,03),"Lord Belaphius",hostile
 MONSTER:('H',"storm giant"),(61,03),"Vizer Dophomor",hostile
 
 # Treasure
-OBJECT:('(',"chest"),(61,03)
-OBJECT:('(',"chest"),(61,06)
+OBJECT:('(',"chest"),(61,02)
+OBJECT:('(',"chest"),(61,05)
 OBJECT:('(',"keg"),random
 OBJECT:('(',"keg"),random
 OBJECT:('(',"keg"),random

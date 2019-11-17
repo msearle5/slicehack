@@ -1899,6 +1899,7 @@ struct obj *otmp;
                          && !slimeproof(youmonst.data)),
             glob = otmp->globby ? TRUE : FALSE,
             uniq = !!(mons[mnum].geno & G_UNIQ);
+    boolean cannibal = maybe_cannibal(mnum, FALSE);
 
     /* KMH, conduct */
     if (!vegan(&mons[mnum]))
@@ -1964,7 +1965,6 @@ struct obj *otmp;
         
     /* Old corpses make you sick, unless you're a ghoul. */
     if (mnum != PM_ACID_BLOB && !stoneable && !slimeable && rotted > 5L) {
-        boolean cannibal = maybe_cannibal(mnum, FALSE);
 
         if (Race_if(PM_GHOUL) || is_ghoul(youmonst.data)) {
             pline("Yum - that %s was well aged%s!",
@@ -2012,11 +2012,18 @@ struct obj *otmp;
                    KILLED_BY_AN);
         } else
             You("seem unaffected by the poison.");
-    /* now any corpse left too long will make you mildly ill */
+    /* now any corpse left too long will make you mildly ill, unless you're a ghoul. */
     } else if ((rotted > 5L || (rotted > 3L && rn2(5))) && !Sick_resistance) {
         tp++;
-        You_feel("%ssick.", (Sick) ? "very " : "");
-        losehp(rnd(8), !glob ? "cadaver" : "rotted glob", KILLED_BY_AN);
+        if (Race_if(PM_GHOUL) || is_ghoul(youmonst.data)) {
+            pline("Not bad - aged %s%s!",
+                  mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
+                  !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
+                  cannibal ? ", cannibal" : "");
+  	    } else {
+            You_feel("%ssick.", (Sick) ? "very " : "");
+            losehp(rnd(8), !glob ? "cadaver" : "rotted glob", KILLED_BY_AN);
+        }
     }
 
     /* delay is weight dependent */

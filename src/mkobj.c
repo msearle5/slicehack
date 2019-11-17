@@ -307,12 +307,13 @@ struct obj *box;
     box->cobj = (struct obj *) 0;
 
     switch (box->otyp) {
-    case MEDICAL_KIT:	n = 60;
+    case MEDICAL_KIT:
+        maxn = 60;
         /* Initial inventory, no empty medical kits */
         if (moves <= 1 && !in_mklev) minn = 1;
         break;
     case KEG:   
-        n = 20;
+        maxn = 24;
         break;
     case ICE_BOX:
         maxn = 20;

@@ -1350,18 +1350,20 @@ int subrole, role, gend, algn;
         high_ch = highc(this_ch);
 
         if (this_ch == 'g') {
-            if (!strcmp(races[i].noun, "giant"))
+            if (!strcmp(races[i].noun, "giant")) {
                 this_ch = 'G';
-            else
                 high_ch = 0;
+            }
+            else if (!strcmp(races[i].noun, "ghoul")) {
+                this_ch = 'z';
+                high_ch = 'Z';
+            } else {
+                /* gnome */
+                high_ch = 0;
+            }
         } else if (this_ch == 'd') {
             if (!strcmp(races[i].noun, "drow"))
                 this_ch = 'D';
-            else
-                high_ch = 0;
-        } else if (this_ch == 'g') {
-            if (!strcmp(races[i].noun, "ghoul"))
-                this_ch = 'z';
             else
                 high_ch = 0;
         }
