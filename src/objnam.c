@@ -2152,8 +2152,7 @@ unsigned doname_flags;
 #ifdef SHOW_WEIGHT
        /* [max] weight inventory */
      if ((obj->otyp != BOULDER) || !throws_rocks (youmonst.data))
-       if ((obj->otyp < LUCKSTONE) && (obj->otyp != CHEST) && (obj->otyp != LARGE_BOX) &&
-           (obj->otyp != ICE_BOX) && (!Hallucination && flags.invweight && (doname_flags & DONAME_INVENTORY)))
+       if ((obj->otyp < LUCKSTONE) && (!Is_container(obj)) && (!Hallucination && flags.invweight && (doname_flags & DONAME_INVENTORY)))
                  Sprintf (eos(bp), " {%d}", obj->owt);
 #else
     /* show weight for items (debug tourist info)
