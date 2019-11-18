@@ -785,7 +785,7 @@ getspell(spell_no)
 int *spell_no;
 {
     int nspells, idx;
-    char ilet, lets[BUFSZ], qbuf[QBUFSZ];
+    char ilet, lets[BUFSZ], qbuf[BUFSZ*2];
 
     if (spellid(0) == NO_SPELL) {
         You("don't know any spells right now.");

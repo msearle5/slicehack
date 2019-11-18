@@ -800,8 +800,8 @@ void
 signal_whereis(sig_unused)
 int sig_unused;
 {
-  sig_unused = 0; /* temporary kludge to silence a warning TODO: Fix this. */
-	touch_whereis();
+    nhUse(sig_unused);
+    touch_whereis();
 }
 
 void

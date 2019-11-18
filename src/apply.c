@@ -375,9 +375,10 @@ struct obj *obj;
                 } else {
                     pline("You draw The Devil...");
                 }
-                if ((pm = dlord(A_NONE)) != NON_PM)
+                if ((pm = dlord(A_NONE)) != NON_PM) {
                     mtmp = makemon(&mons[pm], u.ux, u.uy, NO_MM_FLAGS);
                     pline("%s appears from a cloud of noxious smoke!", Monnam(mtmp));
+                }
                 draws = 0;
                 break;
             case 4:

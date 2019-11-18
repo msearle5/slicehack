@@ -4359,7 +4359,6 @@ static int
 wiz_object_stats()
 {
     const long reps = 1e7;
-    long objects = 0;
     long failed = 0;
     long i;
     struct obj *otmp;

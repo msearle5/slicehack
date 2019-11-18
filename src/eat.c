@@ -2782,7 +2782,7 @@ struct obj *otmp;
      * ability to detect food that is unfit for consumption
      * or dangerous and avoid it.
      */
-    char buf[BUFSZ], foodsmell[BUFSZ],
+    char buf[BUFSZ*3], foodsmell[BUFSZ],
          it_or_they[QBUFSZ], eat_it_anyway[QBUFSZ];
     boolean cadaver = (otmp->otyp == CORPSE || otmp->globby),
             stoneorslime = FALSE;

@@ -1998,7 +1998,7 @@ boolean moldy;
                                chewed ? "bite-covered" : (const char *) 0,
                                CXN_SINGULAR));
     Strcpy(cname, corpse_xname(corpse,
-                               chewed ? "cooked" : (const char *) 0,
+                               cooked ? "cooked" : (const char *) 0,
                                CXN_SINGULAR));
     mcarry = (where == OBJ_MINVENT) ? corpse->ocarry : 0;
 

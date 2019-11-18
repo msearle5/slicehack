@@ -842,7 +842,7 @@ int rank;
 boolean so;
 {
     boolean second_line = TRUE;
-    char linebuf[BUFSZ];
+    char linebuf[BUFSZ*2];
     char *bp, hpbuf[24], linebuf3[BUFSZ];
     int hppos, lngr;
 

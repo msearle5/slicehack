@@ -1478,7 +1478,7 @@ int
 enhance_weapon_skill()
 {
     int pass, i, n, len, longest, to_advance, eventually_advance, maxxed_cnt;
-    char buf[BUFSZ], sklnambuf[BUFSZ], sklmaxnambuf[BUFSZ], percentbuf[BUFSZ];
+    char buf[BUFSZ*3], sklnambuf[BUFSZ], sklmaxnambuf[BUFSZ], percentbuf[BUFSZ];
     const char *prefix;
     menu_item *selected;
     anything any;

@@ -322,9 +322,10 @@ boolean resuming;
                         ((Role_if(PM_PRIEST)) ? (moves % 2) : (!(moves % 4))))
                             u.ublesscnt--;
                     u.ublesstim++;
-                    if (flags.time && !context.run)
+                    if (flags.time && !context.run) {
                         context.botl = 1;
                         iflags.time_botl = TRUE;
+                    }
 #ifdef EXTRAINFO_FN
                     if ((prev_dgl_extrainfo == 0) || (prev_dgl_extrainfo < (moves + 250))) {
                         prev_dgl_extrainfo = moves;

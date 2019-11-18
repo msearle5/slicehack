@@ -1136,7 +1136,7 @@ int level;
         4,  4,  4,  4,
         4,  4
     };
-    static char frac[26] = {
+    static unsigned char frac[26] = {
         0,  0,  0,  0,
         11, 7,  0,  13,
         12, 10, 9,  8,
@@ -1209,7 +1209,6 @@ adjust_con_hp()
 {
     int adjust = con_adjust();
     if (adjust != 0) {
-        int oldmax = u.uhpmax;
         u.uhpmax += adjust;
         if (adjust > 0)
             u.uhp += adjust;

@@ -183,13 +183,14 @@ struct obj *otmp;
 
     notonhead = (mtmp->mx != bhitpos.x || mtmp->my != bhitpos.y);
     skilled_spell = (otmp && otmp->oclass == SPBOOK_CLASS && otmp->blessed);
+#if 0
     int skilldmg = 0;
 
     if (objects[otyp].oc_class == SPBOOK_CLASS) {
   	    /* Is a spell */
   	    skilldmg = spell_damage_bonus(otyp);
     }
-
+#endif
     switch (otyp) {
     case WAN_STRIKING:
         zap_type_text = "wand";

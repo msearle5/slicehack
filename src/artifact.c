@@ -72,7 +72,6 @@ introduce_artifact(int art)
     static const char *sober[NROFARTIFACTS];
     static const char *hallu[NROFARTIFACTS];
     static boolean first = TRUE;
-    long size;
     char line[BUFSZ];
     const char *intro;
     size_t width;
@@ -1621,7 +1620,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
     /* the four basic attacks: fire, cold, shock and missiles */
     if (attacks(AD_FIRE, otmp)) {
-        if (realizes_damage)
+        if (realizes_damage) {
             if (mon_flammable(mdef->data)) {
                 if (youdefend) {
                     pline("As the fiery blade touches you, you ignite and burn to ash!");
@@ -1642,6 +1641,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                                     : "burns",
                       hittee, !spec_dbon_applies ? '.' : '!');
             }
+        }
         if (!rn2(4))
             (void) destroy_mitem(mdef, POTION_CLASS, AD_FIRE);
         if (!rn2(4))

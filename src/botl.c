@@ -1369,12 +1369,12 @@ exp_percentage()
 boolean
 exp_percent_changing()
 {
+#ifdef STATUS_HILITES
     int pc, color_dummy;
     anything a;
     struct hilite_s *rule;
     struct istat_s *curr;
 
-#ifdef STATUS_HILITES
     /* if status update is already requested, skip this processing */
     if (!context.botl) {
         /*

@@ -459,19 +459,22 @@ int x;
 int y;
 boolean verbosely; /* usually True; False if caller has given drop message */
 {
-    if (IS_SOFT(levl[u.ux][u.uy].typ) || u.uinwater || u.uswallow) {
+    if (IS_SOFT(levl[x][y].typ) || u.uinwater || u.uswallow) {
         dropy(obj);
         return;
     }
-    if (IS_ALTAR(levl[u.ux][u.uy].typ))
+    if (IS_ALTAR(levl[x][y].typ))
         doaltarobj(obj);
     else if (verbosely)
         pline("%s %s the %s.", Doname2(obj), otense(obj, "hit"),
-              surface(u.ux, u.uy));
+              surface(x, y));
 
-    if (hero_breaks(obj, u.ux, u.uy, TRUE))
-        return;
-    if (ship_object(obj, u.ux, u.uy, FALSE))
+    if (impact) {
+        if (hero_breaks(obj, x, y, TRUE)) {
+            return;
+        }
+    }
+    if (ship_object(obj, x, y, FALSE))
         return;
     dropz(obj, TRUE);
 }
@@ -484,7 +487,7 @@ hitfloor(obj, verbosely)
 struct obj *obj;
 boolean verbosely; /* usually True; False if caller has given drop message */
 {
-	mayhitfloor(obj, TRUE, u.ux, u.uy, TRUE);
+	mayhitfloor(obj, TRUE, u.ux, u.uy, verbosely);
 }
 
 /*
