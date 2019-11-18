@@ -5393,7 +5393,6 @@ int osym, dmgtyp;
                 dmg = d(3,6);
                 break;
             }
-            /* fall thru */
             skip++;
             break;
         }
@@ -5427,7 +5426,9 @@ int osym, dmgtyp;
                 dmg = d(3,6);
                 break;
             }
-            /* fall thru */
+            /* Other tools are unshockable */
+            skip++;
+            break;
         default:
 #if 0
             if (obj == current_wand) {  skip++;  break;  }
