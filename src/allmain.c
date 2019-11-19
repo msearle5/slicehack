@@ -37,12 +37,62 @@ struct obj *pobj;
                 if (checklandmine(cobj))
                     return TRUE;
             }
-        } else if (pobj->otyp == LAND_MINE) {
-            pline("KABOOM! The cursed landmine explodes in your %s!",
-                                        pobj->ocontainer ? xname(pobj->ocontainer) : "pack");
-            explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
-            delobj(pobj);
-            return TRUE;
+        } else if (pobj->cursed) {
+            if (pobj->otyp == LAND_MINE) {
+                pline("KABOOM! The cursed landmine explodes in your %s!",
+                                            pobj->ocontainer ? xname(pobj->ocontainer) : "pack");
+                explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
+                delobj(pobj);
+                return TRUE;
+            } else if (pobj->otyp == PUMPKIN) {
+                char where[BUFSIZ];
+                int maxmons = 5+rnd(4);
+                int mademons = 0;
+                int i;
+
+                if (pobj == uarmh) {
+                    Helmet_off();
+                    Sprintf(where, ", over your %s", body_part(FACE));
+                } else {
+                    Sprintf(where, " in your %s", pobj->ocontainer ? xname(pobj->ocontainer) : "pack");
+                }
+                
+                for (i=0;i<1000;i++) {
+                    struct permonst *pm;
+                    int type = S_SPIDER;
+                    switch(rnd(4)) {
+                        case 1:
+                            type = S_SPIDER;
+                            break;
+                        case 2:
+                            type = S_WORM;
+                            break;
+                        case 3:
+                            type = S_SNAKE;
+                            break;
+                        case 4:
+                            type = S_ANT;
+                            break;
+                    }
+                    pm = mkclass(type, 0);
+                    if (pm) {
+                        if (makemon(pm, u.ux, u.uy, NO_MM_FLAGS)) {
+                            mademons++;
+                        }
+                    }
+                    if (mademons >= maxmons) {
+                        break;
+                    }
+                }
+                
+                if (!mademons) {
+                    pline("The pumpkin instantly rots away%s!", where);
+                } else {
+                    pline("Horrible biting things fall from the rotting pumpkin%s!", where);
+                }
+                delobj(pobj);
+                return TRUE;
+            }
         }
     }
     return FALSE;
