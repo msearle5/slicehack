@@ -4392,7 +4392,8 @@ status_sanity_check(VOID_ARGS)
         "BL_CH","BL_ALIGN", "BL_SCORE", "BL_CAP", "BL_GOLD",     /* 6.. 10  */
         "BL_ENE", "BL_ENEMAX", "BL_XP", "BL_AC", "BL_HD",       /* 11.. 15 */
         "BL_TIME", "BL_HUNGER", "BL_HP", "BL_HPMAX",           /* 16.. 19 */
-        "BL_LEVELDESC", "BL_EXP", "BL_CONDITION"              /* 20.. 22 */
+        "BL_LEVELDESC", "BL_EXP", "BL_CONDITION",              /* 20.. 22 */
+        "BL_WEIGHT", "BL_WEIGHTMAX"
     };
    
     if (in_sanity_check)
