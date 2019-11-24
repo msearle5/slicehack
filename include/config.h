@@ -9,7 +9,7 @@
 #define CONFIG_H
 
 #define GCC_WARN
-
+#define STATUS_HILITES
 /*
  * Section 1:   Operating and window systems selection.
  *              Select the version of the OS you are using.
