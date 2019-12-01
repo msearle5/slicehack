@@ -2077,7 +2077,7 @@ struct obj *otmp;
         const char *pmxnam = food_xname(otmp, FALSE);
         const char *yum;
 
-        if (u.umonnum == PM_DWARF)
+        if (maybe_polyd(is_dwarf(youmonst.data), Race_if(PM_DWARF)))
             if (!strcmp(mons[mnum].mname + strlen(mons[mnum].mname) - 3, "rat"))
                 yummy = TRUE;
 
