@@ -459,7 +459,9 @@ boolean with_you;
             xlocale = t->tx, ylocale = t->ty;
             break;
         } else {
-            impossible("mon_arrive: no corresponding portal?");
+            if (!Is_void(&u.uz)) {
+                impossible("mon_arrive: no corresponding portal?");
+            }
         } /*FALLTHRU*/
     default:
     case MIGR_RANDOM:
