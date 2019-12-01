@@ -5395,6 +5395,9 @@ int osym, dmgtyp;
             }
             skip++;
             break;
+        default:
+            skip++;
+            break;
         }
         break;
     case AD_ELEC:
