@@ -64,7 +64,7 @@ register struct monst *mon;
 
                 if (howler) {
                     if (Hallucination)
-                        You_hear("the moon %s like a %s", howl, howler);
+                        You_hear("the moon %s like a %s.", howl, howler);
                     else
                         You_hear("a %s %s at the moon.", howler, howl);
                 }

@@ -531,6 +531,7 @@ static const char * const bogus_items[] = {
 
     /* Fantasy */
     "Necronomicon",                     /* Lovecraft */
+    "Necrotelicomicon",                 /* Discworld */
     "pinch of pipe weed",               /* LOTR */
     "knife missile",                    /* Iain M. Banks */
     "large gem",                        /* Valhalla */
@@ -604,6 +605,7 @@ static const char * const bogus_items[] = {
     "cromulent potion",                 /* the same potion when unIDed */
     "potion of score doubling",
     "scroll of gold duplication",
+    "scroll of buffer overflow",
     "potion of gain divinity",
     "potion of bad breath",
     "scroll labelled ED AWK YACC",      /* the standard scroll */
@@ -649,6 +651,7 @@ static const char * const bogus_items[] = {
     "ornamental cape",
     "ornamental cap",
     "acid blob skeleton",
+    "volatile mushroom corpse",
     "Lawyerbane",
     "RNG corpse",
     "war hammer",
@@ -666,6 +669,7 @@ static const char * const bogus_items[] = {
     "Home Handyman's Guide to Building Gates to Hell",
     "Idiot's Guide to Demonology",
     "tome of Eldritch Lore",
+    "potion of explodium",
     "airborne aircraft carrier",
     "airborne airborne aircraft carrier carrier",
     "MacGuffin",
@@ -5023,7 +5027,7 @@ int extra;
                 otmp->otyp = GRAY_DRAGON_SCALE_MAIL + mntmp - PM_GRAY_DRAGON;
             break;
         default:
-            if (mntmp >= PM_GRAY_DRAGON && mntmp <= PM_YELLOW_DRAGON) {
+            if (mntmp >= PM_GRAY_DRAGON && mntmp <= PM_VOID_DRAGON) {
                 if (strstr(bp, "helm"))
                     otmp->otyp = GRAY_DRAGON_HELM + mntmp - PM_GRAY_DRAGON;
                 else if (strstr(bp, "shield"))
