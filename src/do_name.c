@@ -1330,8 +1330,8 @@ struct obj * wpn;
         "Chaos %s",       "Void %s",       "Hungry %s",      "Infinite %s",
         "Due Process",    "Puddingbane",   "Vladsbane",      "Thorn",
         "Newtsbane",      "Aggressive Negotiation",          "FINAL",
-        "Orphan Maker",   "Monster Slayer"
-        "Astral Caller"   "Danger",
+        "Orphan Maker",   "Monster Slayer",
+        "Astral Caller",   "Danger",
     };
     if (!rn2(20)) {
         const char* name = tt_name();
