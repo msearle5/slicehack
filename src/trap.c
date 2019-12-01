@@ -466,7 +466,7 @@ boolean td; /* td == TRUE : trap door or hole */
     const char *dont_fall = 0;
     int newlevel, bottom;
     boolean climbable = 0;
-    int dist;
+    int dist = 1;
 
     /* we'll fall even while levitating in Sokoban; otherwise, if we
        won't fall and won't be told that we aren't falling, give up now */
