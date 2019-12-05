@@ -138,7 +138,8 @@ boolean quietly;
         if (otmp->in_use) {
             if (!quietly)
                 pline("Finishing off %s...", xname(otmp));
-            useup(otmp);
+
+            otmp->in_use = 0;
         }
     }
 }
