@@ -4,6 +4,19 @@ This file describes SliceHack's changes from SpliceHack and (below) the
 changelog for SpliceHack.
 
 ********************************************************************************
+*   Release 0.4.2 'Sting'
+
+    This is mainly about killing bugs.
+
+    Including a bug that randomly destroyed items such as your artifact, and a
+    bug that killed you falling from the Castle to the Valley... so worth the
+    upgrade.
+    
+    Also adds a YAFM, nerfs ghouls (they are OPd with the zombifying attack, and
+    thematically they aren't really zombies anyway), tweaks book weights, turns
+    config hilites back on and fixes a lot of minor bugs.
+
+********************************************************************************
 *	Release 0.4.1 'Helm of Opposite Alignment'
 
 	Merge everything up to 6 Nov from Splice, which includes Nethack 3.6.2
