@@ -2238,14 +2238,6 @@ rndmonst()
     register struct permonst *ptr;
     register int mndx, ct, cap;
 
-   	if(u.ukinghill){ /* You have pirate quest artifact in open inventory */
-   		  if(rnd(100)>80){
-   			    if(In_endgame(&u.uz)) return &mons[PM_PLANAR_PIRATE];
-   			    else if(Inhell) return &mons[PM_DAMNED_PIRATE];
-   			    else return &mons[PM_SKELETAL_PIRATE];
-   		  }
-   	}
-
     if (u.uz.dnum == quest_dnum && rn2(7) && (ptr = qt_montype()) != 0)
         return ptr;
 
@@ -2336,6 +2328,20 @@ rndmonst()
         impossible("rndmonst: bad `mndx' [#%d]", mndx);
         return (struct permonst *) 0;
     }
+
+    /* You have pirate quest artifact in open inventory - attract pirates,
+     * but only if they are replacing weaker monsters.
+     **/
+   	if(u.ukinghill) {
+        int pirate = PM_SKELETAL_PIRATE;
+        if(In_endgame(&u.uz)) pirate = PM_PLANAR_PIRATE;
+        else if(Inhell) pirate = PM_DAMNED_PIRATE;
+        if (mons[mndx].mlevel < mons[pirate].mlevel) {
+            if (rnd(100) > 70) {
+                return &mons[pirate];
+            }
+        }
+   	}
 
     /* Add packrats if you are loaded - but only as a replacement for
      * weaker monsters and not very early on.
