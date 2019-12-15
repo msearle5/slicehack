@@ -311,7 +311,9 @@
 #define befriend_with_obj(ptr, obj) \
     (((ptr) == &mons[PM_MONKEY] || (ptr) == &mons[PM_APE])               \
      ? (obj)->otyp == BANANA                                             \
-     : ((ptr) == &mons[PM_KOALA])                                        \
+     : (((ptr) == &mons[PM_BABY_PENGUIN]) || ((ptr) == &mons[PM_PENGUIN]) || ((ptr) == &mons[PM_EMPEROR_PENGUIN])) \
+      ? (obj)->otyp == find_skate()                                      \
+      : ((ptr) == &mons[PM_KOALA])                                       \
       ? (obj)->otyp == EUCALYPTUS_LEAF                                   \
        : ((is_domestic(ptr) ||                                           \
         (is_rat(ptr) && (Role_if(PM_CONVICT) || (obj)->otyp == CHEESE))) \

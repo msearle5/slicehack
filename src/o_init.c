@@ -282,6 +282,29 @@ shuffle_all()
     return;
 }
 
+/* find the object index for GHOTI; used [once] by penguin taming code */
+int
+find_skate()
+{
+    register int i;
+    register const char *s;
+    static int fish = 0;
+
+    if (fish != 0)
+        return fish;
+
+    fish = -1; /* not 0, or caller would try again each move */
+    for (i = SCR_ENCHANT_ARMOR; i <= SCR_BLANK_PAPER; i++) {
+        if ((s = OBJ_DESCR(objects[i])) != 0 && !strcmp(s, "GHOTI")) {
+            fish = i;
+            break;
+        }
+    }
+
+    /* not impossible as there can be more names than scrolls */
+    return fish;
+}
+
 /* find the object index for snow boots; used [once] by slippery ice code */
 int
 find_skates()

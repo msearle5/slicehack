@@ -1779,6 +1779,7 @@ E void NDECL(nttty_exit);
 
 E void NDECL(init_objects);
 E void FDECL(obj_shuffle_range, (int, int *, int *));
+E int NDECL(find_skate);
 E int NDECL(find_skates);
 E int NDECL(find_tigereye);
 E int NDECL(find_fingerless);
