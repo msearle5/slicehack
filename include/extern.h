@@ -1831,6 +1831,7 @@ E char *FDECL(short_oname,
 E const char *FDECL(singular, (struct obj *, char *(*)(OBJ_P)));
 E char *FDECL(an, (const char *));
 E char *FDECL(An, (const char *));
+E const char *FDECL(get_bogus_item_name, (struct obj *otmp));
 E char *FDECL(The, (const char *));
 E char *FDECL(the, (const char *));
 E char *FDECL(aobjnam, (struct obj *, const char *));

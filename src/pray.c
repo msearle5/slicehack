@@ -2126,6 +2126,8 @@ dosacrifice()
                     if (otmp->cursed)
                         uncurse(otmp);
                     otmp->oerodeproof = TRUE;
+                    otmp->oeroded = 0;
+                    otmp->oeroded2 = 0;
                     at_your_feet("An object");
                     dropy(otmp);
                     godvoice(u.ualign.type, "Use my gift wisely!");
@@ -2146,9 +2148,12 @@ dosacrifice()
                     }
 
                     holy_symbol();
-
+//an(get_bogus_item_name(NULL))
                     if (u.ugifts > 2 && !rn2(2)) {
-                        pline("The altar cracks in two and is destroyed!");
+                        if (Hallucination)
+                            pline("The altar morphs into %s!", an(get_bogus_item_name(NULL)));
+                        else
+                            pline("The altar cracks in two and is destroyed!");
                         levl[u.ux][u.uy].typ = ROOM;
                     }
                     return 1;
