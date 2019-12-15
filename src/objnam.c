@@ -1294,7 +1294,11 @@ unsigned cxn_flags; /* bitmask of CXN_xxx values */
             char anbuf[10]; /* [4] would be enough: 'a','n',' ','\0' */
 
             Sprintf(eos(buf), " of %s%s",
-                    just_an(anbuf, mons[omndx].mname),
+                    type_is_pname(&mons[omndx])
+                       ? ""
+                       : the_unique_pm(&mons[omndx])
+                          ? "the "
+                          : just_an(anbuf, mons[omndx].mname),
                     mons[omndx].mname);
         } else if (is_wet_towel(obj)) {
             if (wizard)

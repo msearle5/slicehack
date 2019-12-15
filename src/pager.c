@@ -659,6 +659,7 @@ struct permonst * pm;
     };
     const char *frequency;
     const char *group;
+    const char *uniq_text;
     char buf[BUFSZ];
     char buf2[BUFSZ];
     int diff = mons[monsndx(pm)].difficulty;
@@ -712,11 +713,15 @@ struct permonst * pm;
     }
 
     if (uniq)
-        Strcpy(buf, "Unique.");
-    else if (freq == 0)
-        Strcpy(buf, "Not randomly generated.");
+        uniq_text = "Unique, n";
     else
-        Sprintf(buf, "Normally %s%s, %s.",
+        uniq_text = "N";
+
+    if (freq == 0)
+        Sprintf(buf, "%sot randomly generated.", uniq_text);
+    else
+        Sprintf(buf, "%sormally %s%s, %s.",
+                uniq_text,
                 hell ? "only appears in Gehennom" :
                 planes ? "only appears in the Planes" :
                 nohell ? "only appears outside Gehennom" :

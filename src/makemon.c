@@ -2128,6 +2128,7 @@ int mndx;
      */
 
     /* assert(MAXMONNO < 255); */
+    if (mons[mndx].geno & G_UNIQ) return 1;
     return (mndx == PM_NAZGUL ? 9 : mndx == PM_ERINYS ? 3 : MAXMONNO);
 }
 
@@ -2170,7 +2171,7 @@ STATIC_OVL boolean
 uncommon(mndx)
 int mndx;
 {
-    if (mons[mndx].geno & (G_NOGEN | G_UNIQ))
+    if (mons[mndx].geno & (G_NOGEN))
         return TRUE;
     if (mvitals[mndx].mvflags & G_GONE)
         return TRUE;
