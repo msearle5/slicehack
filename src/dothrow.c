@@ -1860,6 +1860,11 @@ register struct obj *obj; /* thrownobj or kickedobj or uwep */
         explode(mon->mx, mon->my, 2, d(12, 6), TOOL_CLASS, EXPL_FROSTY);
         You_feel("full of sorrow.");
         return 1;
+    } else if ((otyp == LAND_MINE) && (rnd(100) < 10)) {
+        pline("%s explodes in a ball of fire!", Doname2(obj));
+        setnotworn(obj);
+        delobj(obj);
+        explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
     } else if (obj->oclass == POTION_CLASS
                && (guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
         potionhit(mon, obj, POTHIT_HERO_THROW);
@@ -2148,6 +2153,11 @@ boolean from_invent;
         if (hero_caused && obj->spe && obj->corpsenm >= LOW_PM)
             change_luck((schar) -min(obj->quan, 5L));
         break;
+    case LAND_MINE:
+        pline("KABOOM! The land mine explodes!");
+        setnotworn(obj);
+        explode(x, y, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
+        break;
     case BOULDER:
     case STATUE:
         /* caller will handle object disposition;
@@ -2221,6 +2231,11 @@ struct obj *obj;
     case BLINDING_VENOM:
     case QUILL:
         return 1;
+    case LAND_MINE:
+        if (rnd(100) < 10) {
+            return 1;
+        }
+        return 0;
     default:
         return 0;
     }
@@ -2247,6 +2262,8 @@ boolean in_view;
     case ORB_OF_PERMAFROST:
         to_pieces = " into a thousand pieces";
     /*FALLTHRU*/
+    case LAND_MINE:
+        return;
     case POT_ACID:
         if ((obj->otyp == POT_ACID) && (obj->ovar1))
             return;
@@ -2329,16 +2346,23 @@ struct obj* obj;
     }
     obj->owornmask = 0;
 
-    if (obj->quan == 1L) {
-        pline("%s breaks into pieces!", upstart(yname(obj)));
-        obj_extract_self(obj); /* it's being destroyed */
+    if (obj->otyp == LAND_MINE) {
+        pline("KABOOM! The land mine explodes!");
+        setnotworn(obj);
+        delobj(obj);
+        explode(obj->ox, obj->oy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
+    } else {
+        if (obj->quan == 1L) {
+            pline("%s breaks into pieces!", upstart(yname(obj)));
+            obj_extract_self(obj); /* it's being destroyed */
+        }
+        else {
+            pline("One of %s breaks into pieces!", yname(obj));
+        }
+        breakobj(obj, obj->ox, obj->oy, your_fault, TRUE);
+        if (carried(obj))
+            update_inventory();
     }
-    else {
-        pline("One of %s breaks into pieces!", yname(obj));
-    }
-    breakobj(obj, obj->ox, obj->oy, your_fault, TRUE);
-    if (carried(obj))
-        update_inventory();
     return TRUE;
 }
 

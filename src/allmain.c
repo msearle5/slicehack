@@ -41,8 +41,9 @@ struct obj *pobj;
             if (pobj->otyp == LAND_MINE) {
                 pline("KABOOM! The cursed landmine explodes in your %s!",
                                             pobj->ocontainer ? xname(pobj->ocontainer) : "pack");
-                explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
+                setnotworn(pobj);
                 delobj(pobj);
+                explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
                 return TRUE;
             } else if (pobj->otyp == PUMPKIN) {
                 char where[BUFSIZ];

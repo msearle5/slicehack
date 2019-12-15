@@ -1776,6 +1776,17 @@ dorub()
         /* message from Adventure */
         pline("Rubbing the electric lamp is not particularly rewarding.");
         pline("Anyway, nothing exciting happens.");
+    } else if (obj->otyp == LAND_MINE) {
+        exercise(A_WIS, FALSE);
+        if (rn2(2)) {
+            You("%s smoke.", !Blind ? "see a puff of" : "smell");
+        } else {
+            pline("KABOOM! It explodes in your %s!", body_part(FACE));
+            setnotworn(obj);
+            delobj(obj);
+            explode(u.ux, u.uy, 11, d(3,6), TOOL_CLASS, EXPL_FIERY);
+            return 1;
+        }
     } else
         pline1(nothing_happens);
     return 1;
