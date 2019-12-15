@@ -651,6 +651,14 @@ add_mon_info(datawin, pm)
 winid datawin;
 struct permonst * pm;
 {
+    static const char *common_frequency[8] = {
+        NULL, "very rare", "rare", "slightly rare", "fairly common", "common", "very common", "very common"
+    };
+    static const char *rare_frequency[8] = {
+        NULL, "almost never seen", "almost never seen", "extraordinarily rare", "extraordinarily rare", "extremely rare", "extremely rare", "extremely rare"
+    };
+    const char *frequency;
+    const char *group;
     char buf[BUFSZ];
     char buf2[BUFSZ];
     int diff = mons[monsndx(pm)].difficulty;
@@ -691,10 +699,22 @@ struct permonst * pm;
     MONPUTSTR(buf);
 
     /* Generation */
+    frequency = (gen & G_RARE) ? rare_frequency[(gen & G_FREQ)] : common_frequency[(gen & G_FREQ)];
+
+    group = "";
+    if (gen & G_SGROUP) {
+        group = " in groups";
+        if (gen & G_LGROUP) {
+            group = " in huge groups";
+        }
+    } else if (gen & G_LGROUP) {
+        group = " in large groups";
+    }
+
     if (uniq)
         Strcpy(buf, "Unique.");
     else if (freq == 0)
-	Strcpy(buf, "Not randomly generated.");
+        Strcpy(buf, "Not randomly generated.");
     else
         Sprintf(buf, "Normally %s%s, %s.",
                 hell ? "only appears in Gehennom" :
@@ -702,13 +722,8 @@ struct permonst * pm;
                 nohell ? "only appears outside Gehennom" :
                 noplanes ? "only appears outside the Planes" :
                 "appears in any branch",
-                (gen & G_SGROUP|G_LGROUP) ? " in huge numbers" :
-                (gen & G_SGROUP) ? " in groups" :
-                (gen & G_LGROUP) ? " in large groups" : "",
-                freq >= 5 ? "very common" :
-                freq == 4 ? "common" :
-                freq == 3 ? "slightly rare" :
-                freq == 2 ? "rare" : "very rare");
+                group,
+                frequency);
     MONPUTSTR(buf);
 
     /* Resistances */

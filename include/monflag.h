@@ -250,6 +250,7 @@
 #define G_LGROUP 0x0040   /* appear in large groups normally */
 #define G_GENO 0x0020     /* can be genocided */
 #define G_NOCORPSE 0x0010 /* no corpse left ever */
+#define G_RARE 0x0008     /* generate with lower frequencies */
 #define G_FREQ 0x0007     /* creation frequency mask */
 
 /* for mvitals[].mvflags (variant during game), along with G_NOCORPSE */

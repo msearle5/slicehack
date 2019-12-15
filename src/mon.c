@@ -2646,7 +2646,7 @@ int mtyp;
         return TRUE;
 
     /* Default chance */
-    return 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
+    return 2 + (gen_frequency(mdat) < 20) + verysmall(mdat);
 }
     
 
@@ -2805,7 +2805,7 @@ boolean was_swallowed; /* digestion */
     if (((bigmonst(mdat) || mdat == &mons[PM_LIZARD]) && !mon->mcloned)
         || is_golem(mdat) || is_mplayer(mdat) || is_rider(mdat) || mon->isshk)
         return TRUE;
-    tmp = 2 + ((mdat->geno & G_FREQ) < 2) + verysmall(mdat);
+    tmp = 2 + (gen_frequency(mdat) < 20) + verysmall(mdat);
     return (boolean) !rn2(tmp);
 }
 
@@ -2908,7 +2908,7 @@ struct monst *mdef;
     mdef->mtrapped = 0; /* (see m_detach) */
 
     if ((int) mdef->data->msize > MZ_TINY
-        || !rn2(2 + ((int) (mdef->data->geno & G_FREQ) > 2))) {
+        || !rn2(2 + (gen_frequency(mdef->data) > 20))) {
         oldminvent = 0;
         /* some objects may end up outside the statue */
         while ((obj = mdef->minvent) != 0) {

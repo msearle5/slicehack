@@ -2220,6 +2220,16 @@ static NEARDATA struct {
     char mchoices[SPECIAL_PM]; /* value range is 0..127 */
 } rndmonst_state = { -1, { 0 } };
 
+int
+gen_frequency(ptr)
+struct permonst *ptr;
+{
+    int freq = (ptr->geno & G_FREQ);
+    if (!(ptr->geno & G_RARE))
+        freq *= 10;
+    return freq;
+}
+
 /* select a random monster type */
 struct permonst *
 rndmonst()
@@ -2288,7 +2298,14 @@ rndmonst()
                 continue;
             if (In_endgame(&u.uz) && (ptr->geno & G_NOPLANES))
                 continue;
-            ct = (int) (ptr->geno & G_FREQ) + align_shift(ptr);
+            /* The probability field can go from 0 to 7, align_shift adds 0 to 5.
+             * If the probability is 0 then it will not have reached here, failing uncommon() above.
+             * Common probabilities are scaled by 10, so now have a maximum of 120.
+             * Rare probabilities aren't, so they are 10 times less common - but the alignment shift still is scaled.
+             */
+            ct = align_shift(ptr) * 10;
+            ct += gen_frequency(ptr);
+
             if (ct < 0 || ct > 127)
                 panic("rndmonst: bad count [#%d: %d]", mndx, ct);
             rndmonst_state.choice_count += ct;
@@ -2476,13 +2493,13 @@ int class;
 
     for (last = first; last < SPECIAL_PM && mons[last].mlet == class; last++)
         if (mk_gen_ok(last, G_GENOD, (G_NOGEN | G_UNIQ)))
-            num += mons[last].geno & G_FREQ;
+            num += gen_frequency(&mons[last]);
     if (!num)
         return NON_PM;
 
     for (num = rnd(num); num > 0; first++)
         if (mk_gen_ok(first, G_GENOD, (G_NOGEN | G_UNIQ)))
-            num -= mons[first].geno & G_FREQ;
+            num -= gen_frequency(&mons[first]);
     first--; /* correct an off-by-one error */
 
     return first;

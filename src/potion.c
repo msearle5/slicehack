@@ -2758,8 +2758,9 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
             /* This is 1..7. 1 = very rare, 7 = very common, and is linear.
              * It doesn't take account of special generation, though...
              **/
-            v /= (mons[mtyp].geno & G_FREQ);
-            
+            v *= 10;
+            v /= gen_frequency(&mons[mtyp]);
+
             /* Bound, with soft clipping above 224 */
             if (v < 1) v = 1;
             spill = 0;
