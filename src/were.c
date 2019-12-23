@@ -237,7 +237,7 @@ char *genbuf;
             break;
         case PM_WERECOCKATRICE:
         case PM_HUMAN_WERECOCKATRICE:
-            typ = rn2(3) ? PM_CHICKATRICE : rn2(3) ? PM_PYROLISK : PM_CHICKATRICE;
+            typ = rn2(3) ? PM_CHICKATRICE : rn2(3) ? PM_PYROLISK : PM_COCKATRICE;
             if (genbuf)
                 Strcpy(genbuf, "cockatrice");
             break;
