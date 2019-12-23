@@ -1166,22 +1166,25 @@ boolean atme;
         else {
             const char *flow;
             /* Cast with the aid of a wizardstaff */
-            staffenergy -= u.uen;
+            energy -= u.uen;
             u.uen = 0;
-            if (staffenergy < 10)
+            /* staffenergy: amount of energy in the staff.
+             * energy: amount required to be taken
+             **/
+            if (energy < 10)
                 flow = "trickle";
-            else if (staffenergy < 20)
+            else if (energy < 20)
                 flow = "flow";
-            else if (staffenergy < 30)
+            else if (energy < 30)
                 flow = "drain";
-            else if (staffenergy < 40)
+            else if (energy < 40)
                 flow = "rushe";
-            else if (staffenergy < 60)
+            else if (energy < 60)
                 flow = "pour";
             else
                 flow = "flood";
 
-            staff_adj_en(uwep, -(staffenergy * STAFF_TURNS_PER_EN));
+            staff_adj_en(uwep, -(energy * STAFF_TURNS_PER_EN));
             if (Hallucination) {
                 const char *hflow[] = {
                     "whizze", "tinkle", "flie", "cascade", "flushe",
