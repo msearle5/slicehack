@@ -161,7 +161,7 @@
      || (Role_if(PM_DRAGONMASTER) && (((ptr) >= &mons[PM_BABY_GRAY_DRAGON] && \
                              (ptr) <= &mons[PM_GREEN_DRAGON]) || \
                              (ptr) == &mons[PM_YELLOW_DRAGON])))
-#define is_demon(ptr) (((ptr)->mflags2 & M2_DEMON) != 0L)
+#define is_demon(ptr) (((ptr)->mhflags & MH_DEMON) != 0L)
 
 #define is_jumper(ptr) (((ptr)->mflags3 & M3_JUMPER) != 0L)
 #define is_mind_flayer(ptr) (((ptr)->mhflags & MH_FLAYER) != 0L)
