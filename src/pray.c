@@ -1006,6 +1006,8 @@ gcrownu()
      		in_hand = (uwep && uwep->oartifact == ART_REAVER);
      		already_exists = exist_artifact(SCIMITAR, artiname(ART_REAVER));
      		verbalize("Hurrah for our Pirate King!");
+            livelog_printf(LL_DIVINEGIFT,
+                    "was crowned \"The Pirate King\" by %s", u_gname());
    	} else {
     switch (u.ualign.type) {
     case A_LAWFUL:
