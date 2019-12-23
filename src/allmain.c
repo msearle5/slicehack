@@ -415,7 +415,7 @@ boolean resuming;
                         regen_hp(wtcap);
                     }
 
-                    if (Withering && !(HRegeneration || ERegeneration)) {
+                    if (Withering && !Regeneration) {
                         losehp(1, "withering away", KILLED_BY);
                         context.botl = TRUE;
                         interrupt_multi("You are slowly withering away.");
@@ -744,7 +744,7 @@ int wtcap;
                 if (!(moves % (long) ((MAXULEV + 12) / (u.ulevel + 2) + 1)))
                     heal = 1;
             }
-            if (Regeneration && !heal)
+            if (Regeneration && !Withering && !heal)
                 heal = 1;
 
             if (heal) {
@@ -1045,6 +1045,7 @@ const char *msg;
 static struct early_opt earlyopts[] = {
     {ARG_DEBUG, "debug", 5, TRUE},
     {ARG_VERSION, "version", 4, TRUE},
+    {ARG_SHOWPATHS, "showpaths", 9, FALSE},
 #ifdef WIN32
     {ARG_WINDOWS, "windows", 4, TRUE},
 #endif
@@ -1121,6 +1122,9 @@ enum earlyarg e_arg;
                 }
             }
             early_version_info(insert_into_pastebuf);
+            return 2;
+        }
+        case ARG_SHOWPATHS: {
             return 2;
         }
 #ifdef WIN32

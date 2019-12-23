@@ -1832,6 +1832,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
                 Sprintf(kbuf, "stolen %s corpse", mons[otmp2->corpsenm].mname);
                 instapetrify(kbuf);
             }
+
             /* more take-away handling, after theft message */
             if (unwornmask & W_WEP) {		/* stole wielded weapon */
                 possibly_unwield(mdef, FALSE);
@@ -1947,7 +1948,7 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 
             if (youattack && u.uswallow && mdef == u.ustuck)
                 return FALSE;
-            wepdesc = artilist[ART_VORPAL_BLADE].name;
+            wepdesc = artilist[otmp->oartifact == ART_VORPAL_BLADE ? ART_VORPAL_BLADE : ART_THIEFBANE].name;
             if (!youdefend) {
                 if (!has_head(mdef->data) || notonhead || u.uswallow) {
                     if (youattack)
@@ -2480,6 +2481,7 @@ struct obj *obj;
             obfree(pseudo, NULL);
             break;
         }
+            break;
         case SEFFECT: {
             struct obj* pseudo = NULL;
             switch(artinum) {

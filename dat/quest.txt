@@ -1049,7 +1049,7 @@ Go back to %Z and fulfill your destiny."
 %E ["You are worthier of %o.  Return to %Z to search for the Amulet.]
 %Cp Car 00090
 "%pC!  Welcome back.
-Care for a quck game, for old time's sake?"
+Care for a quick game, for old time's sake?"
 %E
 %Cc Car 00091
 "I see you have the Amulet, %p.

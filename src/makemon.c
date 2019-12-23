@@ -1,4 +1,4 @@
-/* NetHack 3.6	makemon.c	$NHDT-Date: 1571531888 2019/10/20 00:38:08 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.141 $ */
+/* NetHack 3.6	makemon.c	$NHDT-Date: 1574722863 2019/11/25 23:01:03 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.142 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -965,7 +965,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, PLATE_MAIL);
             break;
         }
-        /* fall through */
+        break;
     case S_DEMON:
         switch (mm) {
         case PM_DAMNED_PIRATE:
@@ -1338,7 +1338,7 @@ register struct monst *mtmp;
             (void) mongets(mtmp, MUMMY_WRAPPING);
         break;
     case S_QUANTMECH:
-        if (!rn2(20)) {
+        if (!rn2(20) && mtmp->data == &mons[PM_QUANTUM_MECHANIC]) {
             struct obj *catcorpse;
 
             otmp = mksobj(LARGE_BOX, FALSE, FALSE);
@@ -2291,6 +2291,7 @@ rndmonst()
                 continue;
             if (In_endgame(&u.uz) && (ptr->geno & G_NOPLANES))
                 continue;
+
             /* The probability field can go from 0 to 7, align_shift adds 0 to 5.
              * If the probability is 0 then it will not have reached here, failing uncommon() above.
              * Common probabilities are scaled by 10, so now have a maximum of 120.
@@ -2987,10 +2988,12 @@ register struct monst *mtmp;
     } else if (rt == TEMPLE) {
         ap_type = M_AP_FURNITURE;
         appear = S_altar;
-        /*
-         * We won't bother with beehives, morgues, barracks, throne rooms
-         * since they shouldn't contain too many mimics anyway...
-         */
+
+    /*
+     * We won't bother with beehives, morgues, barracks, throne rooms
+     * since they shouldn't contain too many mimics anyway...
+     */
+
     } else if (rt >= SHOPBASE) {
         s_sym = get_shop_item(rt - SHOPBASE);
         if (s_sym < 0) {
@@ -3047,6 +3050,11 @@ register struct monst *mtmp;
            current_fruit is equivalent to creating an instance of that
            fruit (no-op if a fruit of this type has actually been made) */
         flags.made_fruit = TRUE;
+    } else if (ap_type == M_AP_FURNITURE && appear == S_altar) {
+        int algn = rn2(3) - 1; /* -1 (A_Cha) or 0 (A_Neu) or +1 (A_Law) */
+
+        newmcorpsenm(mtmp);
+        MCORPSENM(mtmp) = (Inhell && rn2(3)) ? AM_NONE : Align2amask(algn);
     } else if (has_mcorpsenm(mtmp)) {
         /* don't retain stale value from a previously mimicked shape */
         MCORPSENM(mtmp) = NON_PM;

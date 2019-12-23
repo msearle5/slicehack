@@ -1729,7 +1729,7 @@ tamedog(mtmp, (struct obj *) 0);
 		case T_CROWN_LAW:
 			You("call upon the seven heavens to enact holy justice upon your enemies!");
 			for(i = 0; i < 7; i++) {
-				mtmp = makemon(&mons[PM_MOVANIC_DEVA], u.ux, u.uy, MM_EDOG);
+				mtmp = makemon(&mons[PM_MOVANIC_DEVA], u.ux, u.uy, MM_EDOG | NO_MINVENT);
 				(void) tamedog(mtmp, (struct obj *) 0);
 				mtmp->mfading = 15 + techlev(tech_no);
 			}
@@ -2242,7 +2242,7 @@ static void
 doblitzlist()
 {
 	winid tmpwin;
-	int i, n;
+	int i;
 	char buf[BUFSZ];
 	menu_item *selected;
 	anything any;
@@ -2280,7 +2280,7 @@ doblitzlist()
 	}
         end_menu(tmpwin, "Currently known blitz manoeuvers");
 
-	n = select_menu(tmpwin, PICK_NONE, &selected);
+	(void) select_menu(tmpwin, PICK_NONE, &selected);
 	destroy_nhwindow(tmpwin);
 	return;
 }

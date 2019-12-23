@@ -1,4 +1,4 @@
-/* NetHack 3.6	cmd.c	$NHDT-Date: 1572141702 2019/10/27 02:01:42 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.347 $ */
+/* NetHack 3.6	cmd.c	$NHDT-Date: 1575245052 2019/12/02 00:04:12 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.350 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -158,7 +158,6 @@ STATIC_PTR int NDECL(wiz_level_change);
 STATIC_PTR int NDECL(wiz_show_seenv);
 STATIC_PTR int NDECL(wiz_show_vision);
 STATIC_PTR int NDECL(wiz_smell);
-STATIC_PTR int NDECL(wiz_intrinsic);
 STATIC_PTR int NDECL(wiz_show_wmodes);
 STATIC_DCL void NDECL(wiz_map_levltyp);
 STATIC_DCL void NDECL(wiz_levltyp_legend);
@@ -1543,15 +1542,21 @@ wiz_intrinsic(VOID_ARGS)
                                          = &mons[context.warntype.speciesidx];
                 }
                 goto def_feedback;
+            case GLIB:
+                /* slippery fingers applies to gloves if worn at the time
+                   so persistent inventory might need updating */
+                make_glib((int) newtimeout);
+                goto def_feedback;
             case LEVITATION:
             case FLYING:
                 float_vs_flight();
                 /*FALLTHRU*/
             default:
-            def_feedback:
+ def_feedback:
                 pline("Timeout for %s %s %d.", propertynames[i].prop_name,
                       oldtimeout ? "increased by" : "set to", amt);
-                incr_itimeout(&u.uprops[p].intrinsic, amt);
+                if (p != GLIB)
+                    incr_itimeout(&u.uprops[p].intrinsic, amt);
                 break;
             }
             context.botl = 1; /* probably not necessary... */
@@ -2011,7 +2016,7 @@ int final;
         enlght_out(buf);
     }
 
-    /* 3.6.2: dungeon level, so that ^X really has all status info as
+    /* As of 3.6.2: dungeon level, so that ^X really has all status info as
        claimed by the comment below; this reveals more information than
        the basic status display, but that's one of the purposes of ^X;
        similar information is revealed by #overview; the "You died in
@@ -2545,7 +2550,9 @@ int final;
         }
     }
     if (Glib) {
-        Sprintf(buf, "slippery %s", makeplural(body_part(FINGER)));
+        Sprintf(buf, "slippery %s", fingers_or_gloves(TRUE));
+        if (wizard)
+            Sprintf(eos(buf), " (%ld)", (Glib & TIMEOUT));
         you_have(buf, "");
     }
     if (Fumbling) {
@@ -2650,7 +2657,7 @@ int final;
         if (sklvl == P_ISRESTRICTED)
             Strcpy(sklvlbuf, "no");
         else
-            (void) lcase(skill_level_name(wtype, sklvlbuf));
+            (void) lcase(skill_level_name(P_SKILL(wtype), sklvlbuf));
         /* "you have no/basic/expert/master/grand-master skill with <skill>"
            or "you are unskilled/skilled in <skill>" */
         Sprintf(buf, "%s %s %s", sklvlbuf,
@@ -5322,7 +5329,7 @@ const char *s;
     char dirsym;
     int is_mov;
 
-retry:
+ retry:
     if (in_doagain || *readchar_queue)
         dirsym = readchar();
     else

@@ -1049,12 +1049,7 @@ boolean artif;
                 break;
             case MASK:
                 tryct = 0;
-                do
-                    otmp->corpsenm = rn2(NUMMONS);
-                while (is_human(&mons[otmp->corpsenm]) &&
-                        !(mons[otmp->corpsenm].geno & G_NOGEN) &&
-                        (mons[otmp->corpsenm].difficulty > u.ulevel + 15) &&
-                        !polyok(&mons[otmp->corpsenm]) && tryct++ < 200);
+                otmp->corpsenm = pick_nasty();
                 blessorcurse(otmp, 4);
                 break;
             case BELL_OF_OPENING:
@@ -3472,28 +3467,6 @@ static const struct icp bow_materials[] = {
     { 1, GOLD}
 };
 
-static const struct icp warp_materials[] = {
-    /* Not good. */
-    {5, GLASS},
-    {5, WAX},
-    {5, PAPER},
-    {5, CLOTH},
-    {5, LEATHER},
-    {10, WOOD},
-    {15, PLASTIC},
-    /* Decent */
-    {5, IRON},
-    {5, METAL},
-    {5, PLATINUM},
-    {5, GEMSTONE},
-    {5, MINERAL},
-    {5, BONE},
-    {5, COPPER},
-    {5, MITHRIL},
-    {5, SILVER},
-    {5, GOLD}
-};
-
 /* TODO: Orcish? */
 
 /* Return the appropriate above list for a given object, or NULL if there isn't
@@ -3601,18 +3574,17 @@ boolean by_you;
     if (obj->oartifact)
         return FALSE;
     int origmat = obj->material;
-    const struct icp* materials =  warp_materials;
 
-    int i = rnd(100);
-    while (i > 0) {
-        if (i <= materials->iprob)
+    int j = 0;
+    int newmat;
+    while (j < 100) {
+        newmat = 1 + rn2(NUM_MATERIAL_TYPES);
+        if (newmat != origmat && valid_obj_material(obj, newmat))
             break;
-        i -= materials->iprob;
-        materials++;
+        j++;
     }
-    if (materials->iclass && valid_obj_material(obj, materials->iclass) &&
-          !mon_hates_material(&youmonst, materials->iclass))
-        obj->material = materials->iclass;
+    if (valid_obj_material(obj, newmat) && !Hate_material(newmat))
+        obj->material = newmat;
     else
         /* can use a 0 in the list to default to the base material */
         obj->material = objects[obj->otyp].oc_material;

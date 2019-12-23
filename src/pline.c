@@ -67,7 +67,6 @@ const char *orig;
 		orig = replace(orig," lugth"," earth");
 		orig = replace(orig,"Lugth","Earth");
 		orig = replace(orig," eye"," deadlight");
-		orig = replace(orig,"Eye","Deadlight");
 		orig = replace(orig,"zorkmid","doubloon");
 		orig = replace(orig,"Zorkmid","Doubloon");
 		orig = replace(orig,"gold coins","pieces of eight");
@@ -78,7 +77,8 @@ const char *orig;
 		orig = replace(orig,"Gold pieces","Pieces of eight");
 		orig = replace(orig,"gold piece","piece of eight");
 		orig = replace(orig,"Gold piece","Piece of eight");
-    orig = replace(orig,"Ouch!","Arrr!");
+        orig = replace(orig,"Ouch!","Arrr!");
+        orig = replace(orig,"Wow!","Avast!");
 		return orig;
 }
 

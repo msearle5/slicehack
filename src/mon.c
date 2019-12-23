@@ -2581,6 +2581,27 @@ register struct monst *magr;
     if (mtmp->data->msound == MS_LEADER)
         leaddead();
 
+    if (mtmp->data == &mons[PM_WORM_THAT_WALKS] || mtmp->data == &mons[PM_LORD_OF_WORMS]) {
+        if (cansee(mtmp->mx, mtmp->my)) {
+            pline_The("body of %s dissolves into maggots!", mon_nam(mtmp));
+        } else {
+            You_hear("the slithering of many bodies.");
+        }
+        if (mtmp->data == &mons[PM_WORM_THAT_WALKS])
+            create_critters(rnd(10), &mons[PM_DEATH_MAGGOT], TRUE);
+        else
+            create_critters(rnd(20), &mons[PM_DEATH_MAGGOT], TRUE);
+    } else if (mtmp->data == &mons[PM_FUSION_ELEMENTAL]) {
+        if (cansee(mtmp->mx, mtmp->my)) {
+            pline_The("body of %s splits into its separate elements!",
+                      mon_nam(mtmp));
+        }
+        create_critters(1, &mons[PM_EARTH_ELEMENTAL], TRUE);
+        create_critters(1, &mons[PM_WATER_ELEMENTAL], TRUE);
+        create_critters(1, &mons[PM_FIRE_ELEMENTAL], TRUE);
+        create_critters(1, &mons[PM_AIR_ELEMENTAL], TRUE);
+    }
+
     /* Medusa falls into two livelog categories,
      * we log one message flagged for both categories.
      */
@@ -2667,6 +2688,7 @@ boolean was_swallowed; /* digestion */
         ERID(mon)->m1->monmount = 0;
     }
     free_erid(mon);
+
     /* A worm that walks naturally dissolves into worms */
     if (mdat == &mons[PM_WORM_THAT_WALKS] || mdat == &mons[PM_LORD_OF_WORMS]) {
         if (cansee(mon->mx, mon->my) && !was_swallowed) {
@@ -2692,6 +2714,7 @@ boolean was_swallowed; /* digestion */
         create_critters(1, &mons[PM_AIR_ELEMENTAL], TRUE);
         return FALSE;
     }
+
     /* The master of cats has nine lives, symbolized by going up in level 9
        times. */
     if (mdat == &mons[PM_MASTER_OF_CATS]) {
@@ -2707,7 +2730,9 @@ boolean was_swallowed; /* digestion */
         }
     }
     if (mdat == &mons[PM_VLAD_THE_IMPALER] || mdat == &mons[PM_ALUCARD]
-          || mdat->mlet == S_LICH) {
+          || (mdat->mlet == S_LICH && 
+                (mdat != &mons[PM_WORM_THAT_WALKS] 
+                    || mdat != &mons[PM_LORD_OF_WORMS]))) {
         if (cansee(mon->mx, mon->my) && !was_swallowed)
             pline("%s body crumbles into dust.", s_suffix(Monnam(mon)));
         return FALSE;
@@ -2765,6 +2790,7 @@ boolean was_swallowed; /* digestion */
                    function because otherwise the explosion destroys the egg */
                 obj = mksobj_at(EGG, mon->mx, mon->my, TRUE, FALSE);
                 obj->corpsenm = PM_PHOENIX;
+                obj->quan = 1;
             } else {
                 int x, y;
                 struct monst *mtmp;
@@ -3128,8 +3154,9 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
        a monster card. */
     if (Role_if(PM_CARTOMANCER) && !(mdat->geno & G_UNIQ) && !rn2(20)) {
         otmp = mksobj(SCR_CREATE_MONSTER, FALSE, FALSE);
-        otmp->corpsenm = monsndx(mdat);
+        otmp->corpsenm = mndx;
         place_object(otmp, mtmp->mx, mtmp->my);
+        newsym(mtmp->mx, mtmp->my);
         goto cleanup;
     }
 
@@ -3671,7 +3698,6 @@ struct monst *mtmp;
             default:
                 pline("A shiver runs down your spine.");
                 break;
-                break;
             }
         } else if (canseemon(mtmp)) {
             pline("%s mutters something.", Monnam(mtmp));
@@ -4190,9 +4216,8 @@ struct monst *mon;
     case PM_ALUCARD:
         if (!rn2(wolfchance) && !uppercase_only) {
             mndx = PM_BARGHEST;
-            break;
         }
-    /*FALLTHRU*/
+        break;
     case PM_VAMPIRE_MAGE:
     case PM_VAMPIRE_LORD: /* vampire lord or Vlad can become wolf */
         if (!rn2(wolfchance) && !uppercase_only) {

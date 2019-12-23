@@ -548,7 +548,7 @@ MONSTER:'M',random
 # The Juiblex level
 #
 MAZE:"juiblex",' '
-FLAGS:noteleport,shortsighted
+FLAGS:noteleport,shortsighted,noflip
 INIT_MAP:mines,'.','}',true,true,unlit,false
 # guarantee at least one open spot to ensure successful stair placement
 GEOMETRY:left,bottom

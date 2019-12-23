@@ -1,4 +1,4 @@
-/* NetHack 3.6	apply.c	$NHDT-Date: 1571531886 2019/10/20 00:38:06 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.279 $ */
+/* NetHack 3.6	apply.c	$NHDT-Date: 1573778560 2019/11/15 00:42:40 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.284 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -107,8 +107,8 @@ struct obj *obj;
 
         switch (rn2(3)) {
         case 2:
-            old = Glib;
-            incr_itimeout(&Glib, rn1(10, 3));
+            old = (Glib & TIMEOUT);
+            make_glib((int) old + rn1(10, 3)); /* + 3..12 */
             Your("%s %s!", makeplural(body_part(HAND)),
                  (old ? "are filthier than ever" : "get slimy"));
             if (is_wet_towel(obj))
@@ -149,8 +149,9 @@ struct obj *obj;
     }
 
     if (Glib) {
-        Glib = 0;
-        You("wipe off your %s.", makeplural(body_part(HAND)));
+        make_glib(0);
+        You("wipe off your %s.",
+            !uarmg ? makeplural(body_part(HAND)) : gloves_simple_name(uarmg));
         if (is_wet_towel(obj))
             dry_a_towel(obj, -1, drying_feedback);
         return 1;
@@ -304,6 +305,7 @@ struct obj *obj;
     long draws;
     int index, pm, n;
     boolean goodcards = FALSE;
+    boolean badcards = FALSE;
     struct monst *mtmp;
     struct obj *otmp;
 
@@ -313,16 +315,18 @@ struct obj *obj;
     }
     if (obj->blessed || Role_if(PM_CARTOMANCER)) {
         goodcards = TRUE;
+    } else if (obj->cursed) {
+        badcards = TRUE;
     }
 
     if (obj->otyp == PLAYING_CARD_DECK) {
-        if ((obj->cursed && Luck == 13) || Luck <= 0) {
+        if ((badcards && Luck == 13) || Luck <= 0) {
             pline("You draw a hand of five cards. It's not very good...");
-        } else if ((obj->cursed && Luck >= 5) || Luck < 5) {
+        } else if ((badcards && Luck >= 5) || Luck < 5) {
             pline("You draw a hand of five cards. Two pair!");
-        } else if ((obj->cursed && Luck > 0) || Luck < 13) {
+        } else if ((badcards && Luck > 0) || Luck < 13) {
             pline("You draw a hand of five cards. Full house!");
-        } else if ((obj->cursed && Luck <= 0) || Luck == 13) {
+        } else if ((badcards && Luck <= 0) || Luck == 13) {
             pline("You draw a hand of five cards. Wow, a royal flush!");
         }
         /* if blessed, indicate the luck value directly. */
@@ -340,7 +344,7 @@ struct obj *obj;
         draws = 0L;
     if (draws > 5)
         draws = 5;
-    if (draws <= 0L) {
+    if (strlen(buf) <= 0L || draws <= 0L) {
         pline("You decide not to try your luck.");
         pline("The pack of cards vanishes in a puff of smoke.");
         useup(obj);
@@ -352,10 +356,9 @@ struct obj *obj;
     for ( ; draws > 0; draws--) {
         index = rnd(22);
         // wishes and disasters can be modified through BCU
-        if (obj->cursed && index > 1) {
+        if (badcards && index > 1) {
           index--;
-        }
-        if (goodcards && index < 22) {
+        } else if (goodcards && index < 22) {
           index++;
         }
         switch(index) {
@@ -707,7 +710,8 @@ register struct obj *obj;
     return res;
 }
 
-static const char whistle_str[] = "produce a %s whistling sound.";
+static const char whistle_str[] = "produce a %s whistling sound.",
+                  alt_whistle_str[] = "produce a %s, sharp vibration.";
 
 STATIC_OVL void
 use_whistle(obj)
@@ -719,8 +723,7 @@ struct obj *obj;
         You("blow bubbles through %s.", yname(obj));
     } else {
         if (Deaf)
-            You_feel("rushing air tickle your %s.",
-                        body_part(NOSE));
+            You_feel("rushing air tickle your %s.", body_part(NOSE));
         else
             You(whistle_str, obj->cursed ? "shrill" : "high");
         wake_nearby();
@@ -738,16 +741,17 @@ struct obj *obj;
     if (!can_blow(&youmonst)) {
         You("are incapable of using the whistle.");
     } else if (obj->cursed && !rn2(2)) {
-        You("produce a %shigh-pitched humming noise.",
-            Underwater ? "very " : "");
+        You("produce a %shigh-%s.", Underwater ? "very " : "",
+            Deaf ? "frequency vibration" : "pitched humming noise");
         wake_nearby();
     } else {
         int pet_cnt = 0, omx, omy;
 
         /* it's magic!  it works underwater too (at a higher pitch) */
-        You(whistle_str,
-            Hallucination ? "normal" : Underwater ? "strange, high-pitched"
-                                                  : "strange");
+        You(Deaf ? alt_whistle_str : whistle_str,
+            Hallucination ? "normal"
+            : (Underwater && !Deaf) ? "strange, high-pitched"
+              : "strange");
         for (mtmp = fmon; mtmp; mtmp = nextmon) {
             nextmon = mtmp->nmon; /* trap might kill mon */
             if (DEADMONSTER(mtmp))
@@ -1757,13 +1761,11 @@ dorub()
         } else
             pline1(nothing_happens);
     } else if (uwep->otyp == MOONSTONE) {
-        if (!uwep->in_use) {
+        if (!uwep->lamplit) {
             begin_burn(uwep, FALSE);
-            uwep->in_use = 1;
         } else {
             pline("%s glowing.", Yobjnam2(uwep, "stop"));
             end_burn(uwep, FALSE);
-            uwep->in_use = 0;
             return 1;
         }
         makeknown(MOONSTONE);
@@ -2278,6 +2280,8 @@ struct obj *obj;
         && !(u.uswallow
              && attacktype_fordmg(u.ustuck->data, AT_ENGL, AD_BLND)))
         prop_trouble(BLINDED);
+    if (TimedTrouble(HWithering))
+        prop_trouble(WITHERING);
     if (TimedTrouble(LarvaCarrier))
         prop_trouble(LARVACARRIER);
     if (TimedTrouble(HHallucination))
@@ -2347,6 +2351,11 @@ struct obj *obj;
         switch (idx) {
         case prop2trbl(SICK):
             make_sick(0L, (char *) 0, TRUE, SICK_ALL);
+            did_prop++;
+            break;
+        case prop2trbl(WITHERING):
+            You("are no longer withering away. Whew!");
+            set_itimeout(&HWithering, (long) 0);
             did_prop++;
             break;
         case prop2trbl(LARVACARRIER):
@@ -2633,17 +2642,19 @@ struct obj *obj;
 
     if (Glib) {
         pline("%s from your %s.", Tobjnam(obj, "slip"),
-              makeplural(body_part(FINGER)));
+              fingers_or_gloves(FALSE));
         dropx(obj);
         return;
     }
 
     if (obj->spe > 0) {
+        int oldglib;
+
         if ((obj->cursed || Fumbling) && !rn2(2)) {
             consume_obj_charge(obj, TRUE);
 
             pline("%s from your %s.", Tobjnam(obj, "slip"),
-                  makeplural(body_part(FINGER)));
+                  fingers_or_gloves(FALSE));
             dropx(obj);
             return;
         }
@@ -2654,17 +2665,18 @@ struct obj *obj;
             return;
         consume_obj_charge(obj, TRUE);
 
+        oldglib = (int) (Glib & TIMEOUT);
         if (otmp != &zeroobj) {
             You("cover %s with a thick layer of grease.", yname(otmp));
             otmp->greased = 1;
             if (obj->cursed && !nohands(youmonst.data)) {
-                incr_itimeout(&Glib, rnd(15));
+                make_glib(oldglib + rn1(6, 10)); /* + 10..15 */
                 pline("Some of the grease gets all over your %s.",
-                      makeplural(body_part(HAND)));
+                      fingers_or_gloves(TRUE));
             }
         } else {
-            incr_itimeout(&Glib, rnd(15));
-            You("coat your %s with grease.", makeplural(body_part(FINGER)));
+            make_glib(oldglib + rn1(11, 5)); /* + 5..15 */
+            You("coat your %s with grease.", fingers_or_gloves(TRUE));
         }
     } else {
         if (obj->known)

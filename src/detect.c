@@ -1,4 +1,4 @@
-/* NetHack 3.6	detect.c	$NHDT-Date: 1562630266 2019/07/08 23:57:46 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.96 $ */
+/* NetHack 3.6	detect.c	$NHDT-Date: 1575245054 2019/12/02 00:04:14 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.100 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2018. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -1458,7 +1458,7 @@ struct obj *sobj; /* scroll--actually fake spellbook--object */
      * Unlike when casting the spell, it is much too intrustive when
      * in the midst of walking around or combatting monsters.
      *
-     * For 3.6.2, show terrain, then object, then monster like regular
+     * As of 3.6.2, show terrain, then object, then monster like regular
      * map updating, except in this case the map locations get marked
      * as seen from every direction rather than just from direction of
      * hero.  Skilled spell marks revealed objects as 'seen up close'
@@ -1538,8 +1538,13 @@ struct obj *sobj; /* scroll--actually fake spellbook--object */
                 continue;
             newglyph = glyph_at(zx, zy);
             if (glyph_is_monster(newglyph)
-                && glyph_to_mon(newglyph) != PM_LONG_WORM_TAIL)
-                map_invisible(zx, zy);
+                && glyph_to_mon(newglyph) != PM_LONG_WORM_TAIL) {
+                /* map_invisible() was unconditional here but that made
+                   remembered objects be forgotten for the case where a
+                   monster is immediately redrawn by see_monsters() */
+                if ((mtmp = m_at(zx, zy)) == 0 || !canspotmon(mtmp))
+                    map_invisible(zx, zy);
+            }
         }
     see_monsters();
 
@@ -2055,13 +2060,12 @@ dump_map()
 
             glyph = reveal_terrain_getglyph(x, y, FALSE, u.uswallow,
                                             default_glyph, subset);
-            sym = mapglyph(glyph, &ch, &color, &special, x, y);
-
-#ifdef DUMPHTML
-            /* HTML map prints in a defined rectangle, so
-               just render every glyph - no skipping. */
-            html_dump_glyph(x, y, sym, ch, color, special);
-#endif
+            sym =mapglyph(glyph, &ch, &color, &special, x, y, 0);
+            #ifdef DUMPHTML
+                /* HTML map prints in a defined rectangle, so
+                just render every glyph - no skipping. */
+                html_dump_glyph(x, y, sym, ch, color, special);
+            #endif
             buf[x - 1] = ch;
             if (ch != ' ') {
                 blankrow = FALSE;

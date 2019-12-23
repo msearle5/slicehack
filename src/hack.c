@@ -1,4 +1,4 @@
-/* NetHack 3.6	hack.c	$NHDT-Date: 1568509227 2019/09/15 01:00:27 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.216 $ */
+/* NetHack 3.6	hack.c	$NHDT-Date: 1576638500 2019/12/18 03:08:20 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.220 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -2292,6 +2292,10 @@ boolean newspot;             /* true if called by spoteffects */
         }
         /* not mounted */
 
+        /* if hiding on ceiling then don't automatically enter pool */
+        if (Upolyd && ceiling_hider(&mons[u.umonnum]) && u.uundetected)
+            return FALSE;
+
         /* drown(),lava_effects() return true if hero changes
            location while surviving the problem */
         if (is_lava(u.ux, u.uy)) {
@@ -2895,8 +2899,10 @@ pickup_checks()
     }
     if (!can_reach_floor(TRUE)) {
         struct trap *traphere = t_at(u.ux, u.uy);
-        if (traphere && uteetering_at_seen_pit(traphere))
-            You("cannot reach the bottom of the pit.");
+        if (traphere
+            && (uteetering_at_seen_pit(traphere) || uescaped_shaft(traphere)))
+            You("cannot reach the bottom of the %s.",
+                is_pit(traphere->ttyp) ? "pit" : "abyss");
         else if (u.usteed && P_SKILL(P_RIDING) < P_BASIC)
             rider_cant_reach();
         else if (Blind && !can_reach_floor(TRUE))
@@ -3098,7 +3104,7 @@ int x, y;
     if (!IS_DOOR(lev_p->typ))
         return FALSE;
     /* all rogue level doors are doorless but disallow diagonal access, so
-       we treat them as if their non-existant doors were actually present */
+       we treat them as if their non-existent doors were actually present */
     if (Is_rogue_level(&u.uz))
         return FALSE;
     return !(lev_p->doormask & ~(D_NODOOR | D_BROKEN));

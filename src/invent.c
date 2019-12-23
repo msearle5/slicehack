@@ -1,4 +1,4 @@
-/* NetHack 3.6	invent.c	$NHDT-Date: 1571436003 2019/10/18 22:00:03 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.265 $ */
+/* NetHack 3.6	invent.c	$NHDT-Date: 1575245062 2019/12/02 00:04:22 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.267 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Derek S. Ray, 2015. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -478,8 +478,8 @@ const genericptr vptr2;
  *      (fragile) or by avoiding sortloot() during inventory display
  *      (more robust).
  *
- *      3.6.2 reverts to the temporary array of ordered obj pointers
- *      but has sortloot() do the counting and allocation.  Callers
+ *      As of 3.6.2: revert to the temporary array of ordered obj pointers
+ *      but have sortloot() do the counting and allocation.  Callers
  *      need to use array traversal instead of linked list traversal
  *      and need to free the temporary array when done.  And the
  *      array contains 'struct sortloot_item' (aka 'Loot') entries
@@ -1603,6 +1603,7 @@ register const char *let, *word;
                          && otyp != TOWEL && otyp != LENSES && otyp != MASK)))
              || (!strcmp(word, "wield")
                  && (otmp->oclass == TOOL_CLASS && !is_weptool(otmp)))
+             || (!strcmp(word, "drink") && (otmp->oclass == TOOL_CLASS && otmp->otyp != KEG))
              || (!strcmp(word, "eat") && !is_edible(otmp))
              || (!strcmp(word, "sacrifice")
                  && (otyp != CORPSE && otyp != AMULET_OF_YENDOR
@@ -1796,7 +1797,7 @@ register const char *let, *word;
             if (iflags.force_invmenu)
                 Sprintf(menuquery, "What do you want to %s?", word);
             if (!strcmp(word, "grease"))
-                Sprintf(qbuf, "your %s", makeplural(body_part(FINGER)));
+                Sprintf(qbuf, "your %s", fingers_or_gloves(FALSE));
             else if (!strcmp(word, "write with"))
                 Sprintf(qbuf, "your %s", body_part(FINGERTIP));
             else if (!strcmp(word, "wield"))
@@ -3727,7 +3728,8 @@ register struct obj *otmp, *obj;
 
     if (obj->oclass == FOOD_CLASS
         && (obj->oeaten != otmp->oeaten || obj->orotten != otmp->orotten
-            || obj->odrained != otmp->odrained))
+            || obj->odrained != otmp->odrained || obj->oeroded != otmp->oeroded
+            || obj->oerodeproof != otmp->oerodeproof))
         return FALSE;
 
     if (obj->dknown != otmp->dknown
@@ -3741,7 +3743,7 @@ register struct obj *otmp, *obj;
             || obj->rknown != otmp->rknown))
         return FALSE;
 
-    if (obj->otyp == CORPSE || obj->otyp == EGG || obj->otyp == TIN) {
+    if (obj->otyp == CORPSE || obj->otyp == EGG || obj->otyp == TIN || obj->otyp == SCR_CREATE_MONSTER) {
         if (obj->corpsenm != otmp->corpsenm)
             return FALSE;
     }

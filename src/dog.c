@@ -949,6 +949,9 @@ register struct obj *obj;
                     is_orc(mon->data))
           	return ACCFOOD;
             /* fall through */
+
+        /*FALLTHRU*/
+        /* TODO: Adjust this for new SpliceHack races */
         default:
             if (starving)
                 return ACCFOOD;

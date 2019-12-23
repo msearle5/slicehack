@@ -1,4 +1,4 @@
-/* NetHack 3.6	flag.h	$NHDT-Date: 1569276988 2019/09/23 22:16:28 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.155 $ */
+/* NetHack 3.6	flag.h	$NHDT-Date: 1574900824 2019/11/28 00:27:04 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.160 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Michael Allison, 2006. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -124,6 +124,7 @@ struct flag {
 #define PARANOID_TRAP       0x0400
 #define PARANOID_THROW      0x0800
 #define PARANOID_LATEQUIT   0x1000
+#define PARANOID_EATING     0x0600
     int pickup_burden; /* maximum burden before prompt */
     int pile_limit;    /* controls feedback when walking over objects */
     char inv_order[MAXOCLASSES];
@@ -288,6 +289,8 @@ struct instance_flags {
     boolean mon_polycontrol; /* debug: control monster polymorphs */
     boolean in_dumplog;    /* doing the dumplog right now? */
     boolean in_parse;      /* is a command being parsed? */
+     /* suppress terminate during options parsing, for --showpaths */
+    boolean initoptions_noterminate;
 
     /* stuff that is related to options and/or user or platform preferences
      */
@@ -549,6 +552,10 @@ enum runmode_types {
 #define ParanoidTrap ((flags.paranoia_bits & PARANOID_TRAP) != 0)
 /* throw: throw an arrow when you have a bow as your swap weapon */
 #define ParanoidThrow ((flags.paranoia_bits & PARANOID_THROW) != 0)
+
+/* continue eating: prompt given _after_first_bite_ when eating something
+   while satiated */
+#define ParanoidEating ((flags.paranoia_bits & PARANOID_EATING) != 0)
 
 /* command parsing, mainly dealing with number_pad handling;
    not saved and restored */

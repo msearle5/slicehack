@@ -24,6 +24,7 @@
 static void FDECL(process_options, (int argc, char **argv));
 static void NDECL(nhusage);
 static char *NDECL(get_executable_path);
+char *FDECL(translate_path_variables, (const char *, char *));
 char *NDECL(exename);
 boolean NDECL(fakeconsole);
 void NDECL(freefakeconsole);
@@ -38,6 +39,13 @@ extern void NDECL(backsp);
 extern void NDECL(clear_screen);
 #undef E
 
+#ifdef _MSC_VER
+#ifdef kbhit
+#undef kbhit
+#endif
+#include <conio.h.>
+#endif
+
 #ifdef PC_LOCKING
 static int NDECL(eraseoldlocks);
 #endif
@@ -49,9 +57,14 @@ char FDECL(windows_yn_function, (const char *, const char *, CHAR_P));
 static void FDECL(windows_getlin, (const char *, char *));
 extern int NDECL(windows_console_custom_nhgetch);
 void NDECL(safe_routines);
+int NDECL(tty_self_recover_prompt);
+int NDECL(other_self_recover_prompt);
 
 char orgdir[PATHLEN];
 boolean getreturn_enabled;
+int windows_startup_state = 0;    /* we flag whether to continue with this */
+                                  /* 0 = keep starting up, everything is good */
+
 extern int redirect_stdout;       /* from sys/share/pcsys.c */
 extern int GUILaunched;
 HANDLE hStdOut;
@@ -62,8 +75,7 @@ char default_window_sys[] = "mswin";
 static struct stat hbuf;
 #endif
 #include <sys/stat.h>
-#if defined(WIN32) || defined(MSDOS)
-#endif
+
 
 extern char orgdir[];
 
@@ -100,13 +112,17 @@ void
 build_known_folder_path(
     const KNOWNFOLDERID * folder_id,
     char * path,
-    size_t path_size)
+    size_t path_size,
+    boolean versioned)
 {
     get_known_folder_path(folder_id, path, path_size);
     strcat(path, "\\NetHack\\");
     create_directory(path);
-    Sprintf(eos(path), "%d.%d\\", VERSION_MAJOR, VERSION_MINOR);
-    create_directory(path);
+    if (versioned) {
+        Sprintf(eos(path), "%d.%d\\", 
+                    VERSION_MAJOR, VERSION_MINOR);
+        create_directory(path);
+    }
 }
 
 void
@@ -149,43 +165,61 @@ folder_file_exists(const char * folder, const char * file_name)
     return file_exists(path);
 }
 
-/*
- * Rules for setting prefix locations
- *
- * COMMON_NETHACK_PATH = %COMMONPROGRAMFILES%\NetHack\3.6\
- * PROFILE_PATH = %SystemDrive%\Users\%USERNAME%\
- *
- * NETHACK_PROFILE_PATH = PROFILE_PATH\NetHack\3.6\
- * NETHACK_PER_USER_DATA_PATH = PROFILE_PATH\AppData\Local\NetHack\3.6\
- * NETHACK_GLOBAL_DATA_PATH = %SystemDrive%\ProgramData\NetHack\3.6\
- * EXECUTABLE_PATH = path to where .exe lives
- *
- * HACKPREFIX:
- *   - use environment variable NETHACKDIR if variable is defined
- *   - otherwise use environment variable HACKDIR if variable is defined
- *   - otherwise if store install use NETHACK_PROFILE_PATH
- *   - otherwise if manual install use EXECUTABLE_PATH
- *
- * LEVELPREFIX, SAVEPREFIX:
- *   - if store install use NETHACK_PER_USER_DATA_PATH
- *   - if manual install use HACKPREFIX
- *
- * BONESPREFIX, SCOREPREFIX, LOCKPREFIX:
- *   - if store install use NETHACK_GLOBAL_DATA_PATH
- *   - if manual install use HACKPREFIX
- *
- * DATAPREFIX
- *   - if store install use EXECUTABLE_PATH
- *   - if manual install use HACKPREFIX
- *
- * SYSCONFPREFIX
- *   - use COMMON_NETHACK_PATH if sysconf present
- *   - otherwise use HACKPREFIX
- *
- * CONFIGPREFIX
- *    - if manual install use PROFILE_PATH
- *    - if store install use NETHACK_PROFILE_PATH
- */
+boolean
+test_portable_config(
+    const char *executable_path,
+    char *portable_device_path,
+    size_t portable_device_path_size)
+{
+    int lth = 0;
+    const char *sysconf = "sysconf";
+    char tmppath[MAX_PATH];
+    boolean retval = FALSE,
+            save_initoptions_noterminate = iflags.initoptions_noterminate;
+
+    if (portable_device_path && folder_file_exists(executable_path, "sysconf")) {
+        /*
+           There is a sysconf file (not just sysconf.template) present in
+           the exe path, which is not the way NetHack is initially distributed,
+           so assume it means that the admin/installer wants to override
+           something, perhaps set up for a fully-portable configuration that
+           leaves no traces behind elsewhere on this computer's hard drive -
+           delve into that...
+         */
+
+        *portable_device_path = '\0';
+        lth = sizeof tmppath - strlen(sysconf); 
+        (void) strncpy(tmppath, executable_path, lth - 1);
+        tmppath[lth - 1] = '\0';
+        (void) strcat(tmppath, sysconf);
+
+        iflags.initoptions_noterminate = 1;
+        /* assure_syscf_file(); */
+        config_error_init(TRUE, tmppath, FALSE);
+        /* ... and _must_ parse correctly. */
+        if (read_config_file(tmppath, SET_IN_SYS)
+            && sysopt.portable_device_paths)
+            retval = TRUE;
+        (void) config_error_done();
+        iflags.initoptions_noterminate = save_initoptions_noterminate;
+        sysopt_release();   /* the real sysconf processing comes later */
+    }
+    if (retval) {
+        lth = strlen(executable_path);
+        if (lth <= (int) portable_device_path_size - 1)
+            Strcpy(portable_device_path, executable_path);
+        else
+            retval = FALSE;
+    }
+    return retval;
+}
+
+static char portable_device_path[MAX_PATH];
+
+const char *get_portable_device()
+{
+    return (const char *) portable_device_path;
+}
 
 void
 set_default_prefix_locations(const char *programPath)
@@ -193,54 +227,51 @@ set_default_prefix_locations(const char *programPath)
     char *envp = NULL;
     char *sptr = NULL;
 
-    static char hack_path[MAX_PATH];
     static char executable_path[MAX_PATH];
-    static char nethack_profile_path[MAX_PATH];
-    static char nethack_per_user_data_path[MAX_PATH];
-    static char nethack_global_data_path[MAX_PATH];
-    static char sysconf_path[MAX_PATH];
+    static char profile_path[MAX_PATH];
+    static char versioned_profile_path[MAX_PATH];
+    static char versioned_user_data_path[MAX_PATH];
+    static char versioned_global_data_path[MAX_PATH];
     static char versioninfo[20];
 
     strcpy(executable_path, get_executable_path());
     append_slash(executable_path);
 
-    build_environment_path("NETHACKDIR", NULL, hack_path, sizeof(hack_path));
+    if (test_portable_config(executable_path,
+                          portable_device_path, sizeof portable_device_path)) {
+        fqn_prefix[SYSCONFPREFIX] = executable_path;
+        fqn_prefix[CONFIGPREFIX]  = portable_device_path;
+        fqn_prefix[HACKPREFIX]    = portable_device_path;
+        fqn_prefix[SAVEPREFIX]    = portable_device_path;
+        fqn_prefix[LEVELPREFIX]   = portable_device_path;
+        fqn_prefix[BONESPREFIX]   = portable_device_path;
+        fqn_prefix[SCOREPREFIX]   = portable_device_path;
+        fqn_prefix[LOCKPREFIX]    = portable_device_path;
+        fqn_prefix[TROUBLEPREFIX] = portable_device_path;
+        fqn_prefix[DATAPREFIX]    = executable_path;
+    } else {
+        build_known_folder_path(&FOLDERID_Profile, profile_path,
+            sizeof(profile_path), FALSE);
 
-    if (hack_path[0] == '\0')
-        build_environment_path("HACKDIR", NULL, hack_path, sizeof(hack_path));
+        build_known_folder_path(&FOLDERID_Profile, versioned_profile_path,
+            sizeof(profile_path), TRUE);
 
-    build_known_folder_path(&FOLDERID_Profile, nethack_profile_path,
-        sizeof(nethack_profile_path));
+        build_known_folder_path(&FOLDERID_LocalAppData,
+            versioned_user_data_path, sizeof(versioned_user_data_path), TRUE);
 
-    build_known_folder_path(&FOLDERID_LocalAppData,
-        nethack_per_user_data_path, sizeof(nethack_per_user_data_path));
-
-    build_known_folder_path(&FOLDERID_ProgramData,
-        nethack_global_data_path, sizeof(nethack_global_data_path));
-
-    if (hack_path[0] == '\0')
-        strcpy(hack_path, nethack_profile_path);
-
-    fqn_prefix[LEVELPREFIX] = nethack_per_user_data_path;
-    fqn_prefix[SAVEPREFIX] = nethack_per_user_data_path;
-    fqn_prefix[BONESPREFIX] = nethack_global_data_path;
-    fqn_prefix[DATAPREFIX] = executable_path;
-    fqn_prefix[SCOREPREFIX] = nethack_global_data_path;
-    fqn_prefix[LOCKPREFIX] = nethack_global_data_path;
-    fqn_prefix[CONFIGPREFIX] = nethack_profile_path;
-
-    fqn_prefix[HACKPREFIX] = hack_path;
-    fqn_prefix[TROUBLEPREFIX] = hack_path;
-
-    Sprintf(versioninfo, "NetHack\\%d.%d", VERSION_MAJOR, VERSION_MINOR);
-    build_environment_path("COMMONPROGRAMFILES", versioninfo, sysconf_path,
-        sizeof(sysconf_path));
-
-    if(!folder_file_exists(sysconf_path, SYSCF_FILE))
-        strcpy(sysconf_path, hack_path);
-
-    fqn_prefix[SYSCONFPREFIX] = sysconf_path;
-
+        build_known_folder_path(&FOLDERID_ProgramData,
+            versioned_global_data_path, sizeof(versioned_global_data_path), TRUE);
+        fqn_prefix[SYSCONFPREFIX] = versioned_global_data_path;
+        fqn_prefix[CONFIGPREFIX]  = profile_path;
+        fqn_prefix[HACKPREFIX]    = versioned_profile_path;
+        fqn_prefix[SAVEPREFIX]    = versioned_user_data_path;
+        fqn_prefix[LEVELPREFIX]   = versioned_user_data_path;
+        fqn_prefix[BONESPREFIX]   = versioned_global_data_path;
+        fqn_prefix[SCOREPREFIX]   = versioned_global_data_path;
+        fqn_prefix[LOCKPREFIX]    = versioned_global_data_path;
+        fqn_prefix[TROUBLEPREFIX] = versioned_profile_path;
+        fqn_prefix[DATAPREFIX]    = executable_path;
+    }
 }
 
 /* copy file if destination does not exist */
@@ -305,43 +336,50 @@ update_file(
 
 }
 
-void copy_config_content()
+void copy_sysconf_content()
 {
-    /* Keep templates up to date */
-    /* TODO: Update the package to store config file as .nethackrc */
-    update_file(fqn_prefix[CONFIGPREFIX], CONFIG_TEMPLATE,
-        fqn_prefix[DATAPREFIX], CONFIG_TEMPLATE, FALSE);
+    /* Using the SYSCONFPREFIX path, lock it so that it does not change */
+    fqn_prefix_locked[SYSCONFPREFIX] = TRUE;
+
     update_file(fqn_prefix[SYSCONFPREFIX], SYSCF_TEMPLATE,
         fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE, FALSE);
+
+    update_file(fqn_prefix[SYSCONFPREFIX], SYMBOLS_TEMPLATE,
+        fqn_prefix[DATAPREFIX], SYMBOLS_TEMPLATE, FALSE);
+
+    /* If the required early game file does not exist, copy it */
+    copy_file(fqn_prefix[SYSCONFPREFIX], SYSCF_FILE,
+        fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE);
+
+    update_file(fqn_prefix[SYSCONFPREFIX], SYMBOLS,
+        fqn_prefix[DATAPREFIX], SYMBOLS_TEMPLATE, TRUE);
+}
+
+void copy_config_content()
+{
+    /* Using the CONFIGPREFIX path, lock it so that it does not change */
+    fqn_prefix_locked[CONFIGPREFIX] = TRUE;
+
+    /* Keep templates up to date */
+    update_file(fqn_prefix[CONFIGPREFIX], CONFIG_TEMPLATE,
+        fqn_prefix[DATAPREFIX], CONFIG_TEMPLATE, FALSE);
 
     /* If the required early game file does not exist, copy it */
     /* NOTE: We never replace .nethackrc or sysconf */
     copy_file(fqn_prefix[CONFIGPREFIX], CONFIG_FILE,
         fqn_prefix[DATAPREFIX], CONFIG_TEMPLATE);
-    copy_file(fqn_prefix[SYSCONFPREFIX], SYSCF_FILE,
-        fqn_prefix[DATAPREFIX], SYSCF_TEMPLATE);
-
-    /* Update symbols and save a copy if we are replacing */
-    /* TODO: Can't HACKDIR be changed during option parsing
-       causing us to perhaps be checking options against the wrong
-       symbols file? */
-    update_file(fqn_prefix[HACKPREFIX], SYMBOLS,
-        fqn_prefix[DATAPREFIX], SYMBOLS_TEMPLATE, TRUE);
 }
 
 void
 copy_hack_content()
 {
+    nhassert(fqn_prefix_locked[HACKPREFIX]);
+
     /* Keep Guidebook and opthelp up to date */
     update_file(fqn_prefix[HACKPREFIX], GUIDEBOOK_FILE,
         fqn_prefix[DATAPREFIX], GUIDEBOOK_FILE, FALSE);
     update_file(fqn_prefix[HACKPREFIX], OPTIONFILE,
         fqn_prefix[DATAPREFIX], OPTIONFILE, FALSE);
-
-    /* Keep templates up to date */
-    update_file(fqn_prefix[HACKPREFIX], SYMBOLS_TEMPLATE,
-        fqn_prefix[DATAPREFIX], SYMBOLS_TEMPLATE, FALSE);
-
 }
 
 /*
@@ -412,21 +450,36 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
     chdir(fqn_prefix[HACKPREFIX]);
 #endif
 
-    copy_config_content();
-
     if (GUILaunched || IsDebuggerPresent())
         getreturn_enabled = TRUE;
 
     check_recordfile((char *) 0);
     iflags.windowtype_deferred = TRUE;
-    initoptions();                  
+    copy_sysconf_content();
+    initoptions();
+
+    /* Now that sysconf has had a chance to set the TROUBLEPREFIX, don't
+       allow it to be changed from here on out. */
+    fqn_prefix_locked[TROUBLEPREFIX] = TRUE;
+
+    copy_config_content();
+    process_options(argc, argv);
+
+    /* did something earlier flag a need to exit without starting a game? */
+    if (windows_startup_state > 0) {
+        raw_printf("Exiting.");
+        nethack_exit(EXIT_FAILURE);
+    }
+
+    /* Finished processing options, lock all directory paths */
+    for(int i = 0; i < PREFIX_COUNT; i++)
+        fqn_prefix_locked[i] = TRUE;
+
     if (!validate_prefix_locations(failbuf)) {
         raw_printf("Some invalid directory locations were specified:\n\t%s\n",
                    failbuf);
         nethack_exit(EXIT_FAILURE);
     }
-
-    process_options(argc, argv);
 
     copy_hack_content();
 
@@ -493,7 +546,8 @@ _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);*/
         fnamebuf, encodedfnamebuf, BUFSZ);
     Sprintf(lock, "%s", encodedfnamebuf);
     /* regularize(lock); */ /* we encode now, rather than substitute */
-    getlock();
+    if (getlock() == 0)
+        nethack_exit(EXIT_SUCCESS);
 
     /* Set up level 0 file to keep the game state.
      */
@@ -558,9 +612,9 @@ attempt_restore:
             You("are in non-scoring discovery mode.");
     }
 
-	//	iflags.debug_fuzzer = TRUE;
+        //	iflags.debug_fuzzer = TRUE;
 
-	moveloop(resuming);
+        moveloop(resuming);
     nethack_exit(EXIT_SUCCESS);
     /*NOTREACHED*/
     return 0;
@@ -580,14 +634,21 @@ char *argv[];
         if (argcheck(argc, argv, ARG_VERSION) == 2)
             nethack_exit(EXIT_SUCCESS);
 
+        if (argcheck(argc, argv, ARG_SHOWPATHS) == 2) {
+            iflags.initoptions_noterminate = TRUE;
+            initoptions();
+            iflags.initoptions_noterminate = FALSE;
+            reveal_paths();
+            nethack_exit(EXIT_SUCCESS);
+        }
         if (argcheck(argc, argv, ARG_DEBUG) == 1) {
             argc--;
             argv++;
-	}
-	if (argcheck(argc, argv, ARG_WINDOWS) == 1) {
-	    argc--;
-	    argv++;
-	}
+        }
+        if (argcheck(argc, argv, ARG_WINDOWS) == 1) {
+            argc--;
+            argv++;
+        }
         if (argc > 1 && !strncmp(argv[1], "-d", 2) && argv[1][2] != 'e') {
             /* avoid matching "-dec" for DECgraphics; since the man page
              * says -d directory, hope nobody's using -desomething_else
@@ -752,6 +813,9 @@ nhusage()
 #ifdef NEWS
     ADD_USAGE(" [-n]");
 #endif
+    (void) Sprintf(buf2, "\n       or\n%s [--showpaths]",
+        hname);
+    ADD_USAGE(buf2);
     if (!iflags.window_inited)
         raw_printf("%s\n", buf1);
     else
@@ -881,6 +945,61 @@ get_executable_path()
     return path_buffer;
 }
 
+char *
+translate_path_variables(str, buf)
+const char *str;
+char *buf;
+{
+    const char *src;
+    char evar[BUFSZ], *dest, *envp, *eptr = (char *) 0;
+    boolean in_evar;
+    size_t ccount, ecount, destcount, slen = str ? strlen(str) : 0;
+
+    if (!slen || !buf) {
+        if (buf)
+            *buf = '\0';
+        return buf;
+    }
+
+    dest = buf;
+    src = str;
+    in_evar = FALSE;
+    destcount = ecount = 0;
+    for (ccount = 0; ccount < slen && destcount < (BUFSZ - 1) &&
+                     ecount < (BUFSZ - 1); ++ccount, ++src) {
+        if (*src == '%') {
+            if (in_evar) {
+                *eptr = '\0';
+                envp = nh_getenv(evar);
+                if (envp) {
+                    size_t elen = strlen(envp);
+
+                    if ((elen + destcount) < (size_t) (BUFSZ - 1)) {
+                        Strcpy(dest, envp);
+                        dest += elen;
+                        destcount += elen;
+                    }
+                }
+            } else {
+                eptr = evar;
+                ecount = 0;
+            }
+            in_evar = !in_evar;
+            continue;
+        }
+        if (in_evar) {
+            *eptr++ = *src;
+            ecount++;
+        } else {
+            *dest++ = *src;
+            destcount++;
+        }
+    }
+    *dest = '\0';
+    return buf;
+}
+
+
 /*ARGSUSED*/
 void
 windows_raw_print(str)
@@ -965,15 +1084,16 @@ eraseoldlocks()
     return (1);   /* success! */
 }
 
-void
+int
 getlock()
 {
-    register int fd, c, ci, ct, ern;
+    register int fd, ern, prompt_result = 0;
     int fcmask = FCMASK;
     char tbuf[BUFSZ];
     const char *fq_lock;
 #define OOPS_BUFSZ 512
     char oops[OOPS_BUFSZ];
+    boolean istty = WINDOWPORT("tty");
 
     /* we ignore QUIT and INT at this point */
     if (!lock_file(HLOCK, LOCKPREFIX, 10)) {
@@ -1018,56 +1138,41 @@ getlock()
 
     (void) nhclose(fd);
 
-    if (iflags.window_inited || WINDOWPORT("curses")) {
-#ifdef SELF_RECOVER
-        c = yn("There are files from a game in progress under your name. "
-               "Recover?");
-#else
-        pline("There is already a game in progress under your name.");
-        pline("You may be able to use \"recover %s\" to get it back.\n",
-              tbuf);
-        c = yn("Do you want to destroy the old game?");
-#endif
-    } else {
-        c = 'n';
-        ct = 0;
-#ifdef SELF_RECOVER
-        raw_print("There are files from a game in progress under your name. "
-              "Recover? [yn]");
-#else
-        raw_print("\nThere is already a game in progress under your name.\n");
-        raw_print("If this is unexpected, you may be able to use \n");
-        raw_print("\"recover %s\" to get it back.", tbuf);
-        raw_print("\nDo you want to destroy the old game? [yn] ");
-#endif
-        while ((ci = nhgetch()) != '\n') {
-            if (ct > 0) {
-                raw_print("\b \b");
-                ct = 0;
-                c = 'n';
-            }
-            if (ci == 'y' || ci == 'n' || ci == 'Y' || ci == 'N') {
-                ct = 1;
-                c = ci;
-            }
-        }
-    }
-    if (c == 'y' || c == 'Y')
-#ifndef SELF_RECOVER
-        if (eraseoldlocks()) {
-            if (WINDOWPORT("tty"))
-                clear_screen(); /* display gets fouled up otherwise */
-            goto gotlock;
-        } else {
-            unlock_file(HLOCK);
-#if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
-            chdirx(orgdir, 0);
-#endif
-            raw_print("Couldn't destroy old game.");
-        }
-#else /*SELF_RECOVER*/
+    if (WINDOWPORT("tty"))
+        prompt_result = tty_self_recover_prompt();
+    else
+        prompt_result = other_self_recover_prompt();
+    /*
+     * prompt_result == 1  means recover old game.
+     * prompt_result == -1 means willfully destroy the old game.
+     * prompt_result == 0 should just exit.
+     */
+    Sprintf(oops, "You chose to %s.",
+                (prompt_result == -1)
+                    ? "destroy the old game and start a new one"
+                    : (prompt_result == 1)
+                        ? "recover the old game"
+                        : "not start a new game");
+    if (istty)
+        clear_screen();
+    pline(oops);
+    if (prompt_result == 1) {          /* recover */
         if (recover_savefile()) {
-            if (WINDOWPORT("tty"))
+#if 0
+            if (istty)
+                clear_screen(); /* display gets fouled up otherwise */
+#endif
+            goto gotlock;
+        } else {
+            unlock_file(HLOCK);
+#if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
+            chdirx(orgdir, 0);
+#endif
+            raw_print("Couldn't recover the old game.");
+        }
+    } else if (prompt_result < 0) {    /* destroy old game */
+        if (eraseoldlocks()) {
+            if (istty)
                 clear_screen(); /* display gets fouled up otherwise */
             goto gotlock;
         } else {
@@ -1075,16 +1180,15 @@ getlock()
 #if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
             chdirx(orgdir, 0);
 #endif
-            raw_print("Couldn't recover old game.");
+            raw_print("Couldn't destroy the old game.");
+            return 0;
         }
-#endif /*SELF_RECOVER*/
-    else {
+    } else {
         unlock_file(HLOCK);
 #if defined(CHDIR) && !defined(NOCWD_ASSUMPTIONS)
         chdirx(orgdir, 0);
 #endif
-        Sprintf(oops, "%s", "Cannot start a new game.");
-        raw_print(oops);
+        return 0;
     }
 
 gotlock:
@@ -1115,6 +1219,7 @@ gotlock:
             error("cannot close lock (%s)", fq_lock);
         }
     }
+    return 1;
 }
 #endif /* PC_LOCKING */
 
@@ -1155,4 +1260,135 @@ const char * b_path;
     return FALSE;
 }
 
+/*
+ * returns:
+ *     1 if game should be recovered
+ *    -1 if old game should be destroyed, allowing new game to proceed.
+ */
+int
+tty_self_recover_prompt()
+{
+    register int c, ci, ct, pl, retval = 0;
+    /* for saving/replacing functions, if needed */
+    struct window_procs saved_procs = {0};
+
+    pl = 1;
+    c = 'n';
+    ct = 0;
+    saved_procs = windowprocs;
+    if (!WINDOWPORT("safe-startup"))
+        windowprocs = *get_safe_procs(2); /* arg 2 uses no-newline variant */
+    windowprocs.win_nhgetch = windows_console_custom_nhgetch;
+    raw_print("\n");
+    raw_print("\n");
+    raw_print("\n");
+    raw_print("\n");
+    raw_print("\n");
+    raw_print("There are files from a game in progress under your name. ");
+    raw_print("Recover? [yn] ");
+
+ tty_ask_again:
+
+    while ((ci = nhgetch()) && !(ci == '\n' || ci == 13)) {
+        if (ct > 0) {
+            /* invalid answer */
+            raw_print("\b \b");
+            ct = 0;
+            c = 'n';
+        }
+        if (ci == 'y' || ci == 'n' || ci == 'Y' || ci == 'N') {
+            ct = 1;
+            c = ci;
+#ifdef _MSC_VER
+            _putch(ci);
+#endif
+        }
+    }
+
+    if (pl == 1 && (c == 'n' || c == 'N')) {
+        /* no to recover */
+        raw_print("\n\nAre you sure you wish to destroy the old game rather than try to\n");
+        raw_print("recover it? [yn] ");
+        c = 'n';
+        ct = 0;
+        pl = 2;
+        goto tty_ask_again;
+    }
+
+    if (pl == 2 && (c == 'n' || c == 'N')) {
+        /* no to destruction of old game */
+        retval = 0;
+    } else {
+        /* only yes answers get here */
+        if (pl == 2)
+            retval = -1;  /* yes, do destroy the old game anyway */
+        else
+            retval = 1;   /* yes, do recover the old game */
+    }
+    if (saved_procs.name[0]) {
+        windowprocs = saved_procs;
+        raw_clear_screen();
+    }
+    return retval;
+}
+
+int
+other_self_recover_prompt()
+{
+    register int c, ci, ct, pl, retval = 0;
+    boolean ismswin = WINDOWPORT("mswin"),
+            iscurses = WINDOWPORT("curses");
+
+    pl = 1;
+    c = 'n';
+    ct = 0;
+    if (iflags.window_inited || WINDOWPORT("curses")) {
+        c = yn("There are files from a game in progress under your name. "
+               "Recover?");
+    } else {
+        c = 'n';
+        ct = 0;
+        raw_print("There are files from a game in progress under your name. "
+              "Recover? [yn]");
+    }
+
+ other_ask_again:
+
+    if (!ismswin && !iscurses) {
+        while ((ci = nhgetch()) && !(ci == '\n' || ci == 13)) {
+            if (ct > 0) {
+                /* invalid answer */
+                raw_print("\b \b");
+                ct = 0;
+                c = 'n';
+            }
+            if (ci == 'y' || ci == 'n' || ci == 'Y' || ci == 'N') {
+                ct = 1;
+                c = ci;
+            }
+        }
+    }
+    if (pl == 1 && (c == 'n' || c == 'N')) {
+        /* no to recover */
+        c = yn("Are you sure you wish to destroy the old game, rather than try to "
+                  "recover it? [yn] ");
+        pl = 2;
+        if (!ismswin && !iscurses) {
+            c = 'n';
+            ct = 0;
+            goto other_ask_again;
+        }
+    }
+    if (pl == 2 && (c == 'n' || c == 'N')) {
+        /* no to destruction of old game */
+        retval = 0;
+    } else {
+        /* only yes answers get here */
+        if (pl == 2)
+            retval = -1;  /* yes, do destroy the old game anyway */
+        else
+            retval = 1;   /* yes, do recover the old game */
+    }
+    return retval;
+}
 /*windmain.c*/

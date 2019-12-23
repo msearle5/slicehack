@@ -1623,7 +1623,9 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
     case SPE_CREATE_MONSTER: {
         register struct monst *mtmp;
         if (sobj->corpsenm != NON_PM) {
-            mtmp = makemon(&mons[sobj->corpsenm], u.ux, u.uy, MM_EDOG | MM_NOERID);
+            mtmp = Role_if(PM_CARTOMANCER) ? 
+                makemon(&mons[sobj->corpsenm], u.ux, u.uy, MM_EDOG | MM_NOERID) :
+                makemon(&mons[sobj->corpsenm], u.ux, u.uy, MM_EDOG | MM_NOERID | NO_MINVENT);
             if (!mtmp)
                 break;
             if (!scursed)
@@ -1955,9 +1957,10 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
         known = TRUE;
         for (mtmp = fmon; mtmp; mtmp = mtmp2) {
             mtmp2 = mtmp->nmon;
-            if (distu(mtmp->mx, mtmp->my) <= 2)
+            if (distu(mtmp->mx, mtmp->my) <= 2) {
                 mhurtle(mtmp, mtmp->mx - u.ux, mtmp->my - u.uy, i + rn2(4));
                 setmangry(mtmp, TRUE);
+            }
         }
         break;
     }

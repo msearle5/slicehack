@@ -1,4 +1,4 @@
-/* NetHack 3.6	pickup.c	$NHDT-Date: 1570566381 2019/10/08 20:26:21 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.235 $ */
+/* NetHack 3.6	pickup.c	$NHDT-Date: 1576282488 2019/12/14 00:14:48 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.237 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -522,7 +522,7 @@ int what; /* should be a long */
         if (!can_reach_floor(TRUE)) {
             if ((multi && !context.run) || (autopickup && !flags.pickup)
                 || ((ttmp = t_at(u.ux, u.uy)) != 0
-                    && uteetering_at_seen_pit(ttmp)))
+                    && (uteetering_at_seen_pit(ttmp) || uescaped_shaft(ttmp))))
                 read_engr_at(u.ux, u.uy);
             return 0;
         }
@@ -1425,7 +1425,14 @@ boolean telekinesis;
                /* [exception for gold coins will have to change
                    if silver/copper ones ever get implemented] */
                && inv_cnt(FALSE) >= 52 && !merge_choice(invent, obj)) {
-        Your("knapsack cannot accommodate any more items.");
+        /* if there is some gold here (and we haven't already skipped it),
+           we aren't limited by the 52 item limit for it, but caller and
+           "grandcaller" aren't prepared to skip stuff and then pickup
+           just gold, so the best we can do here is vary the message */
+        Your("knapsack cannot accommodate any more items%s.",
+             /* floor follows by nexthere, otherwise container so by nobj */
+             nxtobj(obj, GOLD_PIECE, (boolean) (obj->where == OBJ_FLOOR))
+                 ? " (except gold)" : "");
         result = -1; /* nothing lifted */
     } else {
         result = 1;
@@ -1846,11 +1853,13 @@ int cindex, ccount; /* index of this container (1..N), number of them (N) */
         return 1;
     } else if (cobj->otyp == BAG_OF_RATS) {
         You("carefully open %s...", the(xname(cobj)));
-        if (create_critters(1 + rn2(7), &mons[PM_RABID_RAT], TRUE)) {
+        if (cobj->spe && create_critters(1 + rn2(7), &mons[PM_RABID_RAT], TRUE)) {
             pline("A torrent of angrily frothing rats spews out!");
             makeknown(BAG_OF_RATS);
+            cobj->spe = 0;
+            check_unpaid(cobj);
         } else {
-            pline("%s emits a petulant squeaking noise, and refuses to open.",
+            pline("%s emits a petulant squeaking noise and snaps shut.",
                   The(xname(cobj)));
         }
         abort_looting = TRUE;

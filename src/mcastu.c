@@ -1467,21 +1467,20 @@ int spellnum;
                              mpet->msleeping = 0;
                              if (yours || mattk->mtame)
      			    initedog(mpet);
-     			else if (mattk->mpeaceful)
-     			    mpet->mpeaceful = 1;
-     			else mpet->mpeaceful = mpet->mtame = 0;
-
-                             set_malign(mpet);
-                         } else /* GENOD? */
-                             mpet = makemon((struct permonst *)0,
-                                                 bypos.x, bypos.y, NO_MM_FLAGS);
-                         if(mpet && (u.ualign.type == 0 ||
-     		        mpet->data->maligntyp == 0 ||
-                             sgn(mpet->data->maligntyp) == sgn(u.ualign.type)) ) {
-                             count++;
-                             break;
-                         }
-                     }
+                    else if (mattk->mpeaceful)
+                        mpet->mpeaceful = 1;
+                    else mpet->mpeaceful = mpet->mtame = 0;
+                        set_malign(mpet);
+                } else /* GENOD? */
+                    mpet = makemon((struct permonst *)0,
+                                bypos.x, bypos.y, NO_MM_FLAGS);
+                if(mpet && (u.ualign.type == 0 ||
+                    mpet->data->maligntyp == 0 ||
+                            sgn(mpet->data->maligntyp) == sgn(u.ualign.type)) ) {
+                            count++;
+                            break;
+                        }
+                }
 
      	    const char *mappear =
      		    (count == 1) ? "A monster appears" : "Monsters appear";

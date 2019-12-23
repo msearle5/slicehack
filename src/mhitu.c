@@ -1,4 +1,4 @@
-/* NetHack 3.6	mhitu.c	$NHDT-Date: 1562800504 2019/07/10 23:15:04 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.166 $ */
+/* NetHack 3.6	mhitu.c	$NHDT-Date: 1575245065 2019/12/02 00:04:25 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.168 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2012. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -24,7 +24,7 @@ STATIC_DCL void FDECL(missmu, (struct monst *, BOOLEAN_P, struct attack *));
 STATIC_DCL void FDECL(mswings, (struct monst *, struct obj *));
 STATIC_DCL void FDECL(wildmiss, (struct monst *, struct attack *));
 STATIC_DCL void FDECL(hitmsg, (struct monst *, struct attack *));
-STATIC_DCL int FDECL(screamu, (struct monst*, struct attack*));
+STATIC_DCL int FDECL(screamu, (struct monst*, struct attack*, int));
 
 /* See comment in mhitm.c.  If we use this a lot it probably should be */
 /* changed to a parameter to mhitu. */
@@ -926,7 +926,8 @@ register struct monst *mtmp;
 
         case AT_SCRE:
     	    if (ranged) {
-    		      sum[i] = screamu(mtmp, mattk);
+    		      sum[i] = screamu(mtmp, mattk, 
+                    d((int) mattk->damn, (int) mattk->damd));
     	    }
     	    /* if you're nice and close, don't bother */
     	    break;
@@ -1176,12 +1177,12 @@ register struct attack *mattk;
 
                 if (!dmg)
                     break;
-                    if (Hate_material(otmp->material)) {
-                        if (otmp->material == SILVER)
-                            pline_The("silver sears your flesh!");
-                        else
-                            You("flinch at the touch of %s!",
-                                materialnm[otmp->material]);
+                if (Hate_material(otmp->material)) {
+                    if (otmp->material == SILVER)
+                        pline_The("silver sears your flesh!");
+                    else
+                        You("flinch at the touch of %s!",
+                            materialnm[otmp->material]);
                     exercise(A_CON, FALSE);
                     dmg += rnd(sear_damage(otmp->material));
                 }
@@ -1720,6 +1721,7 @@ register struct attack *mattk;
     case AD_SEDU:
         if (!is_animal(mtmp->data))
             mintroduce(mtmp);
+
         if (is_animal(mtmp->data)) {
             hitmsg(mtmp, mattk);
             if (mtmp->mcan)
@@ -1738,18 +1740,21 @@ register struct attack *mattk;
             if (!tele_restrict(mtmp))
                 (void) rloc(mtmp, TRUE);
             return 3;
-        } else if (mtmp->mcan) {
-            if (!Blind)
-                pline("%s tries to %s you, but you seem %s.",
-                      Adjmonnam(mtmp, "plain"),
-                      flags.gender ? "charm" : "seduce",
-                      flags.gender ? "unaffected" : "uninterested");
-            if (rn2(3)) {
-                if (!tele_restrict(mtmp))
-                    (void) rloc(mtmp, TRUE);
-                return 3;
+        } else {
+            mintroduce(mtmp);
+            if (mtmp->mcan) {
+                if (!Blind)
+                    pline("%s tries to %s you, but you seem %s.",
+                        Adjmonnam(mtmp, "plain"),
+                        flags.gender ? "charm" : "seduce",
+                        flags.gender ? "unaffected" : "uninterested");
+                if (rn2(3)) {
+                    if (!tele_restrict(mtmp))
+                        (void) rloc(mtmp, TRUE);
+                    return 3;
+                }
+                break;
             }
-            break;
         }
         buf[0] = '\0';
         switch (steal(mtmp, buf, FALSE)) {
@@ -1803,7 +1808,7 @@ register struct attack *mattk;
             tele();
             if (mattk->adtyp == AD_KDNP)
                 mnexto(mtmp);
-            /* 3.6.2:  make sure damage isn't fatal; previously, it
+            /* As of 3.6.2:  make sure damage isn't fatal; previously, it
                was possible to be teleported and then drop dead at
                the destination when QM's 1d4 damage gets applied below;
                even though that wasn't "wrong", it seemed strange,
@@ -2301,8 +2306,7 @@ struct attack *mattk;
 
         if (!engulf_target(mtmp, &youmonst))
             return 0;
-        if ((t && is_pit(t->ttyp))
-            && sobj_at(BOULDER, u.ux, u.uy))
+        if ((t && is_pit(t->ttyp)) && sobj_at(BOULDER, u.ux, u.uy))
             return 0;
 
         if (Punished)
@@ -2390,6 +2394,14 @@ struct attack *mattk;
 
     if (mtmp != u.ustuck)
         return 0;
+    if (Punished) {
+        /* ball&chain are in limbo while swallowed; update their internal
+           location to be at swallower's spot */
+        if (uchain->where == OBJ_FREE)
+            uchain->ox = mtmp->mx, uchain->oy = mtmp->my;
+        if (uball->where == OBJ_FREE)
+            uball->ox = mtmp->mx, uball->oy = mtmp->my;
+    }
     if (u.uswldtim > 0)
         u.uswldtim -= 1;
 
@@ -2558,7 +2570,7 @@ struct attack *mattk;
               is_animal(mtmp->data) ? "regurgitates" : "expels");
         expels(mtmp, mtmp->data, FALSE);
     } else if (!u.uswldtim || youmonst.data->msize >= MZ_HUGE) {
-        /* 3.6.2: u.uswldtim used to be set to 0 by life-saving but it
+        /* As of 3.6.2: u.uswldtim used to be set to 0 by life-saving but it
            expels now so the !u.uswldtim case is no longer possible;
            however, polymorphing into a huge form while already
            swallowed is still possible */
@@ -3444,7 +3456,7 @@ const char *str;
     /* being deaf overrides confirmation prompt for high charisma */
     if (Deaf) {
         pline("%s takes off your %s.", seducer, str);
-    } else if (rn2(20) < ACURR(A_CHA) + (flags.gender == GEND_N) ? 3 : 0) {
+    } else if (rn2(20) < ((ACURR(A_CHA) + (flags.gender == GEND_N)) ? 3 : 0)) {
         Sprintf(qbuf, "\"Shall I remove your %s, %s?\"", str,
                 (!rn2(2) ? "lover" : !rn2(2) ? "dear" : "sweetheart"));
         if (yn(qbuf) == 'n')
@@ -3476,39 +3488,41 @@ const char *str;
  * employs its gaze stun attack, which allows a bit more
  * fine-tuning --K2 */
 STATIC_OVL int
-screamu(mtmp, mattk)
+screamu(mtmp, mattk, dmg)
 struct monst *mtmp;
 struct attack *mattk;
+int dmg;
 {
-    int react = -1;
-    boolean cancelled = (mtmp->mcan != 0), already = FALSE;
+    boolean cancelled = (mtmp->mcan != 0);
     /* assumes that hero has to hear the monster's scream in
        order to be affected */
-    if (Deaf)
-        cancelled = TRUE;
+        /* Only screams when a certain distance from our hero, can see them, and has the
+       available mspec */
+    if (distu(mtmp->mx,mtmp->my) > 85 
+        || !m_canseeu(mtmp) 
+        || mtmp->mspec_used 
+        || !rn2(5)) {
+        return FALSE;
+    }
+
+    if (canseemon(mtmp) && (Deaf || Sonic_resistance)) {
+        pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
+    }
+    if (!cancelled && ((m_canseeu(mtmp) && Blind && Deaf) || Sonic_resistance)) {
+        You("sense a disturbing vibration in the air.");
+    } else if (m_canseeu(mtmp) && canseemon(mtmp) && !Deaf && cancelled) {
+        pline("%s croaks hoarsely.", Monnam(mtmp));
+    } else if (cancelled && !Deaf) {
+        You_hear("a hoarse croak nearby.");
+    }
+
+    mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(6));
+    if (cancelled || Deaf || Sonic_resistance)
+        return FALSE;
+
+    /* scream attacks */
     switch (mattk->adtyp) {
 	case AD_STUN:
-	/* Only screams when a certain distance from our hero */
-        if (distu(mtmp->mx,mtmp->my) > 85) {
-	    return FALSE;
-	}
-        if (m_canseeu(mtmp) && !mtmp->mspec_used && rn2(5)) {
-            if (cancelled) {
-                react = 1; /* "stunned" */
-                already = (mtmp->mstun != 0);
-            if (m_canseeu(mtmp) && canseemon(mtmp) && (Deaf)) {
-                pline("It looks as if %s is yelling at you.", mon_nam(mtmp));
-            }
-            if (m_canseeu(mtmp) && (Blind) && (Deaf)) {
-                You("sense a disturbing vibration in the air.");
-            }
-	    if (m_canseeu(mtmp) && canseemon(mtmp) && (!Deaf)) {
-		pline("%s croaks hoarsely.", Monnam(mtmp));
-	    } else {
-		You_hear("a hoarse croak nearby.");
-	    }
-        } else {
-            int stun = d(2, 8);
         if (m_canseeu(mtmp)) {
             pline("%s lets out a bloodcurdling scream!", Monnam(mtmp));
         } else {
@@ -3517,12 +3531,10 @@ struct attack *mattk;
         if (u.usleep && m_canseeu(mtmp) && (!Deaf)) {
             unmul("You are frightened awake!");
         }
-            mtmp->mspec_used = mtmp->mspec_used + (stun + rn2(6));
-            Your("mind reels from the noise!");
-            make_stunned((HStun & TIMEOUT) + (long) stun, TRUE);
-            stop_occupation();
-            }
-        }
+        Your("mind reels from the noise!");
+        make_stunned((HStun & TIMEOUT) + (long) dmg, TRUE);
+        aggravate(); /* Nazgul scream VERY loudly */
+        stop_occupation();
         break;
     default:
         break;

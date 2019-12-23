@@ -535,6 +535,8 @@ register struct obj *spellbook;
             int num_ids, otyp;
             char listbuf[BUFSZ];
 
+            *listbuf = '\0';
+
             if (spellbook->spestudied > 0) {
                 You("have already learned everything you can from %s.", tribtitle);
                 return 0;

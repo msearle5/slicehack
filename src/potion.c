@@ -1,4 +1,4 @@
-/* NetHack 3.6	potion.c	$NHDT-Date: 1572887644 2019/11/04 17:14:04 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.164 $ */
+/* NetHack 3.6	potion.c	$NHDT-Date: 1573848199 2019/11/15 20:03:19 $  $NHDT-Branch: NetHack-3.6 $:$NHDT-Revision: 1.167 $ */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /*-Copyright (c) Robert Patrick Rankin, 2013. */
 /* NetHack may be freely redistributed.  See license for details. */
@@ -11,7 +11,8 @@
 boolean notonhead = FALSE;
 
 static NEARDATA int nothing, unkn;
-static NEARDATA const char beverages[] = { ALL_CLASSES, POTION_CLASS, 0 };
+static NEARDATA const char dippables[] = { POTION_CLASS, 0 };
+static NEARDATA const char beverages[] = { TOOL_CLASS, POTION_CLASS, 0 };
 
 STATIC_DCL long FDECL(itimeout, (long));
 STATIC_DCL long FDECL(itimeout_incr, (long, int));
@@ -476,6 +477,17 @@ boolean talk;
         if (talk)
             You(old ? "can hear again." : "are unable to hear anything.");
     }
+}
+
+/* set or clear "slippery fingers" */
+void
+make_glib(xtime)
+int xtime;
+{
+    set_itimeout(&Glib, xtime);
+    /* may change "(being worn)" to "(being worn; slippery)" or vice versa */
+    if (uarmg)
+        update_inventory();
 }
 
 void
@@ -3502,7 +3514,7 @@ dodip()
 
     /* "What do you want to dip <the object> into? [xyz or ?*] " */
     Sprintf(qbuf, "dip %s into", flags.verbose ? obuf : shortestname);
-    potion = getobj(beverages, qbuf);
+    potion = getobj(dippables, qbuf);
     if (!potion)
         return 0;
     if (potion == obj && potion->quan == 1L) {
@@ -3737,7 +3749,7 @@ dodip()
                around for potionbreathe() [and we can't set obj->in_use
                to 'amt' because that's not implemented] */
             obj->in_use = 1;
-            pline("BOOM!  They explode!");
+            pline("%sThey explode!", !Deaf ? "BOOM!  " : "");
             wake_nearto(u.ux, u.uy, (BOLT_LIM + 1) * (BOLT_LIM + 1));
             exercise(A_STR, FALSE);
             if (obj->cursed || obj->otyp == POT_ACID)
@@ -3779,6 +3791,8 @@ dodip()
         if (mixture != STRANGE_OBJECT) {
             obj->otyp = mixture;
         } else {
+            struct obj *otmp;
+
             switch (obj->odiluted ? 1 : rnd(8)) {
             case 1:
                 obj->otyp = POT_WATER;
@@ -3787,17 +3801,15 @@ dodip()
             case 3:
                 obj->otyp = POT_SICKNESS;
                 break;
-            case 4: {
-                struct obj *otmp = mkobj(POTION_CLASS, FALSE);
-
+            case 4:
+                otmp = mkobj(POTION_CLASS, FALSE);
                 obj->otyp = otmp->otyp;
                 obfree(otmp, (struct obj *) 0);
                 break;
-            }
             default:
                 useupall(obj);
-                if (!Blind)
-                    pline_The("mixture glows brightly and evaporates.");
+                pline_The("mixture %sevaporates.",
+                          !Blind ? "glows brightly and " : "");
                 return 1;
             }
         }
@@ -3831,9 +3843,14 @@ dodip()
             use_skill(P_ALCHEMY, 1);
         }
         pline("%s %s %s around the edges.", The(cxname(obj)),
-              otense(obj, "turn"),
-              potion->odiluted ? hcolor(NH_ORANGE) : hcolor(NH_RED));
+              otense(obj, "turn"), Blind ? "wrinkled"
+                                   : potion->odiluted ? hcolor(NH_ORANGE)
+                                     : hcolor(NH_RED));
         potion->in_use = FALSE; /* didn't go poof */
+        if (potion->dknown
+            && !objects[potion->otyp].oc_name_known
+            && !objects[potion->otyp].oc_uname)
+            docall(potion);
         return 1;
     }
 
@@ -3875,8 +3892,8 @@ dodip()
             fire_damage(obj, TRUE, u.ux, u.uy);
         } else if (potion->cursed) {
             pline_The("potion spills and covers your %s with oil.",
-                      makeplural(body_part(FINGER)));
-            incr_itimeout(&Glib, d(2, 10));
+                      fingers_or_gloves(TRUE));
+            make_glib((int) (Glib & TIMEOUT) + d(2, 10));
         } else if (obj->oclass != WEAPON_CLASS && !is_weptool(obj)) {
             /* the following cases apply only to weapons */
             goto more_dips;
@@ -3887,10 +3904,14 @@ dodip()
         } else if ((!is_rustprone(obj) && !is_corrodeable(obj))
                    || is_ammo(obj) || (!obj->oeroded && !obj->oeroded2)) {
             /* uses up potion, doesn't set obj->greased */
-            pline("%s %s with an oily sheen.", Yname2(obj),
-                  otense(obj, "gleam"));
+            if (!Blind)
+                pline("%s %s with an oily sheen.", Yname2(obj),
+                      otense(obj, "gleam"));
+            else /*if (!uarmg)*/
+                pline("%s %s oily.", Yname2(obj), otense(obj, "feel"));
         } else {
-            pline("%s %s less %s.", Yname2(obj), otense(obj, "are"),
+            pline("%s %s less %s.", Yname2(obj),
+                  otense(obj, !Blind ? "are" : "feel"),
                   (obj->oeroded && obj->oeroded2)
                       ? "corroded and rusty"
                       : obj->oeroded ? "rusty" : "corroded");
@@ -3901,7 +3922,8 @@ dodip()
             wisx = TRUE;
         }
         exercise(A_WIS, wisx);
-        makeknown(potion->otyp);
+        if (potion->dknown)
+            makeknown(potion->otyp);
         useup(potion);
         return 1;
     }
@@ -3937,7 +3959,8 @@ dodip()
             useup(potion);
             exercise(A_WIS, TRUE);
         }
-        makeknown(POT_OIL);
+        if (potion->dknown)
+            makeknown(POT_OIL);
         obj->spe = 1;
         update_inventory();
         return 1;
@@ -3975,16 +3998,24 @@ dodip()
             singlepotion->dknown = FALSE;
         } else {
             singlepotion->dknown = !Hallucination;
+            *newbuf = '\0';
             if (mixture == POT_WATER && singlepotion->dknown)
                 Sprintf(newbuf, "clears");
-            else
+            else if (!Blind)
                 Sprintf(newbuf, "turns %s",
                         hcolor(OBJ_DESCR(objects[mixture])));
-            pline_The("%spotion%s %s.", oldbuf,
-                      more_than_one ? " that you dipped into" : "", newbuf);
-            if (!objects[old_otyp].oc_uname
-                && !objects[old_otyp].oc_name_known && old_dknown) {
+            if (*newbuf)
+                pline_The("%spotion%s %s.", oldbuf,
+                          more_than_one ? " that you dipped into" : "",
+                          newbuf);
+            else
+                pline("Something happens.");
+
+            if (old_dknown
+                && !objects[old_otyp].oc_name_known
+                && !objects[old_otyp].oc_uname) {
                 struct obj fakeobj;
+
                 fakeobj = zeroobj;
                 fakeobj.dknown = 1;
                 fakeobj.otyp = old_otyp;
@@ -4006,7 +4037,8 @@ dodip()
     return 1;
 
  poof:
-    if (!objects[potion->otyp].oc_name_known
+    if (potion->dknown
+        && !objects[potion->otyp].oc_name_known
         && !objects[potion->otyp].oc_uname)
         docall(potion);
     useup(potion);
