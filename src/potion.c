@@ -1625,7 +1625,7 @@ register struct obj *otmp;
 
                 if (ledger_no(&u.uz) == 1) {
                     You(riseup, ceiling(u.ux, u.uy));
-                    goto_level(&earth_level, FALSE, FALSE, FALSE);
+                    goto_level(&earth_level, FALSE, FALSE, FALSE, FALSE);
                 } else {
                     register int newlev = depth(&u.uz) - 1;
                     d_level newlevel;
@@ -1636,7 +1636,7 @@ register struct obj *otmp;
                         break;
                     } else
                         You(riseup, ceiling(u.ux, u.uy));
-                    goto_level(&newlevel, FALSE, FALSE, FALSE);
+                    goto_level(&newlevel, FALSE, FALSE, FALSE, FALSE);
                 }
             } else
                 You("have an uneasy feeling.");

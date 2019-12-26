@@ -2397,7 +2397,7 @@ struct obj *obj;
                     You("are surrounded by a shimmering sphere!");
                 else
                     You_feel("weightless for a moment.");
-                goto_level(&newlev, FALSE, FALSE, FALSE);
+                goto_level(&newlev, FALSE, FALSE, FALSE, FALSE);
             }
             break;
         }

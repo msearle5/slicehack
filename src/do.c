@@ -1330,6 +1330,8 @@ dodown()
 int
 doup()
 {
+	boolean quiet = FALSE;
+
     if (u_rooted())
         return 1;
 
@@ -1360,6 +1362,7 @@ doup()
 		if ((climbable_trap(NULL)) && (near_capacity() <= HVY_ENCUMBER)) {
 			You("slowly clamber up the %s.",
 				levl[u.ux][u.uy].typ == STAIRS ? "stairs" : "ladder");
+			quiet = TRUE;
 		}
 		else {
 			/* No levitation check; inv_weight() already allows for it */
@@ -1379,7 +1382,7 @@ doup()
         return 0;
     }
     at_ladder = (boolean) (levl[u.ux][u.uy].typ == LADDER);
-    prev_level(TRUE);
+    prev_level(TRUE, quiet);
     at_ladder = FALSE;
     return 1;
 }
@@ -1495,9 +1498,9 @@ struct monst *mtmp;
 }
 
 void
-goto_level(newlevel, at_stairs, falling, portal)
+goto_level(newlevel, at_stairs, falling, portal, quiet)
 d_level *newlevel;
-boolean at_stairs, falling, portal;
+boolean at_stairs, falling, portal, quiet;
 {
     int fd, l_idx;
     xchar new_ledger;
@@ -1712,7 +1715,7 @@ boolean at_stairs, falling, portal;
             /* you climb up the {stairs|ladder};
                fly up the stairs; fly up along the ladder */
             great_effort = (Punished && !Levitation);
-            if (flags.verbose || great_effort)
+            if ((flags.verbose || great_effort) && (!quiet))
                 pline("%s %s up%s the %s.",
                       great_effort ? "With great effort, you" : "You",
                       Levitation ? "float" : Flying ? "fly" : "climb",
@@ -1979,7 +1982,7 @@ deferred_goto()
         assign_level(&dest, &u.utolev);
         if (dfr_pre_msg)
             pline1(dfr_pre_msg);
-        goto_level(&dest, !!(typmask & 1), !!(typmask & 2), !!(typmask & 4));
+        goto_level(&dest, !!(typmask & 1), !!(typmask & 2), !!(typmask & 4), FALSE);
         if (typmask & 0200) { /* remove portal */
             struct trap *t = t_at(u.ux, u.uy);
 

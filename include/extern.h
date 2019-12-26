@@ -427,7 +427,7 @@ E int NDECL(doup);
 E void NDECL(save_currentstate);
 #endif
 E void FDECL(u_collide_m, (struct monst *));
-E void FDECL(goto_level, (d_level *, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
+E void FDECL(goto_level, (d_level *, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P, BOOLEAN_P));
 E void FDECL(schedule_goto, (d_level *, BOOLEAN_P, BOOLEAN_P, int,
                              const char *, const char *));
 E void NDECL(deferred_goto);
@@ -655,7 +655,7 @@ E xchar FDECL(ledger_to_dlev, (XCHAR_P));
 E xchar FDECL(deepest_lev_reached, (BOOLEAN_P));
 E boolean FDECL(on_level, (d_level *, d_level *));
 E void FDECL(next_level, (BOOLEAN_P));
-E void FDECL(prev_level, (BOOLEAN_P));
+E void FDECL(prev_level, (BOOLEAN_P, BOOLEAN_P));
 E void FDECL(u_on_newpos, (int, int));
 E void FDECL(u_on_rndspot, (int));
 E void FDECL(u_on_sstairs, (int));
