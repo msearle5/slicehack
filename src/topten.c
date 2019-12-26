@@ -275,7 +275,7 @@ struct toptenentry *tt;
             discardexcess(rfile);
         }
         /* Check for backwards compatibility */
-        if (tt->ver_major < 3 || (tt->ver_major == 3 && tt->ver_minor < 3)) {
+        if ((tt->ver_major == 0) && ((tt->ver_minor < 4) || tt->patchlevel < 3)) {
             int i;
 
             if (sscanf(inbuf, fmt32, tt->plrole, tt->plgend, s1, s2) == 4) {
