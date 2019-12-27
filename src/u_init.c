@@ -1897,6 +1897,20 @@ register struct trobj *trop;
             continue;
         }
 
+		/* exhibitionist gets nothing opaque */
+        if (u.uroleplay.exhibitionist && is_opaque_armor(obj)) {
+			dealloc_obj(obj);
+            trop++;
+            continue;
+        }
+
+        /* unarmored gets nothing armored */
+		if (u.uroleplay.unarmored && is_protective_armor(obj)) {
+			dealloc_obj(obj);
+            trop++;
+            continue;
+        }
+
         if (trop->trclass == COIN_CLASS) {
             /* no "blessed" or "identified" money */
             obj->quan = u.umoney0;

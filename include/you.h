@@ -112,6 +112,8 @@ struct u_roleplay {
     boolean deaf;   /* permanently deaf */
     boolean clumsy; /* permanently fumbling */
     boolean nudist; /* has not worn any armor, ever */
+    boolean exhibitionist; /* has not worn any opaque armor or become invisible, ever */
+    boolean unarmored; /* has not worn any protective armor, ever */
     boolean illfated; /* massively increased dungeon danger */
     boolean marathon;  /* cannot heal, fixed high max hp */
     boolean kaboom;	/* most items will randomly explode */

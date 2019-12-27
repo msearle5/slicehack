@@ -2676,7 +2676,15 @@ int final;
             enl_msg(You_, "do", "did", " not wear any armor", "");
         else
             you_are("not wearing any armor", "");
-    }
+    } else {
+		if (u.uroleplay.exhibitionist && u.uroleplay.unarmored)
+			enl_msg(You_, "do", "did", " not wear any opaque or protective armor", "");
+		if (u.uroleplay.exhibitionist)
+			enl_msg(You_, "do", "did", " not wear any opaque armor", "");
+		else if (u.uroleplay.unarmored)
+			enl_msg(You_, "do", "did", " not wear any protective armor", "");
+	}
+
     /* report ill-fatedness */
     if (u.uroleplay.illfated) {
         you_are("going to meet a terrible fate", "");
@@ -3361,6 +3369,12 @@ int final;
         you_have_been("blind from birth");
     if (u.uroleplay.nudist)
         you_have_been("faithfully nudist");
+    else if ((u.uroleplay.exhibitionist) && (u.uroleplay.unarmored))
+		you_have_been("an unarmored exhibitionist");
+	else if (u.uroleplay.exhibitionist)
+		you_have_been("an exhibitionist");
+	else if (u.uroleplay.unarmored)
+		you_have_been("always unarmored");
     if (u.uroleplay.hallu)
         you_have_been("hallucinating forever");
     if (u.uroleplay.deaf)

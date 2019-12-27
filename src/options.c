@@ -118,6 +118,7 @@ static struct Bool_Opt {
     { "dark_room", &flags.dark_room, TRUE, SET_IN_GAME },
     { "deaf", &u.uroleplay.deaf, FALSE, DISP_IN_GAME },
     { "eight_bit_tty", &iflags.wc_eight_bit_input, FALSE, SET_IN_GAME }, /*WC*/
+    { "exhibitionist", &u.uroleplay.exhibitionist, FALSE, DISP_IN_GAME },
 #if defined(TTY_GRAPHICS) || defined(CURSES_GRAPHICS) || defined(X11_GRAPHICS)
     { "extmenu", &iflags.extmenu, FALSE, SET_IN_GAME },
 #else
@@ -249,6 +250,7 @@ static struct Bool_Opt {
 #ifdef DEBUG
     { "travel_debug", &iflags.trav_debug, FALSE, SET_IN_WIZGAME }, /*hack.c*/
 #endif
+    { "unarmored", &u.uroleplay.unarmored, FALSE, DISP_IN_GAME },
     { "use_darkgray", &iflags.wc2_darkgray, TRUE, SET_IN_FILE }, /*WC2*/
 #ifdef WIN32
     { "use_inverse", &iflags.wc_inverse, TRUE, SET_IN_GAME }, /*WC*/

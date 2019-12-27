@@ -61,6 +61,11 @@ boolean quiet;
     } else {
         if ((mask & W_ARMOR))
             u.uroleplay.nudist = FALSE;
+        if ((mask & (W_ARM | W_ARMC | W_ARMU)))
+			if (is_opaque_armor(obj))
+				u.uroleplay.exhibitionist = FALSE;
+		if (is_protective_armor(obj))
+			u.uroleplay.unarmored = FALSE;
         for (wp = worn; wp->w_mask; wp++) {
             if (wp->w_mask & mask) {
                 oobj = *(wp->w_obj);

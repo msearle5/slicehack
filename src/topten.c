@@ -502,6 +502,10 @@ encodeachieve()
         r |= 1L << 20;
     if (u.uroleplay.marathon)
         r |= 1L << 21;
+    if (u.uroleplay.exhibitionist)
+        r |= 1L << 22;
+    if (u.uroleplay.unarmored)
+        r |= 1L << 23;
 
     return r;
 }
