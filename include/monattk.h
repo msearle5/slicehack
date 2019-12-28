@@ -105,9 +105,11 @@
 #define AD_SPEL 67 /* random magic spell */
 #define AD_RBRE 68 /* random breath weapon */
 #define AD_SAMU 69 /* hits, may steal Amulet (Wizard) */
-#define AD_ZOMB	70 /* temp int drain/confusion (Zombie) */
-#define AD_CURS 71 /* random curse (ex. gremlin) */
-#define LAST_AD AD_CURS
+#define AD_CURS 70 /* random curse (ex. gremlin) */
+#define AD_SINT 71 /* steal intrinsic */
+#define AD_ZOMB	72 /* temp int drain/confusion (Zombie) */
+#define AD_INFE	73 /* infect */
+#define LAST_AD AD_INFE
 
 /*
  *  Monster to monster attacks.  When a monster attacks another (mattackm),
