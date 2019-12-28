@@ -263,14 +263,14 @@ struct obj {
  * Shirts, cloaks and suits are opaque, ith the exception of crystal plate mail.
  * This will do for e.g. starting equipment but doesn't take account of multislot.
  */
-#define is_opaque_armor(otmp) ((objects[otmp->otyp].oc_armcat & (ARM_SHIRT | ARM_CLOAK | ARM_SUIT)) && ((otmp)->otyp != CRYSTAL_PLATE_MAIL))
+#define is_opaque_armor(otmp) (otmp && ((objects[otmp->otyp].oc_armcat & (ARM_SHIRT | ARM_CLOAK | ARM_SUIT)) && ((otmp)->otyp != CRYSTAL_PLATE_MAIL)))
 
 /* Armor vs clothing:
  * If it's cloth, then it's not armor.
  * If it's leather/flesh, then it is OK for all gloves, cloaks and shoes and the jacket only.
  * Every other material is always armor.
  */
-#define is_protective_armor(otmp) ((objects[otmp->otyp].oc_material != CLOTH) && ((objects[otmp->otyp].oc_material != LEATHER) || (((otmp)->otyp != JACKET) && ((objects[otmp->otyp].oc_armcat & (ARM_GLOVES | ARM_CLOAK | ARM_BOOTS) == 0)))))
+#define is_protective_armor(otmp) (otmp && ((objects[otmp->otyp].oc_material != CLOTH) && ((objects[otmp->otyp].oc_material != LEATHER) || (((otmp)->otyp != JACKET) && ((objects[otmp->otyp].oc_armcat & (ARM_GLOVES | ARM_CLOAK | ARM_BOOTS) == 0))))))
 
 /* Eggs and other food */
 #define MAX_EGG_HATCH_TIME 200 /* longest an egg can remain unhatched */
