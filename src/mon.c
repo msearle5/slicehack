@@ -2388,10 +2388,10 @@ struct monst *mtmp;
             if (lifesave->otyp == AMULET_OF_REINCARNATION)
                 newcham(mtmp, (struct permonst *) 0, FALSE, TRUE);
             pline_The("medallion crumbles to dust!");
+            m_useup(mtmp, lifesave);
+            /* equip replacement amulet, if any, on next move */
+            mtmp->misc_worn_check |= I_SPECIAL;
         }
-        m_useup(mtmp, lifesave);
-        /* equip replacement amulet, if any, on next move */
-        mtmp->misc_worn_check |= I_SPECIAL;
 
         surviver = !(mvitals[monsndx(mtmp->data)].mvflags & G_GENOD);
         mtmp->mcanmove = 1;
