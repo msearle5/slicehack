@@ -650,6 +650,7 @@ static const char * damagetypes[] = {
     "steal Amulet",
     "random curse",
     "steal intrinsic",
+    "zombie eat brains",
     "infect",
 };
 
