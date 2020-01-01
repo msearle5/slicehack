@@ -363,7 +363,7 @@ register struct monst *mtmp;
 
                 case PM_PLUMMET_S_CHAMPION:
                 if (!rn2(40))
-                    mongetsart(ART_STORMBRINGER);
+                    mongetsart(mtmp, ART_STORMBRINGER);
                 break;
 
                 case PM_PLUMMET:
@@ -665,7 +665,7 @@ register struct monst *mtmp;
                 /* maybe make it special */
                 if (!rn2(20) || is_lord(ptr)) {
                     const int arti[3] = { ART_DEMONBANE, ART_SUNSWORD, ART_UNLIMITED_MOON };
-                    art = mongetsart(arti[rn2(3)]);
+                    art = mongetsart(mtmp, arti[rn2(3)]);
                 }
 
                 if (!art) {
