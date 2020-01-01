@@ -2735,6 +2735,7 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
         if (mons[mtyp].geno & (G_UNIQ|G_HELL|G_NOGEN|G_NOCORPSE)) continue;
         if ((mons[mtyp].geno & G_FREQ) == 0) continue;
         if (mons[mtyp].mflags2 & (M2_PEACEFUL|M2_HUMAN|M2_WERE|M2_UNDEAD|M2_NOPOLY|M2_ELF|M2_DWARF|M2_ORC|M2_MERC|M2_LORD|M2_PRINCE|M2_MINION|M2_DOMESTIC)) continue;
+        if (mons[mtyp].mhflags & (MH_ELF|MH_UNDEAD|MH_WERE|MH_HUMAN|MH_ELF|MH_DWARF|MH_GNOME|MH_ORC)) continue;
         
         /* Never drops a corpse - don't use this ID */
         if (f <= 0) continue;
@@ -2926,7 +2927,8 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                  * recipe useless, especially when compared to conventional alchemy...
                  * However this is not just a copy of the "difficulty to make", as it
                  * offers something to do with otherwise useless or situational potions.
-                 * So only potions that nobody wants to give up score highly.
+                 * So only potions that nobody wants to give up (or which are difficult
+                 * to obtain) score highly.
                  */
                 case POTION_CLASS:
                     switch(otyp) {
