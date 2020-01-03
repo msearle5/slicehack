@@ -1541,6 +1541,14 @@ int spellnum;
        		                        "turns to dust"
        		      );
            		obj_extract_self(otmp);
+                if (otmp->owornmask) {
+                    mtmp->misc_worn_check &= ~otmp->owornmask;
+                    otmp->owornmask = 0L;
+                    update_mon_intrinsics(mtmp, otmp, FALSE, FALSE);
+                    /* give monster a chance to wear other equipment on its next
+                       move instead of waiting until it picks something up */
+                    mtmp->misc_worn_check |= I_SPECIAL;
+                }
            		obfree(otmp, (struct obj *)0);
         	  }
        	    else if (yours || canseemon(mtmp))
