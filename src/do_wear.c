@@ -1782,28 +1782,28 @@ struct obj *otmp;
     /* this used to make assumptions about which types of armor had
        delays and which didn't; now both are handled for all types */
     if (delay) {
-        if (is_multislot(otmp)) delay = multislot_delay(otmp);
+        if (is_multislot(otmp)) delay = -multislot_delay(otmp);
         nomul(delay);
         multi_reason = "disrobing";
-        if (is_helmet(otmp)) {
+        if (uarmh == otmp) {
             what = helm_simple_name(otmp);
             afternmv = Helmet_off;
-        } else if (is_gloves(otmp)) {
+        } else if (uarmg == otmp) {
             what = gloves_simple_name(otmp);
             afternmv = Gloves_off;
-        } else if (is_boots(otmp)) {
+        } else if (uarmf == otmp) {
             what = c_boots;
             afternmv = Boots_off;
-        } else if (is_suit(otmp)) {
+        } else if (uarm == otmp) {
             what = suit_simple_name(otmp);
             afternmv = Armor_off;
-        } else if (is_cloak(otmp)) {
+        } else if (uarmc == otmp) {
             what = cloak_simple_name(otmp);
             afternmv = Cloak_off;
-        } else if (is_shield(otmp)) {
+        } else if (uarms == otmp) {
             what = c_shield;
             afternmv = Shield_off;
-        } else if (is_shirt(otmp)) {
+        } else if (uarmu == otmp) {
             what = c_shirt;
             afternmv = Shirt_off;
         } else {
@@ -1832,19 +1832,19 @@ struct obj *otmp;
          * doesn't force the resistance granting item to be re-worn
          * after being lifesaved anymore.
          */
-        if (is_cloak(otmp))
+        if (uarmc == otmp)
             (void) Cloak_off();
-        else if (is_shield(otmp))
+        else if (uarms == otmp)
             (void) Shield_off();
-        else if (is_helmet(otmp))
+        else if (uarmh == otmp)
             (void) Helmet_off();
-        else if (is_gloves(otmp))
+        else if (uarmg == otmp)
             (void) Gloves_off();
-        else if (is_boots(otmp))
+        else if (uarmf == otmp)
             (void) Boots_off();
-        else if (is_shirt(otmp))
+        else if (uarmu == otmp)
             (void) Shirt_off();
-        else if (is_suit(otmp))
+        else if (uarm == otmp)
             (void) Armor_off();
         else
             impossible("Taking off unknown armor (%d: %d), no delay",
