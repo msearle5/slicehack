@@ -2009,6 +2009,8 @@ int specialdmg; /* blessed and/or material bonus against various things */
     case AD_WERE: /* no special effect on monsters */
     case AD_HEAL: /* likewise */
     case AD_DSRM:
+    case AD_QUIL:
+    case AD_LUCK:
     case AD_PHYS:
  physical:
         if (noncorporeal(pd)) {
@@ -2485,6 +2487,7 @@ int specialdmg; /* blessed and/or material bonus against various things */
                 pline("%s slows down.", Monnam(mdef));
         }
         break;
+    case AD_HALU:
     case AD_CONF:
         if (!mdef->mconf) {
             if (canseemon(mdef))

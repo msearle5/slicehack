@@ -1623,9 +1623,7 @@ struct obj *sobj; /* scroll, or fake spellbook object for scroll-like spell */
     case SPE_CREATE_MONSTER: {
         register struct monst *mtmp;
         if (sobj->corpsenm != NON_PM) {
-            mtmp = Role_if(PM_CARTOMANCER) ? 
-                makemon(&mons[sobj->corpsenm], u.ux, u.uy, MM_EDOG | MM_NOERID) :
-                makemon(&mons[sobj->corpsenm], u.ux, u.uy, MM_EDOG | MM_NOERID | NO_MINVENT);
+            mtmp = makemon(&mons[sobj->corpsenm], u.ux, u.uy, MM_EDOG | MM_NOERID | NO_MINVENT);
             if (!mtmp)
                 break;
             if (!scursed)

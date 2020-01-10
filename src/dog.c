@@ -556,6 +556,12 @@ long nmv; /* number of moves */
         else
             mtmp->mfleetim -= imv;
     }
+    if (mtmp->mfading) {
+        if (imv >= (int) mtmp->mfading)
+            mtmp->mfading = 1;
+        else
+            mtmp->mfading -= imv;
+    }
 
     /* might recover from temporary trouble */
     if (mtmp->mtrapped && rn2(imv + 1) > 40 / 2)

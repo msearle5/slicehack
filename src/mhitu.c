@@ -218,7 +218,8 @@ struct attack *mattk;
     } else {
         return (mattk->aatyp == AT_TUCH) ? "contact"
                   : (mattk->aatyp == AT_GAZE) ? "gaze"
-                       : (mattk->aatyp == AT_BITE) ? "bite" : "sting";
+                       : (mattk->aatyp == AT_BITE) ? "bite"
+                            : (mattk->aatyp == AT_STNG) ? "sting" : "attack";
     }
 }
 
@@ -1124,8 +1125,8 @@ register struct attack *mattk;
     permdmg = 0;
     /*  Now, adjust damages via resistances or specific attacks */
     switch (mattk->adtyp) {
-    case AD_CLOB:
     case AD_PHYS:
+    case AD_CLOB:
         if (mattk->aatyp == AT_HUGS && !sticks(youmonst.data)) {
             if (!u.ustuck && rn2(2)) {
                 if (u_slip_free(mtmp, mattk)) {
@@ -1233,6 +1234,7 @@ register struct attack *mattk;
             dmg = 0;
         break;
     case AD_WIND:
+        hitmsg(mtmp, mattk);
         if (uncancelled) {
             You("are blasted by wind!");
             hurtle(u.ux - mtmp->mx, u.uy - mtmp->my, dmg, TRUE);
@@ -1350,6 +1352,20 @@ register struct attack *mattk;
                 pline("You learn how to disarm your enemies!");
                 learntech(T_DISARM, FROMOUTSIDE, 1);
             }
+        }
+        break;
+    case AD_QUIL:
+        hitmsg(mtmp, mattk);
+        pline("Yeeowch! Spiky!");
+        if (!thick_skinned(youmonst.data))
+            dmg += rn2(4);
+        break;
+    case AD_LUCK:
+        hitmsg(mtmp, mattk);
+        if (uncancelled && !rn2(13)) {
+            change_luck(-1);
+            You(is_undead(youmonst.data) ? "feel like someone just walked over your grave." 
+                                         : "feel like you just walked under a ladder.");
         }
         break;
     case AD_SLEE:
@@ -1979,6 +1995,18 @@ register struct attack *mattk;
         hitmsg(mtmp, mattk);
         if (uncancelled && !rn2(4)) /* 25% chance */
             drain_en(dmg);
+        dmg = 0;
+        break;
+    case AD_HALU:
+        hitmsg(mtmp, mattk);
+         if (!mtmp->mcan && !rn2(6) && !mtmp->mspec_used) {
+            mtmp->mspec_used = mtmp->mspec_used + (dmg + rn2(8));
+            if (Hallucination)
+                pline("A slideshow of perfectly logical images flashes in front of you.");
+            else
+                pline("A flurry of nightmarish images flash through your head!");
+            make_hallucinated(HHallucination + (long) rnd(dmg), FALSE, 0L);
+        }
         dmg = 0;
         break;
     case AD_CONF:

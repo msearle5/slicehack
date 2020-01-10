@@ -1600,7 +1600,7 @@ u_init()
   		while (attkptr->aatyp == 0 || attkptr->aatyp == AT_ENGL || attkptr->aatyp == AT_SPIT ||
   					attkptr->aatyp == AT_BREA || attkptr->aatyp == AT_EXPL ||
   					attkptr->aatyp == AT_BOOM || attkptr->aatyp == AT_GAZE ||
-            attkptr->aatyp == AT_HUGS) {
+            attkptr->aatyp == AT_HUGS || attkptr->aatyp == AT_SCRE) {
   			attkptr->aatyp = rn2(AT_TENT);
   		}
   		attkptr->adtyp = 0;
@@ -1608,9 +1608,9 @@ u_init()
   					attkptr->adtyp == AD_SLIM || attkptr->adtyp == AD_VOID ||
   					attkptr->adtyp == AD_ENCH || attkptr->adtyp == AD_DISN ||
   					attkptr->adtyp == AD_PEST || attkptr->adtyp == AD_FAMN ||
-            attkptr->adtyp == AD_HYDR || attkptr->adtyp == AD_QUIL ||
-            attkptr->adtyp == AD_LUCK || attkptr->adtyp == AD_SKEL) {
-  			attkptr->adtyp = rn2(AD_HNGY);
+            attkptr->adtyp == AD_HYDR || attkptr->adtyp == AD_DGST ||
+            attkptr->adtyp == AD_SKEL || attkptr->adtyp == AD_POTN) {
+  			attkptr->adtyp = rn2(AD_CLRC);
   		}
   		attkptr->damn = 2;				/* we're almost sure to get this wrong first time */
   		attkptr->damd = 10;				/* either too high or too low */
@@ -1647,7 +1647,10 @@ u_init()
   	shambler->mflags2 &= ~M2_PEACEFUL;			/* no peacefuls */
   	/* shambler->mflags2 &= ~M2_WERE; */
   	shambler->mflags2 &= ~M2_PNAME;				/* not a proper name */
-
+    /* randomize race flag */
+    for (i = 0; i < rnd(4); i++) {
+  		shambler->mflags2 |= (1 << rn2(14));
+  	}
     return;
 }
 

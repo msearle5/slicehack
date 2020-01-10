@@ -935,6 +935,7 @@ void
 mcalcdistress()
 {
     struct monst *mtmp;
+    struct obj *obj, *otmp;
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
         if (DEADMONSTER(mtmp))
@@ -959,6 +960,13 @@ mcalcdistress()
         if (mtmp->mfading && mtmp->mfading == 1) {
             if canseemon(mtmp)
                 pline(Hallucination ? "%s explodes into multicolored polygons!" : "%s vanishes in a puff of smoke!", Monnam(mtmp));
+            for (obj = mtmp->minvent; obj; obj = otmp) {
+                otmp = obj->nobj;
+                obj_extract_self(obj);
+                if (mtmp->mx) {
+                    mdrop_obj(mtmp, obj, FALSE);
+                }
+            }
             mongone(mtmp);
         }
 
@@ -3196,9 +3204,12 @@ int xkill_flags; /* 1: suppress message, 2: suppress corpse, 4: pacifist */
         if (!wasinside && corpse_chance(mtmp, (struct monst *) 0, FALSE)) {
 
             
-            cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
-                                                   : CORPSTAT_NONE
-                                        | burncorpse ? CORPSTAT_BURNT : CORPSTAT_NONE);
+            if (burncorpse) {
+                cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
+                                                   : CORPSTAT_BURNT);
+            } else
+                cadaver = make_corpse(mtmp, burycorpse ? CORPSTAT_BURIED
+                                                    : CORPSTAT_NONE);
 
 
             if (burycorpse && cadaver && cansee(x, y) && !mtmp->minvis
