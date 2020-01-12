@@ -1540,8 +1540,10 @@ boolean ghostly;
     result = (((int) mvitals[mndx].born < lim) && !gone) ? TRUE : FALSE;
 
     /* if it's unique, don't ever make it again */
-    if ((mons[mndx].geno & G_UNIQ) && mndx != PM_HIGH_PRIEST)
+    if ((mons[mndx].geno & G_UNIQ) && mndx != PM_HIGH_PRIEST) {
         mvitals[mndx].mvflags |= G_EXTINCT;
+        reset_rndmonst(mndx);
+    }
 
     if (mvitals[mndx].born < 255 && tally
         && (!ghostly || (ghostly && result)))
@@ -2283,9 +2285,9 @@ rndmonst()
                 continue;
             if (elemlevel && wrong_elem_type(ptr))
                 continue;
-            if (is_domestic(ptr) && blkmarlevel) {
+            if (is_domestic(ptr) && blkmarlevel)
                 continue;
-            } if (uncommon(mndx))
+            if (uncommon(mndx))
                 continue;
             if (Inhell && (ptr->geno & G_NOHELL))
                 continue;
