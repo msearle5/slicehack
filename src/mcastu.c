@@ -1307,7 +1307,7 @@ castum(mtmp, mattk)
          		break;
    	    case AD_COLD:
          		pline("%s is covered in frost.", Monnam(mtmp));
-         		if(resists_fire(mtmp)) {
+         		if(resists_cold(mtmp)) {
          			shieldeff(mtmp->mx, mtmp->my);
          			pline("But %s resists the effects.",
          			    mhe(mtmp));
