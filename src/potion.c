@@ -2944,6 +2944,9 @@ do_alchemy_id(struct obj * obj, int *monc, int *total, unsigned char *value, boo
                         case POT_GAIN_ENERGY:
                             v = 160;
                             break;
+                        case POT_REGENERATION:
+                            v = 140;
+                            break;
                         case POT_BLOOD:
                             v = 120;
                             break;
