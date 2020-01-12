@@ -345,7 +345,6 @@ struct obj *box;
         maxn = 0;
         break;
     }
-
     n = max(minn, rn2(maxn + 1));
     if (maxn > 1) {
         if (box->otrapped)
@@ -359,6 +358,8 @@ struct obj *box;
     }
     if (rn2(10) <= (max(n - 3, 5)))
         theme = FALSE;
+    if (n < minn)
+        n = minn;
 
     for (n = rn1(n+1 - minn, minn); n > 0; n--) {
         if (box->otyp == MEDICAL_KIT) {
