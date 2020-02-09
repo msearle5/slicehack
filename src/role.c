@@ -73,7 +73,7 @@ const struct Role roles[] = {
       SPE_MAGIC_MAPPING,
       -4 },
     { { "Barbarian", 0, 0 },
-      { { "Plunderer", "Plunderess", 0 },
+      { { "Plunderer", "Plunderess", "Plunderer" },
         { "Pillager", 0, 0 },
         { "Bandit", 0, 0 },
         { "Brigand", 0, 0 },
@@ -81,7 +81,7 @@ const struct Role roles[] = {
         { "Reaver", 0, 0 },
         { "Slayer", 0, 0 },
         { "Chieftain", "Chieftainess", "Chief" },
-        { "Conqueror", "Conqueress", 0} },
+        { "Conqueror", "Conqueress", "Conqueror" } },
       "Mitra", "Crom", "Set", /* Hyborian */
       "Bar",
       "the Camp of the Duali Tribe",

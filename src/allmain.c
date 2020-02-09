@@ -420,6 +420,12 @@ boolean resuming;
                         context.botl = TRUE;
                         interrupt_multi("You are slowly withering away.");
                     }
+                    if (!u.uinvulnerable && u.uen > 0 && u.uhp < u.uhpmax &&
+                        tech_inuse(T_CHI_HEALING)) {
+                        u.uen--;
+                        u.uhp++;
+                        context.botl = TRUE;
+                    }
                     /* moving around while encumbered is hard work */
                     if (wtcap > MOD_ENCUMBER && u.umoved) {
                         if (!(wtcap < EXT_ENCUMBER ? moves % 30

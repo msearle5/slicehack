@@ -15,7 +15,7 @@
                          Original version - Eric S. Raymond
              (Edited and expanded for 3.6 by Mike Stephenson and others)
 
-                                  December 18, 2019
+                                  January 27, 2020
 
 
 
@@ -126,7 +126,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -192,7 +192,7 @@
           you have seen on the current dungeon level; as you  explore  more
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -258,7 +258,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -324,7 +324,7 @@
                Intelligence affects your ability to cast  spells  and  read
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -390,7 +390,7 @@
                ical attacks.  Many dungeons show only your experience level
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -456,7 +456,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -522,7 +522,7 @@
                nasty and vicious.  Sometimes, however, they can be helpful.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -588,7 +588,7 @@
                symbol at the chosen location, conditionally check for "More
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -654,7 +654,7 @@
                if you remember a monster there).
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -720,7 +720,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -786,7 +786,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -852,7 +852,7 @@
                once  you've  closed  this  menu.  The available options are
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -918,7 +918,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -984,7 +984,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1050,7 +1050,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1116,7 +1116,7 @@
           (R)UNIX is a registered trademark of The Open Group.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1182,7 +1182,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1248,7 +1248,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1314,7 +1314,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1380,7 +1380,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1446,7 +1446,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1512,7 +1512,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
          #technique
@@ -1587,7 +1587,7 @@
                When picking a  target  with  cursor  and  the  autodescribe
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1653,7 +1653,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1719,7 +1719,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1785,7 +1785,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1856,7 +1856,7 @@
           the `^D' (kick) command.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1922,7 +1922,7 @@
           on the corresponding staircase  at  your  destination.   However,
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -1988,7 +1988,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2054,7 +2054,7 @@
           member a monster but want to try fighting anyway, you can use the
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2120,7 +2120,7 @@
           ers (or even former incarnations of yourself!) and their personal
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2186,7 +2186,7 @@
           ter.   Many commands that operate on objects must ask you to find
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2252,7 +2252,7 @@
           In  some cases "uncursed" will be omitted as being redundant when
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2318,7 +2318,7 @@
           to taking off other worn items.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2384,7 +2384,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2450,7 +2450,7 @@
           ondary  is  just an item in your inventory that's been designated
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2516,7 +2516,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2582,7 +2582,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2648,7 +2648,7 @@
           the  wall,  you might decide to go for broke and break your wand.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2714,7 +2714,7 @@
           cation  rather  than  just specify a particular direction.  Other
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2780,7 +2780,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2846,7 +2846,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2912,7 +2912,7 @@
           brains while polymorphed into a mind flayer, is considered eating
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -2978,7 +2978,7 @@
           type  ("polypiling")  or  the  form of your own body into another
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3044,7 +3044,7 @@
           tion,  and  are  ignored  unless  a  CHOOSE statement was used to
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3110,7 +3110,7 @@
             pletion has no effect for the X11 windowport.  You can  specify
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3176,7 +3176,7 @@
             "Configuring User Sounds" section.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3242,7 +3242,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3308,7 +3308,7 @@
             tion controls whether the description includes map coordinates.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3374,7 +3374,7 @@
             was defined during compilation.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3440,7 +3440,7 @@
             display for end-of-game disclosure follows a set sequence.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3506,7 +3506,7 @@
             "no",  you will exclude that gender from being picked randomly.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3572,7 +3572,7 @@
             sistent.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3638,7 +3638,7 @@
             fault `\'.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3704,7 +3704,7 @@
             Prompt for new form whenever any monster changes shape (default
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3770,7 +3770,7 @@
             Valid settings are:
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3836,7 +3836,7 @@
                           item.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3902,7 +3902,7 @@
             (Default `S').  Persistent.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -3968,7 +3968,7 @@
             be set with the `O' command.  Persistent.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4034,7 +4034,7 @@
             off).  Persistent.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4100,7 +4100,7 @@
             only; "X11" interface always uses a  timer  based  delay.   The
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4166,7 +4166,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4232,7 +4232,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4298,7 +4298,7 @@
             If NetHack can, it should use this size font for text windows.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4364,7 +4364,7 @@
             Number  of  lines for traditional below-the-map status display.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4430,7 +4430,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4496,7 +4496,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4562,7 +4562,7 @@
           pressions. It is possible  to  compile  NetHack  without  regular
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4628,7 +4628,7 @@
           key can be a single character ("x"), a control key ("^X", "C-x"),
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4694,7 +4694,7 @@
             When  asked  for  a  location,  the key to toggle autodescribe.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4760,7 +4760,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4826,7 +4826,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4892,7 +4892,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -4958,7 +4958,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5024,7 +5024,7 @@
           cyan,  gray,  orange,  light-green,  yellow,  light-blue,  light-
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5090,7 +5090,7 @@
                  value changes upwards or downwards.  This attribute  times
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5156,7 +5156,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5222,7 +5222,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5288,7 +5288,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5354,7 +5354,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5420,7 +5420,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5486,7 +5486,7 @@
           may want to alter settings via SYMBOLS= and ROGUESYMBOLS= in your
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5552,7 +5552,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5618,7 +5618,7 @@
             spectively, to identify unique people for the score file.
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5684,7 +5684,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5750,7 +5750,7 @@
           a  very  different  game, and published (at least) three versions
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5816,7 +5816,7 @@
           3.1  for  the  Macintosh,  porting it for MPW.  Building on their
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5882,7 +5882,7 @@
           ber,  Dean  Luick, Pat Rankin, Eric Smith, Mike Stephenson, Janet
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -5948,7 +5948,7 @@
           ginning of a long release hiatus. 3.4.3 proved to be a remarkably
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -6014,7 +6014,7 @@
 
 
 
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -6055,32 +6055,32 @@
                NetHack 3.6.4 was released on December 18, 2019 containing a
           security fix and a few bug fixes.
 
+               NetHack 3.6.5 was released on January  27,  2020  containing
+          some security fixes and a small number of bug fixes.
+
                The official NetHack web site is maintained by Ken Lorber at
           https://www.nethack.org/.
 
           12.1.  SPECIAL THANKS
 
                On behalf of the NetHack community, thank you very much once
-          again to M. Drew Streib and Pasi Kallinen for providing a  public
-          NetHack  server  at  nethack.alt.org. Thanks to Keith Simpson and
+          again  to M. Drew Streib and Pasi Kallinen for providing a public
+          NetHack server at nethack.alt.org. Thanks to  Keith  Simpson  and
           Andy Thomson for hardfought.org. Thanks to all those unnamed dun-
-          geoneers  who  invest  their  time and effort into annual NetHack
-          tournaments such as Junethack, The  November  NetHack  Tournament
+          geoneers who invest their time and  effort  into  annual  NetHack
+          tournaments  such  as  Junethack, The November NetHack Tournament
           and in days past, devnull.net (gone for now, but not forgotten).
 
                                  - - - - - - - - - -
 
-               From  time  to  time,  some depraved individual out there in
-          netland sends a particularly intriguing modification to help  out
+               From time to time, some depraved  individual  out  there  in
+          netland  sends a particularly intriguing modification to help out
           with the game.  The NetHack Development Team sometimes makes note
-          of the names of the worst of these miscreants in this,  the  list
+          of  the  names of the worst of these miscreants in this, the list
           of Dungeoneers:
-               Adam Aronow           J. Ali Harlow          Mikko Juola
-               Alex Kompel             Janet Walz           Nathan Eady
 
 
-
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 
@@ -6090,6 +6090,8 @@
 
 
 
+               Adam Aronow           J. Ali Harlow          Mikko Juola
+               Alex Kompel             Janet Walz           Nathan Eady
                Alex Smith           Janne Salmijarvi        Norm Meluch
               Andreas Dorn       Jean-Christophe Collet     Olaf Seibert
                Andy Church            Jeff Bailey          Pasi Kallinen
@@ -6131,7 +6133,7 @@
           Irina Rempt-Drijfhout     Mike Passaretti
               Izchak Miller         Mike Stephenson
 
-               Brand  and product names are trademarks or registered trade-
+               Brand and product names are trademarks or registered  trade-
           marks of their respective holders.
 
 
@@ -6144,9 +6146,7 @@
 
 
 
-
-
-          NetHack 3.6                                     December 18, 2019
+          NetHack 3.6                                      January 27, 2020
 
 
 

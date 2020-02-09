@@ -5,7 +5,6 @@ Catnip can help you befriend felines, but might also make them confused.
 Drawing from a deck of fate is generally a bad idea.
 A deck of cards could save you from a demon lord.
 Demon lords may be interested in more than just money.
-Throwing Gae Bulg can potentially kill anything, but can also result in the loss of the artifact.
 The mysterious force has left the dungeon.
 Performing the invocation ritual will draw notice from the remaining royalty of Gehennom.
 Luckless Folly becomes more powerful the more unlucky you are.
@@ -20,8 +19,6 @@ Unlimited Moon's power is dependent on the moon phase.
 Nymphs and other dungeon denizens might introduce themselves to you.
 Mystic scarabs have armor that is extremely difficult to penetrate.
 Phoenixes explode upon death.
-Birds are faster than dogs or cats, but slightly smaller and weaker.
-Birds are not as nutritious as dogs or cats. Not that one would ever eat any of them.
 Want to give your pet an item to use? Try #give!
 Using farlook on a monster will tell you what they are wielding.
 Deadly poison isn't deadly anymore, but is still very dangerous.
@@ -43,7 +40,6 @@ Cartomancers have a chance of keeping the scrolls they use.
 Fire resistance may only be partial protection against Mephisto.
 Boxing gloves. Because stunning monsters is cool.
 Combining a mask with an amulet of unchanging is a rather poor plan.
-Wand didn't identify when you thought it would? It might be a wand of wonder.
 Masks degrade in power when taken off, and cursed masks will break apart.
 Masks will allow you to permanently transform for as long as you wear them.
 The bones of high level players might spawn spectres.
@@ -79,11 +75,10 @@ Beware Buer! He has some of the highest damage output in the game.
 Malcanthet isn't what she used to be.
 Wands of poison gas create poison gas when engraving.
 Meet a monster zapping a corrupted knife of poison gas? Please report this bug.
-SliceHack supports curses! Try editing your config file.
+SliceHack supports the curses UI! Try editing your config file.
 The Master of Cats must be killed nine times before truly dying.
 Extra wishes? Try wishing for Vladsbane.
-Extra wishes and itching for YASD? Try wishing for the King in Yellow.
-Extra wishes and feeling lucky? Try wishing for Luckless Folly.
+Extra wishes and feeling unlucky? Try wishing for Luckless Folly.
 Silver golems are especially deadly to infernal players.
 Tips of the day sometimes are not very helpful.
 Stairs hidden under some items? Try using #terrain.
@@ -101,7 +96,7 @@ Attacking a shimmering dragon in melee will activate their displacement.
 Landsharks are quite good at jumping.
 Earmuffs are actually quite valuable, and will protect you from sonic attacks.
 You must be at least level 10 to enter the quest.
-Use magic to destroy death.
+(Do not) use magic to destroy death.
 Monsters are capable of riding other monsters.
 Death rides a pale horse.
 Headless horsemen are known to ride nightmares.
@@ -129,23 +124,32 @@ Monsters can counter the cards played by cartomancers with their own cards.
 One-Eyed Sam does not take kindly to attempts to steal from her.
 You can bring your pet into the black market, but not back out!
 SpliceHack incorporates features from a variety of variants, most notably XNetHack and SLASH'EM.
-Phoenixes will explode upon death, so be careful.
 Packrats will pick up just about anything.
-Keep your pets far away from porcupines.
 A helm of opaque thoughts will make your head flayer-proof!
 Use #technique to use special role and race-specific powers.
 If you are a dwarf or gnome, giants may be hostile.
 Ghouls can paralyze opponents by way of touch.
 The touch of a drow can put even the hardiest of monsters to sleep.
 A ghoulish monk is going to have a tough time staying fed.
-Sacrificing a kobold? I wouldn't try it.
 Sapphire, silver, and crystal golems are known for their reflective abilities.
-A hydra can regrow heads and become more powerful when attacked with a slashing weapon.
+A hydra can become more powerful when attacked with a slashing weapon.
 Brood wasp stings can have delayed symptoms.
-Werewolves are a tough race for beginning players.
-If you donate enough at a temple, they might just teach you how to perform a blessing.
+Lycanthropes are a tough race for beginners.
+If you donate enough at a temple, the priest might just teach you how to perform a blessing.
 If you encounter a bug, please report it on the github page, or contact Antigulp on #hardfought.
 Steel golems can disenchant your items, so keep your distance.
 You will level up more quickly at high levels in SliceHack than in vanilla NetHack.
 Nazgul will often shriek, and are known to ride fell beasts.
-Monsters are capable of riding other monsters.
+Some monsters, such as giants, can knock you backwards.
+You can cook food using a furnace.
+Spiked chains can be used to strike enemies both near and far.
+Eating a penguin? I wouldn't try it.
+With the right stimulus, you can hatch a phenix egg very quickly.
+Use your config file to define your character's sexuality.
+Gleipnir can reel in monsters from very long distances.
+Eating a werecockatrice can be hazardous to your health.
+Barghests can steal your luck away just by meeting your eyes.
+Monsters can wear rings.
+Mind flayers may not cause amnesia, but they are still deadly foes.
+The higher your cooking skill, the less likely you are to burn your food.
+Overcooked food is not very satisfying.

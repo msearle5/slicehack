@@ -20,6 +20,9 @@ baseball-cap-toting elemental
 -Nega-Antigulp
 horrific bug
 
+# Stuff that should never be in NetHack
+DLC
+
 # Anime
 catgirl
 superpowered butler
@@ -58,7 +61,7 @@ splicer
 # Umineko
 logic error
 _golden witch
-small bombs
+tiny bomb
 
 # SSBM
 telekinetic swordsman
@@ -431,6 +434,9 @@ octahedron
 dungeon core
 quale
 holloway
+funky monkey
+living bonfire
+cheese golem
 
 # ;)
 cuddly cutie
@@ -854,6 +860,7 @@ tie-thulu
 nyan cat
 dummy thicc soldier
 goose
+horde of 30 to 50 feral hogs
 
 # Undertale
 +sans
@@ -1005,6 +1012,7 @@ frosted giant
 geriatric snake
 gnat ant
 giant bath
+gilded dragon
 grant beetle
 green gold
 greater snake

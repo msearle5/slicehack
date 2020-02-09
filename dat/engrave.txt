@@ -24,8 +24,35 @@ Galadriel
 Kilroy was here
 Frodo lives
 
+# Secret codes
+00111010 00101001
+- .... .. ...     -- . ... ... .- --. .     .. ...     ... . -.-. .-. . -
+
+# Graffiti from other adventurers
+Elbrett
+Come and find me on the 30th floor!
+It was plastic the whole time?
+
+# DoDonPachi
+TARGET FOR THE WEAK POINTS OF THE F**KIN' DUNGEON
+
+# The Incredibles
+KRONOS
+
+# Dune
+The splice must flow.
+
+# Super creepy stuff
+help help help help help
+my eyes
+they're after me
+RUN RUN RUN
+they all lived in a crooked house
+the end is near
+Hello? Anybody?
+
 # Creepypasta
-Watch the Sky.
+Watch the sky.
 
 # House of Leaves
 This is not for you.
@@ -42,34 +69,47 @@ Sorry, adventurer, your amulet is in another dungeon.
 # Journey to the Center of the Earth
 A.S. ->
 <- A.S.
+
 # Adventure
 You won't get it up the steps
+
 # Inferno
 Lasciate ogni speranza o voi ch'entrate.
+
 # Prisoner
 Well Come
+
 # So Long...
 We apologize for the inconvenience.
+
 # Thriller
 See you next Wednesday
+
 # Smokey Stover
 notary sojak
 
+# Silly songs
 For a good time call 8?7-5309
+
 # Various zoos around the world
 Please don't feed the animals.
+
 # A palindrome
 Madam, in Eden, I'm Adam.
+
 # Siskel & Ebert
 Two thumbs up!
+
 # The First C Program
 Hello, World!
 ^?MAIL
+
 # AOL
 You've got mail!
 ^.
 # Clueless
 As if!
+
 # 200x incarnation of Dr.Who
 BAD WOLF
 Don't blink.
@@ -97,6 +137,7 @@ This is a pit!
 This is not the dungeon you are looking for.
 Watch out, there's a gnome with a wand of death behind that door!
 Look out behind you!
+Come and see
 
 # Misc fun
 This square deliberately left blank.
@@ -109,6 +150,7 @@ Need a light?  Come visit the Minetown branch of Izchak's Lighting Store!
 Snakes on the Astral Plane - Soon in a dungeon near you
 You are the one millionth visitor to this place!  Please wait 200 turns for your wand of wishing.
 One-Eyed Sam's: For all of your extralegal needs.
+Come to Happy's Mask Shop! Our masks will reshape your whole life.
 
 # DnD
 Warning, Exploding runes!

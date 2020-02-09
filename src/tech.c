@@ -1599,11 +1599,11 @@ tamedog(mtmp, (struct obj *) 0);
 					/* It works! */
 					u.ustuck = mtmp;
 					if (IS_FOUNTAIN(levl[u.ux][u.uy].typ))
-							pline("You wrap up %s with your tail and pull them into the fountain!",
-									Monnam(mtmp));
+							pline("You wrap up %s with your tail and pull %s into the fountain!",
+									mon_nam(mtmp), mhim(mtmp));
 					else
-							pline("You wrap up %s with your tail and pull them into the depths with you!",
-									Monnam(mtmp));
+							pline("You wrap up %s with your tail and pull %s into the depths with you!",
+									mon_nam(mtmp), mhim(mtmp));
 					/* Monsters don't wear amulets of magical breathing */
 					if (is_swimmer(mtmp->data) || amphibious(mtmp->data))
 						pline("%s is perfectly comfortable underwater.", Monnam(mtmp));

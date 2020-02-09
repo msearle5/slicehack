@@ -1677,7 +1677,7 @@ char *prefix;
         return;
 
     /* The only cases where any of these bits do double duty are for
-     * rotted food and diluted potions, which are all not is_damageable().
+     * cooked food and diluted potions, which are all not is_damageable().
      */
     if (obj->oeroded && cookable) {
         switch(obj->oeroded) {

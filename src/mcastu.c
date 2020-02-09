@@ -1404,7 +1404,7 @@ int spellnum;
        	    if (!mtmp->mtame)
        	        *buf = highc(*buf);
 
-       	    pline("%s's using the touch of death!", buf);
+       	    pline("%s%s using the touch of death!", buf, flags.gender == GEND_N ? "\'re" : "\'s");
        	}
 
        	if (nonliving(mtmp->data) || is_demon(mtmp->data)) {

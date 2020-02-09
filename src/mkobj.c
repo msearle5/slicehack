@@ -3246,6 +3246,8 @@ struct obj **obj1, **obj2;
                 otmp1->greased = otmp2->greased = 0;
             if (otmp1->orotten || otmp2->orotten)
                 otmp1->orotten = otmp2->orotten = 1;
+            if (otmp1->oeroded || otmp2->oeroded)
+                otmp1->oeroded = otmp2->oeroded;
             o1wt = otmp1->oeaten ? otmp1->oeaten : otmp1->owt;
             o2wt = otmp2->oeaten ? otmp2->oeaten : otmp2->owt;
             /* averaging the relative ages is less likely to overflow

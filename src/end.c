@@ -657,7 +657,11 @@ VA_DECL(const char *, str)
     {
         char buf[BUFSZ];
 
+#if !defined(NO_VSNPRINTF)
+        (void) vsnprintf(buf, sizeof buf, str, VA_ARGS);
+#else
         Vsprintf(buf, str, VA_ARGS);
+#endif
         raw_print(buf);
         paniclog("panic", buf);
     }
@@ -1527,12 +1531,8 @@ int how;
 
     Sprintf(pbuf, "%s %s the %s...", Goodbye(), plname,
             (how != ASCENDED)
-                ? (const char *) ((flags.gender == 1 && urole.name.f)
-                    ? urole.name.f
-                    : (flags.gender == 2)
-                      ? urole.name.n
-                      : urole.name.m)
-                : (const char *) (flags.gender ? "Demigoddess" : "Demigod"));
+                ? rolename_gender(u.ugender)
+                : (const char *) (flags.gender == GEND_F ? "Demigoddess" : "Demigod"));
 
 #if defined(DUMPLOG) || defined(DUMPHTML)
     dump_redirect(TRUE);
